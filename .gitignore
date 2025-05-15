@@ -9,6 +9,9 @@
 /node_modules
 npm-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
+logs
+*.log
 
 # TypeScript cache
 *.tsbuildinfo
@@ -47,6 +50,19 @@ Thumbs.db
 .env.local
 .env.*.local
 
-# Caches
+# Lint & Format
 .eslintcache
 .stylelintcache
+.prettiercache
+
+# Terminal / Node history
+.node_repl_history
+
+# Output of npm pack
+*.tgz
+
+# Yarn
+.yarn-integrity
+
+# Optional npm cache directory
+.npm
