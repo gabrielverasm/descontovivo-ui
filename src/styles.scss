@@ -1,1 +1,40 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+// Paletas de cores
+$primary-light: mat.m2-define-palette(mat.$m2-indigo-palette);
+$accent-light: mat.m2-define-palette(mat.$m2-pink-palette);
+$warn-light: mat.m2-define-palette(mat.$m2-red-palette);
+
+$primary-dark: mat.m2-define-palette(mat.$m2-cyan-palette);
+$accent-dark: mat.m2-define-palette(mat.$m2-orange-palette);
+$warn-dark: mat.m2-define-palette(mat.$m2-red-palette);
+
+// Temas
+$light-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $primary-light,
+    accent: $accent-light,
+    warn: $warn-light,
+  )
+));
+
+$dark-theme: mat.m2-define-dark-theme((
+  color: (
+    primary: $primary-dark,
+    accent: $accent-dark,
+    warn: $warn-dark,
+  )
+));
+
+// Estilos base globais do Angular Material
+@include mat.core();
+
+// Tema claro (quando body tem .light-theme)
+.light-theme {
+  @include mat.all-component-themes($light-theme);
+}
+
+// Tema escuro (quando body tem .dark-theme)
+.dark-theme {
+  @include mat.all-component-themes($dark-theme);
+}
