@@ -1,0 +1,31 @@
+<section class="home-hero">
+  <div class="home-hero__copy">
+    <p class="eyebrow">Comunidade de promoções</p>
+    <h1>Descubra ofertas claras, com feed limpo e foco no que importa.</h1>
+    <p class="lead">
+      Base inicial do MVP do DescontoVivo, pronta para evoluir cadastro, login, publicar, curtir e
+      comentar sem abrir mao de uma interface simples.
+    </p>
+  </div>
+
+  <div class="home-hero__panel">
+    <span>Hoje no feed</span>
+    <strong>{{ promotions.length }} promoções em destaque</strong>
+    <p>Layout pensado para leitura rapida, cards bem hierarquizados e pouca friccao visual.</p>
+  </div>
+</section>
+
+<section class="home-list">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Mais quentes agora</p>
+      <h2>Promoções selecionadas</h2>
+    </div>
+  </div>
+
+  <div class="home-list__grid">
+    @for (promotion of promotions; track promotion.id) {
+      <app-promotion-card [promotion]="promotion"></app-promotion-card>
+    }
+  </div>
+</section>

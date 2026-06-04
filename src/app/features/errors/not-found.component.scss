@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.error-page {
+  padding: 2rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #0369a1;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.error-page h1 {
+  margin: 0 0 0.75rem;
+  color: #0f172a;
+}
+
+.error-page p {
+  margin: 0 0 1.25rem;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.error-page a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.82rem 1rem;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #fff;
+  text-decoration: none;
+}

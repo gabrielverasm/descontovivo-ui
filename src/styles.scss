@@ -10,21 +10,25 @@ $accent-dark: mat.m2-define-palette(mat.$m2-orange-palette);
 $warn-dark: mat.m2-define-palette(mat.$m2-red-palette);
 
 // Temas
-$light-theme: mat.m2-define-light-theme((
-  color: (
-    primary: $primary-light,
-    accent: $accent-light,
-    warn: $warn-light,
+$light-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $primary-light,
+      accent: $accent-light,
+      warn: $warn-light,
+    ),
   )
-));
+);
 
-$dark-theme: mat.m2-define-dark-theme((
-  color: (
-    primary: $primary-dark,
-    accent: $accent-dark,
-    warn: $warn-dark,
+$dark-theme: mat.m2-define-dark-theme(
+  (
+    color: (
+      primary: $primary-dark,
+      accent: $accent-dark,
+      warn: $warn-dark,
+    ),
   )
-));
+);
 
 // Estilos base globais do Angular Material
 @include mat.elevation-classes();

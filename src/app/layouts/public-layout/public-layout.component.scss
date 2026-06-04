@@ -1,0 +1,112 @@
+:host {
+  display: block;
+}
+
+.public-layout {
+  min-height: 100vh;
+  padding: 1rem;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(15, 118, 110, 0.1), transparent 28%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+}
+
+.public-layout__header,
+.public-layout__content,
+.public-layout__footer {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.public-layout__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand__mark {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0f172a, #0369a1);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.brand__text {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.brand__text strong {
+  font-size: 1rem;
+}
+
+.brand__text small {
+  color: #64748b;
+}
+
+.public-layout__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.public-layout__nav a {
+  padding: 0.72rem 0.95rem;
+  border-radius: 999px;
+  color: #475569;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.public-layout__nav a:hover,
+.public-layout__nav a.is-active {
+  background: rgba(14, 165, 233, 0.12);
+  color: #075985;
+}
+
+.public-layout__content {
+  padding: 1.5rem 0 1rem;
+}
+
+.public-layout__footer {
+  padding: 0.85rem 0.2rem 0.3rem;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 720px) {
+  .public-layout__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .public-layout__nav {
+    justify-content: flex-start;
+  }
+}

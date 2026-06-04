@@ -1,0 +1,20 @@
+<article class="promotion-card" [class.featured]="promotion().featured">
+  <div class="promotion-card__topline">
+    <span class="promotion-card__store">{{ promotion().store }}</span>
+    <span class="promotion-card__badge">{{ promotion().discount }}</span>
+  </div>
+
+  <h3 class="promotion-card__title">{{ promotion().title }}</h3>
+  <p class="promotion-card__description">{{ promotion().description }}</p>
+
+  <div class="promotion-card__pricing">
+    <strong class="promotion-card__price">{{ promotion().price }}</strong>
+    <span class="promotion-card__old-price">{{ promotion().oldPrice }}</span>
+  </div>
+
+  <div class="promotion-card__meta">
+    <span>{{ promotion().votes }} curtidas</span>
+    <span>{{ promotion().comments }} comentarios</span>
+    <span>{{ promotion().postedAt }}</span>
+  </div>
+</article>
