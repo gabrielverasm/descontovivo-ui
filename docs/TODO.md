@@ -64,6 +64,21 @@ Checklist vivo para acompanhar a evolução do MVP sem misturar planejamento com
 - [ ] Preparar metadados por rota quando houver conteudo real.
 - [ ] Manter metadados base em `index.html`.
 
+## Pipeline de imagens de promoções
+
+- [ ] Definir padrão de imagem do card: 200x200 no layout, usando arquivo otimizado maior como 400x400 ou 512x512.
+- [ ] Usar `object-fit: contain` nos cards para evitar corte ruim do produto.
+- [ ] Criar fallback visual para promoções sem imagem.
+- [ ] Permitir imagem enviada pelo usuário na publicação da promoção.
+- [ ] No backend futuro, criar job assíncrono para tentar extrair imagens do link da oferta.
+- [ ] Priorizar imagens vindas de `og:image`, schema.org e imagem principal do produto.
+- [ ] Gerar 2 ou 3 imagens candidatas para o moderador escolher na aprovação.
+- [ ] Padronizar imagens no backend: redimensionar, comprimir, converter para WebP e gerar miniaturas.
+- [ ] Avaliar remoção de fundo como melhoria futura, não obrigatória no MVP.
+- [ ] Armazenar imagens processadas em storage próprio, evitando hotlink direto dos sites das lojas.
+- [ ] Definir política de cache e limpeza de imagens antigas.
+- [ ] Garantir que o feed público use somente imagens aprovadas e armazenadas pelo DescontoVivo.
+
 ## Backend futuro
 
 - [ ] Autenticação real, ainda fora da fase atual.
@@ -83,3 +98,7 @@ Checklist vivo para acompanhar a evolução do MVP sem misturar planejamento com
 - [ ] Implementar painel administrativo.
 - [ ] Fazer integrações reais com lojas.
 - [ ] Fazer notificações reais.
+- [ ] Remoção automática de fundo.
+- [ ] Crawler avançado de imagens.
+- [ ] Storage definitivo de imagens.
+- [ ] Moderação avançada de imagens.
