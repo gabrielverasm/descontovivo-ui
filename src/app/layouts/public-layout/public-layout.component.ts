@@ -9,11 +9,17 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
     <div class="public-layout">
       <header class="public-layout__header">
         <a class="brand" routerLink="/" aria-label="DescontoVivo home">
-          <span class="brand__mark">DV</span>
-          <span class="brand__text">
-            <strong>DescontoVivo</strong>
-            <small>promocoes com contexto</small>
-          </span>
+          <img
+            class="brand__logo brand__logo--light"
+            src="/brand/logo-horizontal-light.png"
+            alt="DescontoVivo"
+          />
+          <img
+            class="brand__logo brand__logo--dark"
+            src="/brand/logo-horizontal-dark.png"
+            alt="DescontoVivo"
+            aria-hidden="true"
+          />
         </a>
 
         <nav class="public-layout__nav" aria-label="Navegacao principal">

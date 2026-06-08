@@ -34,35 +34,29 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.85rem;
+  justify-content: flex-start;
+  min-width: 0;
   color: inherit;
   text-decoration: none;
 }
 
-.brand__mark {
-  display: inline-grid;
-  place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #0f172a, #0369a1);
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
+.brand__logo {
+  display: block;
+  width: clamp(10.5rem, 24vw, 14.75rem);
+  height: auto;
+  max-width: 100%;
 }
 
-.brand__text {
-  display: grid;
-  gap: 0.1rem;
+.brand__logo--dark {
+  display: none;
 }
 
-.brand__text strong {
-  font-size: 1rem;
+:host-context(.dark-theme) .brand__logo--light {
+  display: none;
 }
 
-.brand__text small {
-  color: #64748b;
+:host-context(.dark-theme) .brand__logo--dark {
+  display: block;
 }
 
 .public-layout__nav {
@@ -104,6 +98,10 @@
   .public-layout__header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .brand__logo {
+    width: min(13.5rem, 100%);
   }
 
   .public-layout__nav {
