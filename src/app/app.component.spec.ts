@@ -1,5 +1,19 @@
-// Arquivo reservado para testes do AppComponent.
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+
+import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
-  // Testes desativados por enquanto.
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [AppComponent],
+      providers: [provideRouter([])]
+    }).compileComponents();
+  });
+
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
 });

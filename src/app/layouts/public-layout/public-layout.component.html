@@ -1,0 +1,17 @@
+<div class="public-layout">
+  <header class="public-layout__header">
+    <a class="public-layout__brand" routerLink="/" aria-label="DescontoVivo inicio">
+      <img src="/brand/logo-horizontal-dark.png" alt="DescontoVivo" />
+    </a>
+
+    <nav aria-label="Navegacao principal">
+      <a routerLink="/promocoes" routerLinkActive="is-active">Promocoes</a>
+      <a routerLink="/publicar" routerLinkActive="is-active">Publicar</a>
+      <a routerLink="/login" routerLinkActive="is-active">Entrar</a>
+    </nav>
+  </header>
+
+  <div class="public-layout__content">
+    <router-outlet />
+  </div>
+</div>

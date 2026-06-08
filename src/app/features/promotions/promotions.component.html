@@ -1,5 +1,31 @@
-<section class="simple-page">
-  <p class="eyebrow">Promoções</p>
-  <h1>Area de promoções em preparação</h1>
-  <p>Esta rota reserva o espaco para futuras listagens, publicacao e detalhes de ofertas.</p>
-</section>
+<main class="promotions">
+  <app-page-header
+    eyebrow="Feed publico"
+    title="Promocoes"
+    description="Somente ofertas aprovadas pela moderacao entram nesta listagem publica."
+  />
+
+  <label class="promotions__search">
+    <span>Buscar promocao</span>
+    <input
+      type="search"
+      name="search"
+      [(ngModel)]="query"
+      placeholder="Produto, loja, categoria ou tag"
+      aria-label="Buscar promocao"
+    />
+  </label>
+
+  <section class="promotions__list" aria-label="Lista de promocoes aprovadas">
+    <app-promotion-card
+      *ngFor="let promotion of filteredPromotions"
+      [promotion]="promotion"
+    />
+
+    <app-empty-state
+      *ngIf="!filteredPromotions.length"
+      title="Nenhuma promocao encontrada"
+      description="Tente buscar por outro produto, loja ou categoria."
+    />
+  </section>
+</main>

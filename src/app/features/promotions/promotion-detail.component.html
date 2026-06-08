@@ -1,0 +1,49 @@
+<main class="promotion-detail">
+  <a class="promotion-detail__back" routerLink="/promocoes">Voltar para promocoes</a>
+
+  <article *ngIf="promotion; else notFound" class="promotion-detail__content">
+    <img [src]="promotion.imageUrl" [alt]="promotion.title" />
+
+    <section>
+      <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
+      <h1>{{ promotion.title }}</h1>
+      <p class="promotion-detail__description">{{ promotion.description }}</p>
+
+      <div class="promotion-detail__price">
+        <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
+        <span *ngIf="promotion.originalPrice">{{ promotion.originalPrice | currency: 'BRL' }}</span>
+        <small *ngIf="promotion.discountPercentage">-{{ promotion.discountPercentage }}%</small>
+      </div>
+
+      <div class="promotion-detail__tags" aria-label="Tags da promocao">
+        <span *ngFor="let tag of promotion.tags">#{{ tag }}</span>
+      </div>
+
+      <dl>
+        <div>
+          <dt>Curtidas</dt>
+          <dd>{{ promotion.likesCount }}</dd>
+        </div>
+        <div>
+          <dt>Comentarios</dt>
+          <dd>{{ promotion.commentsCount }}</dd>
+        </div>
+        <div>
+          <dt>Publicado em</dt>
+          <dd>{{ promotion.createdAt | date: 'dd/MM/yyyy' }}</dd>
+        </div>
+      </dl>
+
+      <a class="promotion-detail__cta" [href]="promotion.storeUrl" target="_blank" rel="noopener">
+        Ver loja
+      </a>
+    </section>
+  </article>
+
+  <ng-template #notFound>
+    <app-empty-state
+      title="Promocao nao encontrada"
+      description="Ela pode estar pendente, reprovada ou indisponivel publicamente."
+    />
+  </ng-template>
+</main>

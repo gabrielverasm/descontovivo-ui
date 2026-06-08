@@ -1,31 +1,35 @@
-<section class="home-hero">
-  <div class="home-hero__copy">
-    <p class="eyebrow">Comunidade de promoções</p>
-    <h1>Descubra ofertas claras, com feed limpo e foco no que importa.</h1>
-    <p class="lead">
-      Base inicial do MVP do DescontoVivo, pronta para evoluir cadastro, login, publicar, curtir e
-      comentar sem abrir mao de uma interface simples.
-    </p>
-  </div>
+<main class="home">
+  <section class="home__hero">
+    <app-page-header
+      eyebrow="DescontoVivo"
+      title="Promocoes aprovadas pela comunidade"
+      description="Um feed simples para descobrir ofertas reais, com publicacao enviada por usuarios cadastrados e liberada apenas depois da moderacao."
+    />
 
-  <div class="home-hero__panel">
-    <span>Hoje no feed</span>
-    <strong>{{ promotions.length }} promoções em destaque</strong>
-    <p>Layout pensado para leitura rapida, cards bem hierarquizados e pouca friccao visual.</p>
-  </div>
-</section>
-
-<section class="home-list">
-  <div class="section-heading">
-    <div>
-      <p class="eyebrow">Mais quentes agora</p>
-      <h2>Promoções selecionadas</h2>
+    <div class="home__actions" aria-label="Acoes principais">
+      <a class="button button--primary" routerLink="/promocoes">Ver promocoes</a>
+      <a class="button button--ghost" routerLink="/publicar">Publicar oferta</a>
     </div>
-  </div>
+  </section>
 
-  <div class="home-list__grid">
-    @for (promotion of promotions; track promotion.id) {
-      <app-promotion-card [promotion]="promotion"></app-promotion-card>
-    }
-  </div>
-</section>
+  <section class="home__feed" aria-labelledby="home-feed-title">
+    <div class="home__section-heading">
+      <h2 id="home-feed-title">Ofertas em destaque</h2>
+      <a routerLink="/promocoes">Ver todas</a>
+    </div>
+
+    <div class="home__list" *ngIf="featuredPromotions.length; else emptyFeed">
+      <app-promotion-card
+        *ngFor="let promotion of featuredPromotions"
+        [promotion]="promotion"
+      />
+    </div>
+
+    <ng-template #emptyFeed>
+      <app-empty-state
+        title="Nenhuma promocao aprovada"
+        description="As ofertas enviadas aparecem aqui depois da moderacao."
+      />
+    </ng-template>
+  </section>
+</main>

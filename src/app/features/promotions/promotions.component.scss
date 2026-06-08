@@ -1,31 +1,31 @@
-:host {
-  display: block;
+.promotions,
+.promotions__list {
+  display: grid;
+  gap: 1rem;
 }
 
-.simple-page {
-  padding: 2rem;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+.promotions__search {
+  display: grid;
+  gap: 0.45rem;
+  max-width: 680px;
 }
 
-.eyebrow {
-  margin: 0 0 0.5rem;
-  color: #0369a1;
-  font-size: 0.82rem;
+.promotions__search span {
+  color: #334155;
   font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 
-.simple-page h1 {
-  margin: 0 0 0.75rem;
-  color: #0f172a;
+.promotions__search input {
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid #d7dee8;
+  border-radius: 8px;
+  padding: 0 0.9rem;
+  color: #162033;
+  font: inherit;
 }
 
-.simple-page p {
-  margin: 0;
-  color: #475569;
-  line-height: 1.7;
+.promotions__search input:focus {
+  border-color: #087f5b;
+  outline: 3px solid rgba(8, 127, 91, 0.16);
 }

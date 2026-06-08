@@ -1,5 +1,25 @@
-<section class="simple-page">
-  <p class="eyebrow">Autenticacao</p>
-  <h1>Login em construcao</h1>
-  <p>Esta base prepara a rota e a experiencia visual, sem implementar autenticacao real ainda.</p>
-</section>
+<main class="auth-page">
+  <app-page-header
+    eyebrow="Acesso"
+    title="Entrar"
+    description="Placeholder do MVP para acesso de usuarios cadastrados. A autenticacao real sera definida com o backend."
+  />
+
+  <form class="auth-page__form" aria-label="Formulario de login">
+    <label>
+      <span>E-mail</span>
+      <input type="email" name="email" autocomplete="email" />
+    </label>
+
+    <label>
+      <span>Senha</span>
+      <input type="password" name="password" autocomplete="current-password" />
+    </label>
+
+    <button type="button">Entrar</button>
+  </form>
+
+  <p class="auth-page__hint">
+    Ainda nao tem conta? <a routerLink="/cadastro">Criar cadastro</a>
+  </p>
+</main>

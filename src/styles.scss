@@ -1,45 +1,42 @@
-@use '@angular/material' as mat;
-
-// Paletas de cores
-$primary-light: mat.m2-define-palette(mat.$m2-indigo-palette);
-$accent-light: mat.m2-define-palette(mat.$m2-pink-palette);
-$warn-light: mat.m2-define-palette(mat.$m2-red-palette);
-
-$primary-dark: mat.m2-define-palette(mat.$m2-cyan-palette);
-$accent-dark: mat.m2-define-palette(mat.$m2-orange-palette);
-$warn-dark: mat.m2-define-palette(mat.$m2-red-palette);
-
-// Temas
-$light-theme: mat.m2-define-light-theme(
-  (
-    color: (
-      primary: $primary-light,
-      accent: $accent-light,
-      warn: $warn-light,
-    ),
-  )
-);
-
-$dark-theme: mat.m2-define-dark-theme(
-  (
-    color: (
-      primary: $primary-dark,
-      accent: $accent-dark,
-      warn: $warn-dark,
-    ),
-  )
-);
-
-// Estilos base globais do Angular Material
-@include mat.elevation-classes();
-@include mat.app-background();
-
-// Tema claro (quando body tem .light-theme)
-.light-theme {
-  @include mat.all-component-themes($light-theme);
+:root {
+  color-scheme: light;
+  --dv-text: #162033;
+  --dv-muted: #526070;
+  --dv-accent: #087f5b;
+  --dv-surface: #ffffff;
+  --dv-border: #d7dee8;
 }
 
-// Tema escuro (quando body tem .dark-theme)
-.dark-theme {
-  @include mat.all-component-themes($dark-theme);
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: #f8faf9;
+  color: var(--dv-text);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+img {
+  max-width: 100%;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(8, 127, 91, 0.3);
+  outline-offset: 2px;
 }

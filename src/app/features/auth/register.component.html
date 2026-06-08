@@ -1,5 +1,30 @@
-<section class="simple-page">
-  <p class="eyebrow">Cadastro</p>
-  <h1>Cadastro em construcao</h1>
-  <p>O fluxo real sera adicionado depois; aqui existe apenas a estrutura publica da interface.</p>
-</section>
+<main class="auth-page">
+  <app-page-header
+    eyebrow="Cadastro"
+    title="Criar conta"
+    description="No MVP, o cadastro indica a regra de produto: somente usuarios cadastrados poderao enviar promocoes."
+  />
+
+  <form class="auth-page__form" aria-label="Formulario de cadastro">
+    <label>
+      <span>Nome</span>
+      <input type="text" name="name" autocomplete="name" />
+    </label>
+
+    <label>
+      <span>E-mail</span>
+      <input type="email" name="email" autocomplete="email" />
+    </label>
+
+    <label>
+      <span>Senha</span>
+      <input type="password" name="password" autocomplete="new-password" />
+    </label>
+
+    <button type="button">Criar conta</button>
+  </form>
+
+  <p class="auth-page__hint">
+    Ja tem conta? <a routerLink="/login">Entrar</a>
+  </p>
+</main>

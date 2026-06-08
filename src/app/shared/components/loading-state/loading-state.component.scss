@@ -1,0 +1,25 @@
+.loading-state {
+  display: inline-flex;
+  gap: 0.75rem;
+  align-items: center;
+  color: #526070;
+}
+
+span {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #d7dee8;
+  border-top-color: #087f5b;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+p {
+  margin: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

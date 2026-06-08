@@ -1,110 +1,68 @@
-:host {
-  display: block;
-}
-
 .public-layout {
-  min-height: 100vh;
-  padding: 1rem;
-  color: #0f172a;
+  min-height: 100dvh;
   background:
-    radial-gradient(circle at top left, rgba(14, 165, 233, 0.12), transparent 34%),
-    radial-gradient(circle at top right, rgba(15, 118, 110, 0.1), transparent 28%),
-    linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-}
-
-.public-layout__header,
-.public-layout__content,
-.public-layout__footer {
-  width: min(1120px, 100%);
-  margin: 0 auto;
+    linear-gradient(180deg, rgba(232, 247, 240, 0.78), rgba(255, 255, 255, 0) 360px),
+    #f8faf9;
 }
 
 .public-layout__header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
+  gap: 1rem;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.1rem;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(18px);
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1rem clamp(1rem, 4vw, 2rem);
+  backdrop-filter: blur(14px);
 }
 
-.brand {
+.public-layout__brand {
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  min-width: 0;
-  color: inherit;
-  text-decoration: none;
 }
 
-.brand__logo {
-  display: block;
-  width: clamp(10.5rem, 24vw, 14.75rem);
+.public-layout__brand img {
+  width: 172px;
   height: auto;
-  max-width: 100%;
 }
 
-.brand__logo--dark {
-  display: none;
-}
-
-:host-context(.dark-theme) .brand__logo--light {
-  display: none;
-}
-
-:host-context(.dark-theme) .brand__logo--dark {
-  display: block;
-}
-
-.public-layout__nav {
+nav {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  gap: 0.35rem;
   justify-content: flex-end;
-  gap: 0.5rem;
 }
 
-.public-layout__nav a {
-  padding: 0.72rem 0.95rem;
-  border-radius: 999px;
-  color: #475569;
+nav a {
+  border-radius: 8px;
+  color: #334155;
+  font-weight: 800;
+  padding: 0.55rem 0.75rem;
   text-decoration: none;
-  transition:
-    background-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
 }
 
-.public-layout__nav a:hover,
-.public-layout__nav a.is-active {
-  background: rgba(14, 165, 233, 0.12);
-  color: #075985;
+nav a:hover,
+nav a.is-active {
+  background: rgba(8, 127, 91, 0.1);
+  color: #087f5b;
 }
 
 .public-layout__content {
-  padding: 1.5rem 0 1rem;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2rem) 3rem;
 }
 
-.public-layout__footer {
-  padding: 0.85rem 0.2rem 0.3rem;
-  color: #64748b;
-  font-size: 0.95rem;
-}
-
-@media (max-width: 720px) {
+@media (max-width: 680px) {
   .public-layout__header {
+    align-items: flex-start;
     flex-direction: column;
-    align-items: stretch;
   }
 
-  .brand__logo {
-    width: min(13.5rem, 100%);
-  }
-
-  .public-layout__nav {
+  nav {
     justify-content: flex-start;
   }
 }

@@ -1,59 +1,54 @@
-# DescontovivoUi
+# DescontoVivo UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.10.
+Interface do DescontoVivo, um portal de promocoes para os dominios `descontovivo.com.br` e `descontovivo.com`.
 
-## Development server
+O objetivo do produto e oferecer um feed publico simples, moderno e confiavel de ofertas aprovadas pela moderacao. Usuarios cadastrados poderao enviar promocoes, mas elas entram como pendentes e so aparecem publicamente depois de aprovadas.
 
-To start a local development server, run:
+## Stack
 
-```bash
-ng serve
-```
+- Angular standalone com `bootstrapApplication`.
+- Angular Router com rotas lazy via `loadComponent`.
+- TypeScript.
+- SCSS por componente.
+- Mocks locais para o MVP.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Arquitetura de pastas
 
-## Code scaffolding
+- `src/app/core`: models e mocks centrais.
+- `src/app/shared`: componentes reutilizaveis.
+- `src/app/layouts`: layouts de pagina.
+- `src/app/features`: paginas e fluxos do MVP.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Regras de publicacao e moderacao
 
-```bash
-ng generate component component-name
-```
+- Apenas usuarios cadastrados devem publicar promocoes no produto final.
+- Promocoes publicadas entram como `pending`.
+- O feed publico usa apenas promocoes `approved`.
+- Promocoes `pending` e `rejected` nao devem aparecer publicamente.
+- Ainda nao ha backend, autenticacao real, persistencia ou moderacao real.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Roadmap inicial
 
-```bash
-ng generate --help
-```
+1. Revisar estrutura do projeto.
+2. Criar models/interfaces.
+3. Criar mocks centralizados.
+4. Criar componentes compartilhados.
+5. Criar paginas do MVP.
+6. Melhorar UI Clean Hybrid.
+7. Preparar acessibilidade basica.
+8. Preparar SEO/metadados e validacao de build/budget/styles.
 
-## Building
+## Comandos manuais
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+Depois de revisar as alteracoes e atualizar dependencias, rode manualmente:
 
 ```bash
-ng e2e
+npm install
+npm run build
+git diff --check
+git status --short
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Observacao sobre dependencias
 
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+O `package.json` aponta para Angular 21 e dependencias relacionadas. O `package-lock.json` nao foi alterado manualmente; ele deve ser atualizado pelo `npm install`.

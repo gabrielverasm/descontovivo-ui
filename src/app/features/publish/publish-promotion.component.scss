@@ -1,12 +1,11 @@
-.auth-page {
+.publish,
+.publish__form {
   display: grid;
   gap: 1rem;
-  max-width: 680px;
 }
 
-.auth-page__form {
-  display: grid;
-  gap: 1rem;
+.publish__form {
+  max-width: 720px;
 }
 
 label {
@@ -19,15 +18,18 @@ span {
   font-weight: 800;
 }
 
-input {
-  min-height: 3rem;
+input,
+textarea {
+  width: 100%;
   border: 1px solid #d7dee8;
   border-radius: 8px;
-  padding: 0 0.9rem;
+  padding: 0.85rem 0.9rem;
+  color: #162033;
   font: inherit;
 }
 
-input:focus {
+input:focus,
+textarea:focus {
   border-color: #087f5b;
   outline: 3px solid rgba(8, 127, 91, 0.16);
 }
@@ -43,13 +45,4 @@ button {
   font: inherit;
   font-weight: 800;
   padding: 0 1rem;
-}
-
-.auth-page__hint {
-  color: #526070;
-}
-
-a {
-  color: #087f5b;
-  font-weight: 800;
 }

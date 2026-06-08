@@ -1,0 +1,31 @@
+<main class="publish">
+  <app-page-header
+    eyebrow="Envio de oferta"
+    title="Publicar promocao"
+    description="Este formulario e um placeholder do MVP. No produto final, apenas usuarios cadastrados poderao enviar ofertas, que entram como pendentes ate a aprovacao."
+  />
+
+  <form class="publish__form" aria-label="Formulario de publicacao de promocao">
+    <label>
+      <span>Titulo</span>
+      <input [(ngModel)]="title" name="title" type="text" placeholder="Ex.: Monitor 27 QHD" />
+    </label>
+
+    <label>
+      <span>Link da loja</span>
+      <input name="storeUrl" type="url" placeholder="https://..." />
+    </label>
+
+    <label>
+      <span>Preco atual</span>
+      <input name="currentPrice" type="number" min="0" placeholder="0,00" />
+    </label>
+
+    <label>
+      <span>Descricao</span>
+      <textarea name="description" rows="5" placeholder="Conte por que a oferta vale a pena"></textarea>
+    </label>
+
+    <button type="button">Enviar para moderacao</button>
+  </form>
+</main>

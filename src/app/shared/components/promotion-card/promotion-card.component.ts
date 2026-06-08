@@ -1,15 +1,16 @@
-import { CommonModule } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
+import { Component, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
 
 @Component({
   selector: 'app-promotion-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CurrencyPipe, NgFor, NgIf, RouterLink],
   templateUrl: './promotion-card.component.html',
-  styleUrl: './promotion-card.component.scss',
+  styleUrl: './promotion-card.component.scss'
 })
 export class PromotionCardComponent {
-  promotion = input.required<Promotion>();
+  @Input({ required: true }) promotion!: Promotion;
 }
