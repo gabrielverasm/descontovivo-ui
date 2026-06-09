@@ -10,14 +10,13 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./features/home/home.component').then((m) => m.HomeComponent),
-        title: 'DescontoVivo'
+          import('./features/promotions/promotions.component').then((m) => m.PromotionsComponent),
+        title: 'Promocoes | DescontoVivo'
       },
       {
         path: 'promocoes',
-        loadComponent: () =>
-          import('./features/promotions/promotions.component').then((m) => m.PromotionsComponent),
-        title: 'Promocoes | DescontoVivo'
+        redirectTo: '',
+        pathMatch: 'full'
       },
       {
         path: 'promocoes/:id',

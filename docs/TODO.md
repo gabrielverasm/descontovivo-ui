@@ -104,3 +104,8 @@ Checklist vivo para acompanhar a evolução do MVP sem misturar planejamento com
 - [ ] Crawler avançado de imagens.
 - [ ] Storage definitivo de imagens.
 - [ ] Moderação avançada de imagens.
+
+## Decisoes de produto
+
+- [x] A home `/` deve ser o feed principal de promocoes.
+- [x] `/promocoes` deve existir apenas como redirecionamento para `/`.
