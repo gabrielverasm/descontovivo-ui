@@ -54,6 +54,8 @@ Checklist vivo para acompanhar a evolução do MVP sem misturar planejamento com
 - [ ] Rodar build e observar warnings de bundle e CSS.
 - [ ] Rodar `git diff --check` antes de fechar fases relevantes.
 - [ ] Manter `styles.scss` enxuto.
+- [ ] Criar scripts npm de qualidade para padronizar validação antes de commit, como `format`, `format:check`, `lint`, `test` e `quality`.
+- [ ] Corrigir ou configurar o setup de testes Angular para que `npm run test` funcione sem erro de dependência ausente.
 
 ## Acessibilidade e SEO
 

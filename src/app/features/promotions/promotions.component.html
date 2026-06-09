@@ -1,24 +1,27 @@
 <main class="promotions">
-  <app-page-header
-    eyebrow="Feed publico"
-    title="Promocoes"
-    description="Somente ofertas aprovadas pela moderacao entram nesta listagem publica."
-  />
+  <section class="promotions__hero" aria-label="Feed de promoções">
+    <app-page-header
+      eyebrow="Feed público"
+      title="Promoções"
+      description="Uma vitrine viva de ofertas aprovadas, com contexto de loja, entrega, frete, comentários e sinais para comprar com mais consciência."
+    />
+  </section>
 
   <label class="promotions__search">
-    <span>Buscar promocao</span>
+    <span>Buscar promoção</span>
     <input
       type="search"
       name="search"
       [(ngModel)]="query"
+      (ngModelChange)="resetVisiblePromotions()"
       placeholder="Produto, loja, categoria ou tag"
-      aria-label="Buscar promocao"
+      aria-label="Buscar promoção"
     />
   </label>
 
-  <section class="promotions__list" aria-label="Lista de promocoes aprovadas">
+  <section class="promotions__list" aria-label="Lista de promoções aprovadas">
     <app-promotion-card
-      *ngFor="let promotion of filteredPromotions"
+      *ngFor="let promotion of visiblePromotions"
       [promotion]="promotion"
     />
 
@@ -28,4 +31,23 @@
       description="Tente buscar por outro produto, loja ou categoria."
     />
   </section>
+
+  <section class="promotions__load-more" *ngIf="filteredPromotions.length" aria-label="Continuar explorando promoções">
+    <p>
+      Mostrando {{ visiblePromotions.length }} de {{ filteredPromotions.length }} promoções aprovadas.
+    </p>
+    <button type="button" (click)="loadMorePromotions()" [disabled]="!hasMorePromotions">
+      {{ hasMorePromotions ? 'Carregar mais promoções' : 'Todas as promoções foram carregadas' }}
+    </button>
+  </section>
+
+  <button
+    *ngIf="showBackToTop"
+    class="promotions__back-to-top"
+    type="button"
+    aria-label="Voltar ao topo"
+    (click)="scrollToTop()"
+  >
+    ↑
+  </button>
 </main>

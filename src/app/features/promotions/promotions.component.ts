@@ -1,5 +1,5 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { APPROVED_PROMOTIONS_MOCK } from '../../core/mocks/promotions.mock';
@@ -15,7 +15,11 @@ import { PromotionCardComponent } from '../../shared/components/promotion-card/p
   styleUrl: './promotions.component.scss'
 })
 export class PromotionsComponent {
+  private readonly pageSize = 6;
+
   query = '';
+  visibleCount = this.pageSize;
+  showBackToTop = false;
   readonly promotions = APPROVED_PROMOTIONS_MOCK;
 
   get filteredPromotions() {
@@ -37,6 +41,36 @@ export class PromotionsComponent {
         .toLowerCase();
 
       return searchable.includes(term);
+    });
+  }
+
+  get visiblePromotions() {
+    return this.filteredPromotions.slice(0, this.visibleCount);
+  }
+
+  get hasMorePromotions() {
+    return this.visibleCount < this.filteredPromotions.length;
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    this.showBackToTop = window.scrollY > 480;
+  }
+
+  loadMorePromotions() {
+    this.visibleCount = Math.min(this.visibleCount + this.pageSize, this.filteredPromotions.length);
+  }
+
+  resetVisiblePromotions() {
+    this.visibleCount = this.pageSize;
+  }
+
+  scrollToTop() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth'
     });
   }
 }

@@ -15,6 +15,24 @@
 
     <p>{{ promotion.description }}</p>
 
+    <div class="promotion-card__badges" aria-label="Sinais da promoção">
+      <span *ngIf="promotion.offerBadge" class="promotion-card__badge promotion-card__badge--deal">
+        {{ promotion.offerBadge }}
+      </span>
+      <span *ngIf="promotion.trustBadge" class="promotion-card__badge promotion-card__badge--trust">
+        {{ promotion.trustBadge }}
+      </span>
+      <span *ngIf="promotion.warningBadge" class="promotion-card__badge promotion-card__badge--warning">
+        {{ promotion.warningBadge }}
+      </span>
+      <span *ngIf="promotion.couponCode" class="promotion-card__badge promotion-card__badge--coupon">
+        Cupom {{ promotion.couponCode }}
+      </span>
+      <span *ngIf="promotion.shippingInfo === 'Prime'" class="promotion-card__badge promotion-card__badge--prime">
+        Prime
+      </span>
+    </div>
+
     <div class="promotion-card__prices">
       <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
       <span *ngIf="promotion.originalPrice">
@@ -25,11 +43,30 @@
       </small>
     </div>
 
+    <dl class="promotion-card__context">
+      <div *ngIf="promotion.sellerName">
+        <dt>Vendedor</dt>
+        <dd>{{ promotion.sellerName }}</dd>
+      </div>
+      <div *ngIf="promotion.deliveryInfo">
+        <dt>Entrega</dt>
+        <dd>{{ promotion.deliveryInfo }}</dd>
+      </div>
+      <div *ngIf="promotion.shippingInfo">
+        <dt>Frete</dt>
+        <dd>{{ promotion.shippingInfo }}</dd>
+      </div>
+    </dl>
+
     <div class="promotion-card__footer">
-      <div class="promotion-card__tags" aria-label="Tags da promocao">
+      <div class="promotion-card__tags" aria-label="Tags da promoção">
         <span *ngFor="let tag of promotion.tags">#{{ tag }}</span>
       </div>
-      <span>{{ promotion.likesCount }} curtidas</span>
+
+      <div class="promotion-card__actions">
+        <span>{{ promotion.commentsCount }} comentários</span>
+        <a [href]="promotion.offerUrl || promotion.storeUrl" target="_blank" rel="noopener noreferrer">Ver oferta</a>
+      </div>
     </div>
   </div>
 </article>

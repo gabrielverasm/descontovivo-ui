@@ -1,7 +1,18 @@
-.promotions,
+.promotions {
+  position: relative;
+  display: grid;
+  gap: 1.25rem;
+  padding-bottom: 4rem;
+}
+
+.promotions__hero {
+  padding-top: clamp(1rem, 4vw, 2rem);
+}
+
 .promotions__list {
   display: grid;
   gap: 1rem;
+  max-width: 920px;
 }
 
 .promotions__search {
@@ -11,21 +22,101 @@
 }
 
 .promotions__search span {
-  color: #334155;
-  font-weight: 800;
+  color: #111827;
+  font-weight: 900;
 }
 
 .promotions__search input {
   width: 100%;
   min-height: 3rem;
-  border: 1px solid #d7dee8;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
+  background: #fff;
   padding: 0 0.9rem;
-  color: #162033;
+  color: #111827;
   font: inherit;
 }
 
 .promotions__search input:focus {
-  border-color: #087f5b;
-  outline: 3px solid rgba(8, 127, 91, 0.16);
+  border-color: #2563eb;
+  outline: 3px solid rgba(37, 99, 235, 0.18);
+}
+
+.promotions__load-more {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  max-width: 920px;
+  padding: 1rem 0 0;
+}
+
+.promotions__load-more p {
+  margin: 0;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.promotions__load-more button,
+.promotions__back-to-top {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+}
+
+.promotions__load-more button {
+  min-height: 3rem;
+  border-radius: 8px;
+  background: #172033;
+  color: #fff;
+  padding: 0 1.1rem;
+}
+
+.promotions__load-more button:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.promotions__load-more button:disabled {
+  cursor: default;
+  background: #e5e7eb;
+  color: #64748b;
+}
+
+.promotions__load-more button:focus-visible,
+.promotions__back-to-top:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
+}
+
+.promotions__back-to-top {
+  position: fixed;
+  right: clamp(1rem, 4vw, 2rem);
+  bottom: clamp(1rem, 4vw, 2rem);
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: #172033;
+  color: #fff;
+  box-shadow: 0 16px 34px rgba(17, 24, 39, 0.2);
+}
+
+.promotions__back-to-top:hover {
+  background: #2563eb;
+}
+
+@media (max-width: 640px) {
+  .promotions__list {
+    max-width: none;
+  }
+
+  .promotions__load-more {
+    justify-items: stretch;
+  }
+
+  .promotions__load-more button {
+    width: 100%;
+  }
 }

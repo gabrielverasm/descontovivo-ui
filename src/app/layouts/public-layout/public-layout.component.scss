@@ -1,8 +1,8 @@
 .public-layout {
   min-height: 100dvh;
   background:
-    linear-gradient(180deg, rgba(232, 247, 240, 0.78), rgba(255, 255, 255, 0) 360px),
-    #f8faf9;
+    linear-gradient(180deg, rgba(229, 231, 235, 0.86), rgba(255, 255, 255, 0) 360px),
+    #f6f8fb;
 }
 
 .public-layout__header {
@@ -46,8 +46,8 @@ nav a {
 
 nav a:hover,
 nav a.is-active {
-  background: rgba(8, 127, 91, 0.1);
-  color: #087f5b;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
 }
 
 .public-layout__content {

@@ -9,9 +9,17 @@ export interface Promotion {
   discountPercentage?: number;
   storeName: string;
   storeUrl: string;
+  offerUrl?: string;
   imageUrl: string;
   category: string;
   tags: string[];
+  sellerName?: string;
+  deliveryInfo?: string;
+  shippingInfo?: string;
+  trustBadge?: string;
+  offerBadge?: string;
+  warningBadge?: string;
+  couponCode?: string;
   likesCount: number;
   commentsCount: number;
   status: PromotionStatus;
