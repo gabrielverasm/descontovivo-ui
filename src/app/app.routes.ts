@@ -36,6 +36,12 @@ export const routes: Routes = [
         title: 'Publicar promocao | DescontoVivo'
       },
       {
+        path: 'sobre',
+        loadComponent: () =>
+          import('./features/about/about.component').then((m) => m.AboutComponent),
+        title: 'Sobre o DescontoVivo | Promoções com contexto, comunidade e segurança'
+      },
+      {
         path: 'login',
         loadComponent: () =>
           import('./features/auth/login.component').then((m) => m.LoginComponent),
