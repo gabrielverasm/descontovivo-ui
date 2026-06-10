@@ -1,23 +1,35 @@
 <main class="promotions">
   <section class="promotions__hero" aria-label="Feed de promoções">
-    <app-page-header
-      eyebrow="Feed público"
-      title="Promoções"
-      description="Uma vitrine viva de ofertas aprovadas, com contexto de loja, entrega, frete, comentários e sinais para comprar com mais consciência."
-    />
-  </section>
+    <div class="promotions__hero-copy">
+      <h1>Promoções ›</h1>
+      <p>
+        Ofertas com contexto de loja, entrega, frete e sinais de confiança antes do clique.
+      </p>
+    </div>
 
-  <label class="promotions__search">
-    <span>Buscar promoção</span>
-    <input
-      type="search"
-      name="search"
-      [(ngModel)]="query"
-      (ngModelChange)="resetVisiblePromotions()"
-      placeholder="Produto, loja, categoria ou tag"
-      aria-label="Buscar promoção"
-    />
-  </label>
+    <div class="promotions__search-panel">
+      <label class="promotions__search">
+        <span>Buscar promoção</span>
+        <input
+          type="search"
+          name="search"
+          [(ngModel)]="query"
+          (ngModelChange)="resetVisiblePromotions()"
+          placeholder="Produto, loja, categoria ou tag"
+          aria-label="Buscar promoção"
+        />
+      </label>
+
+      <div class="promotions__search-context">
+        <p>Confira loja, vendedor, entrega, frete e comentários antes de clicar.</p>
+        <div class="promotions__chips" aria-label="Sinais para avaliar a oferta">
+          <span>Sinais de confiança</span>
+          <span>Atenção ao marketplace</span>
+          <span>Frete em destaque</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section class="promotions__list" aria-label="Lista de promoções aprovadas">
     <app-promotion-card
@@ -48,6 +60,5 @@
     aria-label="Voltar ao topo"
     (click)="scrollToTop()"
   >
-    ↑
   </button>
 </main>

@@ -1,7 +1,7 @@
 .public-layout {
   min-height: 100dvh;
   background:
-    linear-gradient(180deg, rgba(229, 231, 235, 0.86), rgba(255, 255, 255, 0) 360px),
+    linear-gradient(180deg, rgba(229, 231, 235, 0.72), rgba(255, 255, 255, 0) 340px),
     #f6f8fb;
 }
 
@@ -10,59 +10,186 @@
   top: 0;
   z-index: 10;
   display: flex;
-  gap: 1rem;
+  gap: 0.6rem;
   align-items: center;
   justify-content: space-between;
-  max-width: 1120px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 1rem clamp(1rem, 4vw, 2rem);
-  backdrop-filter: blur(14px);
+  padding: 0.45rem clamp(1rem, 4vw, 2rem);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.03);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.public-layout__header--compact {
+  border-bottom-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  pointer-events: none;
 }
 
 .public-layout__brand {
   display: inline-flex;
   align-items: center;
+  min-height: 2.35rem;
 }
 
 .public-layout__brand img {
-  width: 172px;
+  width: auto;
+  max-width: 36px;
+  max-height: 36px;
   height: auto;
+  transition:
+    max-height 160ms ease,
+    max-width 160ms ease;
 }
 
-nav {
+.public-layout__header--compact .public-layout__brand,
+.public-layout__header--compact .public-layout__nav {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.public-layout__nav,
+.public-layout__menu {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
   justify-content: flex-end;
 }
 
-nav a {
+.public-layout__nav a,
+.public-layout__menu a {
   border-radius: 8px;
   color: #334155;
-  font-weight: 800;
-  padding: 0.55rem 0.75rem;
+  font-weight: 750;
+  padding: 0.5rem 0.7rem;
   text-decoration: none;
 }
 
-nav a:hover,
-nav a.is-active {
+.public-layout__nav a:hover,
+.public-layout__nav a.is-active,
+.public-layout__menu a:hover,
+.public-layout__menu a.is-active {
   background: rgba(37, 99, 235, 0.1);
   color: #2563eb;
 }
 
+.public-layout__menu-button {
+  display: none;
+  place-items: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  gap: 0.22rem;
+  padding: 0;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.public-layout__menu-button:hover {
+  border-color: rgba(37, 99, 235, 0.28);
+  box-shadow: 0 10px 22px rgba(17, 24, 39, 0.1);
+}
+
+.public-layout__menu-button span {
+  display: block;
+  width: 1.05rem;
+  height: 2px;
+  border-radius: 999px;
+  background: #172033;
+}
+
+.public-layout__menu-button:focus-visible,
+.public-layout__nav a:focus-visible,
+.public-layout__menu a:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
+}
+
+.public-layout__menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: clamp(1rem, 4vw, 2rem);
+  display: none;
+  min-width: 12rem;
+  flex-direction: column;
+  align-items: stretch;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 0.35rem;
+  box-shadow: 0 18px 40px rgba(17, 24, 39, 0.12);
+}
+
+.public-layout__menu.is-open {
+  display: flex;
+}
+
+.public-layout__header--compact .public-layout__menu-button {
+  position: fixed;
+  top: 0.75rem;
+  right: clamp(1rem, 4vw, 2rem);
+  z-index: 60;
+  display: grid;
+  border-color: rgba(203, 213, 225, 0.9);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 30px rgba(17, 24, 39, 0.16);
+  pointer-events: auto;
+}
+
+.public-layout__header--compact .public-layout__menu {
+  position: fixed;
+  top: 3.6rem;
+  right: clamp(1rem, 4vw, 2rem);
+  z-index: 55;
+  pointer-events: auto;
+}
+
 .public-layout__content {
-  max-width: 1120px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 0 clamp(1rem, 4vw, 2rem) 3rem;
 }
 
 @media (max-width: 680px) {
   .public-layout__header {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
   }
 
-  nav {
-    justify-content: flex-start;
+  .public-layout__brand img {
+    max-width: 32px;
+    max-height: 32px;
+  }
+
+  .public-layout__nav {
+    display: none;
+  }
+
+  .public-layout__menu-button {
+    display: grid;
+  }
+
+  .public-layout__menu {
+    right: 1rem;
+    left: auto;
+    width: min(16rem, calc(100vw - 2rem));
   }
 }

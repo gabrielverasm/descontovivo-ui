@@ -33,30 +33,32 @@
       </span>
     </div>
 
-    <div class="promotion-card__prices">
-      <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
-      <span *ngIf="promotion.originalPrice">
-        {{ promotion.originalPrice | currency: 'BRL' }}
-      </span>
-      <small *ngIf="promotion.discountPercentage">
-        -{{ promotion.discountPercentage }}%
-      </small>
-    </div>
+    <div class="promotion-card__deal-row">
+      <div class="promotion-card__prices">
+        <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
+        <span *ngIf="promotion.originalPrice">
+          {{ promotion.originalPrice | currency: 'BRL' }}
+        </span>
+        <small *ngIf="promotion.discountPercentage">
+          -{{ promotion.discountPercentage }}%
+        </small>
+      </div>
 
-    <dl class="promotion-card__context">
-      <div *ngIf="promotion.sellerName">
-        <dt>Vendedor</dt>
-        <dd>{{ promotion.sellerName }}</dd>
-      </div>
-      <div *ngIf="promotion.deliveryInfo">
-        <dt>Entrega</dt>
-        <dd>{{ promotion.deliveryInfo }}</dd>
-      </div>
-      <div *ngIf="promotion.shippingInfo">
-        <dt>Frete</dt>
-        <dd>{{ promotion.shippingInfo }}</dd>
-      </div>
-    </dl>
+      <dl class="promotion-card__context">
+        <div *ngIf="promotion.sellerName">
+          <dt>Vendedor</dt>
+          <dd>{{ promotion.sellerName }}</dd>
+        </div>
+        <div *ngIf="promotion.deliveryInfo">
+          <dt>Entrega</dt>
+          <dd>{{ promotion.deliveryInfo }}</dd>
+        </div>
+        <div *ngIf="promotion.shippingInfo">
+          <dt>Frete</dt>
+          <dd>{{ promotion.shippingInfo }}</dd>
+        </div>
+      </dl>
+    </div>
 
     <div class="promotion-card__footer">
       <div class="promotion-card__tags" aria-label="Tags da promoção">

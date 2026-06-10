@@ -4,13 +4,12 @@ import { FormsModule } from '@angular/forms';
 
 import { APPROVED_PROMOTIONS_MOCK } from '../../core/mocks/promotions.mock';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { PromotionCardComponent } from '../../shared/components/promotion-card/promotion-card.component';
 
 @Component({
   selector: 'app-promotions',
   standalone: true,
-  imports: [EmptyStateComponent, FormsModule, NgFor, NgIf, PageHeaderComponent, PromotionCardComponent],
+  imports: [EmptyStateComponent, FormsModule, NgFor, NgIf, PromotionCardComponent],
   templateUrl: './promotions.component.html',
   styleUrl: './promotions.component.scss'
 })

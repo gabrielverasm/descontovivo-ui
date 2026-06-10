@@ -1,14 +1,40 @@
 <div class="public-layout">
-  <header class="public-layout__header">
+  <header class="public-layout__header" [class.public-layout__header--compact]="isHeaderCompact">
     <a class="public-layout__brand" routerLink="/" aria-label="DescontoVivo início">
-      <img src="/brand/logo-horizontal-dark.png" alt="DescontoVivo" />
+      <img src="/brand/logo-icon.png" alt="DescontoVivo" />
     </a>
 
-    <nav aria-label="Navegação principal">
-      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Promoções</a>
-      <a routerLink="/publicar" routerLinkActive="is-active">Publicar</a>
-      <a routerLink="/sobre" routerLinkActive="is-active">Sobre</a>
-      <a routerLink="/login" routerLinkActive="is-active">Entrar</a>
+    <nav class="public-layout__nav" aria-label="Navegação principal">
+      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Promoções</a>
+      <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
+      <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
+      <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
+    </nav>
+
+    <button
+      class="public-layout__menu-button"
+      type="button"
+      [attr.aria-label]="isMenuOpen ? 'Fechar menu' : 'Abrir menu'"
+      [attr.aria-expanded]="isMenuOpen"
+      aria-controls="public-layout-menu"
+      (click)="toggleMenu()"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav
+      id="public-layout-menu"
+      class="public-layout__menu"
+      [class.is-open]="isMenuOpen"
+      [attr.aria-hidden]="!isMenuOpen"
+      aria-label="Menu compacto"
+    >
+      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Promoções</a>
+      <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
+      <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
+      <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
     </nav>
   </header>
 
