@@ -1,5 +1,5 @@
 <main class="promotion-detail">
-  <a class="promotion-detail__back" routerLink="/promocoes">Voltar para promocoes</a>
+  <a class="promotion-detail__back" routerLink="/promocoes">Voltar para promoções</a>
 
   <article *ngIf="promotion; else notFound" class="promotion-detail__content">
     <img [src]="promotion.imageUrl" [alt]="promotion.title" />
@@ -15,7 +15,7 @@
         <small *ngIf="promotion.discountPercentage">-{{ promotion.discountPercentage }}%</small>
       </div>
 
-      <div class="promotion-detail__tags" aria-label="Tags da promocao">
+      <div class="promotion-detail__tags" aria-label="Tags da promoção">
         <span *ngFor="let tag of promotion.tags">#{{ tag }}</span>
       </div>
 
@@ -25,7 +25,7 @@
           <dd>{{ promotion.likesCount }}</dd>
         </div>
         <div>
-          <dt>Comentarios</dt>
+          <dt>Comentários</dt>
           <dd>{{ promotion.commentsCount }}</dd>
         </div>
         <div>
@@ -42,8 +42,8 @@
 
   <ng-template #notFound>
     <app-empty-state
-      title="Promocao nao encontrada"
-      description="Ela pode estar pendente, reprovada ou indisponivel publicamente."
+      title="Promoção não encontrada"
+      description="Ela pode estar pendente, reprovada ou indisponível publicamente."
     />
   </ng-template>
 </main>

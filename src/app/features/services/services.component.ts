@@ -7,18 +7,18 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './services.component.html',
-  styleUrl: './services.component.scss'
+  styleUrl: './services.component.scss',
 })
 export class ServicesComponent {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
 
   constructor() {
-    this.title.setTitle('Servicos | DescontoVivo');
+    this.title.setTitle('Serviços | DescontoVivo');
     this.meta.updateTag({
       name: 'description',
       content:
-        'Entenda serviços de assinatura e benefícios ligados a grandes lojas, como Amazon Prime, antes de contratar.'
+        'Entenda serviços de assinatura e benefícios ligados a grandes lojas, como Amazon Prime, antes de contratar.',
     });
   }
 }

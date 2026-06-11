@@ -7,5 +7,5 @@ import { Component, Input } from '@angular/core';
   styleUrl: './loading-state.component.scss'
 })
 export class LoadingStateComponent {
-  @Input() label = 'Carregando promocoes';
+  @Input() label = 'Carregando promoções';
 }

@@ -2,12 +2,12 @@
   <section class="home__hero">
     <app-page-header
       eyebrow="DescontoVivo"
-      title="Promocoes aprovadas pela comunidade"
-      description="Um feed simples para descobrir ofertas reais, com publicacao enviada por usuarios cadastrados e liberada apenas depois da moderacao."
+      title="Promoções aprovadas pela comunidade"
+      description="Um feed simples para descobrir ofertas reais, com publicação enviada por usuários cadastrados e liberada apenas depois da moderação."
     />
 
-    <div class="home__actions" aria-label="Acoes principais">
-      <a class="button button--primary" routerLink="/promocoes">Ver promocoes</a>
+    <div class="home__actions" aria-label="Ações principais">
+      <a class="button button--primary" routerLink="/promocoes">Ver promoções</a>
       <a class="button button--ghost" routerLink="/publicar">Publicar oferta</a>
     </div>
   </section>
@@ -19,16 +19,13 @@
     </div>
 
     <div class="home__list" *ngIf="featuredPromotions.length; else emptyFeed">
-      <app-promotion-card
-        *ngFor="let promotion of featuredPromotions"
-        [promotion]="promotion"
-      />
+      <app-promotion-card *ngFor="let promotion of featuredPromotions" [promotion]="promotion" />
     </div>
 
     <ng-template #emptyFeed>
       <app-empty-state
-        title="Nenhuma promocao aprovada"
-        description="As ofertas enviadas aparecem aqui depois da moderacao."
+        title="Nenhuma promoção aprovada"
+        description="As ofertas enviadas aparecem aqui depois da moderação."
       />
     </ng-template>
   </section>
