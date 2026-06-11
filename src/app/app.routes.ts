@@ -11,59 +11,65 @@ export const routes: Routes = [
         path: '',
         loadComponent: () =>
           import('./features/promotions/promotions.component').then((m) => m.PromotionsComponent),
-        title: 'Promocoes | DescontoVivo'
+        title: 'Promoções | DescontoVivo',
       },
       {
         path: 'promocoes',
         redirectTo: '',
-        pathMatch: 'full'
+        pathMatch: 'full',
       },
       {
         path: 'promocoes/:id',
         loadComponent: () =>
           import('./features/promotions/promotion-detail.component').then(
-            (m) => m.PromotionDetailComponent
+            (m) => m.PromotionDetailComponent,
           ),
-        title: 'Detalhe da promocao | DescontoVivo'
+        title: 'Detalhe da promoção | DescontoVivo',
       },
       {
         path: 'publicar',
         loadComponent: () =>
           import('./features/publish/publish-promotion.component').then(
-            (m) => m.PublishPromotionComponent
+            (m) => m.PublishPromotionComponent,
           ),
-        title: 'Publicar promocao | DescontoVivo'
+        title: 'Publicar promoção | DescontoVivo',
       },
       {
         path: 'sobre',
         loadComponent: () =>
           import('./features/about/about.component').then((m) => m.AboutComponent),
-        title: 'Sobre o DescontoVivo | Promoções com contexto, comunidade e segurança'
+        title: 'Sobre o DescontoVivo | Promoções com contexto, comunidade e segurança',
+      },
+      {
+        path: 'servicos',
+        loadComponent: () =>
+          import('./features/services/services.component').then((m) => m.ServicesComponent),
+        title: 'Serviços | DescontoVivo',
       },
       {
         path: 'login',
         loadComponent: () =>
           import('./features/auth/login.component').then((m) => m.LoginComponent),
-        title: 'Entrar | DescontoVivo'
+        title: 'Entrar | DescontoVivo',
       },
       {
         path: 'cadastro',
         loadComponent: () =>
           import('./features/auth/register.component').then((m) => m.RegisterComponent),
-        title: 'Cadastro | DescontoVivo'
+        title: 'Cadastro | DescontoVivo',
       },
       {
         path: 'erro',
         loadComponent: () =>
           import('./features/errors/server-error.component').then((m) => m.ServerErrorComponent),
-        title: 'Erro | DescontoVivo'
+        title: 'Erro | DescontoVivo',
       },
       {
         path: '**',
         loadComponent: () =>
           import('./features/errors/not-found.component').then((m) => m.NotFoundComponent),
-        title: 'Pagina nao encontrada | DescontoVivo'
-      }
-    ]
-  }
+        title: 'Página não encontrada | DescontoVivo',
+      },
+    ],
+  },
 ];
