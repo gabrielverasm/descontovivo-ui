@@ -1,0 +1,66 @@
+:host {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+  margin-left: 0.1rem;
+}
+
+.promotion-vote {
+  display: inline-flex;
+  gap: 0.24rem;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.78rem;
+  height: 1.76rem;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 999px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  padding: 0 0.42rem;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.promotion-vote:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
+}
+
+.promotion-vote:hover {
+  border-color: rgba(37, 99, 235, 0.2);
+  background: #f8fafc;
+}
+
+.promotion-vote--like.is-active {
+  border-color: rgba(22, 163, 74, 0.18);
+  background: rgba(22, 163, 74, 0.08);
+}
+
+.promotion-vote--dislike.is-active {
+  border-color: rgba(185, 28, 28, 0.18);
+  background: rgba(185, 28, 28, 0.08);
+}
+
+.promotion-vote img {
+  display: block;
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.promotion-vote span {
+  display: block;
+  min-width: 1.15ch;
+  color: #334155;
+  font-size: 0.84rem;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+}

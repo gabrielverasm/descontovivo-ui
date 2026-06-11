@@ -1,0 +1,38 @@
+<span
+  *ngIf="hasDealSignal"
+  class="promotion-signal promotion-signal--deal"
+  [attr.aria-label]="dealSignalLabel"
+  [attr.title]="dealSignalLabel"
+  tabindex="0"
+>
+  <img src="/brand/discount-tag.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+</span>
+
+<span
+  *ngIf="hasReviewSignal"
+  class="promotion-signal promotion-signal--review"
+  aria-label="Oferta revisada"
+  [attr.title]="reviewSignalTitle"
+  tabindex="0"
+>
+  <img src="/brand/shield.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+</span>
+
+<span *ngIf="promotion.warningBadge" class="promotion-badge promotion-badge--warning">
+  {{ promotion.warningBadge }}
+</span>
+
+<span *ngIf="promotion.couponCode" class="promotion-badge promotion-badge--coupon">
+  Cupom {{ promotion.couponCode }}
+</span>
+
+<a
+  *ngIf="promotion.shippingInfo === 'Prime'"
+  class="promotion-badge promotion-badge--prime"
+  routerLink="/servicos"
+  fragment="amazon-prime"
+  aria-label="Entender Amazon Prime"
+  title="Entender Amazon Prime"
+>
+  Prime
+</a>

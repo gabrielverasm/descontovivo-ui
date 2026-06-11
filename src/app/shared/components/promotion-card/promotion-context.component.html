@@ -1,0 +1,66 @@
+<dl class="promotion-context">
+  <div
+    *ngIf="isTrustedFulfillment"
+    class="promotion-context__item promotion-context__item--trusted"
+  >
+    <dt>Vendedor</dt>
+    <dd>
+      {{ promotion.trustedStoreName }}
+      <span
+        class="promotion-context__icon promotion-context__icon--fulfillment"
+        aria-label="Vendido/Entregue por loja reconhecida"
+        [attr.title]="trustedFulfillmentTitle"
+        tabindex="0"
+      >
+        <img
+          src="/brand/green-truck.svg"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+        />
+      </span>
+    </dd>
+  </div>
+
+  <div *ngIf="isTrustedFulfillment">
+    <dt>Entrega</dt>
+    <dd>{{ deliveryProviderName }}</dd>
+  </div>
+
+  <div *ngIf="!isTrustedFulfillment && promotion.sellerName">
+    <dt>Vendedor</dt>
+    <dd>
+      {{ promotion.sellerName }}
+      <span
+        *ngIf="isMarketplaceSeller"
+        class="promotion-context__icon promotion-context__icon--warning"
+        aria-label="Atenção ao marketplace"
+        [attr.title]="sellerWarningTitle"
+        tabindex="0"
+      ></span>
+    </dd>
+  </div>
+
+  <div *ngIf="!isTrustedFulfillment && deliveryProviderName">
+    <dt>Entrega</dt>
+    <dd>{{ deliveryProviderName }}</dd>
+  </div>
+
+  <div *ngIf="promotion.shippingInfo">
+    <dt>Frete</dt>
+    <dd>
+      <a
+        *ngIf="promotion.shippingInfo === 'Prime'; else shippingInfoText"
+        class="promotion-context__service-link"
+        routerLink="/servicos"
+        fragment="amazon-prime"
+        aria-label="Entender Amazon Prime"
+        title="Entender Amazon Prime"
+      >
+        Prime
+      </a>
+      <ng-template #shippingInfoText>{{ promotion.shippingInfo }}</ng-template>
+    </dd>
+  </div>
+</dl>

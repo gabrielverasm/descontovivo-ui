@@ -1,5 +1,9 @@
 <article class="promotion-card">
-  <a class="promotion-card__image" [routerLink]="['/promocoes', promotion.id]" [attr.aria-label]="promotion.title">
+  <a
+    class="promotion-card__image"
+    [routerLink]="['/promocoes', promotion.id]"
+    [attr.aria-label]="promotion.title"
+  >
     <img [src]="promotion.imageUrl" [alt]="promotion.title" loading="lazy" />
   </a>
 
@@ -15,49 +19,26 @@
 
     <p>{{ promotion.description }}</p>
 
-    <div class="promotion-card__badges" aria-label="Sinais da promoção">
-      <span *ngIf="promotion.offerBadge" class="promotion-card__badge promotion-card__badge--deal">
-        {{ promotion.offerBadge }}
-      </span>
-      <span *ngIf="promotion.trustBadge" class="promotion-card__badge promotion-card__badge--trust">
-        {{ promotion.trustBadge }}
-      </span>
-      <span *ngIf="promotion.warningBadge" class="promotion-card__badge promotion-card__badge--warning">
-        {{ promotion.warningBadge }}
-      </span>
-      <span *ngIf="promotion.couponCode" class="promotion-card__badge promotion-card__badge--coupon">
-        Cupom {{ promotion.couponCode }}
-      </span>
-      <span *ngIf="promotion.shippingInfo === 'Prime'" class="promotion-card__badge promotion-card__badge--prime">
-        Prime
-      </span>
-    </div>
+    <app-promotion-trust-signals
+      [promotion]="promotion"
+      aria-label="Sinais da promoção"
+    ></app-promotion-trust-signals>
 
     <div class="promotion-card__deal-row">
       <div class="promotion-card__prices">
         <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
-        <span *ngIf="promotion.originalPrice">
+        <span class="promotion-card__original-price" *ngIf="promotion.originalPrice">
           {{ promotion.originalPrice | currency: 'BRL' }}
         </span>
-        <small *ngIf="promotion.discountPercentage">
-          -{{ promotion.discountPercentage }}%
-        </small>
+        <small *ngIf="promotion.discountPercentage"> -{{ promotion.discountPercentage }}% </small>
+
+        <app-promotion-vote-buttons
+          [promotion]="promotion"
+          aria-label="Avaliar preço da promoção"
+        ></app-promotion-vote-buttons>
       </div>
 
-      <dl class="promotion-card__context">
-        <div *ngIf="promotion.sellerName">
-          <dt>Vendedor</dt>
-          <dd>{{ promotion.sellerName }}</dd>
-        </div>
-        <div *ngIf="promotion.deliveryInfo">
-          <dt>Entrega</dt>
-          <dd>{{ promotion.deliveryInfo }}</dd>
-        </div>
-        <div *ngIf="promotion.shippingInfo">
-          <dt>Frete</dt>
-          <dd>{{ promotion.shippingInfo }}</dd>
-        </div>
-      </dl>
+      <app-promotion-context [promotion]="promotion"></app-promotion-context>
     </div>
 
     <div class="promotion-card__footer">
@@ -67,7 +48,12 @@
 
       <div class="promotion-card__actions">
         <span>{{ promotion.commentsCount }} comentários</span>
-        <a [href]="promotion.offerUrl || promotion.storeUrl" target="_blank" rel="noopener noreferrer">Ver oferta</a>
+        <a
+          [href]="promotion.offerUrl || promotion.storeUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Ver oferta</a
+        >
       </div>
     </div>
   </div>
