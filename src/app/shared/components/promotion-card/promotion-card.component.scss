@@ -147,22 +147,17 @@ p {
   align-items: center;
   justify-content: center;
   min-height: 2.25rem;
-  border: 1px solid transparent;
+  border: 1px solid rgba(23, 32, 51, 0.18);
   border-radius: 999px;
-  font-weight: 850;
-  padding: 0 0.82rem;
-}
-
-.promotion-card__offer-link--primary {
-  background: #172033;
-  color: #fff;
-  box-shadow: 0 10px 20px rgba(23, 32, 51, 0.16);
-}
-
-.promotion-card__offer-link--secondary {
-  border-color: rgba(23, 32, 51, 0.18);
   background: #fff;
   color: #172033;
+  font-weight: 750;
+  line-height: 1;
+  padding: 0 0.82rem;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease;
 }
 
 .promotion-card__comment-preview {
@@ -176,13 +171,10 @@ p {
   white-space: nowrap;
 }
 
-.promotion-card__offer-link--primary:hover {
-  background: #2563eb;
-  color: #fff;
-}
-
+.promotion-card__offer-link--primary:hover,
 .promotion-card__offer-link--secondary:hover {
-  border-color: rgba(37, 99, 235, 0.28);
+  border-color: transparent;
+  background: rgba(37, 99, 235, 0.1);
   color: #2563eb;
 }
 

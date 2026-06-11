@@ -1,34 +1,16 @@
 <main class="promotions">
-  <section class="promotions__hero" aria-label="Feed de promoções">
-    <div class="promotions__hero-copy">
-      <h1>Promoções ›</h1>
-      <p>
-        Ofertas com contexto de loja, entrega, frete e sinais de confiança antes do clique.
-      </p>
-    </div>
-
-    <div class="promotions__search-panel">
-      <label class="promotions__search">
-        <span>Buscar promoção</span>
-        <input
-          type="search"
-          name="search"
-          [(ngModel)]="query"
-          (ngModelChange)="resetVisiblePromotions()"
-          placeholder="Produto, loja, categoria ou tag"
-          aria-label="Buscar promoção"
-        />
-      </label>
-
-      <div class="promotions__search-context">
-        <p>Confira loja, vendedor, entrega, frete e comentários antes de clicar.</p>
-        <div class="promotions__chips" aria-label="Sinais para avaliar a oferta">
-          <span>Sinais de confiança</span>
-          <span>Atenção ao marketplace</span>
-          <span>Frete em destaque</span>
-        </div>
-      </div>
-    </div>
+  <section class="promotions__hero" aria-label="Busca de promoções">
+    <label class="promotions__search" [class.promotions__search--has-query]="query">
+      <input
+        type="search"
+        name="search"
+        [(ngModel)]="query"
+        (ngModelChange)="resetVisiblePromotions()"
+        placeholder="Pesquise aqui: produto, loja, categoria ou tag."
+        aria-label="Pesquisar produto, loja, categoria ou tag"
+      />
+      <span class="promotions__search-label">Pesquise aqui: produto, loja, categoria ou tag.</span>
+    </label>
   </section>
 
   <section class="promotions__list" aria-label="Lista de promoções aprovadas">
