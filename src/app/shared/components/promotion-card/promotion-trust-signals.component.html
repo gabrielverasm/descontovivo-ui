@@ -18,11 +18,23 @@
   <img src="/brand/shield.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
 </span>
 
-<span *ngIf="promotion.warningBadge" class="promotion-badge promotion-badge--warning">
+<span
+  *ngIf="promotion.warningBadge"
+  class="promotion-badge promotion-badge--warning"
+  [attr.aria-label]="warningBadgeDescription"
+  [attr.title]="warningBadgeDescription"
+  tabindex="0"
+>
   {{ promotion.warningBadge }}
 </span>
 
-<span *ngIf="promotion.couponCode" class="promotion-badge promotion-badge--coupon">
+<span
+  *ngIf="promotion.couponCode"
+  class="promotion-badge promotion-badge--coupon"
+  [attr.aria-label]="couponBadgeDescription"
+  [attr.title]="couponBadgeDescription"
+  tabindex="0"
+>
   Cupom {{ promotion.couponCode }}
 </span>
 

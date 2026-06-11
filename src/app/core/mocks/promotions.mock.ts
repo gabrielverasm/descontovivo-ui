@@ -23,6 +23,7 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     likesCount: 184,
     dislikesCount: 9,
     commentsCount: 23,
+    latestCommentPreview: 'Muito bom preço, comprei ontem e chegou rápido.',
     status: 'approved',
     createdAt: '2026-05-28T13:20:00.000Z',
     createdBy: 'user-ana'
@@ -52,6 +53,7 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     likesCount: 312,
     dislikesCount: 14,
     commentsCount: 48,
+    latestCommentPreview: 'Para quem usa Alexa todo dia, esse valor está bem interessante.',
     status: 'approved',
     createdAt: '2026-05-29T10:45:00.000Z',
     createdBy: 'user-joao'
@@ -78,6 +80,7 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     likesCount: 96,
     dislikesCount: 7,
     commentsCount: 11,
+    latestCommentPreview: 'Boa opção compacta para cozinha pequena.',
     status: 'approved',
     createdAt: '2026-05-29T09:45:00.000Z',
     createdBy: 'user-bruno'

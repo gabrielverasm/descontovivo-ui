@@ -13,6 +13,7 @@
 }
 
 .promotion-signal:focus-visible,
+.promotion-badge:focus-visible,
 a:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.28);
   outline-offset: 3px;
@@ -26,8 +27,8 @@ a:focus-visible {
 }
 
 .promotion-signal--deal {
-  width: 1rem;
-  height: 1.32rem;
+  width: 1.16rem;
+  height: 1.48rem;
 }
 
 .promotion-signal--review {

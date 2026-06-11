@@ -1,4 +1,4 @@
-import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
+import { CurrencyPipe, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -12,7 +12,6 @@ import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.componen
   standalone: true,
   imports: [
     CurrencyPipe,
-    NgFor,
     NgIf,
     PromotionContextComponent,
     PromotionTrustSignalsComponent,
@@ -32,5 +31,9 @@ export class PromotionCardComponent {
 
   get promotion() {
     return this.currentPromotion;
+  }
+
+  get latestCommentPreview() {
+    return this.promotion.latestCommentPreview || 'ainda não há comentários';
   }
 }

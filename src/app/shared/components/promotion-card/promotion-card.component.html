@@ -19,42 +19,42 @@
 
     <p>{{ promotion.description }}</p>
 
-    <app-promotion-trust-signals
-      [promotion]="promotion"
-      aria-label="Sinais da promoção"
-    ></app-promotion-trust-signals>
-
-    <div class="promotion-card__deal-row">
-      <div class="promotion-card__prices">
-        <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
-        <span class="promotion-card__original-price" *ngIf="promotion.originalPrice">
-          {{ promotion.originalPrice | currency: 'BRL' }}
-        </span>
-        <small *ngIf="promotion.discountPercentage"> -{{ promotion.discountPercentage }}% </small>
-
-        <app-promotion-vote-buttons
-          [promotion]="promotion"
-          aria-label="Avaliar preço da promoção"
-        ></app-promotion-vote-buttons>
-      </div>
+    <div class="promotion-card__top-row">
+      <app-promotion-trust-signals
+        [promotion]="promotion"
+        aria-label="Sinais da promoção"
+      ></app-promotion-trust-signals>
 
       <app-promotion-context [promotion]="promotion"></app-promotion-context>
     </div>
 
-    <div class="promotion-card__footer">
-      <div class="promotion-card__tags" aria-label="Tags da promoção">
-        <span *ngFor="let tag of promotion.tags">#{{ tag }}</span>
-      </div>
+    <div class="promotion-card__deal-row">
+      <div class="promotion-card__deal-main">
+        <div class="promotion-card__prices">
+          <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
+          <span class="promotion-card__original-price" *ngIf="promotion.originalPrice">
+            {{ promotion.originalPrice | currency: 'BRL' }}
+          </span>
+          <small *ngIf="promotion.discountPercentage"> -{{ promotion.discountPercentage }}% </small>
 
-      <div class="promotion-card__actions">
-        <span>{{ promotion.commentsCount }} comentários</span>
+          <app-promotion-vote-buttons
+            [promotion]="promotion"
+            aria-label="Avaliar preço da promoção"
+          ></app-promotion-vote-buttons>
+        </div>
+
         <a
+          class="promotion-card__offer-link"
           [href]="promotion.offerUrl || promotion.storeUrl"
           target="_blank"
           rel="noopener noreferrer"
           >Ver oferta</a
         >
       </div>
+
+      <p class="promotion-card__comment-preview">
+        {{ promotion.commentsCount }} comentários: {{ latestCommentPreview }}
+      </p>
     </div>
   </div>
 </article>

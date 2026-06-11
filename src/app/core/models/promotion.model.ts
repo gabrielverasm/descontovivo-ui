@@ -29,6 +29,7 @@ export interface Promotion {
   likesCount: number;
   dislikesCount?: number;
   commentsCount: number;
+  latestCommentPreview?: string;
   status: PromotionStatus;
   createdAt: string;
   createdBy: string;
