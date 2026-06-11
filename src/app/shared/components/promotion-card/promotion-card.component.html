@@ -1,11 +1,17 @@
-<article class="promotion-card">
-  <a
+<article
+  class="promotion-card"
+  role="link"
+  tabindex="0"
+  [attr.aria-label]="'Ver detalhes da promoção ' + promotion.title"
+  (click)="openDetails()"
+  (keydown)="openDetailsFromKeyboard($event)"
+>
+  <div
     class="promotion-card__image"
-    [routerLink]="['/promocoes', promotion.id]"
-    [attr.aria-label]="promotion.title"
+    aria-hidden="true"
   >
     <img [src]="promotion.imageUrl" [alt]="promotion.title" loading="lazy" />
-  </a>
+  </div>
 
   <div class="promotion-card__content">
     <div class="promotion-card__meta">
@@ -13,9 +19,7 @@
       <span>{{ promotion.category }}</span>
     </div>
 
-    <h2>
-      <a [routerLink]="['/promocoes', promotion.id]">{{ promotion.title }}</a>
-    </h2>
+    <h2>{{ promotion.title }}</h2>
 
     <p>{{ promotion.description }}</p>
 
@@ -43,13 +47,22 @@
           ></app-promotion-vote-buttons>
         </div>
 
-        <a
-          class="promotion-card__offer-link"
+        <div class="promotion-card__actions" aria-label="Ações da promoção">
+          <a
+            class="promotion-card__offer-link promotion-card__offer-link--primary"
+            [routerLink]="['/promocoes', promotion.id]"
+            (click)="$event.stopPropagation()"
+            >Ver detalhes</a
+          >
+          <a
+            class="promotion-card__offer-link promotion-card__offer-link--secondary"
           [href]="promotion.offerUrl || promotion.storeUrl"
           target="_blank"
           rel="noopener noreferrer"
-          >Ver oferta</a
-        >
+            (click)="$event.stopPropagation()"
+            >{{ externalOfferLabel }}</a
+          >
+        </div>
       </div>
 
       <p class="promotion-card__comment-preview">

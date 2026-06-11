@@ -7,6 +7,7 @@
   border-radius: 14px;
   background: #fff;
   box-shadow: 0 10px 24px rgba(17, 24, 39, 0.045);
+  cursor: pointer;
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease,
@@ -17,6 +18,11 @@
   border-color: rgba(37, 99, 235, 0.24);
   box-shadow: 0 14px 32px rgba(17, 24, 39, 0.08);
   transform: translateY(-1px);
+}
+
+.promotion-card:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
 }
 
 .promotion-card__image {
@@ -99,6 +105,14 @@ p {
   justify-content: space-between;
 }
 
+.promotion-card__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .promotion-card__prices {
   display: flex;
   flex-wrap: wrap;
@@ -131,13 +145,24 @@ p {
 .promotion-card__offer-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 2.25rem;
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: #172033;
-  color: #fff;
   font-weight: 850;
   padding: 0 0.82rem;
+}
+
+.promotion-card__offer-link--primary {
+  background: #172033;
+  color: #fff;
   box-shadow: 0 10px 20px rgba(23, 32, 51, 0.16);
+}
+
+.promotion-card__offer-link--secondary {
+  border-color: rgba(23, 32, 51, 0.18);
+  background: #fff;
+  color: #172033;
 }
 
 .promotion-card__comment-preview {
@@ -151,9 +176,14 @@ p {
   white-space: nowrap;
 }
 
-.promotion-card__offer-link:hover {
+.promotion-card__offer-link--primary:hover {
   background: #2563eb;
   color: #fff;
+}
+
+.promotion-card__offer-link--secondary:hover {
+  border-color: rgba(37, 99, 235, 0.28);
+  color: #2563eb;
 }
 
 @media (max-width: 760px) {

@@ -5,7 +5,7 @@
   [class.is-active]="userPriceVote === 'like'"
   [attr.aria-pressed]="userPriceVote === 'like'"
   [attr.title]="localLikesCount + ' pessoas curtiram o preço'"
-  (click)="toggleLikePrice()"
+  (click)="$event.stopPropagation(); toggleLikePrice()"
 >
   <img src="/brand/like.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
   <span>{{ localLikesCount }}</span>
@@ -18,7 +18,7 @@
   [class.is-active]="userPriceVote === 'dislike'"
   [attr.aria-pressed]="userPriceVote === 'dislike'"
   [attr.title]="localDislikesCount + ' pessoas não curtiram o preço'"
-  (click)="toggleDislikePrice()"
+  (click)="$event.stopPropagation(); toggleDislikePrice()"
 >
   <img src="/brand/dislike.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
   <span>{{ localDislikesCount }}</span>
