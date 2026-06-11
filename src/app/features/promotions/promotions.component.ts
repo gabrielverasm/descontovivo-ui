@@ -53,7 +53,16 @@ export class PromotionsComponent {
 
   @HostListener('window:scroll')
   onWindowScroll() {
-    this.showBackToTop = window.scrollY > 480;
+    const scrollY = window.scrollY;
+
+    if (!this.showBackToTop && scrollY > 8) {
+      this.showBackToTop = true;
+      return;
+    }
+
+    if (this.showBackToTop && scrollY <= 1) {
+      this.showBackToTop = false;
+    }
   }
 
   loadMorePromotions() {

@@ -12,7 +12,7 @@
   margin-top: clamp(0.35rem, 1.5vw, 0.8rem);
   padding: 0.7rem 0.8rem;
   border: 1px solid rgba(229, 231, 235, 0.9);
-  border-radius: 12px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 6px 18px rgba(17, 24, 39, 0.04);
 }
@@ -58,7 +58,7 @@ h1 {
   width: 100%;
   min-height: 2.65rem;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 14px;
   background: #fff;
   padding: 0 1rem;
   color: #111827;
@@ -130,10 +130,10 @@ h1 {
 
 .promotions__load-more button {
   min-height: 3rem;
-  border-radius: 10px;
+  border-radius: 999px;
   background: #172033;
   color: #fff;
-  padding: 0 1.1rem;
+  padding: 0 1.25rem;
 }
 
 .promotions__load-more button:hover:not(:disabled) {
@@ -162,29 +162,38 @@ h1 {
   width: 2.875rem;
   height: 2.875rem;
   border-radius: 999px;
-  border: 1px solid rgba(203, 213, 225, 0.42);
-  background: #1f2a3d;
+  border: 1px solid rgba(203, 213, 225, 0.34);
+  background: #172033;
   color: #fff;
-  box-shadow: 0 14px 28px rgba(17, 24, 39, 0.2);
+  box-shadow: 0 14px 30px rgba(17, 24, 39, 0.22);
   transition:
     background 160ms ease,
+    opacity 160ms ease,
     box-shadow 160ms ease,
     transform 160ms ease;
 }
 
 .promotions__back-to-top::before {
   content: '';
-  width: 0.72rem;
-  height: 0.72rem;
-  border-top: 2px solid currentColor;
-  border-left: 2px solid currentColor;
-  transform: translateY(0.15rem) rotate(45deg);
+  width: 0.68rem;
+  height: 0.68rem;
+  border-top: 3px solid currentColor;
+  border-left: 3px solid currentColor;
+  border-radius: 2px 0 0;
+  transform: translateY(0.18rem) rotate(45deg);
 }
 
 .promotions__back-to-top:hover {
   background: #2563eb;
   box-shadow: 0 16px 32px rgba(37, 99, 235, 0.26);
   transform: translateY(-1px);
+}
+
+@starting-style {
+  .promotions__back-to-top {
+    opacity: 0;
+    transform: translateY(0.35rem) scale(0.96);
+  }
 }
 
 @media (max-width: 640px) {

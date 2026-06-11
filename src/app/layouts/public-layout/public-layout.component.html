@@ -1,12 +1,13 @@
 <div class="public-layout">
   <header class="public-layout__header" [class.public-layout__header--compact]="isHeaderCompact">
     <a class="public-layout__brand" routerLink="/" aria-label="DescontoVivo início">
-      <img src="/brand/logo-icon.png" alt="DescontoVivo" />
+      <img src="/brand/logo-icon-dark.png" alt="DescontoVivo" />
     </a>
 
     <nav class="public-layout__nav" aria-label="Navegação principal">
       <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Promoções</a>
       <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
+      <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
       <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
       <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
     </nav>
@@ -33,6 +34,7 @@
     >
       <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Promoções</a>
       <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
+      <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
       <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
       <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
     </nav>
