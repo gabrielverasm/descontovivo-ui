@@ -30,6 +30,13 @@ export class PublicLayoutComponent {
     }
   }
 
+  @HostListener('document:keydown.escape')
+  closeMenuOnEscape() {
+    if (this.isMenuOpen) {
+      this.closeMenu();
+    }
+  }
+
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
   }

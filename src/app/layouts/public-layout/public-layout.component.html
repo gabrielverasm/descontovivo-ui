@@ -24,7 +24,7 @@
         type="button"
         [attr.aria-label]="isMenuOpen ? 'Fechar menu' : 'Abrir menu'"
         [attr.aria-expanded]="isMenuOpen"
-        aria-controls="public-layout-menu"
+        aria-controls="public-layout-compact-menu"
         (click)="toggleMenu()"
       >
         <img class="public-layout__button-icon public-layout__button-icon--mono" src="/brand/sanduiche-mono.svg" alt="" aria-hidden="true" />
@@ -32,7 +32,7 @@
       </button>
 
       <nav
-        id="public-layout-menu"
+        id="public-layout-compact-menu"
         class="public-layout__menu"
         [class.is-open]="isMenuOpen"
         [attr.aria-hidden]="!isMenuOpen"
@@ -53,7 +53,7 @@
     </div>
   </header>
 
-  <div class="public-layout__content">
+  <div class="public-layout__content" (click)="closeMenu()">
     <router-outlet />
   </div>
 
