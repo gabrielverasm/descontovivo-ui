@@ -1,4 +1,4 @@
-import { DatePipe, Location, NgFor, NgIf } from '@angular/common';
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -45,7 +45,6 @@ interface CommentReply {
 })
 export class PromotionDetailComponent {
   private readonly commentsPageSize = 5;
-  private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   readonly promotion = APPROVED_PROMOTIONS_MOCK.find(
@@ -141,12 +140,9 @@ export class PromotionDetailComponent {
   }
 
   returnToPromotionsList() {
-    if (window.history.length > 1) {
-      this.location.back();
-      return;
-    }
-
-    void this.router.navigate(['/promocoes']);
+    void this.router.navigate(['/promocoes'], {
+      queryParams: this.promotion ? { highlight: this.promotion.id } : undefined,
+    });
   }
 
   private normalizeDestinationName(destinationName: string) {

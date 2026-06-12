@@ -112,6 +112,22 @@
   min-width: 0;
 }
 
+.promotions__item {
+  border-radius: 16px;
+}
+
+.promotions__item--highlighted {
+  outline: 3px solid rgba(37, 99, 235, 0.42);
+  outline-offset: 4px;
+  animation: promotion-highlight 1.2s ease-in-out 2;
+}
+
+@keyframes promotion-highlight {
+  50% {
+    box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.12);
+  }
+}
+
 .promotions__load-more {
   display: grid;
   justify-items: center;
@@ -158,6 +174,12 @@
 .promotions__load-more button:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.28);
   outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promotions__item--highlighted {
+    animation: none;
+  }
 }
 
 @media (max-width: 640px) {

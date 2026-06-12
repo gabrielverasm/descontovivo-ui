@@ -14,10 +14,14 @@
   </section>
 
   <section class="promotions__list" aria-label="Lista de promoções aprovadas">
-    <app-promotion-card
+    <div
       *ngFor="let promotion of visiblePromotions"
-      [promotion]="promotion"
-    />
+      class="promotions__item"
+      [class.promotions__item--highlighted]="promotion.id === highlightedPromotionId"
+      [attr.data-promotion-id]="promotion.id"
+    >
+      <app-promotion-card [promotion]="promotion" />
+    </div>
 
     <app-empty-state
       *ngIf="!filteredPromotions.length"
