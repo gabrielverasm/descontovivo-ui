@@ -25,16 +25,7 @@
           <app-promotion-context [promotion]="promotion"></app-promotion-context>
         </div>
 
-        <div class="promotion-detail__price">
-          <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
-          <span
-            class="promotion-detail__price-reference"
-            *ngIf="promotion.originalPrice || promotion.discountPercentage"
-          >
-            <small *ngIf="promotion.discountPercentage">-{{ promotion.discountPercentage }}%</small>
-            <span *ngIf="promotion.originalPrice">{{ promotion.originalPrice | currency: 'BRL' }}</span>
-          </span>
-        </div>
+        <app-promotion-price [promotion]="promotion" />
 
         <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
 

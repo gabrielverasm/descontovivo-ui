@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe, Location, NgFor, NgIf } from '@angular/common';
+import { DatePipe, Location, NgFor, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,6 +12,7 @@ import {
 import { APPROVED_PROMOTIONS_MOCK } from '../../core/mocks/promotions.mock';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
+import { PromotionPriceComponent } from '../../shared/components/promotion-price/promotion-price.component';
 import { PromotionTrustSignalsComponent } from '../../shared/components/promotion-card/promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from '../../shared/components/promotion-card/promotion-vote-buttons.component';
 
@@ -27,13 +28,13 @@ interface CommentReply {
   selector: 'app-promotion-detail',
   standalone: true,
   imports: [
-    CurrencyPipe,
     DatePipe,
     EmptyStateComponent,
     FormsModule,
     NgFor,
     NgIf,
     PromotionContextComponent,
+    PromotionPriceComponent,
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent
   ],

@@ -1,4 +1,4 @@
-import { CurrencyPipe, NgIf } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
@@ -10,6 +10,7 @@ import { USERS_MOCK } from '../../../core/mocks/users.mock';
 import { Promotion } from '../../../core/models/promotion.model';
 import { User } from '../../../core/models/user.model';
 import { PromotionContextComponent } from './promotion-context.component';
+import { PromotionPriceComponent } from '../promotion-price/promotion-price.component';
 import { PromotionTrustSignalsComponent } from './promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.component';
 
@@ -17,9 +18,9 @@ import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.componen
   selector: 'app-promotion-card',
   standalone: true,
   imports: [
-    CurrencyPipe,
     NgIf,
     PromotionContextComponent,
+    PromotionPriceComponent,
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent,
     RouterLink,

@@ -1,0 +1,34 @@
+.promotion-price {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.72rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.promotion-price strong {
+  color: #087f5b;
+  font-size: clamp(1.24rem, 2.5vw, 1.8rem);
+  line-height: 1;
+}
+
+.promotion-price__reference {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.promotion-price__reference span {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-decoration: line-through;
+}
+
+.promotion-price__reference small {
+  border-radius: 999px;
+  background: rgba(8, 127, 91, 0.12);
+  color: #087f5b;
+  font-size: 0.72rem;
+  font-weight: 850;
+  padding: 0.16rem 0.38rem;
+}

@@ -166,36 +166,6 @@ p {
   min-width: 0;
 }
 
-.promotion-card__prices strong {
-  color: #e11d48;
-  font-size: clamp(1.24rem, 2.5vw, 1.45rem);
-  line-height: 1;
-}
-
-.promotion-card__price-reference {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 0.08rem;
-  align-items: flex-start;
-  line-height: 1;
-}
-
-.promotion-card__original-price {
-  color: #94a3b8;
-  font-size: 0.86rem;
-  text-decoration: line-through;
-}
-
-.promotion-card__price-reference small {
-  width: fit-content;
-  border-radius: 999px;
-  background: rgba(225, 29, 72, 0.1);
-  color: #be123c;
-  font-size: 0.72rem;
-  font-weight: 850;
-  padding: 0.16rem 0.38rem;
-}
-
 .promotion-card__prices app-promotion-vote-buttons {
   margin-left: 0.35rem;
   padding-left: 0.82rem;

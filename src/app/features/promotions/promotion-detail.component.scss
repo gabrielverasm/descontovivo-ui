@@ -135,7 +135,6 @@ dt {
 }
 
 :is(
-  .promotion-detail__price,
   .promotion-detail__tags,
   dl,
   .promotion-detail__comments-heading,
@@ -149,35 +148,10 @@ dt {
   align-items: center;
 }
 
-.promotion-detail__price strong {
-  color: #e11d48;
-  font-size: clamp(1.45rem, 3vw, 1.8rem);
-  line-height: 1;
-}
-
-.promotion-detail__price-reference {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.promotion-detail__price-reference span {
-  color: #94a3b8;
-  font-size: 0.9rem;
-  text-decoration: line-through;
-}
-
-.promotion-detail__price-reference small,
 .promotion-detail__tags span {
   border-radius: 999px;
   font-weight: 800;
   padding: 0.18rem 0.4rem;
-}
-
-.promotion-detail__price-reference small {
-  background: rgba(225, 29, 72, 0.1);
-  color: #be123c;
-  font-size: 0.72rem;
 }
 
 .promotion-detail__tags span {
