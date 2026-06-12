@@ -1,44 +1,126 @@
 <main class="promotion-detail">
-  <a class="promotion-detail__back" routerLink="/promocoes">Voltar para promoções</a>
+  <button class="promotion-detail__back" type="button" (click)="returnToPromotionsList()">
+    Voltar para lista de promoções
+  </button>
 
-  <article *ngIf="promotion; else notFound" class="promotion-detail__content">
-    <img [src]="promotion.imageUrl" [alt]="promotion.title" />
+  <ng-container *ngIf="promotion; else notFound">
+    <article class="promotion-detail__content">
+      <img [src]="promotion.imageUrl" [alt]="promotion.title" />
 
-    <section>
-      <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
-      <h1>{{ promotion.title }}</h1>
-      <p class="promotion-detail__description">{{ promotion.description }}</p>
+      <section>
+        <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
+        <h1>{{ promotion.title }}</h1>
+        <p class="promotion-detail__description">{{ promotion.description }}</p>
 
-      <div class="promotion-detail__price">
-        <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
-        <span *ngIf="promotion.originalPrice">{{ promotion.originalPrice | currency: 'BRL' }}</span>
-        <small *ngIf="promotion.discountPercentage">-{{ promotion.discountPercentage }}%</small>
+        <div class="promotion-detail__price">
+          <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
+          <span *ngIf="promotion.originalPrice">{{ promotion.originalPrice | currency: 'BRL' }}</span>
+          <small *ngIf="promotion.discountPercentage">-{{ promotion.discountPercentage }}%</small>
+        </div>
+
+        <div class="promotion-detail__tags" aria-label="Tags da promoção">
+          <span *ngFor="let tag of promotion.tags">#{{ tag }}</span>
+        </div>
+
+        <dl>
+          <div>
+            <dt>Curtidas</dt>
+            <dd>{{ promotion.likesCount }}</dd>
+          </div>
+          <div>
+            <dt>Comentários</dt>
+            <dd>{{ totalCommentsCount }}</dd>
+          </div>
+          <div>
+            <dt>Publicado em</dt>
+            <dd>{{ promotion.createdAt | date: 'dd/MM/yyyy' }}</dd>
+          </div>
+        </dl>
+
+        <a class="promotion-detail__cta" [href]="promotion.storeUrl" target="_blank" rel="noopener">
+          Ver loja
+        </a>
+      </section>
+    </article>
+
+    <section class="promotion-detail__comments" aria-labelledby="promotion-comments-title">
+      <div class="promotion-detail__comments-heading">
+        <div>
+          <p>Comunidade</p>
+          <h2 id="promotion-comments-title">Comentários</h2>
+        </div>
+        <span>{{ shownCommentsCount }} de {{ totalCommentsCount }}</span>
       </div>
 
-      <div class="promotion-detail__tags" aria-label="Tags da promoção">
-        <span *ngFor="let tag of promotion.tags">#{{ tag }}</span>
+      <div *ngIf="comments.length; else emptyComments" class="promotion-detail__comments-list">
+        <article *ngFor="let comment of visibleComments" class="promotion-detail__comment">
+          <div class="promotion-detail__comment-avatar" aria-hidden="true">
+            {{ comment.author.name.charAt(0) }}
+          </div>
+
+          <div class="promotion-detail__comment-body">
+            <header>
+              <strong>{{ comment.author.name }}</strong>
+              <span>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </header>
+            <p>{{ comment.content }}</p>
+
+            <div class="promotion-detail__comment-actions">
+              <app-promotion-vote-buttons
+                [likesCount]="comment.likesCount"
+                [dislikesCount]="comment.dislikesCount"
+                contextLabel="comentário"
+              ></app-promotion-vote-buttons>
+
+              <button type="button" (click)="toggleReplyForm(comment)">
+                {{ openReplyForms[comment.id] ? 'Cancelar' : 'Responder' }}
+              </button>
+            </div>
+
+            <div *ngIf="getCommentReplies(comment).length" class="promotion-detail__replies">
+              <article *ngFor="let reply of getCommentReplies(comment)" class="promotion-detail__reply">
+                <header>
+                  <strong>{{ reply.authorName }}</strong>
+                  <span>{{ reply.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                </header>
+                <p>{{ reply.content }}</p>
+              </article>
+            </div>
+
+            <form
+              *ngIf="openReplyForms[comment.id]"
+              class="promotion-detail__reply-form"
+              (ngSubmit)="addReply(comment)"
+            >
+              <textarea
+                name="reply-{{ comment.id }}"
+                [(ngModel)]="replyDrafts[comment.id]"
+                rows="3"
+                placeholder="Escreva uma resposta"
+                aria-label="Responder comentário"
+              ></textarea>
+              <button type="submit">Enviar resposta</button>
+            </form>
+          </div>
+        </article>
+
+        <button
+          *ngIf="hasMoreComments"
+          class="promotion-detail__comments-more"
+          type="button"
+          (click)="loadMoreComments()"
+        >
+          Carregar mais comentários
+        </button>
       </div>
 
-      <dl>
-        <div>
-          <dt>Curtidas</dt>
-          <dd>{{ promotion.likesCount }}</dd>
-        </div>
-        <div>
-          <dt>Comentários</dt>
-          <dd>{{ promotion.commentsCount }}</dd>
-        </div>
-        <div>
-          <dt>Publicado em</dt>
-          <dd>{{ promotion.createdAt | date: 'dd/MM/yyyy' }}</dd>
-        </div>
-      </dl>
-
-      <a class="promotion-detail__cta" [href]="promotion.storeUrl" target="_blank" rel="noopener">
-        Ver loja
-      </a>
+      <ng-template #emptyComments>
+        <p class="promotion-detail__comments-empty">
+          Ainda não há comentários para esta promoção.
+        </p>
+      </ng-template>
     </section>
-  </article>
+  </ng-container>
 
   <ng-template #notFound>
     <app-empty-state
