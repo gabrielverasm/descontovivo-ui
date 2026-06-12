@@ -6,16 +6,7 @@
   (click)="openDetails()"
   (keydown)="openDetailsFromKeyboard($event)"
 >
-  <div class="promotion-card__image">
-    <img
-      *ngIf="!imageUnavailable"
-      [src]="promotion.imageUrl"
-      [alt]="promotion.title"
-      loading="lazy"
-      (error)="markImageUnavailable()"
-    />
-    <span *ngIf="imageUnavailable">Produto sem imagem</span>
-  </div>
+  <app-promotion-image [promotion]="promotion" />
 
   <div class="promotion-card__content">
     <div class="promotion-card__title-row">

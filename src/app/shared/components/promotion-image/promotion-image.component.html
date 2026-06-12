@@ -1,0 +1,8 @@
+<img
+  *ngIf="!imageUnavailable"
+  [src]="promotion.imageUrl"
+  [alt]="promotion.title"
+  loading="lazy"
+  (error)="markImageUnavailable()"
+/>
+<span *ngIf="imageUnavailable">Produto sem imagem</span>

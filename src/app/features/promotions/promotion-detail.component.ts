@@ -12,6 +12,7 @@ import {
 import { APPROVED_PROMOTIONS_MOCK } from '../../core/mocks/promotions.mock';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
+import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
 import { PromotionPriceComponent } from '../../shared/components/promotion-price/promotion-price.component';
 import { PromotionTrustSignalsComponent } from '../../shared/components/promotion-card/promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from '../../shared/components/promotion-card/promotion-vote-buttons.component';
@@ -34,6 +35,7 @@ interface CommentReply {
     NgFor,
     NgIf,
     PromotionContextComponent,
+    PromotionImageComponent,
     PromotionPriceComponent,
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent
@@ -53,7 +55,6 @@ export class PromotionDetailComponent {
   readonly replyDrafts: Record<string, string> = {};
   readonly openReplyForms: Record<string, boolean> = {};
   readonly localRepliesByComment: Record<string, CommentReply[]> = {};
-  imageUnavailable = !this.promotion?.imageUrl?.trim();
   visibleCommentsCount = this.commentsPageSize;
 
   get visibleComments() {
@@ -137,10 +138,6 @@ export class PromotionDetailComponent {
       this.visibleCommentsCount + this.commentsPageSize,
       this.comments.length
     );
-  }
-
-  markImageUnavailable() {
-    this.imageUnavailable = true;
   }
 
   returnToPromotionsList() {

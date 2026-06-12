@@ -10,6 +10,7 @@ import { USERS_MOCK } from '../../../core/mocks/users.mock';
 import { Promotion } from '../../../core/models/promotion.model';
 import { User } from '../../../core/models/user.model';
 import { PromotionContextComponent } from './promotion-context.component';
+import { PromotionImageComponent } from '../promotion-image/promotion-image.component';
 import { PromotionPriceComponent } from '../promotion-price/promotion-price.component';
 import { PromotionTrustSignalsComponent } from './promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.component';
@@ -20,6 +21,7 @@ import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.componen
   imports: [
     NgIf,
     PromotionContextComponent,
+    PromotionImageComponent,
     PromotionPriceComponent,
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent,
@@ -30,18 +32,7 @@ import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.componen
 })
 export class PromotionCardComponent {
   private readonly router = inject(Router);
-  private currentPromotion!: Promotion;
-  imageUnavailable = false;
-
-  @Input({ required: true })
-  set promotion(promotion: Promotion) {
-    this.currentPromotion = promotion;
-    this.imageUnavailable = !promotion.imageUrl?.trim();
-  }
-
-  get promotion() {
-    return this.currentPromotion;
-  }
+  @Input({ required: true }) promotion!: Promotion;
 
   get latestCommentPreview() {
     const latestComment = getLatestPromotionComment(this.promotion.id);
@@ -145,7 +136,4 @@ export class PromotionCardComponent {
     this.openDetails();
   }
 
-  markImageUnavailable() {
-    this.imageUnavailable = true;
-  }
 }

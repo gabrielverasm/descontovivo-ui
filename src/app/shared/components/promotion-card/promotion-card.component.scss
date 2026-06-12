@@ -20,29 +20,6 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
-.promotion-card__image {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1;
-  overflow: hidden;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.58);
-}
-
-.promotion-card__image img {
-  width: calc(100% - 1rem);
-  height: calc(100% - 1rem);
-  object-fit: contain;
-}
-
-.promotion-card__image span {
-  color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 750;
-  text-align: center;
-}
-
 .promotion-card__content {
   display: grid;
   align-content: start;
@@ -223,7 +200,4 @@ p {
     grid-template-columns: 1fr;
   }
 
-  .promotion-card__image {
-    max-width: 240px;
-  }
 }

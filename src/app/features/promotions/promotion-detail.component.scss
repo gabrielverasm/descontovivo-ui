@@ -64,26 +64,6 @@
   padding: 0.72rem;
 }
 
-.promotion-detail__image {
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1;
-  overflow: hidden;
-  border-radius: 12px;
-  box-shadow: inset 0 0 0 1px rgba(226, 232, 240, 0.58);
-}
-
-.promotion-detail__image img {
-  width: calc(100% - 1rem);
-  height: calc(100% - 1rem);
-  object-fit: contain;
-}
-
-.promotion-detail__image span {
-  color: #64748b;
-  font-weight: 750;
-}
-
 :is(
   .promotion-detail__content section,
   .promotion-detail__comments,

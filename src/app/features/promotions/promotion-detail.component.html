@@ -1,16 +1,7 @@
 <main class="promotion-detail">
   <ng-container *ngIf="promotion; else notFound">
     <article class="promotion-detail__content">
-      <div class="promotion-detail__image">
-        <img
-          *ngIf="!imageUnavailable"
-          [src]="promotion.imageUrl"
-          [alt]="promotion.title"
-          loading="lazy"
-          (error)="markImageUnavailable()"
-        />
-        <span *ngIf="imageUnavailable">Produto sem imagem</span>
-      </div>
+      <app-promotion-image [promotion]="promotion" variant="detail" />
 
       <section>
         <h1>{{ promotion.title }}</h1>
