@@ -5,13 +5,19 @@
 
 .promotion-context {
   display: grid;
-  grid-template-columns: repeat(3, minmax(8rem, 1fr));
-  gap: 0.32rem 0.75rem;
+  grid-template-columns: repeat(3, minmax(8rem, max-content));
+  gap: 0.32rem 1.35rem;
+  justify-content: end;
   margin: 0;
+  text-align: left;
 }
 
 div {
   min-width: 0;
+}
+
+.promotion-context--merged > div:first-child {
+  grid-column: 2;
 }
 
 dt {
@@ -96,5 +102,9 @@ a:focus-visible,
 @media (max-width: 520px) {
   .promotion-context {
     grid-template-columns: 1fr;
+  }
+
+  .promotion-context--merged > div:first-child {
+    grid-column: auto;
   }
 }

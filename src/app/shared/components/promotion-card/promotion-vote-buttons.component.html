@@ -1,10 +1,10 @@
 <button
   class="promotion-vote promotion-vote--like"
   type="button"
-  aria-label="Curti o preço"
+  [attr.aria-label]="likeAriaLabel"
   [class.is-active]="userPriceVote === 'like'"
   [attr.aria-pressed]="userPriceVote === 'like'"
-  [attr.title]="localLikesCount + ' pessoas curtiram o preço'"
+  [attr.title]="likeTitle"
   (click)="$event.stopPropagation(); toggleLikePrice()"
 >
   <img src="/brand/like.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
@@ -14,10 +14,10 @@
 <button
   class="promotion-vote promotion-vote--dislike"
   type="button"
-  aria-label="Não curti o preço"
+  [attr.aria-label]="dislikeAriaLabel"
   [class.is-active]="userPriceVote === 'dislike'"
   [attr.aria-pressed]="userPriceVote === 'dislike'"
-  [attr.title]="localDislikesCount + ' pessoas não curtiram o preço'"
+  [attr.title]="dislikeTitle"
   (click)="$event.stopPropagation(); toggleDislikePrice()"
 >
   <img src="/brand/dislike.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />

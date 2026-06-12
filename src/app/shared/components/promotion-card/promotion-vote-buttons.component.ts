@@ -14,12 +14,45 @@ export class PromotionVoteButtonsComponent {
   userPriceVote: PriceVote = null;
   localLikesCount = 0;
   localDislikesCount = 0;
+  @Input() contextLabel = 'preço';
 
-  @Input({ required: true })
-  set promotion(promotion: Promotion) {
+  @Input()
+  set promotion(promotion: Promotion | undefined) {
+    if (!promotion) {
+      return;
+    }
+
     this.userPriceVote = null;
     this.localLikesCount = promotion.likesCount;
     this.localDislikesCount = promotion.dislikesCount ?? 0;
+  }
+
+  @Input()
+  set likesCount(likesCount: number | undefined) {
+    this.userPriceVote = null;
+    this.localLikesCount = likesCount ?? 0;
+  }
+
+  @Input()
+  set dislikesCount(dislikesCount: number | undefined) {
+    this.userPriceVote = null;
+    this.localDislikesCount = dislikesCount ?? 0;
+  }
+
+  get likeAriaLabel() {
+    return `Curti o ${this.contextLabel}`;
+  }
+
+  get dislikeAriaLabel() {
+    return `Não curti o ${this.contextLabel}`;
+  }
+
+  get likeTitle() {
+    return `${this.localLikesCount} pessoas curtiram o ${this.contextLabel}`;
+  }
+
+  get dislikeTitle() {
+    return `${this.localDislikesCount} pessoas não curtiram o ${this.contextLabel}`;
   }
 
   toggleLikePrice() {

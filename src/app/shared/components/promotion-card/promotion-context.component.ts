@@ -56,6 +56,18 @@ export class PromotionContextComponent {
     return deliveryInfo;
   }
 
+  get sellerProviderName() {
+    return this.promotion.sellerName?.trim() || this.promotion.trustedStoreName?.trim() || '';
+  }
+
+  get isSameSellerAndDelivery() {
+    return Boolean(
+      this.sellerProviderName &&
+        this.deliveryProviderName &&
+        this.normalizeProviderName(this.sellerProviderName) === this.normalizeProviderName(this.deliveryProviderName),
+    );
+  }
+
   get isMarketplaceSeller() {
     return (
       this.promotion.sellerType === 'marketplace' || this.promotion.sellerType === 'third_party'
@@ -67,5 +79,9 @@ export class PromotionContextComponent {
       this.promotion.sellerWarning ||
       'Marketplace: confira reputação do vendedor, prazo, frete e política de troca antes de comprar.'
     );
+  }
+
+  private normalizeProviderName(providerName: string) {
+    return providerName.toLowerCase().replace(/\.com\.br/g, '').trim();
   }
 }

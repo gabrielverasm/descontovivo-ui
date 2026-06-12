@@ -6,20 +6,32 @@
   (click)="openDetails()"
   (keydown)="openDetailsFromKeyboard($event)"
 >
-  <div
-    class="promotion-card__image"
-    aria-hidden="true"
-  >
-    <img [src]="promotion.imageUrl" [alt]="promotion.title" loading="lazy" />
+  <div class="promotion-card__image">
+    <img
+      *ngIf="!imageUnavailable"
+      [src]="promotion.imageUrl"
+      [alt]="promotion.title"
+      loading="lazy"
+      (error)="markImageUnavailable()"
+    />
+    <span *ngIf="imageUnavailable">Produto sem imagem</span>
   </div>
 
   <div class="promotion-card__content">
-    <div class="promotion-card__meta">
-      <span>{{ promotion.storeName }}</span>
-      <span>{{ promotion.category }}</span>
-    </div>
+    <div class="promotion-card__title-row">
+      <h2>{{ promotion.title }}</h2>
 
-    <h2>{{ promotion.title }}</h2>
+      <div class="promotion-card__publisher">
+        <span
+          class="promotion-card__publisher-avatar"
+          [attr.aria-label]="'Publicado por ' + publisher.name"
+        >
+          <img *ngIf="publisher.avatarUrl" [src]="publisher.avatarUrl" [alt]="publisher.name" loading="lazy" />
+          <span class="promotion-card__publisher-tooltip">{{ publisher.name }}</span>
+        </span>
+        <span>{{ publishedAgo }}</span>
+      </div>
+    </div>
 
     <p>{{ promotion.description }}</p>
 
@@ -66,7 +78,7 @@
       </div>
 
       <p class="promotion-card__comment-preview">
-        {{ promotion.commentsCount }} comentários: {{ latestCommentPreview }}
+        {{ actualCommentsCount }} comentários: {{ latestCommentPreview }}
       </p>
     </div>
   </div>

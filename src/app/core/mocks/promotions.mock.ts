@@ -384,6 +384,7 @@ export const PROMOTIONS_MOCK: Promotion[] = [
   }
 ];
 
-export const APPROVED_PROMOTIONS_MOCK = PROMOTIONS_MOCK.filter(
-  (promotion) => promotion.status === 'approved'
+export const APPROVED_PROMOTIONS_MOCK = PROMOTIONS_MOCK.filter((promotion) => promotion.status === 'approved').sort(
+  (firstPromotion, secondPromotion) =>
+    new Date(secondPromotion.createdAt).getTime() - new Date(firstPromotion.createdAt).getTime()
 );

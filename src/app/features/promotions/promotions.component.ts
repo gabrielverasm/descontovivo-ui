@@ -1,5 +1,5 @@
 import { NgFor, NgIf } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { APPROVED_PROMOTIONS_MOCK } from '../../core/mocks/promotions.mock';
@@ -18,7 +18,6 @@ export class PromotionsComponent {
 
   query = '';
   visibleCount = this.pageSize;
-  showBackToTop = false;
   readonly promotions = APPROVED_PROMOTIONS_MOCK;
 
   get filteredPromotions() {
@@ -51,20 +50,6 @@ export class PromotionsComponent {
     return this.visibleCount < this.filteredPromotions.length;
   }
 
-  @HostListener('window:scroll')
-  onWindowScroll() {
-    const scrollY = window.scrollY;
-
-    if (!this.showBackToTop && scrollY > 8) {
-      this.showBackToTop = true;
-      return;
-    }
-
-    if (this.showBackToTop && scrollY <= 1) {
-      this.showBackToTop = false;
-    }
-  }
-
   loadMorePromotions() {
     this.visibleCount = Math.min(this.visibleCount + this.pageSize, this.filteredPromotions.length);
   }
@@ -73,12 +58,4 @@ export class PromotionsComponent {
     this.visibleCount = this.pageSize;
   }
 
-  scrollToTop() {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    window.scrollTo({
-      top: 0,
-      behavior: prefersReducedMotion ? 'auto' : 'smooth'
-    });
-  }
 }
