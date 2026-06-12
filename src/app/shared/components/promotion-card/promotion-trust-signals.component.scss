@@ -19,21 +19,55 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
-.promotion-signal img {
+.promotion-signal img,
+.promotion-signal svg {
   display: block;
   width: 100%;
   height: 100%;
+  fill: currentColor;
   object-fit: contain;
 }
 
 .promotion-signal--deal {
-  width: 1.16rem;
-  height: 1.48rem;
+  color: #ff2323;
+  width: 1.6rem;
+  height: 1.4rem;
+}
+
+.promotion-signal--shipping {
+  color: #f59e0b;
+  width: 1.9rem;
+  height: 1.42rem;
 }
 
 .promotion-signal--review {
+  width: 1.2rem;
+  height: 1.4rem;
+}
+
+.promotion-signal--trusted-marketplace {
   width: 1.42rem;
   height: 1.42rem;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #fff;
+  padding: 0.2rem;
+}
+
+.promotion-signal--warning {
+  width: 1.08rem;
+  height: 1.08rem;
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.14);
+  color: #92400e;
+}
+
+.promotion-signal--warning::before {
+  content: '!';
+  font-size: 0.72rem;
+  font-weight: 950;
+  line-height: 1;
 }
 
 .promotion-badge {
@@ -52,8 +86,8 @@ a:focus-visible {
 }
 
 .promotion-badge--coupon {
-  background: rgba(37, 99, 235, 0.1);
-  border-color: rgba(37, 99, 235, 0.14);
+  background: transparent;
+  border-color: transparent;
   color: #1d4ed8;
 }
 

@@ -48,10 +48,15 @@
       <div class="promotion-card__deal-main">
         <div class="promotion-card__prices">
           <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
-          <span class="promotion-card__original-price" *ngIf="promotion.originalPrice">
-            {{ promotion.originalPrice | currency: 'BRL' }}
+          <span
+            class="promotion-card__price-reference"
+            *ngIf="promotion.originalPrice || promotion.discountPercentage"
+          >
+            <small *ngIf="promotion.discountPercentage"> -{{ promotion.discountPercentage }}% </small>
+            <span class="promotion-card__original-price" *ngIf="promotion.originalPrice">
+              {{ promotion.originalPrice | currency: 'BRL' }}
+            </span>
           </span>
-          <small *ngIf="promotion.discountPercentage"> -{{ promotion.discountPercentage }}% </small>
 
           <app-promotion-vote-buttons
             [promotion]="promotion"

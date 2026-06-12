@@ -21,7 +21,7 @@ export class PromotionContextComponent {
   }
 
   get trustedFulfillmentTitle() {
-    return 'Vendido e entregue por loja reconhecida. Ainda confira as condições no site antes de comprar.';
+    return 'Marketplace grande e reconhecido. Compra mais segura, mas confira as condições antes de finalizar.';
   }
 
   get deliveryProviderName() {
@@ -77,7 +77,7 @@ export class PromotionContextComponent {
   get sellerWarningTitle() {
     return (
       this.promotion.sellerWarning ||
-      'Marketplace: confira reputação do vendedor, prazo, frete e política de troca antes de comprar.'
+      'Vendedor de marketplace menor: confira reputação, prazo, frete e política de troca antes de comprar.'
     );
   }
 

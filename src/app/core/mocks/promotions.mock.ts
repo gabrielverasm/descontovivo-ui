@@ -47,7 +47,8 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     shippingInfo: 'Prime',
     trustedStoreName: 'Amazon',
     isSoldAndDeliveredByTrustedStore: true,
-    trustTooltip: 'Vendido e entregue por loja reconhecida. Ainda confira as condições no site antes de comprar.',
+    trustTooltip:
+      'Marketplace grande e reconhecido. Compra mais segura, mas confira as condições antes de finalizar.',
     trustBadge: 'Vendido e entregue pela loja',
     offerBadge: 'Muito boa',
     likesCount: 312,
@@ -102,7 +103,8 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     sellerType: 'marketplace',
     deliveryInfo: 'Amazon Marketplace',
     shippingInfo: 'Frete alto para algumas regiões',
-    sellerWarning: 'Marketplace: confira reputação do vendedor, prazo, frete e política de troca antes de comprar.',
+    sellerWarning:
+      'Vendedor de marketplace: pode não ser uma loja grande reconhecida. Confira reputação, prazo, frete e política de troca antes de comprar.',
     warningBadge: 'Atenção ao frete',
     offerBadge: 'Boa',
     likesCount: 74,
@@ -131,7 +133,8 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     shippingInfo: 'Cupom MONITOR50',
     trustedStoreName: 'Magalu',
     isSoldAndDeliveredByTrustedStore: true,
-    trustTooltip: 'Vendido e entregue por loja reconhecida. Ainda confira as condições no site antes de comprar.',
+    trustTooltip:
+      'Marketplace grande e reconhecido. Compra mais segura, mas confira as condições antes de finalizar.',
     trustBadge: 'Vendido e entregue pela loja',
     offerBadge: 'Muito boa',
     couponCode: 'MONITOR50',
@@ -159,7 +162,8 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     sellerType: 'marketplace',
     deliveryInfo: 'Marketplace',
     shippingInfo: 'Frete a partir de R$ 12,90',
-    sellerWarning: 'Marketplace: confira reputação do vendedor, prazo, frete e política de troca antes de comprar.',
+    sellerWarning:
+      'Vendedor de marketplace: pode não ser uma loja grande reconhecida. Confira reputação, prazo, frete e política de troca antes de comprar.',
     warningBadge: 'Marketplace',
     offerBadge: 'Boa',
     likesCount: 143,
@@ -186,7 +190,8 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     sellerType: 'third_party',
     deliveryInfo: 'Vendedor terceiro',
     shippingInfo: 'Entrega em até 9 dias úteis',
-    sellerWarning: 'Marketplace: confira reputação do vendedor, prazo, frete e política de troca antes de comprar.',
+    sellerWarning:
+      'Vendedor de marketplace: pode não ser uma loja grande reconhecida. Confira reputação, prazo, frete e política de troca antes de comprar.',
     warningBadge: 'Atenção ao vendedor',
     offerBadge: 'Em análise',
     likesCount: 167,
@@ -215,7 +220,8 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     shippingInfo: 'Prime',
     trustedStoreName: 'Amazon',
     isSoldAndDeliveredByTrustedStore: true,
-    trustTooltip: 'Vendido e entregue por loja reconhecida. Ainda confira as condições no site antes de comprar.',
+    trustTooltip:
+      'Marketplace grande e reconhecido. Compra mais segura, mas confira as condições antes de finalizar.',
     trustBadge: 'Vendido e entregue pela loja',
     offerBadge: 'Boa',
     likesCount: 119,
@@ -269,7 +275,8 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     sellerType: 'marketplace',
     deliveryInfo: 'Marketplace',
     shippingInfo: 'Frete grátis Sul e Sudeste',
-    sellerWarning: 'Marketplace: confira reputação do vendedor, prazo, frete e política de troca antes de comprar.',
+    sellerWarning:
+      'Vendedor de marketplace: pode não ser uma loja grande reconhecida. Confira reputação, prazo, frete e política de troca antes de comprar.',
     warningBadge: 'Marketplace',
     offerBadge: 'Muito boa',
     likesCount: 266,
@@ -348,7 +355,8 @@ export const PROMOTIONS_MOCK: Promotion[] = [
     sellerType: 'marketplace',
     deliveryInfo: 'Vendido por marketplace',
     shippingInfo: 'Frete pode passar do valor do produto',
-    sellerWarning: 'Marketplace: confira reputação do vendedor, prazo, frete e política de troca antes de comprar.',
+    sellerWarning:
+      'Vendedor de marketplace: pode não ser uma loja grande reconhecida. Confira reputação, prazo, frete e política de troca antes de comprar.',
     warningBadge: 'Atenção ao frete',
     offerBadge: 'Boa',
     likesCount: 88,
