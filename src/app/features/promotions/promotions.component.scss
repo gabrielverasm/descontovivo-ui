@@ -40,32 +40,15 @@
     transform 160ms ease;
 }
 
-.promotions__search::before {
-  content: '';
+.promotions__search img {
   position: absolute;
   top: calc(clamp(3.35rem, 7vw, 4rem) / 2);
   left: clamp(1rem, 3vw, 1.18rem);
   z-index: 1;
-  width: 0.84rem;
-  height: 0.84rem;
-  border: 2px solid #64748b;
-  border-radius: 999px;
+  width: 1.35rem;
+  height: 1.35rem;
   pointer-events: none;
   transform: translateY(-50%);
-}
-
-.promotions__search::after {
-  content: '';
-  position: absolute;
-  top: calc((clamp(3.35rem, 7vw, 4rem) / 2) + 0.42rem);
-  left: calc(clamp(1rem, 3vw, 1.18rem) + 0.76rem);
-  z-index: 1;
-  width: 0.48rem;
-  height: 2px;
-  border-radius: 999px;
-  background: #64748b;
-  pointer-events: none;
-  transform: rotate(45deg);
 }
 
 .promotions__search-label {

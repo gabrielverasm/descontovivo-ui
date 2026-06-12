@@ -19,12 +19,10 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
-.promotion-signal img,
-.promotion-signal svg {
+.promotion-signal img {
   display: block;
   width: 100%;
   height: 100%;
-  fill: currentColor;
   object-fit: contain;
 }
 
@@ -57,17 +55,6 @@ a:focus-visible {
 .promotion-signal--warning {
   width: 1.08rem;
   height: 1.08rem;
-  border: 1px solid rgba(245, 158, 11, 0.22);
-  border-radius: 999px;
-  background: rgba(245, 158, 11, 0.14);
-  color: #92400e;
-}
-
-.promotion-signal--warning::before {
-  content: '!';
-  font-size: 0.72rem;
-  font-weight: 950;
-  line-height: 1;
 }
 
 .promotion-badge {
