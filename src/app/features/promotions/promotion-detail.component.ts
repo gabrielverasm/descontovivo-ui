@@ -11,6 +11,8 @@ import {
 } from '../../core/mocks/comments.mock';
 import { APPROVED_PROMOTIONS_MOCK } from '../../core/mocks/promotions.mock';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
+import { PromotionTrustSignalsComponent } from '../../shared/components/promotion-card/promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from '../../shared/components/promotion-card/promotion-vote-buttons.component';
 
 interface CommentReply {
@@ -31,6 +33,8 @@ interface CommentReply {
     FormsModule,
     NgFor,
     NgIf,
+    PromotionContextComponent,
+    PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent
   ],
   templateUrl: './promotion-detail.component.html',
@@ -48,6 +52,7 @@ export class PromotionDetailComponent {
   readonly replyDrafts: Record<string, string> = {};
   readonly openReplyForms: Record<string, boolean> = {};
   readonly localRepliesByComment: Record<string, CommentReply[]> = {};
+  imageUnavailable = !this.promotion?.imageUrl?.trim();
   visibleCommentsCount = this.commentsPageSize;
 
   get visibleComments() {
@@ -73,6 +78,21 @@ export class PromotionDetailComponent {
 
   get hasMoreComments() {
     return this.visibleCommentsCount < this.comments.length;
+  }
+
+  get externalOfferUrl() {
+    return this.promotion?.offerUrl || this.promotion?.storeUrl || '';
+  }
+
+  get externalOfferLabel() {
+    const destinationName = this.normalizeDestinationName(
+      this.promotion?.sellerName?.trim() ||
+        this.promotion?.trustedStoreName?.trim() ||
+        this.promotion?.storeName?.trim() ||
+        '',
+    );
+
+    return destinationName ? `Acessar oferta na ${destinationName}` : 'Acessar oferta';
   }
 
   getCommentReplies(comment: Comment) {
@@ -118,6 +138,10 @@ export class PromotionDetailComponent {
     );
   }
 
+  markImageUnavailable() {
+    this.imageUnavailable = true;
+  }
+
   returnToPromotionsList() {
     if (window.history.length > 1) {
       this.location.back();
@@ -125,5 +149,9 @@ export class PromotionDetailComponent {
     }
 
     void this.router.navigate(['/promocoes']);
+  }
+
+  private normalizeDestinationName(destinationName: string) {
+    return destinationName.toLowerCase() === 'amazon.com.br' ? 'Amazon' : destinationName;
   }
 }

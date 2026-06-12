@@ -1,22 +1,42 @@
 <main class="promotion-detail">
-  <button class="promotion-detail__back" type="button" (click)="returnToPromotionsList()">
-    Voltar para lista de promoções
-  </button>
-
   <ng-container *ngIf="promotion; else notFound">
     <article class="promotion-detail__content">
-      <img [src]="promotion.imageUrl" [alt]="promotion.title" />
+      <div class="promotion-detail__image">
+        <img
+          *ngIf="!imageUnavailable"
+          [src]="promotion.imageUrl"
+          [alt]="promotion.title"
+          loading="lazy"
+          (error)="markImageUnavailable()"
+        />
+        <span *ngIf="imageUnavailable">Produto sem imagem</span>
+      </div>
 
       <section>
-        <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
         <h1>{{ promotion.title }}</h1>
         <p class="promotion-detail__description">{{ promotion.description }}</p>
 
+        <div class="promotion-detail__signals">
+          <app-promotion-trust-signals
+            [promotion]="promotion"
+            aria-label="Sinais da promoção"
+          ></app-promotion-trust-signals>
+
+          <app-promotion-context [promotion]="promotion"></app-promotion-context>
+        </div>
+
         <div class="promotion-detail__price">
           <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
-          <span *ngIf="promotion.originalPrice">{{ promotion.originalPrice | currency: 'BRL' }}</span>
-          <small *ngIf="promotion.discountPercentage">-{{ promotion.discountPercentage }}%</small>
+          <span
+            class="promotion-detail__price-reference"
+            *ngIf="promotion.originalPrice || promotion.discountPercentage"
+          >
+            <small *ngIf="promotion.discountPercentage">-{{ promotion.discountPercentage }}%</small>
+            <span *ngIf="promotion.originalPrice">{{ promotion.originalPrice | currency: 'BRL' }}</span>
+          </span>
         </div>
+
+        <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
 
         <div class="promotion-detail__tags" aria-label="Tags da promoção">
           <span *ngFor="let tag of promotion.tags">#{{ tag }}</span>
@@ -37,9 +57,21 @@
           </div>
         </dl>
 
-        <a class="promotion-detail__cta" [href]="promotion.storeUrl" target="_blank" rel="noopener">
-          Ver loja
-        </a>
+        <div class="promotion-detail__actions">
+          <button class="promotion-detail__back" type="button" (click)="returnToPromotionsList()">
+            Voltar para promoções
+          </button>
+
+          <a
+            class="promotion-detail__cta"
+            [href]="externalOfferUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="externalOfferLabel"
+          >
+            {{ externalOfferLabel }}
+          </a>
+        </div>
       </section>
     </article>
 
