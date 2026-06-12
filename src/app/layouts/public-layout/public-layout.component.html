@@ -2,7 +2,7 @@
   <header class="public-layout__header" [class.public-layout__header--compact]="isHeaderCompact">
     <div class="public-layout__header-inner">
       <a class="public-layout__brand" routerLink="/" aria-label="DescontoVivo início">
-        <img src="/brand/logo-icon-white.svg" alt="DescontoVivo" />
+        <img src="/brand/logo-horizontal-light.png" alt="DescontoVivo" />
       </a>
 
       <nav class="public-layout__nav" aria-label="Navegação principal">
@@ -27,9 +27,8 @@
         aria-controls="public-layout-menu"
         (click)="toggleMenu()"
       >
-        <span></span>
-        <span></span>
-        <span></span>
+        <img class="public-layout__button-icon public-layout__button-icon--mono" src="/brand/sanduiche-mono.svg" alt="" aria-hidden="true" />
+        <img class="public-layout__button-icon public-layout__button-icon--hover" src="/brand/sanduiche-white.svg" alt="" aria-hidden="true" />
       </button>
 
       <nav
@@ -64,5 +63,8 @@
     type="button"
     aria-label="Voltar ao topo"
     (click)="scrollToTop()"
-  ></button>
+  >
+    <img class="public-layout__button-icon public-layout__button-icon--mono" src="/brand/circle-up-mono.svg" alt="" aria-hidden="true" />
+    <img class="public-layout__button-icon public-layout__button-icon--hover" src="/brand/circle-up-white.svg" alt="" aria-hidden="true" />
+  </button>
 </div>
