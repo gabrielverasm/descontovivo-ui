@@ -1,9 +1,10 @@
 import { DatePipe, NgFor, NgIf } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Comment } from '../../core/models/comment.model';
+import { Promotion } from '../../core/models/promotion.model';
 import {
   COMMENTS_MOCK,
   getPromotionCommentCount,
@@ -38,23 +39,29 @@ interface CommentReply {
     PromotionImageComponent,
     PromotionPriceComponent,
     PromotionTrustSignalsComponent,
-    PromotionVoteButtonsComponent
+    PromotionVoteButtonsComponent,
+    RouterLink
   ],
   templateUrl: './promotion-detail.component.html',
   styleUrl: './promotion-detail.component.scss'
 })
-export class PromotionDetailComponent {
+export class PromotionDetailComponent implements OnDestroy {
+  private readonly relatedPageSize = 4;
   private readonly commentsPageSize = 5;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  readonly promotion = APPROVED_PROMOTIONS_MOCK.find(
-    (item) => item.id === this.route.snapshot.paramMap.get('id')
-  );
-  readonly comments = this.promotion ? getRootPromotionComments(this.promotion.id) : [];
+  promotion?: Promotion;
+  comments: Comment[] = [];
   readonly replyDrafts: Record<string, string> = {};
   readonly openReplyForms: Record<string, boolean> = {};
   readonly localRepliesByComment: Record<string, CommentReply[]> = {};
+  relatedPage = 0;
   visibleCommentsCount = this.commentsPageSize;
+  relatedPromotions: Promotion[] = [];
+
+  private readonly routeSubscription = this.route.paramMap.subscribe((params) => {
+    this.setPromotion(params.get('id'));
+  });
 
   get visibleComments() {
     return this.comments.slice(0, this.visibleCommentsCount);
@@ -79,6 +86,23 @@ export class PromotionDetailComponent {
 
   get hasMoreComments() {
     return this.visibleCommentsCount < this.comments.length;
+  }
+
+  get relatedPageCount() {
+    return Math.ceil(this.relatedPromotions.length / this.relatedPageSize);
+  }
+
+  get relatedPages() {
+    return Array.from({ length: this.relatedPageCount }, (_, index) => index + 1);
+  }
+
+  get visibleRelatedPromotions() {
+    const start = this.relatedPage * this.relatedPageSize;
+    return this.relatedPromotions.slice(start, start + this.relatedPageSize);
+  }
+
+  get hasRelatedPagination() {
+    return this.relatedPromotions.length > this.relatedPageSize;
   }
 
   get externalOfferUrl() {
@@ -139,13 +163,104 @@ export class PromotionDetailComponent {
     );
   }
 
+  showPreviousRelatedPromotions() {
+    this.relatedPage = Math.max(0, this.relatedPage - 1);
+  }
+
+  showNextRelatedPromotions() {
+    this.relatedPage = Math.min(this.relatedPageCount - 1, this.relatedPage + 1);
+  }
+
+  showRelatedPromotionsPage(page: number) {
+    this.relatedPage = page - 1;
+  }
+
+  getPublishedAgo(createdAt: string) {
+    const elapsedMilliseconds = Date.now() - new Date(createdAt).getTime();
+    const elapsedHours = Math.max(1, Math.floor(elapsedMilliseconds / 3600000));
+
+    if (elapsedHours < 24) {
+      return `há ${elapsedHours} ${elapsedHours === 1 ? 'hora' : 'horas'}`;
+    }
+
+    const elapsedDays = Math.floor(elapsedHours / 24);
+    return `há ${elapsedDays} ${elapsedDays === 1 ? 'dia' : 'dias'}`;
+  }
+
   returnToPromotionsList() {
     void this.router.navigate(['/promocoes'], {
       queryParams: this.promotion ? { highlight: this.promotion.id } : undefined,
     });
   }
 
+  ngOnDestroy() {
+    this.routeSubscription.unsubscribe();
+  }
+
+  private setPromotion(promotionId: string | null) {
+    this.promotion = APPROVED_PROMOTIONS_MOCK.find((promotion) => promotion.id === promotionId);
+    this.comments = this.promotion ? getRootPromotionComments(this.promotion.id) : [];
+    this.relatedPromotions = this.promotion ? this.findRelatedPromotions(this.promotion) : [];
+    this.relatedPage = 0;
+    this.visibleCommentsCount = this.commentsPageSize;
+  }
+
   private normalizeDestinationName(destinationName: string) {
     return destinationName.toLowerCase() === 'amazon.com.br' ? 'Amazon' : destinationName;
+  }
+
+  private findRelatedPromotions(currentPromotion: Promotion) {
+    const currentTags = new Set(currentPromotion.tags.map((tag) => tag.toLowerCase()));
+    const currentTitleWords = this.getTitleWords(currentPromotion.title);
+    const scoredPromotions = APPROVED_PROMOTIONS_MOCK.filter((promotion) => promotion.id !== currentPromotion.id)
+      .map((promotion) => {
+        const sharedTags = promotion.tags.filter((tag) => currentTags.has(tag.toLowerCase())).length;
+        const titleWords = Array.from(this.getTitleWords(promotion.title));
+        const sharedTitleWords = titleWords.filter((word: string) => currentTitleWords.has(word)).length;
+        const score =
+          (promotion.category === currentPromotion.category ? 10 : 0) +
+          sharedTags * 5 +
+          sharedTitleWords * 2;
+
+        return { promotion, score };
+      })
+      .filter((item) => item.score > 0)
+      .sort((firstItem, secondItem) => {
+        const scoreDifference = secondItem.score - firstItem.score;
+
+        if (scoreDifference !== 0) {
+          return scoreDifference;
+        }
+
+        return this.getPromotionDateTime(secondItem.promotion) - this.getPromotionDateTime(firstItem.promotion);
+      });
+
+    const relatedPromotions = scoredPromotions.map((item) => item.promotion);
+
+    if (relatedPromotions.length >= this.relatedPageSize) {
+      return relatedPromotions;
+    }
+
+    const relatedIds = new Set(relatedPromotions.map((promotion) => promotion.id));
+    const fallbackPromotions = APPROVED_PROMOTIONS_MOCK.filter(
+      (promotion) => promotion.id !== currentPromotion.id && !relatedIds.has(promotion.id),
+    ).sort((firstPromotion, secondPromotion) => (
+      this.getPromotionDateTime(secondPromotion) - this.getPromotionDateTime(firstPromotion)
+    ));
+
+    return [...relatedPromotions, ...fallbackPromotions];
+  }
+
+  private getPromotionDateTime(promotion: Promotion) {
+    return new Date(promotion.createdAt).getTime();
+  }
+
+  private getTitleWords(title: string) {
+    return new Set(
+      title
+        .toLowerCase()
+        .split(/\W+/)
+        .filter((word) => word.length > 2),
+    );
   }
 }

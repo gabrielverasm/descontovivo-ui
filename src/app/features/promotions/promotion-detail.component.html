@@ -57,83 +57,143 @@
       </section>
     </article>
 
-    <section class="promotion-detail__comments" aria-labelledby="promotion-comments-title">
-      <div class="promotion-detail__comments-heading">
-        <div>
-          <p>Comunidade</p>
-          <h2 id="promotion-comments-title">Comentários</h2>
+    <div class="promotion-detail__below">
+      <section
+        class="promotion-detail__related"
+        aria-labelledby="promotion-related-title"
+      >
+        <div class="promotion-detail__related-heading">
+          <div>
+            <h2 id="promotion-related-title">Ofertas parecidas</h2>
+            <p>Outras promoções com categoria, tags ou produto semelhante.</p>
+          </div>
         </div>
-        <span>{{ shownCommentsCount }} de {{ totalCommentsCount }}</span>
-      </div>
 
-      <div *ngIf="comments.length; else emptyComments" class="promotion-detail__comments-list">
-        <article *ngFor="let comment of visibleComments" class="promotion-detail__comment">
-          <div class="promotion-detail__comment-avatar" aria-hidden="true">
-            {{ comment.author.name.charAt(0) }}
+        <div *ngIf="visibleRelatedPromotions.length; else emptyRelated" class="promotion-detail__related-list">
+          <a
+            *ngFor="let relatedPromotion of visibleRelatedPromotions"
+            class="promotion-detail__related-item"
+            [routerLink]="['/promocoes', relatedPromotion.id]"
+            [attr.aria-label]="'Ver detalhes da oferta ' + relatedPromotion.title"
+          >
+            <app-promotion-image [promotion]="relatedPromotion" />
+            <div>
+              <h3>{{ relatedPromotion.title }}</h3>
+              <app-promotion-price [promotion]="relatedPromotion" />
+              <p>
+                {{ relatedPromotion.storeName }} · {{ relatedPromotion.category }} ·
+                Publicado {{ getPublishedAgo(relatedPromotion.createdAt) }}
+              </p>
+            </div>
+            <span class="promotion-detail__related-action">Ver detalhes</span>
+          </a>
+        </div>
+
+        <ng-template #emptyRelated>
+          <p class="promotion-detail__related-empty">
+            Ainda não encontramos ofertas parecidas para esta promoção.
+          </p>
+        </ng-template>
+
+        <div *ngIf="hasRelatedPagination" class="promotion-detail__related-pages">
+          <button type="button" (click)="showPreviousRelatedPromotions()" [disabled]="relatedPage === 0">
+            Anterior
+          </button>
+          <button
+            *ngFor="let page of relatedPages"
+            type="button"
+            class="promotion-detail__related-page"
+            [class.is-active]="page === relatedPage + 1"
+            [disabled]="page === relatedPage + 1"
+            [attr.aria-current]="page === relatedPage + 1 ? 'page' : null"
+            (click)="showRelatedPromotionsPage(page)"
+          >
+            {{ page }}
+          </button>
+          <button type="button" (click)="showNextRelatedPromotions()" [disabled]="relatedPage + 1 >= relatedPageCount">
+            Próxima
+          </button>
+        </div>
+      </section>
+
+      <section class="promotion-detail__comments" aria-labelledby="promotion-comments-title">
+        <div class="promotion-detail__comments-heading">
+          <div>
+            <p>Comunidade</p>
+            <h2 id="promotion-comments-title">Comentários</h2>
           </div>
+          <span>{{ shownCommentsCount }} de {{ totalCommentsCount }}</span>
+        </div>
 
-          <div class="promotion-detail__comment-body">
-            <header>
-              <strong>{{ comment.author.name }}</strong>
-              <span>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-            </header>
-            <p>{{ comment.content }}</p>
-
-            <div class="promotion-detail__comment-actions">
-              <app-promotion-vote-buttons
-                [likesCount]="comment.likesCount"
-                [dislikesCount]="comment.dislikesCount"
-                contextLabel="comentário"
-              ></app-promotion-vote-buttons>
-
-              <button type="button" (click)="toggleReplyForm(comment)">
-                {{ openReplyForms[comment.id] ? 'Cancelar' : 'Responder' }}
-              </button>
+        <div *ngIf="comments.length; else emptyComments" class="promotion-detail__comments-list">
+          <article *ngFor="let comment of visibleComments" class="promotion-detail__comment">
+            <div class="promotion-detail__comment-avatar" aria-hidden="true">
+              {{ comment.author.name.charAt(0) }}
             </div>
 
-            <div *ngIf="getCommentReplies(comment).length" class="promotion-detail__replies">
-              <article *ngFor="let reply of getCommentReplies(comment)" class="promotion-detail__reply">
-                <header>
-                  <strong>{{ reply.authorName }}</strong>
-                  <span>{{ reply.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-                </header>
-                <p>{{ reply.content }}</p>
-              </article>
+            <div class="promotion-detail__comment-body">
+              <header>
+                <strong>{{ comment.author.name }}</strong>
+                <span>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+              </header>
+              <p>{{ comment.content }}</p>
+
+              <div class="promotion-detail__comment-actions">
+                <app-promotion-vote-buttons
+                  [likesCount]="comment.likesCount"
+                  [dislikesCount]="comment.dislikesCount"
+                  contextLabel="comentário"
+                ></app-promotion-vote-buttons>
+
+                <button type="button" (click)="toggleReplyForm(comment)">
+                  {{ openReplyForms[comment.id] ? 'Cancelar' : 'Responder' }}
+                </button>
+              </div>
+
+              <div *ngIf="getCommentReplies(comment).length" class="promotion-detail__replies">
+                <article *ngFor="let reply of getCommentReplies(comment)" class="promotion-detail__reply">
+                  <header>
+                    <strong>{{ reply.authorName }}</strong>
+                    <span>{{ reply.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                  </header>
+                  <p>{{ reply.content }}</p>
+                </article>
+              </div>
+
+              <form
+                *ngIf="openReplyForms[comment.id]"
+                class="promotion-detail__reply-form"
+                (ngSubmit)="addReply(comment)"
+              >
+                <textarea
+                  name="reply-{{ comment.id }}"
+                  [(ngModel)]="replyDrafts[comment.id]"
+                  rows="3"
+                  placeholder="Escreva uma resposta"
+                  aria-label="Responder comentário"
+                ></textarea>
+                <button type="submit">Enviar resposta</button>
+              </form>
             </div>
+          </article>
 
-            <form
-              *ngIf="openReplyForms[comment.id]"
-              class="promotion-detail__reply-form"
-              (ngSubmit)="addReply(comment)"
-            >
-              <textarea
-                name="reply-{{ comment.id }}"
-                [(ngModel)]="replyDrafts[comment.id]"
-                rows="3"
-                placeholder="Escreva uma resposta"
-                aria-label="Responder comentário"
-              ></textarea>
-              <button type="submit">Enviar resposta</button>
-            </form>
-          </div>
-        </article>
+          <button
+            *ngIf="hasMoreComments"
+            class="promotion-detail__comments-more"
+            type="button"
+            (click)="loadMoreComments()"
+          >
+            Carregar mais comentários
+          </button>
+        </div>
 
-        <button
-          *ngIf="hasMoreComments"
-          class="promotion-detail__comments-more"
-          type="button"
-          (click)="loadMoreComments()"
-        >
-          Carregar mais comentários
-        </button>
-      </div>
-
-      <ng-template #emptyComments>
-        <p class="promotion-detail__comments-empty">
-          Ainda não há comentários para esta promoção.
-        </p>
-      </ng-template>
-    </section>
+        <ng-template #emptyComments>
+          <p class="promotion-detail__comments-empty">
+            Ainda não há comentários para esta promoção.
+          </p>
+        </ng-template>
+      </section>
+    </div>
   </ng-container>
 
   <ng-template #notFound>
