@@ -15,25 +15,28 @@
   </section>
 
   <section class="promotions__list" aria-label="Lista de promoções aprovadas">
-    <div
-      *ngFor="let promotion of visiblePromotions"
-      class="promotions__item"
-      [class.promotions__item--highlighted]="promotion.id === highlightedPromotionId"
-      [attr.data-promotion-id]="promotion.id"
-    >
-      <app-promotion-card [promotion]="promotion" />
-    </div>
+    @for (promotion of visiblePromotions; track promotion.id) {
+      <div
+        class="promotions__item"
+        [class.promotions__item--highlighted]="promotion.id === highlightedPromotionId"
+        [attr.data-promotion-id]="promotion.id"
+      >
+        <app-promotion-card [promotion]="promotion" />
+      </div>
+    }
 
-    <app-empty-state
-      *ngIf="!filteredPromotions.length"
-      title="Nenhuma promoção encontrada"
-      description="Tente buscar por outro produto, loja ou categoria."
-    />
+    @if (!filteredPromotions.length) {
+      <app-empty-state
+        title="Nenhuma promoção encontrada"
+        description="Tente buscar por outro produto, loja ou categoria."
+      />
+    }
 
     <div #loadMoreAnchor class="promotions__load-more-anchor"></div>
   </section>
 
-  <section class="promotions__load-more" *ngIf="filteredPromotions.length" aria-label="Continuar explorando promoções">
+  @if (filteredPromotions.length) {
+  <section class="promotions__load-more" aria-label="Continuar explorando promoções">
     <p>
       Mostrando {{ visiblePromotions.length }} de {{ filteredPromotions.length }} promoções aprovadas.
     </p>
@@ -41,5 +44,6 @@
       {{ hasMorePromotions ? 'Carregar mais promoções' : 'Todas as promoções foram carregadas' }}
     </button>
   </section>
+  }
 
 </main>

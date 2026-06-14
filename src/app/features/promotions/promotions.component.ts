@@ -1,4 +1,3 @@
-import { NgFor, NgIf } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,7 +10,7 @@ import { PromotionCardComponent } from '../../shared/components/promotion-card/p
 @Component({
   selector: 'app-promotions',
   standalone: true,
-  imports: [EmptyStateComponent, FormsModule, NgFor, NgIf, PromotionCardComponent],
+  imports: [EmptyStateComponent, FormsModule, PromotionCardComponent],
   templateUrl: './promotions.component.html',
   styleUrl: './promotions.component.scss'
 })

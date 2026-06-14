@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -7,7 +6,7 @@ import { Promotion } from '../../../core/models/promotion.model';
 @Component({
   selector: 'app-promotion-trust-signals',
   standalone: true,
-  imports: [NgIf, RouterLink],
+  imports: [RouterLink],
   templateUrl: './promotion-trust-signals.component.html',
   styleUrl: './promotion-trust-signals.component.scss',
 })
