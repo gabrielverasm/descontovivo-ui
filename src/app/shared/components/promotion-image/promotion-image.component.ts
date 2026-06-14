@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common';
 import { Component, HostBinding, Input } from '@angular/core';
 
 import { Promotion } from '../../../core/models/promotion.model';
@@ -8,7 +7,7 @@ type PromotionImageVariant = 'card' | 'detail';
 @Component({
   selector: 'app-promotion-image',
   standalone: true,
-  imports: [NgIf],
+  imports: [],
   templateUrl: './promotion-image.component.html',
   styleUrl: './promotion-image.component.scss',
 })

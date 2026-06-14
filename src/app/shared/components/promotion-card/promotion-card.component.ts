@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
@@ -19,7 +18,6 @@ import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.componen
   selector: 'app-promotion-card',
   standalone: true,
   imports: [
-    NgIf,
     PromotionContextComponent,
     PromotionImageComponent,
     PromotionPriceComponent,

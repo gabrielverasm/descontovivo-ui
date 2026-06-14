@@ -1,5 +1,5 @@
 <label class="floating-field" [class.floating-field--textarea]="textarea">
-  <ng-container *ngIf="!textarea">
+  @if (!textarea) {
     <input
       class="floating-field__control"
       [type]="type"
@@ -13,8 +13,7 @@
       (input)="onInput($event)"
       (blur)="onBlur()"
     />
-  </ng-container>
-  <ng-container *ngIf="textarea">
+  } @else {
     <textarea
       class="floating-field__control"
       [name]="name"
@@ -26,6 +25,6 @@
       (input)="onInput($event)"
       (blur)="onBlur()"
     ></textarea>
-  </ng-container>
+  }
   <span class="floating-field__label">{{ label }}</span>
 </label>

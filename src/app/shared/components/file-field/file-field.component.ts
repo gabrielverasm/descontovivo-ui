@@ -1,10 +1,9 @@
-import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-file-field',
   standalone: true,
-  imports: [NgIf],
+  imports: [],
   templateUrl: './file-field.component.html',
   styleUrl: './file-field.component.scss'
 })

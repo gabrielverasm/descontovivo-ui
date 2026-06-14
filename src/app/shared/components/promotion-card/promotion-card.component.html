@@ -18,10 +18,13 @@
           [style.background]="publisherAvatarColor"
           [attr.aria-label]="'Publicado por ' + publisher.name"
         >
-          <img *ngIf="publisher.avatarUrl" [src]="publisher.avatarUrl" [alt]="publisher.name" loading="lazy" />
-          <span *ngIf="!publisher.avatarUrl" aria-hidden="true">
-            {{ publisher.name.charAt(0) }}
-          </span>
+          @if (publisher.avatarUrl) {
+            <img [src]="publisher.avatarUrl" [alt]="publisher.name" loading="lazy" />
+          } @else {
+            <span aria-hidden="true">
+              {{ publisher.name.charAt(0) }}
+            </span>
+          }
           <span class="promotion-card__publisher-tooltip">{{ publisher.name }}</span>
         </span>
         <span>{{ publishedAgo }}</span>

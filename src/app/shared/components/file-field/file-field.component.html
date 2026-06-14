@@ -8,5 +8,7 @@
     [required]="required"
     [attr.aria-describedby]="ariaDescribedby"
   />
-  <p *ngIf="hint" [id]="ariaDescribedby ?? undefined" class="file-field__hint">{{ hint }}</p>
+  @if (hint) {
+    <p [id]="ariaDescribedby ?? undefined" class="file-field__hint">{{ hint }}</p>
+  }
 </label>
