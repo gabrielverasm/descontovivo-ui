@@ -1,9 +1,5 @@
 <main class="auth-page">
-  <nav class="page-breadcrumb" aria-label="Breadcrumb">
-    <a routerLink="/promocoes">Promoções</a>
-    <span aria-hidden="true">/</span>
-    <span>Entrar</span>
-  </nav>
+  <app-breadcrumb [items]="[{ label: 'Promoções', route: '/promocoes' }, { label: 'Entrar' }]" />
 
   <div class="auth-page__content">
     <section class="auth-page__card" aria-label="Entrar no DescontoVivo">
@@ -13,27 +9,19 @@
       </header>
 
       <form class="auth-page__form" aria-label="Formulário de login">
-        <label class="dv-floating-field">
-          <input
-            class="dv-floating-field__control"
-            type="email"
-            name="email"
-            autocomplete="email"
-            placeholder=" "
-          />
-          <span class="dv-floating-field__label">E-mail</span>
-        </label>
+        <app-floating-field
+          label="E-mail"
+          name="email"
+          type="email"
+          autocomplete="email"
+        />
 
-        <label class="dv-floating-field">
-          <input
-            class="dv-floating-field__control"
-            type="password"
-            name="password"
-            autocomplete="current-password"
-            placeholder=" "
-          />
-          <span class="dv-floating-field__label">Senha</span>
-        </label>
+        <app-floating-field
+          label="Senha"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+        />
 
         <div class="auth-page__row">
           <label class="auth-page__remember">

@@ -1,9 +1,5 @@
 <main class="services-page">
-  <nav class="page-breadcrumb" aria-label="Breadcrumb">
-    <a routerLink="/promocoes">Promoções</a>
-    <span aria-hidden="true">/</span>
-    <span>Assinaturas</span>
-  </nav>
+  <app-breadcrumb [items]="[{ label: 'Promoções', route: '/promocoes' }, { label: 'Assinaturas' }]" />
 
   <section class="services-hero" aria-labelledby="services-title">
     <h1 id="services-title">Vale assinar antes de comprar?</h1>

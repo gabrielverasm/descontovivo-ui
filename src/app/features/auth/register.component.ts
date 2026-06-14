@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
+import { FloatingFieldComponent } from '../../shared/components/floating-field/floating-field.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, BreadcrumbComponent, FloatingFieldComponent, FileFieldComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })

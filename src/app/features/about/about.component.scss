@@ -15,26 +15,6 @@
   max-width: 760px;
 }
 
-.page-breadcrumb {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  margin: 0;
-  color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 750;
-  line-height: 1;
-}
-
-.page-breadcrumb a {
-  color: #2563eb;
-  text-decoration: none;
-}
-
-.page-breadcrumb span:last-child {
-  color: #172033;
-}
-
 .about-hero h1 {
   color: #0f172a;
   font-size: var(--dv-h1-size);

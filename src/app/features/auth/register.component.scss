@@ -4,26 +4,6 @@
   padding-block: 1.2rem;
 }
 
-.page-breadcrumb {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  margin: 0;
-  color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 750;
-  line-height: 1;
-}
-
-.page-breadcrumb a {
-  color: #2563eb;
-  text-decoration: none;
-}
-
-.page-breadcrumb span:last-child {
-  color: #172033;
-}
-
 .auth-page__content {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(17rem, 0.42fr);

@@ -1,9 +1,5 @@
 <main class="auth-page">
-  <nav class="page-breadcrumb" aria-label="Breadcrumb">
-    <a routerLink="/promocoes">Promoções</a>
-    <span aria-hidden="true">/</span>
-    <span>Cadastro</span>
-  </nav>
+  <app-breadcrumb [items]="[{ label: 'Promoções', route: '/promocoes' }, { label: 'Cadastro' }]" />
 
   <div class="auth-page__content">
     <section class="auth-page__main" aria-labelledby="register-title">
@@ -13,40 +9,27 @@
           <p>Entre na comunidade para publicar, votar e comentar ofertas.</p>
         </header>
 
-        <label class="dv-floating-field">
-          <input
-            class="dv-floating-field__control"
-            type="text"
-            name="name"
-            autocomplete="name"
-            placeholder=" "
-          />
-          <span class="dv-floating-field__label">Nome</span>
-        </label>
+        <app-floating-field
+          label="Nome"
+          name="name"
+          type="text"
+          autocomplete="name"
+        />
 
-        <label class="dv-floating-field">
-          <input
-            class="dv-floating-field__control"
-            type="email"
-            name="email"
-            autocomplete="email"
-            placeholder=" "
-          />
-          <span class="dv-floating-field__label">E-mail</span>
-        </label>
+        <app-floating-field
+          label="E-mail"
+          name="email"
+          type="email"
+          autocomplete="email"
+        />
 
-        <label class="dv-floating-field">
-          <input
-            class="dv-floating-field__control"
-            type="password"
-            name="password"
-            autocomplete="new-password"
-            placeholder=" "
-            #passwordInput
-            (input)="onPasswordInput(passwordInput.value)"
-          />
-          <span class="dv-floating-field__label">Senha</span>
-        </label>
+        <app-floating-field
+          label="Senha"
+          name="password"
+          type="password"
+          autocomplete="new-password"
+          (valueChange)="onPasswordInput($event)"
+        />
 
         <div class="auth-page__password-strength" aria-live="polite">
           <div class="auth-page__password-bar">
@@ -57,19 +40,13 @@
           <span class="auth-page__password-hint">{{ passwordHint }}</span>
         </div>
 
-        <label class="dv-file-field">
-          <span>Adicionar foto da logo</span>
-          <input
-            class="dv-file-field__control"
-            type="file"
-            name="logo"
-            accept="image/png,image/jpeg,image/webp"
-            aria-describedby="logo-help"
-          />
-          <p id="logo-help" class="dv-file-field__hint">
-            PNG, JPG ou WebP &middot; máx. 200 KB e 512&times;512 px
-          </p>
-        </label>
+        <app-file-field
+          label="Adicionar foto da logo"
+          name="logo"
+          accept="image/png,image/jpeg,image/webp"
+          hint="PNG, JPG ou WebP · máx. 200 KB e 512×512 px"
+          ariaDescribedby="logo-help"
+        />
 
         <button type="button">Criar conta</button>
       </form>

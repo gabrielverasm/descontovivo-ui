@@ -1,10 +1,6 @@
 <main class="about-page">
   <div class="about-page__intro">
-    <nav class="page-breadcrumb" aria-label="Breadcrumb">
-      <a routerLink="/promocoes">Promoções</a>
-      <span aria-hidden="true">/</span>
-      <span>Sobre</span>
-    </nav>
+    <app-breadcrumb [items]="[{ label: 'Promoções', route: '/promocoes' }, { label: 'Sobre' }]" />
 
     <section class="about-hero" aria-labelledby="about-title">
       <h1 id="about-title">Promoções com contexto, comunidade e mais segurança.</h1>

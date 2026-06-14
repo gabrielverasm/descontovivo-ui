@@ -1,0 +1,19 @@
+.breadcrumb {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 750;
+  line-height: 1;
+
+  a {
+    color: #2563eb;
+    text-decoration: none;
+  }
+
+  span:last-child {
+    color: #172033;
+  }
+}

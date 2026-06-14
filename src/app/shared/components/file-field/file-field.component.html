@@ -1,0 +1,12 @@
+<label class="file-field">
+  <span>{{ label }}</span>
+  <input
+    class="file-field__control"
+    type="file"
+    [name]="name"
+    [accept]="accept"
+    [required]="required"
+    [attr.aria-describedby]="ariaDescribedby"
+  />
+  <p *ngIf="hint" [id]="ariaDescribedby ?? undefined" class="file-field__hint">{{ hint }}</p>
+</label>

@@ -1,0 +1,31 @@
+<label class="floating-field" [class.floating-field--textarea]="textarea">
+  <ng-container *ngIf="!textarea">
+    <input
+      class="floating-field__control"
+      [type]="type"
+      [name]="name"
+      [autocomplete]="autocomplete"
+      [required]="required"
+      [attr.min]="min"
+      [attr.aria-label]="ariaLabel"
+      [value]="value"
+      placeholder=" "
+      (input)="onInput($event)"
+      (blur)="onBlur()"
+    />
+  </ng-container>
+  <ng-container *ngIf="textarea">
+    <textarea
+      class="floating-field__control"
+      [name]="name"
+      [required]="required"
+      [rows]="rows"
+      [attr.aria-label]="ariaLabel"
+      [value]="value"
+      placeholder=" "
+      (input)="onInput($event)"
+      (blur)="onBlur()"
+    ></textarea>
+  </ng-container>
+  <span class="floating-field__label">{{ label }}</span>
+</label>

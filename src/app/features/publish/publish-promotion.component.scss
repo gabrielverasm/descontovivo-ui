@@ -16,26 +16,6 @@
   gap: 1rem;
 }
 
-.page-breadcrumb {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  margin: 0;
-  color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 750;
-  line-height: 1;
-}
-
-.page-breadcrumb a {
-  color: #2563eb;
-  text-decoration: none;
-}
-
-.page-breadcrumb span:last-child {
-  color: #172033;
-}
-
 .publish__card,
 .publish__side > div {
   border: 1px solid #e2e8f0;

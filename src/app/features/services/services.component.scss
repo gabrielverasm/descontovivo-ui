@@ -34,26 +34,6 @@ p {
   line-height: 1.7;
 }
 
-/* Breadcrumb */
-.page-breadcrumb {
-  display: flex;
-  gap: 0.4rem;
-  align-items: center;
-  color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 750;
-  line-height: 1;
-}
-
-.page-breadcrumb a {
-  color: #2563eb;
-  text-decoration: none;
-}
-
-.page-breadcrumb span:last-child {
-  color: #172033;
-}
-
 /* Hero */
 .services-hero {
   display: grid;

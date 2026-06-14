@@ -1,42 +1,36 @@
 <main class="publish">
-  <nav class="page-breadcrumb" aria-label="Breadcrumb">
-    <a routerLink="/promocoes">Promoções</a>
-    <span aria-hidden="true">/</span>
-    <span>Publicar</span>
-  </nav>
+  <app-breadcrumb [items]="[{ label: 'Promoções', route: '/promocoes' }, { label: 'Publicar' }]" />
 
   <div class="publish__content">
     <section class="publish__main" aria-label="Publicar oferta">
       <form class="publish__card" aria-label="Formulário de publicação de promoção">
-        <label class="dv-floating-field publish__link">
-          <input class="dv-floating-field__control" name="storeUrl" type="url" placeholder=" " />
-          <span class="dv-floating-field__label">Link da oferta <span class="publish__required">*</span></span>
-        </label>
+        <app-floating-field
+          class="publish__link"
+          label="Link da oferta *"
+          name="storeUrl"
+          type="url"
+          [required]="true"
+        />
 
-        <label class="dv-floating-field">
-          <input
-            class="dv-floating-field__control"
-            [(ngModel)]="title"
-            name="title"
-            type="text"
-            placeholder=" "
-          />
-          <span class="dv-floating-field__label">Título do produto em oferta</span>
-        </label>
-        <label class="dv-floating-field">
-          <input
-            class="dv-floating-field__control"
-            name="currentPrice"
-            type="number"
-            min="0"
-            placeholder=" "
-          />
-          <span class="dv-floating-field__label">Preço</span>
-        </label>
-        <label class="dv-file-field">
-          <span>Imagem do produto</span>
-          <input class="dv-file-field__control" name="imageFile" type="file" accept="image/*" />
-        </label>
+        <app-floating-field
+          label="Título do produto em oferta"
+          name="title"
+          type="text"
+          [(ngModel)]="title"
+        />
+
+        <app-floating-field
+          label="Preço"
+          name="currentPrice"
+          type="number"
+          [min]="0"
+        />
+
+        <app-file-field
+          label="Imagem do produto"
+          name="imageFile"
+          accept="image/*"
+        />
       </form>
     </section>
 

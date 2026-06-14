@@ -18,6 +18,8 @@ import { PromotionPriceComponent } from '../../shared/components/promotion-price
 import { PromotionTrustSignalsComponent } from '../../shared/components/promotion-card/promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from '../../shared/components/promotion-card/promotion-vote-buttons.component';
 
+import { FloatingFieldComponent } from '../../shared/components/floating-field/floating-field.component';
+
 interface CommentReply {
   id: string;
   commentId: string;
@@ -40,6 +42,7 @@ interface CommentReply {
     PromotionPriceComponent,
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent,
+    FloatingFieldComponent,
     RouterLink
   ],
   templateUrl: './promotion-detail.component.html',

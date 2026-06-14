@@ -1,0 +1,52 @@
+.file-field {
+  display: grid;
+  gap: 0.55rem;
+
+  > span {
+    color: #334155;
+    font-weight: 800;
+  }
+}
+
+.file-field__control {
+  width: 100%;
+  min-height: 3.15rem;
+  border: 1px dashed #c7d2e3;
+  border-radius: var(--dv-radius-md);
+  background: #f8fafc;
+  color: #475569;
+  font: inherit;
+  padding: 0.95rem;
+
+  &::file-selector-button {
+    border: 0;
+    border-radius: 999px;
+    background: #172033;
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 800;
+    margin-inline-end: 0.85rem;
+    padding: 0.7rem 1rem;
+  }
+
+  &:hover {
+    border-color: #2563eb66;
+    background: #eff6ff;
+  }
+
+  &:focus {
+    border-color: rgba(37, 99, 235, 0.36);
+    outline: 0;
+    box-shadow:
+      0 18px 36px rgba(37, 99, 235, 0.12),
+      0 0 0 4px rgba(37, 99, 235, 0.12);
+  }
+}
+
+.file-field__hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}

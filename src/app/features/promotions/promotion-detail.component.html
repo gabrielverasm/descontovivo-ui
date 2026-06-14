@@ -197,17 +197,14 @@
                 class="promotion-detail__reply-form"
                 (ngSubmit)="addReply(comment)"
               >
-                <label class="dv-floating-field dv-floating-field--textarea">
-                  <textarea
-                    class="dv-floating-field__control"
-                    name="reply-{{ comment.id }}"
-                    [(ngModel)]="replyDrafts[comment.id]"
-                    rows="3"
-                    placeholder=" "
-                    aria-label="Responder comentário"
-                  ></textarea>
-                  <span class="dv-floating-field__label">Escreva uma resposta</span>
-                </label>
+                <app-floating-field
+                  [textarea]="true"
+                  label="Escreva uma resposta"
+                  [name]="'reply-' + comment.id"
+                  [rows]="3"
+                  ariaLabel="Responder comentário"
+                  [(ngModel)]="replyDrafts[comment.id]"
+                />
                 <button type="submit">Enviar resposta</button>
               </form>
             </div>
