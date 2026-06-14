@@ -1,7 +1,7 @@
 <main class="publish">
   <nav class="page-breadcrumb" aria-label="Breadcrumb">
     <a routerLink="/promocoes">Promoções</a>
-    <span aria-hidden="true">&gt;</span>
+    <span aria-hidden="true">/</span>
     <span>Publicar</span>
   </nav>
 
@@ -10,46 +10,44 @@
       <form class="publish__card" aria-label="Formulário de publicação de promoção">
         <label class="dv-floating-field publish__link">
           <input class="dv-floating-field__control" name="storeUrl" type="url" placeholder=" " />
-          <span class="dv-floating-field__label">Link da oferta</span>
+          <span class="dv-floating-field__label">Link da oferta <span class="publish__required">*</span></span>
         </label>
 
-        <div class="publish__optional">
-          <label class="dv-floating-field">
-            <input
-              class="dv-floating-field__control"
-              [(ngModel)]="title"
-              name="title"
-              type="text"
-              placeholder=" "
-            />
-            <span class="dv-floating-field__label">Título do produto em oferta</span>
-          </label>
-          <label class="dv-floating-field">
-            <input
-              class="dv-floating-field__control"
-              name="currentPrice"
-              type="number"
-              min="0"
-              placeholder=" "
-            />
-            <span class="dv-floating-field__label">Preço</span>
-          </label>
-          <label class="dv-file-field">
-            <span>Carregar imagem</span>
-            <input class="dv-file-field__control" name="imageFile" type="file" accept="image/*" />
-            <strong>Selecionar imagem</strong>
-          </label>
-        </div>
+        <label class="dv-floating-field">
+          <input
+            class="dv-floating-field__control"
+            [(ngModel)]="title"
+            name="title"
+            type="text"
+            placeholder=" "
+          />
+          <span class="dv-floating-field__label">Título do produto em oferta</span>
+        </label>
+        <label class="dv-floating-field">
+          <input
+            class="dv-floating-field__control"
+            name="currentPrice"
+            type="number"
+            min="0"
+            placeholder=" "
+          />
+          <span class="dv-floating-field__label">Preço</span>
+        </label>
+        <label class="dv-file-field">
+          <span>Imagem do produto</span>
+          <input class="dv-file-field__control" name="imageFile" type="file" accept="image/*" />
+        </label>
       </form>
     </section>
 
     <aside class="publish__side" aria-label="Como publicar uma oferta">
       <div class="publish__tips">
         <strong>Dicas rápidas</strong>
-        <p>
-          Use o link direto do produto, evite links encurtados e confira se a promoção ainda está
-          ativa. Preço e imagem podem ser ajustados depois.
-        </p>
+        <ul class="publish__tips-list">
+          <li>Use o link direto do produto, sem encurtadores.</li>
+          <li>Confira se a promoção ainda está ativa antes de enviar.</li>
+          <li>Ofertas enviadas ficam pendentes até serem aprovadas.</li>
+        </ul>
       </div>
     </aside>
   </div>

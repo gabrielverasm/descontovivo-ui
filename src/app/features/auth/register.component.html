@@ -1,7 +1,7 @@
 <main class="auth-page">
   <nav class="page-breadcrumb" aria-label="Breadcrumb">
     <a routerLink="/promocoes">Promoções</a>
-    <span aria-hidden="true">&gt;</span>
+    <span aria-hidden="true">/</span>
     <span>Cadastro</span>
   </nav>
 
@@ -42,9 +42,20 @@
             name="password"
             autocomplete="new-password"
             placeholder=" "
+            #passwordInput
+            (input)="onPasswordInput(passwordInput.value)"
           />
           <span class="dv-floating-field__label">Senha</span>
         </label>
+
+        <div class="auth-page__password-strength" aria-live="polite">
+          <div class="auth-page__password-bar">
+            <span [class]="'auth-page__password-segment auth-page__password-segment--' + passwordStrength"></span>
+            <span [class]="'auth-page__password-segment auth-page__password-segment--' + (passwordStrength >= 2 ? passwordStrength : 0)"></span>
+            <span [class]="'auth-page__password-segment auth-page__password-segment--' + (passwordStrength >= 3 ? passwordStrength : 0)"></span>
+          </div>
+          <span class="auth-page__password-hint">{{ passwordHint }}</span>
+        </div>
 
         <label class="dv-file-field">
           <span>Adicionar foto da logo</span>
@@ -55,9 +66,8 @@
             accept="image/png,image/jpeg,image/webp"
             aria-describedby="logo-help"
           />
-          <strong>Selecionar arquivo</strong>
           <p id="logo-help" class="dv-file-field__hint">
-            Use uma imagem pequena para a logo: PNG, JPG ou WebP, com no máximo 200 KB e 512x512 px.
+            PNG, JPG ou WebP &middot; máx. 200 KB e 512&times;512 px
           </p>
         </label>
 

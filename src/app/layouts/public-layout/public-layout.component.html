@@ -57,6 +57,14 @@
     <router-outlet />
   </div>
 
+  <footer class="public-layout__footer" aria-label="Rodapé">
+    <span>© {{ year }} DescontoVivo</span>
+    <span class="public-layout__footer-sep" aria-hidden="true">·</span>
+    <a routerLink="/sobre">Sobre</a>
+    <span class="public-layout__footer-sep" aria-hidden="true">·</span>
+    <a routerLink="/publicar">Publicar promoção</a>
+  </footer>
+
   <button
     *ngIf="showBackToTop"
     class="public-layout__back-to-top"

@@ -26,16 +26,24 @@
 
         <dl>
           <div>
-            <dt>Curtidas</dt>
-            <dd>{{ promotion.likesCount }}</dd>
+            <dt>Preço</dt>
+            <dd>
+              <app-promotion-vote-buttons
+                [promotion]="promotion"
+                contextLabel="preço"
+              ></app-promotion-vote-buttons>
+            </dd>
           </div>
           <div>
             <dt>Comentários</dt>
             <dd>{{ totalCommentsCount }}</dd>
           </div>
           <div>
-            <dt>Publicado em</dt>
-            <dd>{{ promotion.createdAt | date: 'dd/MM/yyyy' }}</dd>
+            <dt>Publicado</dt>
+            <dd
+              class="promotion-detail__published"
+              [attr.title]="promotion.createdAt | date: 'dd/MM/yyyy HH:mm:ss'"
+            >{{ publishedAgo }}</dd>
           </div>
         </dl>
 
@@ -80,15 +88,15 @@
             <div class="promotion-detail__related-info">
               <h3>{{ relatedPromotion.title }}</h3>
               <app-promotion-price [promotion]="relatedPromotion" />
-              <p class="promotion-detail__related-meta">
-                {{ relatedPromotion.storeName }} · {{ relatedPromotion.category }}
-              </p>
-            </div>
-            <div class="promotion-detail__related-side">
-              <span class="promotion-detail__related-action">Ver detalhes</span>
-              <span class="promotion-detail__related-published">
-                Publicado {{ getPublishedAgo(relatedPromotion.createdAt) }}
-              </span>
+              <div class="promotion-detail__related-meta">
+                <span class="promotion-detail__related-meta-store">{{ relatedPromotion.storeName }}</span>
+                <span class="promotion-detail__related-meta-age">
+                  <span class="promotion-detail__related-trigger" aria-hidden="true">
+                    <img src="/brand/lupa.svg" alt="" />
+                  </span>
+                  {{ getPublishedAgo(relatedPromotion.createdAt) }}
+                </span>
+              </div>
             </div>
           </a>
         </div>
@@ -105,7 +113,7 @@
             (click)="showPreviousRelatedPromotions()"
             [disabled]="relatedPage === 0"
           >
-            Anterior
+            ← Anterior
           </button>
           <button
             *ngFor="let page of relatedPages"
@@ -123,7 +131,7 @@
             (click)="showNextRelatedPromotions()"
             [disabled]="relatedPage + 1 >= relatedPageCount"
           >
-            Próxima
+            Próxima →
           </button>
         </div>
       </section>
@@ -139,7 +147,8 @@
 
         <div *ngIf="comments.length; else emptyComments" class="promotion-detail__comments-list">
           <article *ngFor="let comment of visibleComments" class="promotion-detail__comment">
-            <div class="promotion-detail__comment-avatar" aria-hidden="true">
+            <div class="promotion-detail__comment-avatar" aria-hidden="true"
+              [style.background]="getAvatarColor(comment.author.name)">
               <img
                 *ngIf="comment.author.avatarUrl"
                 [src]="comment.author.avatarUrl"

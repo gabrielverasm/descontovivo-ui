@@ -7,7 +7,7 @@
 }
 
 .promotion-price strong {
-  color: #2563eb;
+  color: #16a34a;
   font-size: clamp(1.24rem, 2.5vw, 1.8rem);
   line-height: 1;
 }
@@ -19,15 +19,15 @@
 }
 
 .promotion-price__reference span {
-  color: #94a3b8;
+  color: #f87171;
   font-size: 0.9rem;
   text-decoration: line-through;
 }
 
 .promotion-price__reference small {
   border-radius: 999px;
-  background: rgba(37, 99, 235, 0.12);
-  color: #2563eb;
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
   font-size: 0.72rem;
   font-weight: 850;
   padding: 0.16rem 0.38rem;

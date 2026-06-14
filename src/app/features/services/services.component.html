@@ -1,86 +1,240 @@
 <main class="services-page">
   <nav class="page-breadcrumb" aria-label="Breadcrumb">
     <a routerLink="/promocoes">Promoções</a>
-    <span aria-hidden="true">&gt;</span>
-    <span>Serviços</span>
+    <span aria-hidden="true">/</span>
+    <span>Assinaturas</span>
   </nav>
 
   <section class="services-hero" aria-labelledby="services-title">
-    <h1 id="services-title">Entenda benefícios antes de assinar.</h1>
+    <h1 id="services-title">Vale assinar antes de comprar?</h1>
     <p>
-      Algumas promoções dependem de serviços como frete, assinatura, clube de benefícios ou programas das grandes
-      lojas. Esta página existe para explicar o contexto antes do clique.
+      Frete grátis, desconto exclusivo, streaming incluso. Algumas promoções só fazem sentido se
+      você já tem uma assinatura ativa. Esta página existe para te ajudar a decidir com calma.
     </p>
   </section>
 
-  <section class="services-disclosure" aria-label="Transparência sobre links">
-    <strong>Transparência</strong>
-    <p>
-      No futuro, alguns links podem gerar comissão para o DescontoVivo. Quando isso acontecer, vamos deixar claro. Essa
-      comissão ajuda a manter o site no ar e não deve mudar o preço para você.
-    </p>
-  </section>
-
-  <section id="amazon-prime" class="service-detail" aria-labelledby="amazon-prime-title">
-    <div class="service-detail__header">
-      <span class="service-detail__badge">Prime</span>
-      <div>
-        <p class="service-detail__eyebrow">Amazon</p>
-        <h2 id="amazon-prime-title">Amazon Prime</h2>
-      </div>
-    </div>
-
-    <div class="service-detail__grid">
-      <article>
-        <h3>O que é</h3>
-        <p>
-          O Amazon Prime é um serviço de assinatura da Amazon que pode incluir benefícios como frete em produtos
-          elegíveis, ofertas selecionadas e acesso a serviços digitais. Os benefícios exatos podem mudar com o tempo.
-        </p>
-      </article>
-
-      <article>
-        <h3>Quando pode valer a pena</h3>
-        <p>
-          Pode fazer sentido para quem compra com frequência na Amazon, aproveita produtos elegíveis ao Prime ou usa os
-          serviços digitais incluídos. Para compras pontuais, vale comparar o custo da assinatura com o frete normal.
-        </p>
-      </article>
-
-      <article>
-        <h3>Pontos de atenção</h3>
-        <p>
-          Nem todo produto do marketplace tem o mesmo benefício. Confira vendedor, entrega, prazo, frete, política de
-          troca e as condições no site oficial antes de comprar ou assinar.
-        </p>
-      </article>
-
-      <article>
-        <h3>Cancelamento</h3>
-        <p>
-          Em geral, serviços por assinatura permitem cancelamento pela conta do usuário, mas as regras podem mudar.
-          Confira sempre as condições atuais no site oficial antes de contratar.
-        </p>
-      </article>
-    </div>
-
-    <div class="service-detail__action">
-      <a class="services-button services-button--primary" href="https://www.amazon.com.br/prime" target="_blank" rel="noopener noreferrer">
-        Ver no site oficial
-      </a>
+  <section class="services-disclosure" aria-label="Transparência sobre links afiliados">
+    <div>
+      <strong>Transparência</strong>
       <p>
-        Quando houver link de indicação, ele aparecerá aqui com aviso claro de que pode ajudar o DescontoVivo a se
-        manter.
+        Alguns links nesta página podem gerar comissão para o DescontoVivo quando você se cadastra
+        ou assina um serviço. Esses links estão sempre sinalizados com
+        <span class="services-affiliate-tag">link patrocinado</span>. O preço para você não muda.
       </p>
     </div>
   </section>
 
+  <div class="services-list">
+
+    <!-- Amazon Prime -->
+    <section id="amazon-prime" class="service-detail" aria-labelledby="amazon-prime-title">
+      <div class="service-detail__header">
+        <span class="service-detail__badge service-detail__badge--prime">Prime</span>
+        <div class="service-detail__header-info">
+          <p class="service-detail__eyebrow">Amazon</p>
+          <h2 id="amazon-prime-title">Amazon Prime</h2>
+        </div>
+        <div class="service-detail__header-price">
+          <span class="service-detail__price">R$ 19,90<span>/mês</span></span>
+          <span class="service-detail__price-alt">ou R$ 179,90/ano</span>
+        </div>
+      </div>
+
+      <ul class="service-detail__benefits" aria-label="Principais benefícios">
+        <li>Frete grátis em produtos elegíveis Prime</li>
+        <li>Acesso ao Prime Video (filmes e séries)</li>
+        <li>Prime Music e Prime Reading inclusos</li>
+        <li>Ofertas exclusivas em datas como Prime Day</li>
+      </ul>
+
+      <div class="service-detail__grid">
+        <article>
+          <h3>Quando vale a pena</h3>
+          <p>
+            Para quem compra na Amazon com frequência e usa produtos elegíveis ao frete Prime.
+            O custo da assinatura costuma se pagar com poucas compras mensais.
+          </p>
+        </article>
+        <article>
+          <h3>Pontos de atenção</h3>
+          <p>
+            Nem todo produto do marketplace tem frete Prime — depende do vendedor e da logística.
+            Confira sempre o vendedor, prazo e política de troca antes de comprar.
+          </p>
+        </article>
+        <article>
+          <h3>Cancelamento</h3>
+          <p>
+            Pode ser cancelado a qualquer momento pela conta Amazon. Se cancelar nos primeiros
+            30 dias e não tiver usado os benefícios, o valor é reembolsado.
+          </p>
+        </article>
+        <article>
+          <h3>Período de teste</h3>
+          <p>
+            Novos clientes têm 30 dias grátis. Válido uma vez por conta. Bom para testar antes
+            de comprar durante uma promoção pontual.
+          </p>
+        </article>
+      </div>
+
+      <div class="service-detail__action">
+        <a
+          class="services-button services-button--dark"
+          href="https://www.amazon.com.br/prime"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Ver Amazon Prime no site oficial"
+        >
+          Ver no site oficial
+        </a>
+      </div>
+    </section>
+
+    <!-- Meli+ -->
+    <section id="meli-mais" class="service-detail" aria-labelledby="meli-mais-title">
+      <div class="service-detail__header">
+        <span class="service-detail__badge service-detail__badge--meli">Meli+</span>
+        <div class="service-detail__header-info">
+          <p class="service-detail__eyebrow">Mercado Livre</p>
+          <h2 id="meli-mais-title">Meli+</h2>
+        </div>
+        <div class="service-detail__header-price">
+          <span class="service-detail__price">R$ 27,99<span>/mês</span></span>
+        </div>
+      </div>
+
+      <ul class="service-detail__benefits" aria-label="Principais benefícios">
+        <li>Frete grátis em produtos com selo Mercado Livre</li>
+        <li>Acesso ao Disney+ (plano com anúncios)</li>
+        <li>Desconto em produtos selecionados</li>
+        <li>Cashback em compras elegíveis</li>
+      </ul>
+
+      <div class="service-detail__grid">
+        <article>
+          <h3>Quando vale a pena</h3>
+          <p>
+            Para quem já compra no Mercado Livre com frequência e tem interesse no Disney+.
+            O frete grátis somado ao streaming pode justificar o custo com facilidade.
+          </p>
+        </article>
+        <article>
+          <h3>Pontos de atenção</h3>
+          <p>
+            O frete grátis aplica apenas em produtos com o selo ML. Vendedores terceiros podem
+            ter condições diferentes. O Disney+ incluso é o plano com anúncios.
+          </p>
+        </article>
+        <article>
+          <h3>Cancelamento</h3>
+          <p>
+            Cancelável pela conta do Mercado Livre. Ao cancelar, o acesso aos benefícios
+            permanece até o fim do período já pago.
+          </p>
+        </article>
+        <article>
+          <h3>Período de teste</h3>
+          <p>
+            Condições de teste variam conforme promoções da plataforma. Confira o site oficial
+            para saber se há oferta de teste disponível no momento.
+          </p>
+        </article>
+      </div>
+
+      <div class="service-detail__action">
+        <a
+          class="services-button services-button--dark"
+          href="https://www.mercadolivre.com.br/assinaturas/meli-mais"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Ver Meli+ no site oficial"
+        >
+          Ver no site oficial
+        </a>
+      </div>
+    </section>
+
+    <!-- Magalu Entregas -->
+    <section id="magalu-entregas" class="service-detail" aria-labelledby="magalu-title">
+      <div class="service-detail__header">
+        <span class="service-detail__badge service-detail__badge--magalu">Mag</span>
+        <div class="service-detail__header-info">
+          <p class="service-detail__eyebrow">Magazine Luiza</p>
+          <h2 id="magalu-title">Magalu Entregas</h2>
+        </div>
+        <div class="service-detail__header-price">
+          <span class="service-detail__price service-detail__price--free">Gratuito</span>
+          <span class="service-detail__price-alt">com conta Magalu</span>
+        </div>
+      </div>
+
+      <ul class="service-detail__benefits" aria-label="Principais benefícios">
+        <li>Frete grátis em produtos do catálogo Magalu</li>
+        <li>Entrega expressa em cidades selecionadas</li>
+        <li>Sem mensalidade — basta ter conta cadastrada</li>
+      </ul>
+
+      <div class="service-detail__grid">
+        <article>
+          <h3>Quando vale a pena</h3>
+          <p>
+            Para quem compra na Magalu com regularidade e quer economizar no frete sem pagar
+            mensalidade. Especialmente vantajoso em compras de itens menores.
+          </p>
+        </article>
+        <article>
+          <h3>Pontos de atenção</h3>
+          <p>
+            Frete grátis tem cobertura variável por região e por produto. Itens de terceiros
+            dentro do marketplace Magalu podem não ter o mesmo benefício.
+          </p>
+        </article>
+        <article>
+          <h3>Cancelamento</h3>
+          <p>
+            Como não há assinatura paga, não há cancelamento formal. O benefício existe enquanto
+            você tiver conta ativa na plataforma.
+          </p>
+        </article>
+        <article>
+          <h3>Como ativar</h3>
+          <p>
+            Basta ter uma conta cadastrada no site ou app da Magalu. O frete grátis aparece
+            automaticamente em produtos elegíveis no carrinho.
+          </p>
+        </article>
+      </div>
+
+      <div class="service-detail__action">
+        <a
+          class="services-button services-button--dark"
+          href="https://www.magazineluiza.com.br"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Ver Magalu Entregas no site oficial"
+        >
+          Ver no site oficial
+        </a>
+      </div>
+    </section>
+
+  </div>
+
   <section class="services-coming" aria-labelledby="services-coming-title">
-    <h2 id="services-coming-title">Outros serviços em breve</h2>
-    <p>
-      Esta área também pode explicar clubes de lojas, programas de frete, assinaturas e benefícios de grandes
-      marketplaces. A ideia é comparar com calma, sem transformar o feed em propaganda.
-    </p>
-    <a class="services-button services-button--secondary" routerLink="/">Voltar para promoções</a>
+    <div>
+      <h2 id="services-coming-title">Mais serviços chegando em breve</h2>
+      <p>
+        Estamos preparando páginas detalhadas para outros programas. Se você usa algum deles
+        e quer contribuir com informações, fique de olho nas novidades.
+      </p>
+    </div>
+    <div class="services-coming__chips" aria-label="Serviços em análise">
+      <span>Americanas Assinatura</span>
+      <span>Clube da Shopee</span>
+      <span>Samsung Care+</span>
+      <span>Casas Bahia Pague Menos</span>
+    </div>
+    <a class="services-button services-button--outline" routerLink="/">Voltar para promoções</a>
   </section>
 </main>

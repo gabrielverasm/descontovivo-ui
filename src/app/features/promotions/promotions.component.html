@@ -29,6 +29,8 @@
       title="Nenhuma promoção encontrada"
       description="Tente buscar por outro produto, loja ou categoria."
     />
+
+    <div #loadMoreAnchor class="promotions__load-more-anchor"></div>
   </section>
 
   <section class="promotions__load-more" *ngIf="filteredPromotions.length" aria-label="Continuar explorando promoções">

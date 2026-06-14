@@ -10,7 +10,7 @@
   margin-top: clamp(0.45rem, 1.8vw, 0.95rem);
   padding: 0.42rem;
   border: 1px solid rgba(203, 213, 225, 0.64);
-  border-radius: 22px;
+  border-radius: var(--dv-radius-lg);
   background: rgba(255, 255, 255, 0.72);
   box-shadow:
     0 18px 44px rgba(15, 23, 42, 0.08),
@@ -27,7 +27,7 @@
   width: 100%;
   min-height: clamp(3.35rem, 7vw, 4rem);
   border: 1px solid transparent;
-  border-radius: 18px;
+  border-radius: var(--dv-radius-md);
   background: #fff;
   padding: 0.2rem clamp(1rem, 3vw, 1.25rem) 0.2rem clamp(2.85rem, 5vw, 3.25rem);
   color: #111827;
@@ -35,9 +35,9 @@
   font-size: clamp(0.96rem, 2vw, 1.05rem);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
   transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
+    border-color var(--dv-transition),
+    box-shadow var(--dv-transition),
+    transform var(--dv-transition);
 }
 
 .promotions__search img {
@@ -163,6 +163,10 @@
   .promotions__item--highlighted {
     animation: none;
   }
+}
+
+.promotions__load-more-anchor {
+  height: 1px;
 }
 
 @media (max-width: 640px) {

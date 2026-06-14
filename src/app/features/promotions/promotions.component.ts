@@ -1,5 +1,5 @@
 import { NgFor, NgIf } from '@angular/common';
-import { AfterViewInit, Component, OnDestroy, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -22,6 +22,9 @@ export class PromotionsComponent implements AfterViewInit, OnDestroy {
   private highlightTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private scrollTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private queryParamSubscription: Subscription | undefined;
+  private intersectionObserver: IntersectionObserver | undefined;
+
+  @ViewChild('loadMoreAnchor') loadMoreAnchorRef: ElementRef<HTMLElement> | undefined;
 
   highlightedPromotionId = '';
   query = '';
@@ -32,11 +35,25 @@ export class PromotionsComponent implements AfterViewInit, OnDestroy {
     this.queryParamSubscription = this.route.queryParamMap.subscribe((params) => {
       this.highlightPromotion(params.get('highlight') || '');
     });
+
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && this.hasMorePromotions) {
+          this.loadMorePromotions();
+        }
+      },
+      { rootMargin: '120px' }
+    );
+
+    if (this.loadMoreAnchorRef) {
+      this.intersectionObserver.observe(this.loadMoreAnchorRef.nativeElement);
+    }
   }
 
   ngOnDestroy() {
     this.clearHighlightTimeout();
     this.queryParamSubscription?.unsubscribe();
+    this.intersectionObserver?.disconnect();
   }
 
   get filteredPromotions() {

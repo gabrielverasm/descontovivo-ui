@@ -15,6 +15,7 @@
       <div class="promotion-card__publisher">
         <span
           class="promotion-card__publisher-avatar"
+          [style.background]="publisherAvatarColor"
           [attr.aria-label]="'Publicado por ' + publisher.name"
         >
           <img *ngIf="publisher.avatarUrl" [src]="publisher.avatarUrl" [alt]="publisher.name" loading="lazy" />
@@ -51,18 +52,18 @@
 
         <div class="promotion-card__actions" aria-label="Ações da promoção">
           <a
+            class="promotion-card__offer-link"
+            [href]="promotion.offerUrl || promotion.storeUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            (click)="$event.stopPropagation()"
+            >{{ externalOfferLabel }}</a
+          >
+          <a
             class="promotion-card__offer-link promotion-card__offer-link--primary"
             [routerLink]="['/promocoes', promotion.id]"
             (click)="$event.stopPropagation()"
             >Ver detalhes</a
-          >
-          <a
-            class="promotion-card__offer-link promotion-card__offer-link--secondary"
-          [href]="promotion.offerUrl || promotion.storeUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-            (click)="$event.stopPropagation()"
-            >{{ externalOfferLabel }}</a
           >
         </div>
       </div>

@@ -45,6 +45,10 @@ export class PublicLayoutComponent {
     this.isMenuOpen = false;
   }
 
+  get year() {
+    return new Date().getFullYear();
+  }
+
   scrollToTop() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

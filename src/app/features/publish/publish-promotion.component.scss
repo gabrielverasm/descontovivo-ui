@@ -39,22 +39,30 @@
 .publish__card,
 .publish__side > div {
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: var(--dv-radius-lg);
   background: #fff;
   box-shadow: 0 14px 40px #0f172a0a;
   padding: 1.1rem;
 }
 
 .publish__card,
-.publish__optional,
-.publish__side,
-label {
+.publish__side {
   display: grid;
   gap: 0.8rem;
 }
 
-.publish__optional {
-  margin-top: 0.2rem;
+.publish__required {
+  color: #ef4444;
+}
+
+.publish__tips-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+  color: #526070;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 p {

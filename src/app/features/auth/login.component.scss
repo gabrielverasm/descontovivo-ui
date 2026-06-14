@@ -35,10 +35,16 @@
 .auth-page__card,
 .auth-page__signup {
   border: 1px solid #e2e8f0;
-  border-radius: 18px;
+  border-radius: var(--dv-radius-lg);
   background: #fff;
   box-shadow: 0 14px 40px #0f172a0a;
   padding: clamp(1rem, 3vw, 1.25rem);
+}
+
+.auth-page__signup {
+  border-color: rgba(37, 99, 235, 0.12);
+  background: linear-gradient(145deg, #f8fbff, #eef4ff);
+  box-shadow: none;
 }
 
 .auth-page__form,
@@ -81,6 +87,13 @@ button {
   font: inherit;
   font-weight: 800;
   padding: 0 1rem;
+  transition:
+    background var(--dv-transition),
+    color var(--dv-transition);
+}
+
+button:hover {
+  background: #2563eb;
 }
 
 .auth-page__row {
@@ -124,7 +137,6 @@ p,
 
 .auth-page__signup {
   align-content: start;
-  background: linear-gradient(145deg, #fff, #f8fbff);
   grid-template-rows: auto auto minmax(0, 1fr) 3rem;
   row-gap: 1.05rem;
 }
@@ -167,11 +179,23 @@ p,
   justify-content: center;
   width: 100%;
   min-height: 3rem;
+  border: 2px solid #172033;
   border-radius: 999px;
-  background: #172033;
-  color: #fff;
+  background: transparent;
+  color: #172033;
   padding: 0 1rem;
   text-decoration: none;
+  font-weight: 800;
+  transition:
+    background var(--dv-transition),
+    border-color var(--dv-transition),
+    color var(--dv-transition);
+}
+
+.auth-page__signup-link:hover {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #fff;
 }
 
 @media (max-width: 760px) {

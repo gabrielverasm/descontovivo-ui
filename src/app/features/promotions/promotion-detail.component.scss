@@ -118,7 +118,6 @@ dt {
 
 :is(
   .promotion-detail__tags,
-  dl,
   .promotion-detail__comments-heading,
   .promotion-detail__comment-actions,
   .promotion-detail header
@@ -139,11 +138,36 @@ dt {
 }
 
 dl {
-  margin: 1.25rem 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  padding-block: 1rem;
+  border-top: 1px solid rgba(226, 232, 240, 0.7);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+dl > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  padding-inline: .5rem;
+  text-align: center;
+}
+
+dl > div + div {
+  border-left: 1px solid rgba(226, 232, 240, 0.7);
 }
 
 dt {
   font-size: .8rem;
+  margin-bottom: .2rem;
+}
+
+.promotion-detail__published {
+  cursor: default;
+  text-decoration: underline dotted rgba(100, 116, 139, 0.5);
+  text-underline-offset: 3px;
 }
 
 dd,
@@ -155,7 +179,7 @@ strong {
 }
 
 .promotion-detail__below {
-  grid-template-columns: minmax(0,0.94fr) minmax(0,1.06fr);
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
   align-items: start;
 }
 
@@ -166,9 +190,15 @@ strong {
 
 .promotion-detail__related-pages {
   display: flex;
-  gap: .75rem;
+  gap: 0.5rem;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.promotion-detail__related-pages > button:first-child,
+.promotion-detail__related-pages > button:last-child {
+  font-weight: 800;
+  padding: 0 1rem;
 }
 
 .promotion-detail__related-page.is-active {
@@ -179,55 +209,99 @@ strong {
 
 .promotion-detail__related-item {
   display: grid;
-  grid-template-columns: 4.75rem minmax(0,1fr) auto;
-  gap: .75rem;
-  align-items: center;
-  min-width:0;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  gap: .65rem;
+  align-items: start;
+  min-width: 0;
   padding: .65rem;
   border: 1px solid #e2e8f0d1;
-  border-radius: 12px;
+  border-radius: var(--dv-radius-sm);
   color: inherit;
   text-decoration: none;
+  transition: border-color var(--dv-transition), background var(--dv-transition);
+}
+
+.promotion-detail__related-item:hover {
+  border-color: rgba(37, 99, 235, 0.22);
+  background: #f8fbff;
 }
 
 .promotion-detail__related-item app-promotion-image {
-  width: 4.75rem;
-}
-
-.promotion-detail__related-info,
-.promotion-detail__related-side {
-  display: grid;
-  min-width:0;
+  width: 3.5rem;
+  margin-top: .15rem;
 }
 
 .promotion-detail__related-info {
-  gap: .3rem;
-}
-
-.promotion-detail__related-side {
+  display: grid;
   gap: .25rem;
-  justify-items: end;
+  min-width: 0;
 }
 
 .promotion-detail__related-item h3 {
   color: #111827;
-  font-size: .95rem;
+  font-size: .88rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
-.promotion-detail__related-meta,
-.promotion-detail__related-published {
+.promotion-detail__related-item app-promotion-price {
+  font-size: 0.78rem;
+}
+
+.promotion-detail__related-item app-promotion-price .promotion-price strong {
+  font-size: 0.95rem;
+}
+
+.promotion-detail__related-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.promotion-detail__related-meta-store {
   color: #64748b;
-  font-size: .82rem;
-}
-
-.promotion-detail__related-action {
-  color: #2563eb;
-  font-weight: 800;
+  font-size: .75rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.promotion-detail__related-published {
+.promotion-detail__related-meta-age {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+  flex-shrink: 0;
+  color: #94a3b8;
+  font-size: .72rem;
   white-space: nowrap;
+}
+
+.promotion-detail__related-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  transition: background var(--dv-transition);
+}
+
+.promotion-detail__related-item:hover .promotion-detail__related-trigger {
+  background: #e0eaff;
+}
+
+.promotion-detail__related-trigger img {
+  width: .75rem;
+  height: .75rem;
+  opacity: 0.5;
 }
 
 .promotion-detail__comments-heading {
@@ -249,7 +323,6 @@ strong {
   width: 2.4rem;
   height: 2.4rem;
   border-radius: 999px;
-  background: #172033;
   color: #fff;
   font-weight: 800;
 }
@@ -271,12 +344,7 @@ strong {
     grid-template-columns: 1fr;
   }
 
-  .promotion-detail__related-item {
-    grid-template-columns: 4.75rem minmax(0,1fr);
-  }
-
-  .promotion-detail__related-side {
-    grid-column: 2;
-    justify-items: start;
+  .promotion-detail__related {
+    order: -1;
   }
 }

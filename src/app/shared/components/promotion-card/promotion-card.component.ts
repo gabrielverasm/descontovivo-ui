@@ -104,6 +104,14 @@ export class PromotionCardComponent {
     return value === 1 ? singular : plural;
   }
 
+  get publisherAvatarColor(): string {
+    const colors = ['#172033', '#2563eb', '#7c3aed', '#0891b2', '#059669', '#dc2626', '#d97706'];
+    let hash = 0;
+    const name = this.publisher.name;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+  }
+
   get externalOfferLabel() {
     const destinationName = this.normalizeDestinationName(
       this.promotion.sellerName?.trim() ||

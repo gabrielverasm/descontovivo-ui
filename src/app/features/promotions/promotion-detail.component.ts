@@ -46,7 +46,7 @@ interface CommentReply {
   styleUrl: './promotion-detail.component.scss'
 })
 export class PromotionDetailComponent implements OnDestroy {
-  private readonly relatedPageSize = 4;
+  private readonly relatedPageSize = 3;
   private readonly commentsPageSize = 5;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -185,6 +185,24 @@ export class PromotionDetailComponent implements OnDestroy {
 
     const elapsedDays = Math.floor(elapsedHours / 24);
     return `há ${elapsedDays} ${elapsedDays === 1 ? 'dia' : 'dias'}`;
+  }
+
+  get publishedAgo(): string {
+    const diffMs = Math.max(0, Date.now() - new Date(this.promotion!.createdAt).getTime());
+    const m = 60000, h = 3600000, d = 86400000, w = 604800000, mo = 2592000000, y = 31536000000;
+    if (diffMs < h) { const v = Math.floor(diffMs / m); return `há ${v} ${v === 1 ? 'minuto' : 'minutos'}`; }
+    if (diffMs < d) { const v = Math.floor(diffMs / h); return `há ${v} ${v === 1 ? 'hora' : 'horas'}`; }
+    if (diffMs < w) { const v = Math.floor(diffMs / d); return `há ${v} ${v === 1 ? 'dia' : 'dias'}`; }
+    if (diffMs < mo) { const v = Math.min(4, Math.floor(diffMs / w)); return `há ${v} ${v === 1 ? 'semana' : 'semanas'}`; }
+    if (diffMs < y) { const v = Math.min(12, Math.floor(diffMs / mo)); return `há ${v} ${v === 1 ? 'mês' : 'meses'}`; }
+    const v = Math.floor(diffMs / y); return `há ${v} ${v === 1 ? 'ano' : 'anos'}`;
+  }
+
+  getAvatarColor(name: string): string {
+    const colors = ['#172033', '#2563eb', '#7c3aed', '#0891b2', '#059669', '#dc2626', '#d97706'];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
   }
 
   returnToPromotionsList() {

@@ -43,7 +43,7 @@
 .auth-page__card,
 .auth-page__side > div {
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: var(--dv-radius-lg);
   background: #fff;
   box-shadow: 0 14px 40px #0f172a0a;
   padding: clamp(1rem, 3vw, 1.5rem);
@@ -91,6 +91,14 @@ button,
   font-weight: 800;
   padding: 0 1rem;
   text-decoration: none;
+  transition:
+    background var(--dv-transition),
+    color var(--dv-transition);
+}
+
+button:hover,
+.auth-page__side a:hover {
+  background: #2563eb;
 }
 
 button {
@@ -106,6 +114,36 @@ button {
 strong {
   color: #172033;
   font-size: 1.05rem;
+}
+
+.auth-page__password-strength {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: -0.25rem;
+}
+
+.auth-page__password-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.3rem;
+}
+
+.auth-page__password-segment {
+  height: 3px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  transition: background var(--dv-transition);
+}
+
+.auth-page__password-segment--1 { background: #ef4444; }
+.auth-page__password-segment--2 { background: #f59e0b; }
+.auth-page__password-segment--3 { background: #22c55e; }
+
+.auth-page__password-hint {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  min-height: 1em;
 }
 
 @media (max-width: 760px) {
