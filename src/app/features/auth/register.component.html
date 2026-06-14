@@ -1,28 +1,76 @@
 <main class="auth-page">
-  <app-page-header
-    eyebrow="Cadastro"
-    title="Criar conta"
-    description="No MVP, o cadastro indica a regra de produto: somente usuários cadastrados poderão enviar promoções."
-  />
+  <nav class="page-breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/promocoes">Promoções</a>
+    <span aria-hidden="true">&gt;</span>
+    <span>Cadastro</span>
+  </nav>
 
-  <form class="auth-page__form" aria-label="Formulário de cadastro">
-    <label>
-      <span>Nome</span>
-      <input type="text" name="name" autocomplete="name" />
-    </label>
+  <div class="auth-page__content">
+    <section class="auth-page__main" aria-labelledby="register-title">
+      <form class="auth-page__card" aria-label="Formulário de cadastro">
+        <header>
+          <h1 id="register-title">Criar conta</h1>
+          <p>Entre na comunidade para publicar, votar e comentar ofertas.</p>
+        </header>
 
-    <label>
-      <span>E-mail</span>
-      <input type="email" name="email" autocomplete="email" />
-    </label>
+        <label class="dv-floating-field">
+          <input
+            class="dv-floating-field__control"
+            type="text"
+            name="name"
+            autocomplete="name"
+            placeholder=" "
+          />
+          <span class="dv-floating-field__label">Nome</span>
+        </label>
 
-    <label>
-      <span>Senha</span>
-      <input type="password" name="password" autocomplete="new-password" />
-    </label>
+        <label class="dv-floating-field">
+          <input
+            class="dv-floating-field__control"
+            type="email"
+            name="email"
+            autocomplete="email"
+            placeholder=" "
+          />
+          <span class="dv-floating-field__label">E-mail</span>
+        </label>
 
-    <button type="button">Criar conta</button>
-  </form>
+        <label class="dv-floating-field">
+          <input
+            class="dv-floating-field__control"
+            type="password"
+            name="password"
+            autocomplete="new-password"
+            placeholder=" "
+          />
+          <span class="dv-floating-field__label">Senha</span>
+        </label>
 
-  <p class="auth-page__hint">Já tem conta? <a routerLink="/login">Entrar</a></p>
+        <label class="dv-file-field">
+          <span>Adicionar foto da logo</span>
+          <input
+            class="dv-file-field__control"
+            type="file"
+            name="logo"
+            accept="image/png,image/jpeg,image/webp"
+            aria-describedby="logo-help"
+          />
+          <strong>Selecionar arquivo</strong>
+          <p id="logo-help" class="dv-file-field__hint">
+            Use uma imagem pequena para a logo: PNG, JPG ou WebP, com no máximo 200 KB e 512x512 px.
+          </p>
+        </label>
+
+        <button type="button">Criar conta</button>
+      </form>
+    </section>
+
+    <aside class="auth-page__side" aria-label="Acesso">
+      <div>
+        <strong>Já tem conta?</strong>
+        <p>Acesse para acompanhar suas publicações, votos e comentários.</p>
+        <a routerLink="/login">Entrar</a>
+      </div>
+    </aside>
+  </div>
 </main>

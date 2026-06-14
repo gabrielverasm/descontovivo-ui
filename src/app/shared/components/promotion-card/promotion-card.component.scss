@@ -63,8 +63,16 @@ h2 {
 .promotion-card__publisher-avatar {
   position: relative;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 1.55rem;
   height: 1.55rem;
+  border-radius: 999px;
+  background: #172033;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .promotion-card__publisher-avatar img {

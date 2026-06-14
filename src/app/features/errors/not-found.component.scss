@@ -7,14 +7,14 @@
 
 p {
   margin: 0;
-  color: #087f5b;
+  color: #2563eb;
   font-weight: 900;
 }
 
 h1 {
-  margin: 0;
   color: #162033;
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: var(--dv-h1-size);
+  line-height: var(--dv-h1-line-height);
 }
 
 a {
@@ -22,7 +22,7 @@ a {
   align-items: center;
   min-height: 2.75rem;
   border-radius: 8px;
-  background: #087f5b;
+  background: #2563eb;
   color: #fff;
   font-weight: 800;
   padding: 0 1rem;

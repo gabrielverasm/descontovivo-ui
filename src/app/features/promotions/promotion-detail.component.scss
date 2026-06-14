@@ -87,8 +87,8 @@ p {
 
 h1 {
   color: #111827;
-  font-size: clamp(1.35rem, 3vw, 2rem);
-  line-height: 1.15;
+  font-size: var(--dv-h1-size);
+  line-height: var(--dv-h1-line-height);
 }
 
 .promotion-detail__description {
@@ -194,10 +194,19 @@ strong {
   width: 4.75rem;
 }
 
-.promotion-detail__related-item div {
+.promotion-detail__related-info,
+.promotion-detail__related-side {
   display: grid;
-  gap: .3rem;
   min-width:0;
+}
+
+.promotion-detail__related-info {
+  gap: .3rem;
+}
+
+.promotion-detail__related-side {
+  gap: .25rem;
+  justify-items: end;
 }
 
 .promotion-detail__related-item h3 {
@@ -205,7 +214,8 @@ strong {
   font-size: .95rem;
 }
 
-.promotion-detail__related-item p {
+.promotion-detail__related-meta,
+.promotion-detail__related-published {
   color: #64748b;
   font-size: .82rem;
 }
@@ -213,6 +223,10 @@ strong {
 .promotion-detail__related-action {
   color: #2563eb;
   font-weight: 800;
+  white-space: nowrap;
+}
+
+.promotion-detail__related-published {
   white-space: nowrap;
 }
 
@@ -240,6 +254,13 @@ strong {
   font-weight: 800;
 }
 
+.promotion-detail__comment-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
 .promotion-detail__replies {
   padding-left: .85rem;
   border-left: 2px solid #e2e8f0e6;
@@ -254,7 +275,8 @@ strong {
     grid-template-columns: 4.75rem minmax(0,1fr);
   }
 
-  .promotion-detail__related-action {
+  .promotion-detail__related-side {
     grid-column: 2;
+    justify-items: start;
   }
 }

@@ -4,26 +4,42 @@
   padding: clamp(2rem, 6vw, 4rem) 0 3rem;
 }
 
+.about-page__intro {
+  display: grid;
+  gap: 1rem;
+}
+
 .about-hero {
   display: grid;
   gap: 1rem;
   max-width: 820px;
 }
 
-.about-hero__eyebrow {
+.page-breadcrumb {
+  display: flex;
+  gap: .4rem;
+  align-items: center;
   margin: 0;
-  color: #087f5b;
+  color: #64748b;
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 750;
   letter-spacing: 0;
-  text-transform: uppercase;
+  line-height: 1;
+}
+
+.page-breadcrumb a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.page-breadcrumb span:last-child {
+  color: #172033;
 }
 
 .about-hero h1 {
-  margin: 0;
   color: #162033;
-  font-size: clamp(2.4rem, 7vw, 5rem);
-  line-height: 1;
+  font-size: var(--dv-h1-size);
+  line-height: var(--dv-h1-line-height);
 }
 
 .about-hero__lead {
@@ -53,17 +69,17 @@
 }
 
 .about-button--primary {
-  background: #087f5b;
+  background: #2563eb;
   color: #fff;
 }
 
 .about-button--secondary {
-  border: 1px solid rgba(8, 127, 91, 0.28);
-  color: #087f5b;
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  color: #2563eb;
 }
 
 .about-button:focus-visible {
-  outline: 3px solid rgba(8, 127, 91, 0.34);
+  outline: 3px solid rgba(37, 99, 235, 0.34);
   outline-offset: 3px;
 }
 
@@ -90,8 +106,8 @@
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 999px;
-  background: #e8f7f0;
-  color: #087f5b;
+  background: #eff6ff;
+  color: #2563eb;
   font-size: 0.8rem;
   font-weight: 900;
 }
@@ -142,10 +158,10 @@
 }
 
 .about-highlight {
-  border-left: 3px solid #087f5b;
+  border-left: 3px solid #2563eb;
   border-radius: 6px;
-  background: #e8f7f0;
-  color: #1f513f;
+  background: #eff6ff;
+  color: #1e3a8a;
   font-weight: 700;
   padding: 1rem;
 }
@@ -161,10 +177,10 @@
 }
 
 .about-trust-badges span {
-  border: 1px solid rgba(8, 127, 91, 0.18);
+  border: 1px solid rgba(37, 99, 235, 0.18);
   border-radius: 999px;
-  background: #f4fbf7;
-  color: #1f513f;
+  background: #eff6ff;
+  color: #1e3a8a;
   font-size: 0.9rem;
   font-weight: 800;
   padding: 0.42rem 0.7rem;

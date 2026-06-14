@@ -1,35 +1,56 @@
 <main class="publish">
-  <app-page-header
-    eyebrow="Envio de oferta"
-    title="Publicar promoção"
-    description="Este formulário é um placeholder do MVP. No produto final, apenas usuários cadastrados poderão enviar ofertas, que entram como pendentes até a aprovação."
-  />
+  <nav class="page-breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/promocoes">Promoções</a>
+    <span aria-hidden="true">&gt;</span>
+    <span>Publicar</span>
+  </nav>
 
-  <form class="publish__form" aria-label="Formulário de publicação de promoção">
-    <label>
-      <span>Título</span>
-      <input [(ngModel)]="title" name="title" type="text" placeholder="Ex.: Monitor 27 QHD" />
-    </label>
+  <div class="publish__content">
+    <section class="publish__main" aria-label="Publicar oferta">
+      <form class="publish__card" aria-label="Formulário de publicação de promoção">
+        <label class="dv-floating-field publish__link">
+          <input class="dv-floating-field__control" name="storeUrl" type="url" placeholder=" " />
+          <span class="dv-floating-field__label">Link da oferta</span>
+        </label>
 
-    <label>
-      <span>Link da loja</span>
-      <input name="storeUrl" type="url" placeholder="https://..." />
-    </label>
+        <div class="publish__optional">
+          <label class="dv-floating-field">
+            <input
+              class="dv-floating-field__control"
+              [(ngModel)]="title"
+              name="title"
+              type="text"
+              placeholder=" "
+            />
+            <span class="dv-floating-field__label">Título do produto em oferta</span>
+          </label>
+          <label class="dv-floating-field">
+            <input
+              class="dv-floating-field__control"
+              name="currentPrice"
+              type="number"
+              min="0"
+              placeholder=" "
+            />
+            <span class="dv-floating-field__label">Preço</span>
+          </label>
+          <label class="dv-file-field">
+            <span>Carregar imagem</span>
+            <input class="dv-file-field__control" name="imageFile" type="file" accept="image/*" />
+            <strong>Selecionar imagem</strong>
+          </label>
+        </div>
+      </form>
+    </section>
 
-    <label>
-      <span>Preço atual</span>
-      <input name="currentPrice" type="number" min="0" placeholder="0,00" />
-    </label>
-
-    <label>
-      <span>Descrição</span>
-      <textarea
-        name="description"
-        rows="5"
-        placeholder="Conte por que a oferta vale a pena"
-      ></textarea>
-    </label>
-
-    <button type="button">Enviar para moderação</button>
-  </form>
+    <aside class="publish__side" aria-label="Como publicar uma oferta">
+      <div class="publish__tips">
+        <strong>Dicas rápidas</strong>
+        <p>
+          Use o link direto do produto, evite links encurtados e confira se a promoção ainda está
+          ativa. Preço e imagem podem ser ajustados depois.
+        </p>
+      </div>
+    </aside>
+  </div>
 </main>

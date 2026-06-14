@@ -58,10 +58,7 @@
     </article>
 
     <div class="promotion-detail__below">
-      <section
-        class="promotion-detail__related"
-        aria-labelledby="promotion-related-title"
-      >
+      <section class="promotion-detail__related" aria-labelledby="promotion-related-title">
         <div class="promotion-detail__related-heading">
           <div>
             <h2 id="promotion-related-title">Ofertas parecidas</h2>
@@ -69,7 +66,10 @@
           </div>
         </div>
 
-        <div *ngIf="visibleRelatedPromotions.length; else emptyRelated" class="promotion-detail__related-list">
+        <div
+          *ngIf="visibleRelatedPromotions.length; else emptyRelated"
+          class="promotion-detail__related-list"
+        >
           <a
             *ngFor="let relatedPromotion of visibleRelatedPromotions"
             class="promotion-detail__related-item"
@@ -77,15 +77,19 @@
             [attr.aria-label]="'Ver detalhes da oferta ' + relatedPromotion.title"
           >
             <app-promotion-image [promotion]="relatedPromotion" />
-            <div>
+            <div class="promotion-detail__related-info">
               <h3>{{ relatedPromotion.title }}</h3>
               <app-promotion-price [promotion]="relatedPromotion" />
-              <p>
-                {{ relatedPromotion.storeName }} · {{ relatedPromotion.category }} ·
-                Publicado {{ getPublishedAgo(relatedPromotion.createdAt) }}
+              <p class="promotion-detail__related-meta">
+                {{ relatedPromotion.storeName }} · {{ relatedPromotion.category }}
               </p>
             </div>
-            <span class="promotion-detail__related-action">Ver detalhes</span>
+            <div class="promotion-detail__related-side">
+              <span class="promotion-detail__related-action">Ver detalhes</span>
+              <span class="promotion-detail__related-published">
+                Publicado {{ getPublishedAgo(relatedPromotion.createdAt) }}
+              </span>
+            </div>
           </a>
         </div>
 
@@ -96,7 +100,11 @@
         </ng-template>
 
         <div *ngIf="hasRelatedPagination" class="promotion-detail__related-pages">
-          <button type="button" (click)="showPreviousRelatedPromotions()" [disabled]="relatedPage === 0">
+          <button
+            type="button"
+            (click)="showPreviousRelatedPromotions()"
+            [disabled]="relatedPage === 0"
+          >
             Anterior
           </button>
           <button
@@ -110,7 +118,11 @@
           >
             {{ page }}
           </button>
-          <button type="button" (click)="showNextRelatedPromotions()" [disabled]="relatedPage + 1 >= relatedPageCount">
+          <button
+            type="button"
+            (click)="showNextRelatedPromotions()"
+            [disabled]="relatedPage + 1 >= relatedPageCount"
+          >
             Próxima
           </button>
         </div>
@@ -128,7 +140,15 @@
         <div *ngIf="comments.length; else emptyComments" class="promotion-detail__comments-list">
           <article *ngFor="let comment of visibleComments" class="promotion-detail__comment">
             <div class="promotion-detail__comment-avatar" aria-hidden="true">
-              {{ comment.author.name.charAt(0) }}
+              <img
+                *ngIf="comment.author.avatarUrl"
+                [src]="comment.author.avatarUrl"
+                [alt]="comment.author.name"
+                loading="lazy"
+              />
+              <span *ngIf="!comment.author.avatarUrl">
+                {{ comment.author.name.charAt(0) }}
+              </span>
             </div>
 
             <div class="promotion-detail__comment-body">
@@ -151,7 +171,10 @@
               </div>
 
               <div *ngIf="getCommentReplies(comment).length" class="promotion-detail__replies">
-                <article *ngFor="let reply of getCommentReplies(comment)" class="promotion-detail__reply">
+                <article
+                  *ngFor="let reply of getCommentReplies(comment)"
+                  class="promotion-detail__reply"
+                >
                   <header>
                     <strong>{{ reply.authorName }}</strong>
                     <span>{{ reply.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
@@ -165,13 +188,17 @@
                 class="promotion-detail__reply-form"
                 (ngSubmit)="addReply(comment)"
               >
-                <textarea
-                  name="reply-{{ comment.id }}"
-                  [(ngModel)]="replyDrafts[comment.id]"
-                  rows="3"
-                  placeholder="Escreva uma resposta"
-                  aria-label="Responder comentário"
-                ></textarea>
+                <label class="dv-floating-field dv-floating-field--textarea">
+                  <textarea
+                    class="dv-floating-field__control"
+                    name="reply-{{ comment.id }}"
+                    [(ngModel)]="replyDrafts[comment.id]"
+                    rows="3"
+                    placeholder=" "
+                    aria-label="Responder comentário"
+                  ></textarea>
+                  <span class="dv-floating-field__label">Escreva uma resposta</span>
+                </label>
                 <button type="submit">Enviar resposta</button>
               </form>
             </div>
