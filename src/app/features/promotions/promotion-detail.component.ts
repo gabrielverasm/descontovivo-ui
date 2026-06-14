@@ -1,7 +1,7 @@
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Comment } from '../../core/models/comment.model';
 import { Promotion } from '../../core/models/promotion.model';
@@ -19,6 +19,7 @@ import { PromotionTrustSignalsComponent } from '../../shared/components/promotio
 import { PromotionVoteButtonsComponent } from '../../shared/components/promotion-card/promotion-vote-buttons.component';
 
 import { FloatingFieldComponent } from '../../shared/components/floating-field/floating-field.component';
+import { RelatedPromotionItemComponent } from '../../shared/components/related-promotion-item/related-promotion-item.component';
 
 interface CommentReply {
   id: string;
@@ -35,15 +36,13 @@ interface CommentReply {
     DatePipe,
     EmptyStateComponent,
     FormsModule,
-    NgFor,
-    NgIf,
     PromotionContextComponent,
     PromotionImageComponent,
     PromotionPriceComponent,
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent,
     FloatingFieldComponent,
-    RouterLink
+    RelatedPromotionItemComponent
   ],
   templateUrl: './promotion-detail.component.html',
   styleUrl: './promotion-detail.component.scss'

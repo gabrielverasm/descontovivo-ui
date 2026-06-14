@@ -1,9 +1,12 @@
 <nav class="breadcrumb" aria-label="Breadcrumb">
-  <ng-container *ngFor="let item of items; let last = last">
-    <a *ngIf="item.route; else text" [routerLink]="item.route">{{ item.label }}</a>
-    <ng-template #text>
+  @for (item of items; track item.label; let last = $last) {
+    @if (item.route) {
+      <a [routerLink]="item.route">{{ item.label }}</a>
+    } @else {
       <span>{{ item.label }}</span>
-    </ng-template>
-    <span *ngIf="!last" aria-hidden="true">/</span>
-  </ng-container>
+    }
+    @if (!last) {
+      <span aria-hidden="true">/</span>
+    }
+  }
 </nav>

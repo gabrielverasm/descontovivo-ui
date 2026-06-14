@@ -1,105 +1,114 @@
 <dl class="promotion-context" [class.promotion-context--merged]="isSameSellerAndDelivery">
-  <div
-    *ngIf="isSameSellerAndDelivery; else separateSellerDelivery"
-    class="promotion-context__item promotion-context__item--trusted"
-  >
-    <dt>Vendido e entregue por:</dt>
-    <dd>
-      {{ deliveryProviderName }}
-      <span
-        *ngIf="isTrustedFulfillment"
-        class="promotion-context__icon promotion-context__icon--fulfillment"
-        aria-label="Vendido/Entregue por loja reconhecida"
-        [attr.title]="trustedFulfillmentTitle"
-        tabindex="0"
-      >
-        <img
-          src="/brand/trusted-marketplace.svg"
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          decoding="async"
-        />
-      </span>
-      <span
-        *ngIf="!isTrustedFulfillment && isMarketplaceSeller"
-        class="promotion-context__icon promotion-context__icon--warning"
-        aria-label="Atenção ao marketplace"
-        [attr.title]="sellerWarningTitle"
-        tabindex="0"
-      >
-        <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-      </span>
-    </dd>
-  </div>
-
-  <ng-template #separateSellerDelivery>
-    <div
-      *ngIf="isTrustedFulfillment"
-      class="promotion-context__item promotion-context__item--trusted"
-    >
-      <dt>Vendido por:</dt>
+  @if (isSameSellerAndDelivery) {
+    <div class="promotion-context__item promotion-context__item--trusted">
+      <dt>Vendido e entregue por:</dt>
       <dd>
-        {{ promotion.trustedStoreName }}
-        <span
-          class="promotion-context__icon promotion-context__icon--fulfillment"
-          aria-label="Vendido/Entregue por loja reconhecida"
-          [attr.title]="trustedFulfillmentTitle"
-          tabindex="0"
-        >
-          <img
-            src="/brand/trusted-marketplace.svg"
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            decoding="async"
-          />
-        </span>
+        {{ deliveryProviderName }}
+        @if (isTrustedFulfillment) {
+          <span
+            class="promotion-context__icon promotion-context__icon--fulfillment"
+            aria-label="Vendido/Entregue por loja reconhecida"
+            [attr.title]="trustedFulfillmentTitle"
+            tabindex="0"
+          >
+            <img
+              src="/brand/trusted-marketplace.svg"
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
+            />
+          </span>
+        }
+        @if (!isTrustedFulfillment && isMarketplaceSeller) {
+          <span
+            class="promotion-context__icon promotion-context__icon--warning"
+            aria-label="Atenção ao marketplace"
+            [attr.title]="sellerWarningTitle"
+            tabindex="0"
+          >
+            <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+          </span>
+        }
       </dd>
     </div>
+  } @else {
+    @if (isTrustedFulfillment) {
+      <div class="promotion-context__item promotion-context__item--trusted">
+        <dt>Vendido por:</dt>
+        <dd>
+          {{ promotion.trustedStoreName }}
+          <span
+            class="promotion-context__icon promotion-context__icon--fulfillment"
+            aria-label="Vendido/Entregue por loja reconhecida"
+            [attr.title]="trustedFulfillmentTitle"
+            tabindex="0"
+          >
+            <img
+              src="/brand/trusted-marketplace.svg"
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              decoding="async"
+            />
+          </span>
+        </dd>
+      </div>
+    }
 
-    <div *ngIf="isTrustedFulfillment">
-      <dt>Entregue por:</dt>
-      <dd>{{ deliveryProviderName }}</dd>
-    </div>
+    @if (isTrustedFulfillment) {
+      <div>
+        <dt>Entregue por:</dt>
+        <dd>{{ deliveryProviderName }}</dd>
+      </div>
+    }
 
-    <div *ngIf="!isTrustedFulfillment && promotion.sellerName">
-      <dt>Vendido por:</dt>
+    @if (!isTrustedFulfillment && promotion.sellerName) {
+      <div>
+        <dt>Vendido por:</dt>
+        <dd>
+          {{ promotion.sellerName }}
+          @if (isMarketplaceSeller) {
+            <span
+              class="promotion-context__icon promotion-context__icon--warning"
+              aria-label="Atenção ao marketplace"
+              [attr.title]="sellerWarningTitle"
+              tabindex="0"
+            >
+              <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+            </span>
+          }
+        </dd>
+      </div>
+    }
+
+    @if (!isTrustedFulfillment && deliveryProviderName) {
+      <div>
+        <dt>Entregue por:</dt>
+        <dd>{{ deliveryProviderName }}</dd>
+      </div>
+    }
+  }
+
+  @if (promotion.shippingInfo) {
+    <div>
+      <dt>Frete:</dt>
       <dd>
-        {{ promotion.sellerName }}
-        <span
-          *ngIf="isMarketplaceSeller"
-          class="promotion-context__icon promotion-context__icon--warning"
-          aria-label="Atenção ao marketplace"
-          [attr.title]="sellerWarningTitle"
-          tabindex="0"
-        >
-          <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-        </span>
+        @if (promotion.shippingInfo === 'Prime') {
+          <a
+            class="promotion-context__service-link"
+            routerLink="/servicos"
+            fragment="amazon-prime"
+            aria-label="Entender Amazon Prime"
+            title="Entender Amazon Prime"
+            (click)="$event.stopPropagation()"
+          >
+            Prime
+          </a>
+        } @else {
+          {{ promotion.shippingInfo }}
+        }
       </dd>
     </div>
-
-    <div *ngIf="!isTrustedFulfillment && deliveryProviderName">
-      <dt>Entregue por:</dt>
-      <dd>{{ deliveryProviderName }}</dd>
-    </div>
-  </ng-template>
-
-  <div *ngIf="promotion.shippingInfo">
-    <dt>Frete:</dt>
-    <dd>
-      <a
-        *ngIf="promotion.shippingInfo === 'Prime'; else shippingInfoText"
-        class="promotion-context__service-link"
-        routerLink="/servicos"
-        fragment="amazon-prime"
-        aria-label="Entender Amazon Prime"
-      title="Entender Amazon Prime"
-      (click)="$event.stopPropagation()"
-    >
-        Prime
-      </a>
-      <ng-template #shippingInfoText>{{ promotion.shippingInfo }}</ng-template>
-    </dd>
-  </div>
+  }
 </dl>
