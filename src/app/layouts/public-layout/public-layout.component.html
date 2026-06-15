@@ -65,14 +65,15 @@
     <a routerLink="/publicar">Publicar promoção</a>
   </footer>
 
-  <button
-    *ngIf="showBackToTop"
-    class="public-layout__back-to-top"
-    type="button"
-    aria-label="Voltar ao topo"
-    (click)="scrollToTop()"
-  >
-    <img class="public-layout__button-icon public-layout__button-icon--mono" src="/brand/circle-up-mono.svg" alt="" aria-hidden="true" />
-    <img class="public-layout__button-icon public-layout__button-icon--hover" src="/brand/circle-up-white.svg" alt="" aria-hidden="true" />
-  </button>
+  @if (showBackToTop) {
+    <button
+      class="public-layout__back-to-top"
+      type="button"
+      aria-label="Voltar ao topo"
+      (click)="scrollToTop()"
+    >
+      <img class="public-layout__button-icon public-layout__button-icon--mono" src="/brand/circle-up-mono.svg" alt="" aria-hidden="true" />
+      <img class="public-layout__button-icon public-layout__button-icon--hover" src="/brand/circle-up-white.svg" alt="" aria-hidden="true" />
+    </button>
+  }
 </div>

@@ -1,5 +1,9 @@
 <header class="page-header">
-  <p *ngIf="eyebrow" class="page-header__eyebrow">{{ eyebrow }}</p>
+  @if (eyebrow) {
+    <p class="page-header__eyebrow">{{ eyebrow }}</p>
+  }
   <h1>{{ title }}</h1>
-  <p *ngIf="description" class="page-header__description">{{ description }}</p>
+  @if (description) {
+    <p class="page-header__description">{{ description }}</p>
+  }
 </header>

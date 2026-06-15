@@ -1,11 +1,10 @@
-import { NgIf } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-public-layout',
   standalone: true,
-  imports: [NgIf, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './public-layout.component.html',
   styleUrl: './public-layout.component.scss'
 })

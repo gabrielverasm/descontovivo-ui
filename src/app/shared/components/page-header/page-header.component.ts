@@ -1,10 +1,9 @@
-import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-page-header',
   standalone: true,
-  imports: [NgIf],
+  imports: [],
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss'
 })

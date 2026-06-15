@@ -1,4 +1,4 @@
-import { CurrencyPipe, NgIf } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 
 import { Promotion } from '../../../core/models/promotion.model';
@@ -6,7 +6,7 @@ import { Promotion } from '../../../core/models/promotion.model';
 @Component({
   selector: 'app-promotion-price',
   standalone: true,
-  imports: [CurrencyPipe, NgIf],
+  imports: [CurrencyPipe],
   templateUrl: './promotion-price.component.html',
   styleUrl: './promotion-price.component.scss',
 })
