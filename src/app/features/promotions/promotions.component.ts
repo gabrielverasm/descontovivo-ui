@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Meta } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
@@ -18,12 +19,17 @@ export class PromotionsComponent implements AfterViewInit, OnDestroy {
   private readonly pageSize = 6;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly meta = inject(Meta);
   private highlightTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private scrollTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private queryParamSubscription: Subscription | undefined;
   private intersectionObserver: IntersectionObserver | undefined;
 
   @ViewChild('loadMoreAnchor') loadMoreAnchorRef: ElementRef<HTMLElement> | undefined;
+
+  constructor() {
+    this.meta.updateTag({ name: 'description', content: 'Encontre promoções compartilhadas pela comunidade no DescontoVivo, com ofertas revisadas, contexto de compra e sinais de confiança.' });
+  }
 
   highlightedPromotionId = '';
   query = '';
