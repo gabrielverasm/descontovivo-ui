@@ -1,11 +1,9 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, OnChanges, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
-import {
-  getLatestPromotionComment,
-  getPromotionCommentCount
-} from '../../../core/mocks/comments.mock';
-import { USERS_MOCK } from '../../../core/mocks/users.mock';
+import { CommentService } from '../../../core/services/comment.service';
+import { UserService } from '../../../core/services/user.service';
 import { Promotion } from '../../../core/models/promotion.model';
 import { User } from '../../../core/models/user.model';
 import { PromotionContextComponent } from './promotion-context.component';
@@ -28,28 +26,26 @@ import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.componen
   templateUrl: './promotion-card.component.html',
   styleUrl: './promotion-card.component.scss',
 })
-export class PromotionCardComponent {
+export class PromotionCardComponent implements OnChanges {
   private readonly router = inject(Router);
+  private readonly commentService = inject(CommentService);
+  private readonly userService = inject(UserService);
   @Input({ required: true }) promotion!: Promotion;
 
-  get latestCommentPreview() {
-    const latestComment = getLatestPromotionComment(this.promotion.id);
+  latestCommentPreview = 'ainda não há comentários';
+  actualCommentsCount = 0;
+  publisher: User = { id: '', name: 'Usuario DescontoVivo', role: 'user' };
 
-    return latestComment?.content || 'ainda não há comentários';
-  }
-
-  get actualCommentsCount() {
-    return getPromotionCommentCount(this.promotion.id);
-  }
-
-  get publisher(): User {
-    return (
-      USERS_MOCK.find((user) => user.id === this.promotion.createdBy) ?? {
-        id: this.promotion.createdBy,
-        name: 'Usuario DescontoVivo',
-        role: 'user'
-      }
-    );
+  ngOnChanges() {
+    forkJoin({
+      latestComment: this.commentService.getLatestCommentByPromotionId(this.promotion.id),
+      commentCount: this.commentService.getCommentCountByPromotionId(this.promotion.id),
+      user: this.userService.getUserById(this.promotion.createdBy)
+    }).subscribe(({ latestComment, commentCount, user }) => {
+      this.latestCommentPreview = latestComment?.content || 'ainda não há comentários';
+      this.actualCommentsCount = commentCount;
+      this.publisher = user ?? { id: this.promotion.createdBy, name: 'Usuario DescontoVivo', role: 'user' };
+    });
   }
 
   get publishedAgo() {
