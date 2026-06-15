@@ -3,15 +3,11 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } fr
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { map, Subscription, switchMap } from 'rxjs';
+import { forkJoin, map, Subscription, switchMap } from 'rxjs';
 
 import { Comment } from '../../core/models/comment.model';
 import { Promotion } from '../../core/models/promotion.model';
-import {
-  COMMENTS_MOCK,
-  getPromotionCommentCount,
-  getRootPromotionComments
-} from '../../core/mocks/comments.mock';
+import { CommentService } from '../../core/services/comment.service';
 import { PromotionService } from '../../core/services/promotion.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
@@ -66,6 +62,9 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly meta = inject(Meta);
   private readonly titleService = inject(Title);
   private readonly promotionService = inject(PromotionService);
+  private readonly commentService = inject(CommentService);
+  private allComments: Comment[] = [];
+  private commentCount = 0;
   promotion?: Promotion;
   comments: Comment[] = [];
   readonly replyDrafts: Record<string, string> = {};
@@ -76,14 +75,20 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   relatedPromotions: Promotion[] = [];
 
   private readonly routeSubscription: Subscription = this.route.paramMap.pipe(
-    switchMap((params) =>
-      this.promotionService.getApprovedPromotions().pipe(
-        map((promotions) => ({ promotions, id: params.get('id') }))
-      )
-    )
-  ).subscribe(({ promotions, id }) => {
+    switchMap((params) => {
+      const id = params.get('id') || '';
+      return forkJoin({
+        promotions: this.promotionService.getApprovedPromotions(),
+        comments: this.commentService.getRootCommentsByPromotionId(id),
+        allComments: this.commentService.getAllComments(),
+        commentCount: this.commentService.getCommentCountByPromotionId(id)
+      }).pipe(map((data) => ({ ...data, id })));
+    })
+  ).subscribe(({ promotions, comments, allComments, commentCount, id }) => {
     this.allPromotions = promotions;
-    this.setPromotion(id);
+    this.allComments = allComments;
+    this.commentCount = commentCount;
+    this.setPromotion(id, comments);
   });
 
   get visibleComments() {
@@ -91,13 +96,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   get totalCommentsCount() {
-    const mockedCount = this.promotion ? getPromotionCommentCount(this.promotion.id) : 0;
     const localRepliesCount = Object.values(this.localRepliesByComment).reduce(
       (total, replies) => total + replies.length,
       0
     );
 
-    return mockedCount + localRepliesCount;
+    return this.commentCount + localRepliesCount;
   }
 
   get shownCommentsCount() {
@@ -144,7 +148,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   getCommentReplies(comment: Comment) {
-    const mockedReplies = COMMENTS_MOCK.filter((reply) => reply.parentCommentId === comment.id).map((reply) => ({
+    const mockedReplies = this.allComments.filter((reply) => reply.parentCommentId === comment.id).map((reply) => ({
       id: reply.id,
       commentId: comment.id,
       authorName: reply.author.name,
@@ -267,9 +271,9 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.routeSubscription.unsubscribe();
   }
 
-  private setPromotion(promotionId: string | null) {
+  private setPromotion(promotionId: string | null, comments?: Comment[]) {
     this.promotion = this.allPromotions.find((promotion) => promotion.id === promotionId);
-    this.comments = this.promotion ? getRootPromotionComments(this.promotion.id) : [];
+    this.comments = comments ?? [];
     this.relatedPromotions = this.promotion ? this.findRelatedPromotions(this.promotion) : [];
     this.relatedPage = 0;
     this.visibleCommentsCount = this.commentsPageSize;
