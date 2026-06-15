@@ -50,8 +50,8 @@
         </dl>
 
         <div class="promotion-detail__actions">
-          <button class="promotion-detail__back" type="button" (click)="returnToPromotionsList()">
-            Voltar para promoções
+          <button #backButtonAnchor class="promotion-detail__back" type="button" (click)="returnToPromotionsList()">
+            ← Promoções
           </button>
 
           <a
@@ -224,5 +224,16 @@
       title="Promoção não encontrada"
       description="Ela pode estar pendente, reprovada ou indisponível publicamente."
     />
+  }
+
+  @if (isFloatingBackVisible) {
+    <a
+      class="promotion-detail__floating-back"
+      [class.is-animating]="isFloatingBackAnimating"
+      routerLink="/promocoes"
+      aria-label="Voltar para a lista de promoções"
+    >
+      ← Promoções
+    </a>
   }
 </main>

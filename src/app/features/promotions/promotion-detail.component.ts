@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnDestroy, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Comment } from '../../core/models/comment.model';
 import { Promotion } from '../../core/models/promotion.model';
@@ -36,6 +36,7 @@ interface CommentReply {
     DatePipe,
     EmptyStateComponent,
     FormsModule,
+    RouterLink,
     PromotionContextComponent,
     PromotionImageComponent,
     PromotionPriceComponent,
@@ -47,7 +48,14 @@ interface CommentReply {
   templateUrl: './promotion-detail.component.html',
   styleUrl: './promotion-detail.component.scss'
 })
-export class PromotionDetailComponent implements OnDestroy {
+export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('backButtonAnchor') backButtonAnchor?: ElementRef<HTMLElement>;
+
+  isFloatingBackVisible = false;
+  isFloatingBackAnimating = false;
+
+  private backButtonObserver?: IntersectionObserver;
+  private floatingBackAnimationTimeout?: ReturnType<typeof setTimeout>;
   private readonly relatedPageSize = 3;
   private readonly commentsPageSize = 5;
   private readonly route = inject(ActivatedRoute);
@@ -213,7 +221,36 @@ export class PromotionDetailComponent implements OnDestroy {
     });
   }
 
+  ngAfterViewInit(): void {
+    const target = this.backButtonAnchor?.nativeElement;
+
+    if (!target || typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+
+    this.backButtonObserver = new IntersectionObserver(
+      ([entry]) => {
+        const shouldShow = !entry.isIntersecting;
+
+        if (shouldShow && !this.isFloatingBackVisible) {
+          this.isFloatingBackAnimating = true;
+          clearTimeout(this.floatingBackAnimationTimeout);
+          this.floatingBackAnimationTimeout = setTimeout(() => {
+            this.isFloatingBackAnimating = false;
+          }, 520);
+        }
+
+        this.isFloatingBackVisible = shouldShow;
+      },
+      { threshold: 0.1 }
+    );
+
+    this.backButtonObserver.observe(target);
+  }
+
   ngOnDestroy() {
+    this.backButtonObserver?.disconnect();
+    clearTimeout(this.floatingBackAnimationTimeout);
     this.routeSubscription.unsubscribe();
   }
 
