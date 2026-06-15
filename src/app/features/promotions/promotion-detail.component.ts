@@ -3,6 +3,7 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } fr
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { map, Subscription, switchMap } from 'rxjs';
 
 import { Comment } from '../../core/models/comment.model';
 import { Promotion } from '../../core/models/promotion.model';
@@ -11,7 +12,7 @@ import {
   getPromotionCommentCount,
   getRootPromotionComments
 } from '../../core/mocks/comments.mock';
-import { APPROVED_PROMOTIONS_MOCK } from '../../core/mocks/promotions.mock';
+import { PromotionService } from '../../core/services/promotion.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
@@ -57,12 +58,14 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   private backButtonObserver?: IntersectionObserver;
   private floatingBackAnimationTimeout?: ReturnType<typeof setTimeout>;
+  private allPromotions: Promotion[] = [];
   private readonly relatedPageSize = 3;
   private readonly commentsPageSize = 5;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly meta = inject(Meta);
   private readonly titleService = inject(Title);
+  private readonly promotionService = inject(PromotionService);
   promotion?: Promotion;
   comments: Comment[] = [];
   readonly replyDrafts: Record<string, string> = {};
@@ -72,8 +75,15 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   visibleCommentsCount = this.commentsPageSize;
   relatedPromotions: Promotion[] = [];
 
-  private readonly routeSubscription = this.route.paramMap.subscribe((params) => {
-    this.setPromotion(params.get('id'));
+  private readonly routeSubscription: Subscription = this.route.paramMap.pipe(
+    switchMap((params) =>
+      this.promotionService.getApprovedPromotions().pipe(
+        map((promotions) => ({ promotions, id: params.get('id') }))
+      )
+    )
+  ).subscribe(({ promotions, id }) => {
+    this.allPromotions = promotions;
+    this.setPromotion(id);
   });
 
   get visibleComments() {
@@ -258,7 +268,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   private setPromotion(promotionId: string | null) {
-    this.promotion = APPROVED_PROMOTIONS_MOCK.find((promotion) => promotion.id === promotionId);
+    this.promotion = this.allPromotions.find((promotion) => promotion.id === promotionId);
     this.comments = this.promotion ? getRootPromotionComments(this.promotion.id) : [];
     this.relatedPromotions = this.promotion ? this.findRelatedPromotions(this.promotion) : [];
     this.relatedPage = 0;
@@ -288,7 +298,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private findRelatedPromotions(currentPromotion: Promotion) {
     const currentTags = new Set(currentPromotion.tags.map((tag) => tag.toLowerCase()));
     const currentTitleWords = this.getTitleWords(currentPromotion.title);
-    const scoredPromotions = APPROVED_PROMOTIONS_MOCK.filter((promotion) => promotion.id !== currentPromotion.id)
+    const scoredPromotions = this.allPromotions.filter((promotion) => promotion.id !== currentPromotion.id)
       .map((promotion) => {
         const sharedTags = promotion.tags.filter((tag) => currentTags.has(tag.toLowerCase())).length;
         const titleWords = Array.from(this.getTitleWords(promotion.title));
@@ -318,7 +328,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     }
 
     const relatedIds = new Set(relatedPromotions.map((promotion) => promotion.id));
-    const fallbackPromotions = APPROVED_PROMOTIONS_MOCK.filter(
+    const fallbackPromotions = this.allPromotions.filter(
       (promotion) => promotion.id !== currentPromotion.id && !relatedIds.has(promotion.id),
     ).sort((firstPromotion, secondPromotion) => (
       this.getPromotionDateTime(secondPromotion) - this.getPromotionDateTime(firstPromotion)
