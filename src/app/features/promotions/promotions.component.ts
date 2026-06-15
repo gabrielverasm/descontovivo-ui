@@ -1,10 +1,11 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { APPROVED_PROMOTIONS_MOCK } from '../../core/mocks/promotions.mock';
+import { Promotion } from '../../core/models/promotion.model';
+import { PromotionService } from '../../core/services/promotion.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PromotionCardComponent } from '../../shared/components/promotion-card/promotion-card.component';
 
@@ -15,14 +16,16 @@ import { PromotionCardComponent } from '../../shared/components/promotion-card/p
   templateUrl: './promotions.component.html',
   styleUrl: './promotions.component.scss'
 })
-export class PromotionsComponent implements AfterViewInit, OnDestroy {
+export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly pageSize = 6;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly meta = inject(Meta);
+  private readonly promotionService = inject(PromotionService);
   private highlightTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private scrollTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private queryParamSubscription: Subscription | undefined;
+  private promotionsSubscription: Subscription | undefined;
   private intersectionObserver: IntersectionObserver | undefined;
 
   @ViewChild('loadMoreAnchor') loadMoreAnchorRef: ElementRef<HTMLElement> | undefined;
@@ -34,7 +37,13 @@ export class PromotionsComponent implements AfterViewInit, OnDestroy {
   highlightedPromotionId = '';
   query = '';
   visibleCount = this.pageSize;
-  readonly promotions = APPROVED_PROMOTIONS_MOCK;
+  promotions: Promotion[] = [];
+
+  ngOnInit() {
+    this.promotionsSubscription = this.promotionService.getApprovedPromotions().subscribe((data) => {
+      this.promotions = data;
+    });
+  }
 
   ngAfterViewInit() {
     this.queryParamSubscription = this.route.queryParamMap.subscribe((params) => {
@@ -58,6 +67,7 @@ export class PromotionsComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy() {
     this.clearHighlightTimeout();
     this.queryParamSubscription?.unsubscribe();
+    this.promotionsSubscription?.unsubscribe();
     this.intersectionObserver?.disconnect();
   }
 
