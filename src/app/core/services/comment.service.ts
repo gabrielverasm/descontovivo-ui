@@ -16,4 +16,8 @@ export class CommentService {
   getAllComments(): Observable<Comment[]> {
     return of([...COMMENTS_MOCK]);
   }
+
+  getRepliesByParentCommentId(parentCommentId: string): Observable<Comment[]> {
+    return of(COMMENTS_MOCK.filter((c) => c.parentCommentId === parentCommentId));
+  }
 }
