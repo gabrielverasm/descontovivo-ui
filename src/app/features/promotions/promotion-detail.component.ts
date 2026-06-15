@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Comment } from '../../core/models/comment.model';
@@ -60,6 +61,8 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly commentsPageSize = 5;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly meta = inject(Meta);
+  private readonly titleService = inject(Title);
   promotion?: Promotion;
   comments: Comment[] = [];
   readonly replyDrafts: Record<string, string> = {};
@@ -260,6 +263,22 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.relatedPromotions = this.promotion ? this.findRelatedPromotions(this.promotion) : [];
     this.relatedPage = 0;
     this.visibleCommentsCount = this.commentsPageSize;
+    this.updateSeoMeta();
+  }
+
+  private updateSeoMeta() {
+    if (!this.promotion) {
+      this.titleService.setTitle('Promoção não encontrada | DescontoVivo');
+      this.meta.updateTag({ name: 'description', content: 'Confira as melhores promoções no DescontoVivo.' });
+      return;
+    }
+
+    const { title, currentPrice, storeName } = this.promotion;
+    const priceStr = currentPrice != null ? ` por R$${currentPrice.toFixed(2).replace('.', ',')}` : '';
+    const storeStr = storeName ? ` em ${storeName}` : '';
+
+    this.titleService.setTitle(`${title} | DescontoVivo`);
+    this.meta.updateTag({ name: 'description', content: `Veja a promoção ${title}${priceStr}${storeStr} no DescontoVivo.` });
   }
 
   private normalizeDestinationName(destinationName: string) {
