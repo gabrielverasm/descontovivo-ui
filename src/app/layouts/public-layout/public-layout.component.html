@@ -17,8 +17,10 @@
         <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
         @if (currentUser$ | async; as user) {
-          <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
-          <button type="button" (click)="logout(); closeMenu()">Sair</button>
+          <div class="public-layout__auth">
+            <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
+            <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
+          </div>
         } @else {
           <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
         }
@@ -54,8 +56,10 @@
         <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
         @if (currentUser$ | async; as user) {
-          <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
-          <button type="button" (click)="logout(); closeMenu()">Sair</button>
+          <div class="public-layout__auth">
+            <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
+            <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
+          </div>
         } @else {
           <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
         }
