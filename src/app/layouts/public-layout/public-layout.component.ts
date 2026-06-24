@@ -2,6 +2,7 @@ import { Component, HostListener, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { AccountMe } from '../../core/models/account-me.model';
 
 @Component({
   selector: 'app-public-layout',
@@ -64,5 +65,9 @@ export class PublicLayoutComponent {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  getUserDisplayName(user: AccountMe): string {
+    return user.username ?? user.email ?? 'Minha conta';
   }
 }

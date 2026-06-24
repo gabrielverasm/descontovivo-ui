@@ -17,7 +17,7 @@
         <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
         @if (currentUser$ | async; as user) {
-          <span class="public-layout__user">{{ user.username }}</span>
+          <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
           <button type="button" (click)="logout(); closeMenu()">Sair</button>
         } @else {
           <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
@@ -54,7 +54,7 @@
         <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
         @if (currentUser$ | async; as user) {
-          <span class="public-layout__user">{{ user.username }}</span>
+          <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
           <button type="button" (click)="logout(); closeMenu()">Sair</button>
         } @else {
           <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
