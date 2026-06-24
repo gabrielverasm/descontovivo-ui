@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { emailVerifiedGuard } from './core/guards/email-verified.guard';
 import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
 
 export const routes: Routes = [
@@ -28,6 +29,7 @@ export const routes: Routes = [
       },
       {
         path: 'publicar',
+        canActivate: [emailVerifiedGuard],
         loadComponent: () =>
           import('./features/publish/publish-promotion.component').then(
             (m) => m.PublishPromotionComponent,
