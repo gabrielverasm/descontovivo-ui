@@ -1,11 +1,11 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://descontovivo.com.br/api/v1',
+  apiBaseUrl: 'https://api.descontovivo.com/api/v1',
   oidc: {
-    issuer: 'https://auth.descontovivo.com.br/realms/descontovivo',
+    issuer: 'https://auth.descontovivo.com/realms/descontovivo',
     clientId: 'descontovivo-ui',
     scope: 'openid profile email',
-    redirectUri: 'https://descontovivo.com.br',
-    postLogoutRedirectUri: 'https://descontovivo.com.br',
+    redirectUri: 'https://descontovivo.com',
+    postLogoutRedirectUri: 'https://descontovivo.com',
   },
 };

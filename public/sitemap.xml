@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://descontovivo.com.br/</loc></url>
-  <url><loc>https://descontovivo.com.br/sobre</loc></url>
-  <url><loc>https://descontovivo.com.br/servicos</loc></url>
-  <url><loc>https://descontovivo.com.br/publicar</loc></url>
-  <url><loc>https://descontovivo.com.br/login</loc></url>
-  <url><loc>https://descontovivo.com.br/cadastro</loc></url>
+  <url><loc>https://descontovivo.com/</loc></url>
+  <url><loc>https://descontovivo.com/sobre</loc></url>
+  <url><loc>https://descontovivo.com/servicos</loc></url>
+  <url><loc>https://descontovivo.com/publicar</loc></url>
+  <url><loc>https://descontovivo.com/login</loc></url>
+  <url><loc>https://descontovivo.com/cadastro</loc></url>
 </urlset>
