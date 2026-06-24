@@ -3,6 +3,7 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { BehaviorSubject, catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 import { AccountMe } from '../models/account-me.model';
 import { AccountService } from './account.service';
+import { canComment, canModerate, canPublish, canVote, hasRole } from '../utils/permissions';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -51,27 +52,22 @@ export class AuthService {
   }
 
   hasRole(role: string): boolean {
-    return this.currentUserSubject.value?.roles.includes(role) ?? false;
+    return hasRole(this.currentUserSubject.value, role);
   }
 
   canModerate(): boolean {
-    return this.hasRole('moderator') || this.hasRole('admin');
+    return canModerate(this.currentUserSubject.value);
   }
 
   canPublish(): boolean {
-    return this.isVerifiedUser();
+    return canPublish(this.currentUserSubject.value);
   }
 
   canVote(): boolean {
-    return this.isVerifiedUser();
+    return canVote(this.currentUserSubject.value);
   }
 
   canComment(): boolean {
-    return this.isVerifiedUser();
-  }
-
-  private isVerifiedUser(): boolean {
-    const user = this.currentUserSubject.value;
-    return user !== null && user.emailVerified === true;
+    return canComment(this.currentUserSubject.value);
   }
 }
