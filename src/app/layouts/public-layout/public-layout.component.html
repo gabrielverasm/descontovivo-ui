@@ -16,7 +16,12 @@
         <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
         <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
-        <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
+        @if (currentUser$ | async; as user) {
+          <span class="public-layout__user">{{ user.username }}</span>
+          <button type="button" (click)="logout(); closeMenu()">Sair</button>
+        } @else {
+          <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
+        }
       </nav>
 
       <button
@@ -48,7 +53,12 @@
         <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
         <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
-        <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
+        @if (currentUser$ | async; as user) {
+          <span class="public-layout__user">{{ user.username }}</span>
+          <button type="button" (click)="logout(); closeMenu()">Sair</button>
+        } @else {
+          <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
+        }
       </nav>
     </div>
   </header>

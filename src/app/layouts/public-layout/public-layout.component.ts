@@ -1,14 +1,19 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-public-layout',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, AsyncPipe],
   templateUrl: './public-layout.component.html',
   styleUrl: './public-layout.component.scss'
 })
 export class PublicLayoutComponent {
+  private readonly authService = inject(AuthService);
+  readonly currentUser$ = this.authService.currentUser$;
+
   isHeaderCompact = false;
   isMenuOpen = false;
   showBackToTop = false;
@@ -55,5 +60,9 @@ export class PublicLayoutComponent {
       top: 0,
       behavior: prefersReducedMotion ? 'auto' : 'smooth'
     });
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
