@@ -8,31 +8,10 @@
         <span>Acesse sua conta para publicar, votar e comentar ofertas.</span>
       </header>
 
-      <form class="auth-page__form" aria-label="Formulário de login">
-        <app-floating-field
-          label="E-mail"
-          name="email"
-          type="email"
-          autocomplete="email"
-        />
-
-        <app-floating-field
-          label="Senha"
-          name="password"
-          type="password"
-          autocomplete="current-password"
-        />
-
-        <div class="auth-page__row">
-          <label class="auth-page__remember">
-            <input type="checkbox" name="remember" />
-            <span>Lembrar de mim</span>
-          </label>
-          <a routerLink="/login">Esqueci minha senha</a>
-        </div>
-
-        <button type="button">Entrar</button>
-      </form>
+      <div class="auth-page__form">
+        <p>O login é feito com sua conta segura via provedor de identidade.</p>
+        <button type="button" (click)="login()">Entrar com conta segura</button>
+      </div>
     </section>
 
     <aside class="auth-page__signup" aria-labelledby="login-signup-title">
