@@ -3,53 +3,16 @@
 
   <div class="auth-page__content">
     <section class="auth-page__main" aria-labelledby="register-title">
-      <form class="auth-page__card" aria-label="Formulário de cadastro">
+      <div class="auth-page__card">
         <header>
           <h1 id="register-title">Criar conta</h1>
           <p>Entre na comunidade para publicar, votar e comentar ofertas.</p>
         </header>
 
-        <app-floating-field
-          label="Nome"
-          name="name"
-          type="text"
-          autocomplete="name"
-        />
+        <p>Sua conta é criada e gerenciada em ambiente seguro pelo nosso provedor de identidade. Ao clicar no botão abaixo você será redirecionado para criar sua conta com segurança.</p>
 
-        <app-floating-field
-          label="E-mail"
-          name="email"
-          type="email"
-          autocomplete="email"
-        />
-
-        <app-floating-field
-          label="Senha"
-          name="password"
-          type="password"
-          autocomplete="new-password"
-          (valueChange)="onPasswordInput($event)"
-        />
-
-        <div class="auth-page__password-strength" aria-live="polite">
-          <div class="auth-page__password-bar">
-            <span [class]="'auth-page__password-segment auth-page__password-segment--' + passwordStrength"></span>
-            <span [class]="'auth-page__password-segment auth-page__password-segment--' + (passwordStrength >= 2 ? passwordStrength : 0)"></span>
-            <span [class]="'auth-page__password-segment auth-page__password-segment--' + (passwordStrength >= 3 ? passwordStrength : 0)"></span>
-          </div>
-          <span class="auth-page__password-hint">{{ passwordHint }}</span>
-        </div>
-
-        <app-file-field
-          label="Adicionar foto da logo"
-          name="logo"
-          accept="image/png,image/jpeg,image/webp"
-          hint="PNG, JPG ou WebP · máx. 200 KB e 512×512 px"
-          ariaDescribedby="logo-help"
-        />
-
-        <button type="button">Criar conta</button>
-      </form>
+        <button type="button" (click)="register()">Criar conta</button>
+      </div>
     </section>
 
     <aside class="auth-page__side" aria-label="Acesso">
