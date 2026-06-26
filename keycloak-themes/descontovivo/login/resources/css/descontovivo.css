@@ -1,0 +1,182 @@
+/* DescontoVivo – Keycloak Login Theme */
+
+/* === Layout === */
+.login-pf body,
+body.kc-login {
+  background: linear-gradient(135deg, #0f1729 0%, #1a2744 50%, #162033 100%);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#kc-header {
+  text-align: center;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+#kc-header-wrapper {
+  font-size: 0;
+}
+
+#kc-header-wrapper::before {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  background: url('../img/logo-icon-white.svg') center/contain no-repeat;
+}
+
+#kc-header-wrapper::after {
+  content: 'Promoções com contexto, comunidade e segurança.';
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+}
+
+/* === Card === */
+.login-pf-page .card-pf {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  padding: 2rem 2rem 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+#kc-container-wrapper {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* === Inputs === */
+#kc-form input[type="text"],
+#kc-form input[type="password"],
+#kc-form input[type="email"],
+.pf-c-form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d7dee8;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  background: #f8faf9;
+}
+
+#kc-form input:focus,
+.pf-c-form-control:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+/* === Labels === */
+#kc-form label,
+.pf-c-form__label-text {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #162033;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+/* === Primary button === */
+#kc-login,
+#kc-form-buttons input[type="submit"],
+.pf-c-button.pf-m-primary,
+.btn-primary {
+  background: linear-gradient(135deg, #e63946, #f77f00);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 160ms ease, transform 100ms ease;
+}
+
+#kc-form-buttons input[type="submit"]:hover,
+.pf-c-button.pf-m-primary:hover,
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+#kc-form-buttons input[type="submit"]:active,
+.pf-c-button.pf-m-primary:active {
+  transform: translateY(0);
+}
+
+/* === Links === */
+#kc-form a,
+#kc-registration a,
+.pf-c-button.pf-m-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+#kc-form a:hover,
+#kc-registration a:hover {
+  text-decoration: underline;
+}
+
+/* === Alerts === */
+.alert-error,
+.pf-c-alert.pf-m-danger {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.alert-success,
+.pf-c-alert.pf-m-success {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  color: #166534;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+/* === Footer === */
+#kc-info,
+#kc-registration {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #526070;
+}
+
+/* === Responsive === */
+@media (max-width: 480px) {
+  #kc-container-wrapper {
+    padding: 0.75rem;
+  }
+
+  .login-pf-page .card-pf {
+    padding: 1.5rem 1.25rem 1.25rem;
+    border-radius: 10px;
+  }
+
+  #kc-header-wrapper::before {
+    width: 44px;
+    height: 44px;
+  }
+}
