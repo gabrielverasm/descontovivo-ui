@@ -1,5 +1,6 @@
 export type PromotionStatus = 'pending' | 'approved' | 'rejected';
 export type PromotionSellerType = 'official_store' | 'marketplace' | 'third_party' | 'store';
+export type AffiliateProgram = 'NONE' | 'AMAZON';
 
 export interface Promotion {
   id: string;
@@ -26,6 +27,8 @@ export interface Promotion {
   offerBadge?: string;
   warningBadge?: string;
   couponCode?: string;
+  affiliateProgram?: AffiliateProgram;
+  sponsoredLink?: boolean;
   likesCount: number;
   dislikesCount?: number;
   commentsCount: number;
