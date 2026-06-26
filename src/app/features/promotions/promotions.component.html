@@ -1,49 +1,9 @@
-<main class="promotions">
-  <section class="promotions__hero" aria-label="Busca de promoções">
-    <label class="promotions__search" [class.promotions__search--has-query]="query">
-      <img src="/brand/lupa.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-      <input
-        type="search"
-        name="search"
-        [(ngModel)]="query"
-        (ngModelChange)="resetVisiblePromotions()"
-        placeholder="Pesquise aqui: produto, loja, categoria ou tag."
-        aria-label="Pesquisar produto, loja, categoria ou tag"
-      />
-      <span class="promotions__search-label">Pesquise aqui: produto, loja, categoria ou tag.</span>
-    </label>
-  </section>
-
-  <section class="promotions__list" aria-label="Lista de promoções aprovadas">
-    @for (promotion of visiblePromotions; track promotion.id) {
-      <div
-        class="promotions__item"
-        [class.promotions__item--highlighted]="promotion.id === highlightedPromotionId"
-        [attr.data-promotion-id]="promotion.id"
-      >
-        <app-promotion-card [promotion]="promotion" />
-      </div>
-    }
-
-    @if (!filteredPromotions.length) {
-      <app-empty-state
-        title="Nenhuma promoção encontrada"
-        description="Tente buscar por outro produto, loja ou categoria."
-      />
-    }
-
-    <div #loadMoreAnchor class="promotions__load-more-anchor"></div>
-  </section>
-
-  @if (filteredPromotions.length) {
-  <section class="promotions__load-more" aria-label="Continuar explorando promoções">
-    <p>
-      Mostrando {{ visiblePromotions.length }} de {{ filteredPromotions.length }} promoções aprovadas.
+<main class="prelaunch">
+  <section class="prelaunch__content" aria-label="Pré-lançamento">
+    <h1 class="prelaunch__title">DescontoVivo está quase pronto</h1>
+    <p class="prelaunch__description">
+      Estamos preparando uma comunidade de promoções com contexto, segurança e moderação.
     </p>
-    <button type="button" (click)="loadMorePromotions()" [disabled]="!hasMorePromotions">
-      {{ hasMorePromotions ? 'Carregar mais promoções' : 'Todas as promoções foram carregadas' }}
-    </button>
+    <p class="prelaunch__subtitle">Em breve você poderá encontrar e compartilhar ofertas reais aqui.</p>
   </section>
-  }
-
 </main>

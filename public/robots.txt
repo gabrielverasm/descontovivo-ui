@@ -1,4 +1,2 @@
 User-agent: *
-Allow: /
-
-Sitemap: https://descontovivo.com/sitemap.xml
+Disallow: /
