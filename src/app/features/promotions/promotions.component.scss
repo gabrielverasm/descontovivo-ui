@@ -1,185 +1,28 @@
-.promotions {
-  position: relative;
+.prelaunch {
   display: grid;
-  gap: 0.85rem;
-  max-width: 1040px;
-  padding-bottom: 4rem;
+  place-items: center;
+  min-height: 60vh;
+  padding: 2rem 1rem;
+  text-align: center;
 }
 
-.promotions__hero {
-  margin-top: clamp(0.45rem, 1.8vw, 0.95rem);
-  padding: 0.42rem;
-  border: 1px solid rgba(203, 213, 225, 0.64);
-  border-radius: var(--dv-radius-lg);
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow:
-    0 18px 44px rgba(15, 23, 42, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.promotions__search {
-  position: relative;
-  display: block;
-  min-width: 0;
-}
-
-.promotions__search input {
-  width: 100%;
-  min-height: clamp(3.35rem, 7vw, 4rem);
-  border: 1px solid transparent;
-  border-radius: var(--dv-radius-md);
-  background: #fff;
-  padding: 0.2rem clamp(1rem, 3vw, 1.25rem) 0.2rem clamp(2.85rem, 5vw, 3.25rem);
+.prelaunch__title {
+  margin: 0 0 1rem;
   color: #111827;
-  font: inherit;
-  font-size: clamp(0.96rem, 2vw, 1.05rem);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-  transition:
-    border-color var(--dv-transition),
-    box-shadow var(--dv-transition),
-    transform var(--dv-transition);
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 800;
+  line-height: 1.2;
 }
 
-.promotions__search img {
-  position: absolute;
-  top: calc(clamp(3.35rem, 7vw, 4rem) / 2);
-  left: clamp(1rem, 3vw, 1.18rem);
-  z-index: 1;
-  width: 1.35rem;
-  height: 1.35rem;
-  pointer-events: none;
-  transform: translateY(-50%);
+.prelaunch__description {
+  margin: 0 0 0.75rem;
+  color: #374151;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  max-width: 540px;
 }
 
-.promotions__search-label {
-  display: block;
-  max-height: 0;
-  overflow: hidden;
-  color: #64748b;
-  font-size: 0.86rem;
-  font-weight: 750;
-  line-height: 1.35;
-  opacity: 0;
-  transform: translateY(-0.35rem);
-  transition:
-    max-height 160ms ease,
-    opacity 160ms ease,
-    padding 160ms ease,
-    transform 160ms ease;
-}
-
-.promotions__search input:focus {
-  border-color: rgba(37, 99, 235, 0.36);
-  outline: 0;
-  box-shadow:
-    0 18px 36px rgba(37, 99, 235, 0.12),
-    0 0 0 4px rgba(37, 99, 235, 0.12);
-  transform: translateY(-1px);
-}
-
-.promotions__search input:focus::placeholder {
-  color: transparent;
-}
-
-.promotions__search:focus-within .promotions__search-label,
-.promotions__search--has-query .promotions__search-label {
-  max-height: 2rem;
-  padding: 0.18rem 0.72rem 0.52rem;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.promotions__list {
-  display: grid;
-  gap: 0.85rem;
-  min-width: 0;
-}
-
-.promotions__item {
-  border-radius: 16px;
-}
-
-.promotions__item--highlighted {
-  outline: 3px solid rgba(37, 99, 235, 0.42);
-  outline-offset: 4px;
-  animation: promotion-highlight 1.2s ease-in-out 2;
-}
-
-@keyframes promotion-highlight {
-  50% {
-    box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.12);
-  }
-}
-
-.promotions__load-more {
-  display: grid;
-  justify-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0 0;
-}
-
-.promotions__load-more p {
+.prelaunch__subtitle {
   margin: 0;
-  color: #64748b;
-  font-weight: 700;
-}
-
-.promotions__load-more button {
-  border: 0;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 900;
-}
-
-.promotions__load-more button {
-  min-height: 2.25rem;
-  border: 1px solid rgba(23, 32, 51, 0.18);
-  border-radius: 999px;
-  background: #fff;
-  color: #172033;
-  font-weight: 750;
-  line-height: 1;
-  padding: 0 0.82rem;
-}
-
-.promotions__load-more button:hover:not(:disabled) {
-  border-color: transparent;
-  background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
-}
-
-.promotions__load-more button:disabled {
-  cursor: default;
-  background: #e5e7eb;
-  color: #64748b;
-}
-
-.promotions__load-more button:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.28);
-  outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .promotions__item--highlighted {
-    animation: none;
-  }
-}
-
-.promotions__load-more-anchor {
-  height: 1px;
-}
-
-@media (max-width: 640px) {
-  .promotions__search-context {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .promotions__load-more {
-    justify-items: stretch;
-  }
-
-  .promotions__load-more button {
-    width: 100%;
-  }
+  color: #6b7280;
+  font-size: 0.95rem;
 }
