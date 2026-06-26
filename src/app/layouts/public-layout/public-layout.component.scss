@@ -234,6 +234,26 @@
   color: #cbd5e1;
 }
 
+.public-layout__footer-disclosure {
+  width: 100%;
+  margin: 0.25rem 0 0;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.public-layout__footer-disclosure a {
+  color: #64748b;
+  text-decoration: none;
+  transition: color var(--dv-transition);
+}
+
+.public-layout__footer-disclosure a:hover {
+  color: #2563eb;
+}
+
 .public-layout__auth {
   display: flex;
   align-items: center;

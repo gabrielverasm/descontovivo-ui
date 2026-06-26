@@ -49,6 +49,14 @@ export const routes: Routes = [
         title: 'Serviços | DescontoVivo',
       },
       {
+        path: 'transparencia',
+        loadComponent: () =>
+          import('./features/transparency/transparency.component').then(
+            (m) => m.TransparencyComponent,
+          ),
+        title: 'Transparência | DescontoVivo',
+      },
+      {
         path: 'login',
         loadComponent: () =>
           import('./features/auth/login.component').then((m) => m.LoginComponent),
