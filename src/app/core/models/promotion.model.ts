@@ -2,8 +2,14 @@ export type PromotionStatus = 'pending' | 'approved' | 'rejected';
 export type PromotionSellerType = 'official_store' | 'marketplace' | 'third_party' | 'store';
 export type AffiliateProgram = 'NONE' | 'AMAZON';
 
+export interface PromotionStore {
+  slug: string;
+  name: string;
+}
+
 export interface Promotion {
   id: string;
+  slug?: string;
   title: string;
   description: string;
   currentPrice: number;
@@ -33,7 +39,18 @@ export interface Promotion {
   dislikesCount?: number;
   commentsCount: number;
   latestCommentPreview?: string;
+  availability?: string;
   status: PromotionStatus;
   createdAt: string;
+  publishedAt?: string;
   createdBy: string;
+  store?: PromotionStore;
+}
+
+export interface PagedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
 }

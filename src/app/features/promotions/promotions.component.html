@@ -1,9 +1,17 @@
-<main class="prelaunch">
-  <section class="prelaunch__content" aria-label="Pré-lançamento">
-    <h1 class="prelaunch__title">DescontoVivo está quase pronto</h1>
-    <p class="prelaunch__description">
-      Estamos preparando uma comunidade de promoções com contexto, segurança e moderação.
-    </p>
-    <p class="prelaunch__subtitle">Em breve você poderá encontrar e compartilhar ofertas reais aqui.</p>
-  </section>
+<main class="promotions-feed">
+  @if (loading) {
+    <app-loading-state />
+  } @else if (error) {
+    <div class="promotions-feed__error" role="alert">{{ error }}</div>
+  } @else if (promotions.length === 0) {
+    <div class="promotions-feed__empty">
+      <p>Nenhuma promoção disponível no momento.</p>
+    </div>
+  } @else {
+    <div class="promotions-feed__list">
+      @for (promo of promotions; track promo.id) {
+        <app-promotion-card [promotion]="promo" />
+      }
+    </div>
+  }
 </main>

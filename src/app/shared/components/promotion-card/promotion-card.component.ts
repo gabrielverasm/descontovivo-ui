@@ -121,8 +121,12 @@ export class PromotionCardComponent implements OnChanges {
     return destinationName.toLowerCase() === 'amazon.com.br' ? 'Amazon' : destinationName;
   }
 
+  get detailId(): string {
+    return this.promotion.slug || this.promotion.id;
+  }
+
   openDetails() {
-    void this.router.navigate(['/promocoes', this.promotion.id]);
+    void this.router.navigate(['/promocoes', this.detailId]);
   }
 
   openDetailsFromKeyboard(event: KeyboardEvent) {
