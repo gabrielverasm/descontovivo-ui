@@ -6,25 +6,26 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 
 const EXAMPLE_JSON: AdminImportRequest = {
-  batchId: 'batch-YYYY-MM-DD-001',
+  batchId: 'batch-2026-06-27-001',
   items: [
     {
-      sourceId: 'marketplace-produto-slug-YYYYMMDD',
-      title: 'Nome do produto',
-      description: 'Descrição curta e informativa da oferta.',
+      sourceId: 'amazon-echo-dot-5-20260627',
+      title: 'Echo Dot 5ª geração com Alexa',
+      description:
+        'Oferta interessante para quem quer começar com casa inteligente. Confira vendedor, frete e prazo antes de comprar.',
       marketplace: 'AMAZON',
-      storeName: 'Nome da loja',
-      sellerName: 'Vendedor',
-      soldBy: 'Vendedor',
-      deliveredBy: 'Transportadora',
-      productUrl: 'https://exemplo.com/produto',
-      imageUrl: 'https://exemplo.com/imagem.jpg',
-      currentPrice: 99.9,
-      originalPrice: 149.9,
+      storeName: 'Amazon',
+      sellerName: 'Amazon.com.br',
+      soldBy: 'Amazon.com.br',
+      deliveredBy: 'Amazon.com.br',
+      productUrl: 'https://...',
+      imageUrl: 'https://...',
+      currentPrice: 459.9,
+      originalPrice: 549.9,
       coupon: null,
       category: 'ELETRONICOS',
-      publishAt: '2026-01-01T12:00:00-03:00',
-      verifiedAt: '2026-01-01T11:00:00-03:00',
+      publishAt: '2026-06-27T21:30:00-03:00',
+      verifiedAt: '2026-06-27T21:00:00-03:00',
     },
   ],
 };
@@ -39,16 +40,22 @@ const EXAMPLE_JSON: AdminImportRequest = {
 export class ImportPromotionsComponent {
   private readonly importService = inject(AdminImportService);
 
-  token = '';
   jsonText = '';
   parseError = '';
   loading = false;
   httpError = '';
   result: AdminImportResponse | null = null;
+  showFormat = false;
+
+  readonly exampleFormatted = JSON.stringify(EXAMPLE_JSON, null, 2);
 
   loadExample(): void {
-    this.jsonText = JSON.stringify(EXAMPLE_JSON, null, 2);
+    this.jsonText = this.exampleFormatted;
     this.parseError = '';
+  }
+
+  toggleFormat(): void {
+    this.showFormat = !this.showFormat;
   }
 
   validateJson(): void {
@@ -84,14 +91,9 @@ export class ImportPromotionsComponent {
       return;
     }
 
-    if (!this.token.trim()) {
-      this.httpError = 'Token admin é obrigatório.';
-      return;
-    }
-
     this.loading = true;
     this.importService
-      .import(this.token.trim(), body, dryRun)
+      .import(body, dryRun)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (res) => (this.result = res),

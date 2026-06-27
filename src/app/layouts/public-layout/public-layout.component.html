@@ -17,12 +17,21 @@
         <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
         @if (currentUser$ | async; as user) {
-          <div class="public-layout__auth">
-            <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
-            @if (isAdmin(user)) {
-              <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
+          <div class="public-layout__user-menu">
+            <button
+              class="public-layout__user-toggle"
+              type="button"
+              (click)="toggleUserMenu()"
+              [attr.aria-expanded]="isUserMenuOpen"
+            >{{ getUserDisplayName(user) }} ▾</button>
+            @if (isUserMenuOpen) {
+              <div class="public-layout__user-dropdown">
+                @if (isAdmin(user)) {
+                  <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" (click)="closeUserMenu()">Importar promoções</a>
+                }
+                <button type="button" (click)="logout(); closeUserMenu()">Sair</button>
+              </div>
             }
-            <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
           </div>
         } @else {
           <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
@@ -59,13 +68,12 @@
         <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
         @if (currentUser$ | async; as user) {
-          <div class="public-layout__auth">
-            <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
-            @if (isAdmin(user)) {
-              <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
-            }
-            <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
-          </div>
+          <hr class="public-layout__menu-divider" />
+          <span class="public-layout__menu-user">{{ getUserDisplayName(user) }}</span>
+          @if (isAdmin(user)) {
+            <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
+          }
+          <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
         } @else {
           <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar</a>
         }
@@ -73,7 +81,7 @@
     </div>
   </header>
 
-  <div class="public-layout__content" (click)="closeMenu()">
+  <div class="public-layout__content" (click)="closeMenu(); closeUserMenu()">
     <router-outlet />
   </div>
 

@@ -254,23 +254,86 @@
   color: #2563eb;
 }
 
-.public-layout__auth {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.public-layout__user-menu {
+  position: relative;
 }
 
-.public-layout__user {
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 0.32rem 0.6rem;
-  border-radius: var(--dv-radius-sm);
+.public-layout__user-toggle {
+  border: 0;
+  border-radius: var(--dv-radius-sm, 6px);
   background: rgba(37, 99, 235, 0.06);
   color: #334155;
   font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.48rem 0.7rem;
+  cursor: pointer;
+  line-height: 1;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.public-layout__user-toggle:hover {
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+}
+
+.public-layout__user-dropdown {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 10rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.97);
+  padding: 0.35rem;
+  box-shadow: 0 12px 32px rgba(17, 24, 39, 0.1);
+  z-index: 100;
+}
+
+.public-layout__user-dropdown a,
+.public-layout__user-dropdown button {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: var(--dv-radius-sm, 6px);
+  background: transparent;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.5rem 0.7rem;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.public-layout__user-dropdown a:hover {
+  background: rgba(37, 99, 235, 0.06);
+  color: #2563eb;
+}
+
+.public-layout__user-dropdown button:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+}
+
+.public-layout__menu-divider {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 0.3rem 0;
+}
+
+.public-layout__menu-user {
+  padding: 0.4rem 0.78rem;
+  font-size: 0.78rem;
   font-weight: 600;
+  color: #64748b;
   line-height: 1;
 }
 
@@ -288,7 +351,7 @@
 
 .public-layout__logout {
   border: 0;
-  border-radius: var(--dv-radius-sm);
+  border-radius: var(--dv-radius-sm, 6px);
   background: transparent;
   color: #64748b;
   font-size: 0.82rem;

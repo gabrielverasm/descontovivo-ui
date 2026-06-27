@@ -1,19 +1,25 @@
 <section class="import">
   <h1 class="import__title">Importar promoções</h1>
   <p class="import__desc">
-    Cole abaixo o JSON com as promoções editoriais para importação via API.
-    A segurança real é validada pelo backend com o token informado.
+    Cole abaixo o JSON com as promoções para importação.
+    A autenticação usa o token JWT do usuário admin logado.
   </p>
 
-  <div class="import__field">
-    <label for="admin-token">Token admin</label>
-    <input
-      id="admin-token"
-      type="password"
-      autocomplete="off"
-      placeholder="X-Admin-Import-Token"
-      [(ngModel)]="token"
-    />
+  <div class="import__format">
+    <button type="button" class="import__format-toggle" (click)="toggleFormat()" [attr.aria-expanded]="showFormat">
+      Formato esperado do JSON {{ showFormat ? '▾' : '▸' }}
+    </button>
+    @if (showFormat) {
+      <pre class="import__format-code">{{ exampleFormatted }}</pre>
+      <ul class="import__format-notes">
+        <li><code>batchId</code> — identifica a importação (ex: batch-2026-06-27-001)</li>
+        <li><code>sourceId</code> — deve ser único por oferta</li>
+        <li><code>publishAt</code> — opcional; se omitido, a API publica na hora do processamento</li>
+        <li><code>verifiedAt</code> — opcional</li>
+        <li>Preço deve ser número (ex: <code>459.90</code>)</li>
+        <li><code>productUrl</code> e <code>imageUrl</code> devem ser URLs reais na importação definitiva</li>
+      </ul>
+    }
   </div>
 
   <div class="import__field">
