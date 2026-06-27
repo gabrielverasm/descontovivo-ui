@@ -272,7 +272,9 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   private setPromotion(promotionId: string | null, comments?: Comment[]) {
-    this.promotion = this.allPromotions.find((promotion) => promotion.id === promotionId);
+    this.promotion = this.allPromotions.find(
+      (promotion) => promotion.id === promotionId || promotion.slug === promotionId,
+    );
     this.comments = comments ?? [];
     this.relatedPromotions = this.promotion ? this.findRelatedPromotions(this.promotion) : [];
     this.relatedPage = 0;

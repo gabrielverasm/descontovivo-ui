@@ -1,41 +1,79 @@
-import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Promotion } from '../models/promotion.model';
-import { APPROVED_PROMOTIONS_MOCK } from '../mocks/promotions.mock';
+import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+import { PagedResponse, Promotion } from '../models/promotion.model';
 
 @Injectable({ providedIn: 'root' })
 export class PromotionService {
-  getApprovedPromotions(): Observable<Promotion[]> {
-    return of([...APPROVED_PROMOTIONS_MOCK]);
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = `${environment.apiBaseUrl}/promotions`;
+
+  getPromotions(page = 0, size = 20): Observable<PagedResponse<Promotion>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<PagedResponse<Promotion>>(this.baseUrl, { params }).pipe(
+      map((res) => ({
+        ...res,
+        content: res.content.map((p) => this.normalize(p)),
+      })),
+    );
+  }
+
+  getPromotionBySlug(slug: string): Observable<Promotion | undefined> {
+    return this.http.get<Promotion>(`${this.baseUrl}/${slug}`).pipe(
+      map((p) => this.normalize(p)),
+      catchError(() => of(undefined)),
+    );
   }
 
   getPromotionById(id: string): Observable<Promotion | undefined> {
-    return of(APPROVED_PROMOTIONS_MOCK.find((p) => p.id === id));
+    return this.getPromotionBySlug(id);
   }
 
   searchPromotions(term: string): Observable<Promotion[]> {
-    const lower = term.toLowerCase();
-    return of(
-      APPROVED_PROMOTIONS_MOCK.filter(
-        (p) =>
-          p.title.toLowerCase().includes(lower) ||
-          p.description.toLowerCase().includes(lower) ||
-          p.storeName.toLowerCase().includes(lower) ||
-          p.category.toLowerCase().includes(lower) ||
-          p.tags.some((t) => t.toLowerCase().includes(lower)) ||
-          (p.couponCode && p.couponCode.toLowerCase().includes(lower))
-      )
+    const params = new HttpParams().set('q', term);
+    return this.http.get<PagedResponse<Promotion>>(this.baseUrl, { params }).pipe(
+      map((res) => res.content.map((p) => this.normalize(p))),
+      catchError(() => of([])),
     );
   }
 
   getRelatedPromotions(promotion: Promotion, limit = 4): Observable<Promotion[]> {
-    const related = APPROVED_PROMOTIONS_MOCK.filter(
-      (p) =>
-        p.id !== promotion.id &&
-        (p.category === promotion.category ||
-          p.storeName === promotion.storeName ||
-          p.tags.some((t) => promotion.tags.includes(t)))
-    ).slice(0, limit);
-    return of(related);
+    return this.http
+      .get<PagedResponse<Promotion>>(this.baseUrl, {
+        params: new HttpParams().set('size', limit),
+      })
+      .pipe(
+        map((res) =>
+          res.content.filter((p) => p.id !== promotion.id).slice(0, limit).map((p) => this.normalize(p)),
+        ),
+        catchError(() => of([])),
+      );
+  }
+
+  /** Compat: usado pelo promotion-detail para carregar lista completa */
+  getApprovedPromotions(): Observable<Promotion[]> {
+    return this.getPromotions(0, 50).pipe(
+      map((res) => res.content),
+      catchError(() => of([])),
+    );
+  }
+
+  /** Compat: garante que campos usados pelos cards existam */
+  private normalize(p: Promotion): Promotion {
+    return {
+      ...p,
+      storeName: p.storeName || p.store?.name || '',
+      storeUrl: p.storeUrl || '',
+      tags: p.tags || [],
+      likesCount: p.likesCount ?? 0,
+      dislikesCount: p.dislikesCount ?? 0,
+      commentsCount: p.commentsCount ?? 0,
+      status: p.status || 'approved',
+      createdBy: p.createdBy || '',
+      createdAt: p.createdAt || p.publishedAt || new Date().toISOString(),
+      imageUrl: p.imageUrl || '',
+    };
   }
 }

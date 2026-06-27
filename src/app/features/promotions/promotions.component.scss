@@ -1,28 +1,28 @@
-.prelaunch {
+.promotions-feed {
+  padding-block: 1.2rem;
+}
+
+.promotions-feed__list {
   display: grid;
-  place-items: center;
-  min-height: 60vh;
-  padding: 2rem 1rem;
+  gap: 1rem;
+}
+
+.promotions-feed__error {
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   text-align: center;
 }
 
-.prelaunch__title {
-  margin: 0 0 1rem;
-  color: #111827;
-  font-size: clamp(1.5rem, 4vw, 2.25rem);
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.prelaunch__description {
-  margin: 0 0 0.75rem;
-  color: #374151;
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  max-width: 540px;
-}
-
-.prelaunch__subtitle {
-  margin: 0;
+.promotions-feed__empty {
+  display: grid;
+  place-items: center;
+  min-height: 40vh;
+  text-align: center;
   color: #6b7280;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
