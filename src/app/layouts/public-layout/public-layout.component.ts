@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { AccountMe } from '../../core/models/account-me.model';
+import { hasRole } from '../../core/utils/permissions';
 
 @Component({
   selector: 'app-public-layout',
@@ -69,5 +70,9 @@ export class PublicLayoutComponent {
 
   getUserDisplayName(user: AccountMe): string {
     return user.username ?? user.email ?? 'Minha conta';
+  }
+
+  isAdmin(user: AccountMe): boolean {
+    return hasRole(user, 'admin');
   }
 }
