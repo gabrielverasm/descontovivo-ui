@@ -274,6 +274,18 @@
   line-height: 1;
 }
 
+.public-layout__admin-link {
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  color: #7c3aed !important;
+  background: rgba(124, 58, 237, 0.06);
+  padding: 0.32rem 0.6rem !important;
+}
+
+.public-layout__admin-link:hover {
+  background: rgba(124, 58, 237, 0.12) !important;
+}
+
 .public-layout__logout {
   border: 0;
   border-radius: var(--dv-radius-sm);

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { adminGuard } from './core/guards/admin.guard';
 import { emailVerifiedGuard } from './core/guards/email-verified.guard';
 import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
 
@@ -67,6 +68,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/auth/register.component').then((m) => m.RegisterComponent),
         title: 'Cadastro | DescontoVivo',
+      },
+      {
+        path: 'admin/importar-promocoes',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/import-promotions/import-promotions.component').then(
+            (m) => m.ImportPromotionsComponent,
+          ),
+        title: 'Importar promoções | Admin | DescontoVivo',
       },
       {
         path: 'erro',

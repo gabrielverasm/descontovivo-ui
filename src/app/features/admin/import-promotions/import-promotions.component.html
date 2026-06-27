@@ -1,0 +1,82 @@
+<section class="import">
+  <h1 class="import__title">Importar promoções</h1>
+  <p class="import__desc">
+    Cole abaixo o JSON com as promoções editoriais para importação via API.
+    A segurança real é validada pelo backend com o token informado.
+  </p>
+
+  <div class="import__field">
+    <label for="admin-token">Token admin</label>
+    <input
+      id="admin-token"
+      type="password"
+      autocomplete="off"
+      placeholder="X-Admin-Import-Token"
+      [(ngModel)]="token"
+    />
+  </div>
+
+  <div class="import__field">
+    <label for="json-input">JSON de importação</label>
+    <textarea
+      id="json-input"
+      rows="16"
+      spellcheck="false"
+      placeholder="Cole o JSON aqui..."
+      [(ngModel)]="jsonText"
+    ></textarea>
+  </div>
+
+  <div class="import__actions">
+    <button type="button" (click)="loadExample()" [disabled]="loading">Carregar exemplo</button>
+    <button type="button" (click)="validateJson()" [disabled]="loading">Validar JSON</button>
+    <button type="button" (click)="dryRun()" [disabled]="loading">Dry run</button>
+    <button type="button" class="import__btn-primary" (click)="importar()" [disabled]="loading">
+      Importar promoções
+    </button>
+  </div>
+
+  @if (loading) {
+    <p class="import__loading">Processando...</p>
+  }
+
+  @if (parseError) {
+    <div class="import__error" role="alert">{{ parseError }}</div>
+  }
+
+  @if (httpError) {
+    <div class="import__error" role="alert">{{ httpError }}</div>
+  }
+
+  @if (result) {
+    <div class="import__result" [class.import__result--dry]="result.dryRun">
+      @if (result.dryRun) {
+        <p class="import__dry-notice">⚠️ Dry run — nada foi gravado.</p>
+      }
+      <table class="import__summary">
+        <tbody>
+          <tr><td>batchId</td><td>{{ result.batchId }}</td></tr>
+          <tr><td>created</td><td>{{ result.created }}</td></tr>
+          <tr><td>updated</td><td>{{ result.updated }}</td></tr>
+          <tr><td>skipped</td><td>{{ result.skipped }}</td></tr>
+          <tr><td>errors</td><td>{{ result.errors.length }}</td></tr>
+        </tbody>
+      </table>
+
+      @if (result.created > 0 && !result.dryRun) {
+        <p class="import__success">✅ Importação concluída com sucesso.</p>
+      }
+
+      @if (result.errors.length > 0) {
+        <div class="import__errors-detail">
+          <h3>Erros por item</h3>
+          @for (err of result.errors; track err.sourceId + err.field) {
+            <div class="import__error-item">
+              <strong>{{ err.sourceId }}</strong> → {{ err.field }}: {{ err.message }}
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>

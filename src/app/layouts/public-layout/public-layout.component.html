@@ -19,6 +19,9 @@
         @if (currentUser$ | async; as user) {
           <div class="public-layout__auth">
             <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
+            @if (isAdmin(user)) {
+              <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
+            }
             <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
           </div>
         } @else {
@@ -58,6 +61,9 @@
         @if (currentUser$ | async; as user) {
           <div class="public-layout__auth">
             <span class="public-layout__user">{{ getUserDisplayName(user) }}</span>
+            @if (isAdmin(user)) {
+              <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
+            }
             <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
           </div>
         } @else {
