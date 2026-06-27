@@ -15,7 +15,7 @@
       property="og:description"
       content="DescontoVivo reúne promoções compartilhadas pela comunidade, com ofertas revisadas antes de aparecerem no site."
     />
-    <meta property="og:image" content="https://descontovivo.com/brand/logo-og-image.png" />
+    <meta property="og:image" content="https://descontovivo.com/brand/logo-og-image.jpg" />
     <meta property="og:url" content="https://descontovivo.com/" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -24,29 +24,23 @@
       name="twitter:description"
       content="DescontoVivo reúne promoções compartilhadas pela comunidade, com ofertas revisadas antes de aparecerem no site."
     />
-    <meta name="twitter:image" content="https://descontovivo.com/brand/logo-og-image.png" />
+    <meta name="twitter:image" content="https://descontovivo.com/brand/logo-og-image.jpg" />
     <link rel="canonical" href="https://descontovivo.com/" />
-    <link id="favicon-any" rel="icon" href="/favicon-light.ico" sizes="any" />
-    <link id="favicon-16" rel="icon" type="image/png" sizes="16x16" href="/icon-light-16.png" />
-    <link id="favicon-32" rel="icon" type="image/png" sizes="32x32" href="/icon-light-32.png" />
-    <link id="apple-touch-icon" rel="apple-touch-icon" sizes="180x180" href="/icon-light-180.png" />
-    <link id="site-manifest" rel="manifest" href="/site-light.webmanifest" />
+    <link id="favicon-any" rel="icon" href="/favicon.ico" sizes="any" />
+    <link id="apple-touch-icon" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link id="site-manifest" rel="manifest" href="/site.webmanifest" />
     <script>
       (function () {
         var faviconSets = {
           light: {
-            ico: '/favicon-light.ico',
-            icon16: '/icon-light-16.png',
-            icon32: '/icon-light-32.png',
-            apple: '/icon-light-180.png',
-            manifest: '/site-light.webmanifest',
+            ico: '/favicon.ico',
+            apple: '/apple-touch-icon.png',
+            manifest: '/site.webmanifest',
             themeColor: '#f6f8fb'
           },
           dark: {
             ico: '/favicon-dark.ico',
-            icon16: '/icon-dark-16.png',
-            icon32: '/icon-dark-32.png',
-            apple: '/icon-dark-180.png',
+            apple: '/apple-touch-icon-dark.png',
             manifest: '/site-dark.webmanifest',
             themeColor: '#061a3d'
           }
@@ -72,8 +66,6 @@
           var iconSet = isDarkMode ? faviconSets.dark : faviconSets.light;
 
           setHref('favicon-any', iconSet.ico);
-          setHref('favicon-16', iconSet.icon16);
-          setHref('favicon-32', iconSet.icon32);
           setHref('apple-touch-icon', iconSet.apple);
           setHref('site-manifest', iconSet.manifest);
           setContent('theme-color', iconSet.themeColor);
