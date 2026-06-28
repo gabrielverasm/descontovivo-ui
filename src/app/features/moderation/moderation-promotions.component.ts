@@ -32,7 +32,7 @@ export class ModerationPromotionsComponent implements OnInit {
     this.moderationService.getPending().pipe(
       finalize(() => (this.loading = false)),
     ).subscribe({
-      next: (res) => (this.promotions = res.content),
+      next: (res) => (this.promotions = res ?? []),
       error: () => (this.error = 'Erro ao carregar promoções pendentes.'),
     });
   }

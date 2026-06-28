@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PagedResponse, Promotion } from '../models/promotion.model';
+import { Promotion } from '../models/promotion.model';
 
 export type ModerationAction = 'APPROVE' | 'REJECT' | 'REMOVE' | 'EDIT';
 
@@ -25,8 +25,8 @@ export class ModerationService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/moderation/promotions`;
 
-  getPending(page = 0, size = 20): Observable<PagedResponse<Promotion>> {
-    return this.http.get<PagedResponse<Promotion>>(this.baseUrl, {
+  getPending(page = 0, size = 20): Observable<Promotion[]> {
+    return this.http.get<Promotion[]>(this.baseUrl, {
       params: { page, size },
     });
   }
