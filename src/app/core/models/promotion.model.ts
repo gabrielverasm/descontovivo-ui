@@ -17,9 +17,12 @@ export interface Promotion {
   discountPercentage?: number;
   storeName: string;
   storeUrl: string;
+  url?: string;
   offerUrl?: string;
   imageUrl: string;
   category: string;
+  soldBy?: string | null;
+  deliveredBy?: string | null;
   tags: string[];
   sellerName?: string;
   sellerType?: PromotionSellerType;

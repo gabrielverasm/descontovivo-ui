@@ -58,18 +58,19 @@ export class ModerationPromotionsComponent implements OnInit {
   // Field diagnostics
   getFieldDiagnostics(promo: Promotion): FieldDiag[] {
     const has = (v: unknown) => v !== undefined && v !== null && String(v).trim() !== '';
-    const badStore = !promo.storeName || promo.storeName === 'loja-nao-identificada';
+    const badStore = !promo.store?.name && (!promo.storeName || promo.storeName === 'loja-nao-identificada');
     return [
       { label: 'Título', status: has(promo.title) ? 'ok' : 'missing' },
       { label: 'Descrição', status: has(promo.description) && promo.description !== promo.title ? 'ok' : 'missing' },
-      { label: 'Link da oferta', status: has(promo.offerUrl) || has(promo.storeUrl) ? 'ok' : 'missing' },
+      { label: 'Link da oferta', status: has(promo.url) || has(promo.offerUrl) || has(promo.storeUrl) ? 'ok' : 'missing' },
       { label: 'Preço atual', status: has(promo.currentPrice) ? 'ok' : 'missing' },
       { label: 'Preço original', status: has(promo.originalPrice) ? 'ok' : 'optional' },
       { label: 'Cupom', status: has(promo.couponCode) ? 'ok' : 'optional' },
       { label: 'Loja', status: badStore ? 'missing' : 'ok' },
       { label: 'Imagem', status: has(promo.imageUrl) ? 'ok' : 'missing' },
-      { label: 'Vendedor', status: has(promo.sellerName) ? 'ok' : 'optional' },
-      { label: 'Entrega', status: has(promo.deliveryInfo) ? 'ok' : 'optional' },
+      { label: 'Vendido por', status: has(promo.soldBy) ? 'ok' : 'optional' },
+      { label: 'Entregue por', status: has(promo.deliveredBy) ? 'ok' : 'optional' },
+      { label: 'Categoria', status: has(promo.category) ? 'ok' : 'optional' },
       { label: 'Disponibilidade', status: has(promo.availability) ? 'ok' : 'optional' },
     ];
   }
@@ -90,11 +91,14 @@ export class ModerationPromotionsComponent implements OnInit {
     this.editForm = {
       title: promo.title,
       description: promo.description,
-      url: promo.offerUrl || promo.storeUrl,
+      url: promo.url || promo.offerUrl || promo.storeUrl || '',
       currentPrice: promo.currentPrice,
       originalPrice: promo.originalPrice,
       couponCode: promo.couponCode || '',
-      storeSlug: promo.store?.slug || '',
+      soldBy: promo.soldBy || '',
+      deliveredBy: promo.deliveredBy || '',
+      category: promo.category || '',
+      availability: promo.availability || '',
     };
   }
 
@@ -105,7 +109,7 @@ export class ModerationPromotionsComponent implements OnInit {
   }
 
   getOfferLink(promo: Promotion): string {
-    return promo.offerUrl || promo.storeUrl || '';
+    return promo.url || promo.offerUrl || promo.storeUrl || '';
   }
 
   // Actions
@@ -214,7 +218,10 @@ export class ModerationPromotionsComponent implements OnInit {
     if (f.currentPrice != null) req.currentPrice = f.currentPrice;
     if (f.originalPrice != null && !isNaN(Number(f.originalPrice))) req.originalPrice = Number(f.originalPrice);
     if (f.couponCode?.trim()) req.couponCode = f.couponCode.trim();
-    if (f.storeSlug?.trim()) req.storeSlug = f.storeSlug.trim();
+    req.soldBy = f.soldBy?.trim() ?? '';
+    req.deliveredBy = f.deliveredBy?.trim() ?? '';
+    req.category = f.category?.trim() ?? '';
+    if (f.availability?.trim()) req.availability = f.availability.trim();
     return req;
   }
 
@@ -225,11 +232,14 @@ export class ModerationPromotionsComponent implements OnInit {
     const norm = (v: unknown) => (v == null || String(v).trim() === '') ? '' : String(v).trim();
     return norm(f.title) !== norm(p.title) ||
       norm(f.description) !== norm(p.description) ||
-      norm(f.url) !== norm(p.offerUrl || p.storeUrl) ||
+      norm(f.url) !== norm(p.url || p.offerUrl || p.storeUrl) ||
       f.currentPrice !== p.currentPrice ||
       norm(f.originalPrice) !== norm(p.originalPrice) ||
       norm(f.couponCode) !== norm(p.couponCode) ||
-      norm(f.storeSlug) !== norm(p.store?.slug);
+      norm(f.soldBy) !== norm(p.soldBy) ||
+      norm(f.deliveredBy) !== norm(p.deliveredBy) ||
+      norm(f.category) !== norm(p.category) ||
+      norm(f.availability) !== norm(p.availability);
   }
 
   private updateInList(updated: Promotion): void {

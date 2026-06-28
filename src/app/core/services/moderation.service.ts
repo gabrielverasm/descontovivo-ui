@@ -18,6 +18,9 @@ export interface ModerationDecisionRequest {
   imageUrl?: string;
   availability?: string;
   storeSlug?: string;
+  soldBy?: string | null;
+  deliveredBy?: string | null;
+  category?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
