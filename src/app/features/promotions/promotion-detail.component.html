@@ -64,6 +64,54 @@
             {{ externalOfferLabel }}
           </a>
         </div>
+
+        @if (canModerate) {
+          <div class="promotion-detail__admin">
+            <span class="promotion-detail__admin-title">Ações administrativas</span>
+
+            @if (adminMessage) {
+              <p class="promotion-detail__admin-success">{{ adminMessage }}</p>
+            }
+            @if (adminError) {
+              <p class="promotion-detail__admin-error">{{ adminError }}</p>
+            }
+
+            @if (!isEditMode && !isRemoveConfirm) {
+              <div class="promotion-detail__admin-buttons">
+                <button type="button" (click)="openEditMode()" [disabled]="isAdminSaving">Editar promoção</button>
+                @if (isAdmin) {
+                  <button type="button" class="promotion-detail__admin-remove" (click)="confirmRemove()" [disabled]="isAdminSaving">Remover promoção</button>
+                }
+              </div>
+            }
+
+            @if (isRemoveConfirm) {
+              <div class="promotion-detail__admin-confirm">
+                <p>Tem certeza que deseja remover esta promoção?</p>
+                <div class="promotion-detail__admin-buttons">
+                  <button type="button" class="promotion-detail__admin-remove" (click)="executeRemove()" [disabled]="isAdminSaving">Confirmar remoção</button>
+                  <button type="button" (click)="cancelRemove()" [disabled]="isAdminSaving">Cancelar</button>
+                </div>
+              </div>
+            }
+
+            @if (isEditMode) {
+              <form class="promotion-detail__admin-form" (ngSubmit)="submitEdit()">
+                <app-floating-field label="Título" name="edit-title" [(ngModel)]="editForm.title" />
+                <app-floating-field label="URL da oferta" name="edit-url" [(ngModel)]="editForm.url" />
+                <app-floating-field label="Descrição" name="edit-description" [textarea]="true" [rows]="3" [(ngModel)]="editForm.description" />
+                <app-floating-field label="Preço atual" name="edit-currentPrice" [(ngModel)]="editForm.currentPrice" />
+                <app-floating-field label="Preço original" name="edit-originalPrice" [(ngModel)]="editForm.originalPrice" />
+                <app-floating-field label="Cupom" name="edit-couponCode" [(ngModel)]="editForm.couponCode" />
+                <app-floating-field label="Loja (slug)" name="edit-storeSlug" [(ngModel)]="editForm.storeSlug" />
+                <div class="promotion-detail__admin-buttons">
+                  <button type="submit" [disabled]="isAdminSaving">Salvar alterações</button>
+                  <button type="button" (click)="cancelEdit()" [disabled]="isAdminSaving">Cancelar</button>
+                </div>
+              </form>
+            }
+          </div>
+        }
       </section>
     </article>
 

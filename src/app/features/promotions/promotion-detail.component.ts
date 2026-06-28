@@ -7,7 +7,9 @@ import { forkJoin, map, Subscription, switchMap } from 'rxjs';
 
 import { Comment } from '../../core/models/comment.model';
 import { Promotion } from '../../core/models/promotion.model';
+import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
+import { ModerationDecisionRequest, ModerationService } from '../../core/services/moderation.service';
 import { PromotionService } from '../../core/services/promotion.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
@@ -63,6 +65,19 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly titleService = inject(Title);
   private readonly promotionService = inject(PromotionService);
   private readonly commentService = inject(CommentService);
+  private readonly authService = inject(AuthService);
+  private readonly moderationService = inject(ModerationService);
+
+  // Admin state
+  isEditMode = false;
+  isAdminSaving = false;
+  isRemoveConfirm = false;
+  adminMessage = '';
+  adminError = '';
+  editForm = { title: '', description: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeSlug: '' };
+
+  get canModerate(): boolean { return this.authService.canModerate(); }
+  get isAdmin(): boolean { return this.authService.hasRole('admin'); }
   private allComments: Comment[] = [];
   private commentCount = 0;
   promotion?: Promotion;
@@ -235,6 +250,97 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   returnToPromotionsList() {
     void this.router.navigate(['/promocoes'], {
       queryParams: this.promotion ? { highlight: this.promotion.id } : undefined,
+    });
+  }
+
+  openEditMode() {
+    if (!this.promotion) return;
+    this.editForm = {
+      title: this.promotion.title,
+      description: this.promotion.description,
+      url: this.promotion.offerUrl || this.promotion.storeUrl || '',
+      currentPrice: this.promotion.currentPrice?.toString() ?? '',
+      originalPrice: this.promotion.originalPrice?.toString() ?? '',
+      couponCode: this.promotion.couponCode ?? '',
+      storeSlug: this.promotion.store?.slug ?? ''
+    };
+    this.isEditMode = true;
+    this.adminMessage = '';
+    this.adminError = '';
+  }
+
+  cancelEdit() {
+    this.isEditMode = false;
+    this.adminError = '';
+  }
+
+  submitEdit() {
+    if (!this.promotion || this.isAdminSaving) return;
+    const f = this.editForm;
+    if (!f.title.trim() || !f.url.trim() || !f.currentPrice.trim()) {
+      this.adminError = 'Título, URL e preço atual são obrigatórios.';
+      return;
+    }
+    const price = parseFloat(f.currentPrice);
+    if (isNaN(price) || price <= 0) {
+      this.adminError = 'Preço atual inválido.';
+      return;
+    }
+    const req: ModerationDecisionRequest = {
+      action: 'EDIT',
+      reason: 'Ajuste administrativo no detalhe da promoção',
+      title: f.title.trim(),
+      url: f.url.trim(),
+      description: f.description.trim() || undefined,
+      currentPrice: price
+    };
+    const origPrice = parseFloat(f.originalPrice);
+    if (!isNaN(origPrice) && origPrice > 0) req.originalPrice = origPrice;
+    if (f.couponCode.trim()) req.couponCode = f.couponCode.trim();
+    if (f.storeSlug.trim()) req.storeSlug = f.storeSlug.trim();
+    this.isAdminSaving = true;
+    this.adminError = '';
+    this.moderationService.decide(this.promotion.id, req).subscribe({
+      next: (updated) => {
+        this.promotion = updated;
+        this.isEditMode = false;
+        this.isAdminSaving = false;
+        this.adminMessage = 'Promoção atualizada com sucesso.';
+      },
+      error: () => {
+        this.isAdminSaving = false;
+        this.adminError = 'Erro ao salvar. Tente novamente.';
+      }
+    });
+  }
+
+  confirmRemove() {
+    this.isRemoveConfirm = true;
+    this.adminMessage = '';
+    this.adminError = '';
+  }
+
+  cancelRemove() {
+    this.isRemoveConfirm = false;
+  }
+
+  executeRemove() {
+    if (!this.promotion || this.isAdminSaving) return;
+    this.isAdminSaving = true;
+    this.adminError = '';
+    this.moderationService.decide(this.promotion.id, {
+      action: 'REMOVE',
+      reason: 'Removida pelo administrador'
+    }).subscribe({
+      next: () => {
+        this.isAdminSaving = false;
+        this.isRemoveConfirm = false;
+        void this.router.navigate(['/promocoes']);
+      },
+      error: () => {
+        this.isAdminSaving = false;
+        this.adminError = 'Erro ao remover. Tente novamente.';
+      }
     });
   }
 
