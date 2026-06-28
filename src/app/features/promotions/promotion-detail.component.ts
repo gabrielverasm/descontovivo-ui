@@ -149,7 +149,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   get externalOfferUrl() {
-    return this.promotion?.offerUrl || this.promotion?.storeUrl || '';
+    return this.promotion?.url || this.promotion?.offerUrl || this.promotion?.storeUrl || '';
   }
 
   get externalOfferLabel() {
