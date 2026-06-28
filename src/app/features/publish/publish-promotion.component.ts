@@ -8,7 +8,7 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
 import { FloatingFieldComponent } from '../../shared/components/floating-field/floating-field.component';
 
-type ImageStatus = 'idle' | 'processing' | 'uploading' | 'done' | 'error';
+type ImageStatus = 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error';
 
 @Component({
   selector: 'app-publish-promotion',
@@ -27,6 +27,7 @@ export class PublishPromotionComponent implements OnDestroy {
   url = '';
   currentPrice = '';
 
+  processedImageBlob: Blob | null = null;
   imagePreviewUrl: string | null = null;
   imageSizeKB: number | null = null;
   imageStatus: ImageStatus = 'idle';
@@ -41,6 +42,7 @@ export class PublishPromotionComponent implements OnDestroy {
   get imageStatusText(): string | null {
     switch (this.imageStatus) {
       case 'processing': return 'Processando imagem…';
+      case 'ready': return 'Imagem pronta para envio';
       case 'uploading': return 'Enviando imagem…';
       case 'done': return 'Upload concluído';
       default: return null;
@@ -48,12 +50,16 @@ export class PublishPromotionComponent implements OnDestroy {
   }
 
   get submitDisabled(): boolean {
-    return this.submitting || !this.imageUrl || !this.imageKey || this.imageStatus !== 'done'
-      || !this.title.trim() || !this.url.trim() || !this.currentPrice;
+    if (this.submitting) return true;
+    if (!this.title.trim() || !this.url.trim() || !this.currentPrice) return true;
+    if (this.imageStatus !== 'ready' && this.imageStatus !== 'done') return true;
+    return false;
   }
 
   get submitButtonText(): string {
-    return this.submitting ? 'Publicando...' : 'Publicar promoção';
+    if (this.imageStatus === 'uploading') return 'Enviando imagem...';
+    if (this.submitting) return 'Publicando...';
+    return 'Publicar promoção';
   }
 
   constructor() {
@@ -64,7 +70,7 @@ export class PublishPromotionComponent implements OnDestroy {
     this.revokePreview();
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (this.submitDisabled) return;
 
     const price = parseFloat(this.currentPrice);
@@ -76,6 +82,28 @@ export class PublishPromotionComponent implements OnDestroy {
     this.submitting = true;
     this.submitError = null;
     this.submitMessage = null;
+
+    try {
+      if (!this.imageUrl || !this.imageKey) {
+        if (!this.processedImageBlob) {
+          this.submitting = false;
+          this.imageStatus = 'error';
+          this.imageError = 'Selecione uma imagem válida antes de publicar.';
+          return;
+        }
+
+        this.imageStatus = 'uploading';
+        const result: UploadResult = await this.uploadService.uploadPromotionImage(this.processedImageBlob);
+        this.imageUrl = result.imageUrl;
+        this.imageKey = result.imageKey;
+        this.imageStatus = 'done';
+      }
+    } catch {
+      this.submitting = false;
+      this.imageStatus = 'ready';
+      this.submitError = 'Falha ao enviar imagem. Tente novamente.';
+      return;
+    }
 
     const payload: PromotionCreateRequest = {
       title: this.title.trim(),
@@ -117,24 +145,19 @@ export class PublishPromotionComponent implements OnDestroy {
     try {
       this.imageStatus = 'processing';
       const processed = await this.imageProcessing.process(file);
+      this.processedImageBlob = processed.blob;
       this.imagePreviewUrl = processed.previewUrl;
       this.imageSizeKB = processed.sizeKB;
-
-      this.imageStatus = 'uploading';
-      const result: UploadResult = await this.uploadService.uploadPromotionImage(processed.blob);
-      this.imageUrl = result.imageUrl;
-      this.imageKey = result.imageKey;
-      this.imageStatus = 'done';
+      this.imageStatus = 'ready';
     } catch {
-      this.imageError = 'Falha ao processar ou enviar imagem. Tente novamente.';
+      this.imageError = 'Falha ao processar imagem. Tente novamente.';
       this.imageStatus = 'error';
-      this.imageUrl = null;
-      this.imageKey = null;
     }
   }
 
   private resetImage(): void {
     this.revokePreview();
+    this.processedImageBlob = null;
     this.imagePreviewUrl = null;
     this.imageSizeKB = null;
     this.imageError = null;
