@@ -168,7 +168,7 @@
 
 .promotion-detail__content {
   display: grid;
-  grid-template-columns: minmax(220px, 360px) 1fr;
+  grid-template-columns: minmax(200px, 300px) 1fr;
   gap: clamp(.9rem, 3vw, 1.4rem);
   padding: .72rem;
 }
@@ -194,12 +194,22 @@
 
 .promotion-detail h1 {
   color: #111827;
-  font-size: var(--dv-h1-size);
-  line-height: var(--dv-h1-line-height);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .promotion-detail__description {
   color: #526070;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 .promotion-detail__store,
@@ -314,6 +324,27 @@
   color: #2563eb;
 }
 
+.promotion-detail__related-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: .5rem;
+}
+
+.promotion-detail__related-toggle {
+  display: none;
+  align-items: center;
+  min-height: 2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0 0.75rem;
+  cursor: pointer;
+}
+
 .promotion-detail__comments-heading {
   justify-content: space-between;
 }
@@ -418,7 +449,31 @@
   }
 
   .promotion-detail__related {
-    order: -1;
+    order: 1;
+  }
+
+  .promotion-detail__comments {
+    order: 0;
+  }
+
+  .promotion-detail__related-list {
+    display: none;
+  }
+
+  .promotion-detail__related.is-expanded .promotion-detail__related-list {
+    display: grid;
+  }
+
+  .promotion-detail__related-toggle {
+    display: inline-flex;
+  }
+
+  .promotion-detail__related-pages {
+    display: none;
+  }
+
+  .promotion-detail__related.is-expanded .promotion-detail__related-pages {
+    display: flex;
   }
 
   .promotion-detail__floating-back {

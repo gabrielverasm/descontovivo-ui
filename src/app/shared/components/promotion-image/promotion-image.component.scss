@@ -26,3 +26,8 @@ span {
     max-width: 240px;
   }
 }
+
+:host(.promotion-image--detail) {
+  max-width: 300px;
+  max-height: 300px;
+}
