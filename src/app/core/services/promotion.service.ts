@@ -80,6 +80,8 @@ export class PromotionService {
   private normalize(p: Promotion): Promotion {
     return {
       ...p,
+      url: p.url || '',
+      offerUrl: p.offerUrl || '',
       storeName: p.storeName || p.store?.name || '',
       storeUrl: p.storeUrl || '',
       tags: p.tags || [],
