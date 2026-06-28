@@ -116,12 +116,15 @@
     </article>
 
     <div class="promotion-detail__below">
-      <section class="promotion-detail__related" aria-labelledby="promotion-related-title">
+      <section class="promotion-detail__related" [class.is-expanded]="relatedExpanded" aria-labelledby="promotion-related-title">
         <div class="promotion-detail__related-heading">
           <div>
             <h2 id="promotion-related-title">Ofertas parecidas</h2>
             <p>Outras promoções com categoria, tags ou produto semelhante.</p>
           </div>
+          <button class="promotion-detail__related-toggle" type="button" (click)="relatedExpanded = !relatedExpanded">
+            {{ relatedExpanded ? 'Recolher' : 'Expandir' }}
+          </button>
         </div>
 
         @if (visibleRelatedPromotions.length) {

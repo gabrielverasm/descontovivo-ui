@@ -86,6 +86,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   readonly openReplyForms: Record<string, boolean> = {};
   readonly localRepliesByComment: Record<string, CommentReply[]> = {};
   relatedPage = 0;
+  relatedExpanded = false;
   visibleCommentsCount = this.commentsPageSize;
   relatedPromotions: Promotion[] = [];
 
