@@ -26,6 +26,9 @@
             >{{ getUserDisplayName(user) }} ▾</button>
             @if (isUserMenuOpen) {
               <div class="public-layout__user-dropdown">
+                @if (isModerator(user)) {
+                  <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" (click)="closeUserMenu()">Moderar promoções</a>
+                }
                 @if (isAdmin(user)) {
                   <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" (click)="closeUserMenu()">Importar promoções</a>
                 }
@@ -70,6 +73,9 @@
         @if (currentUser$ | async; as user) {
           <hr class="public-layout__menu-divider" />
           <span class="public-layout__menu-user">{{ getUserDisplayName(user) }}</span>
+          @if (isModerator(user)) {
+            <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Moderar promoções</a>
+          }
           @if (isAdmin(user)) {
             <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
           }

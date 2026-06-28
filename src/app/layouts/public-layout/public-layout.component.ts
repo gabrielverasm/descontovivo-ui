@@ -3,7 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { AccountMe } from '../../core/models/account-me.model';
-import { hasRole } from '../../core/utils/permissions';
+import { canModerate, hasRole } from '../../core/utils/permissions';
 
 @Component({
   selector: 'app-public-layout',
@@ -86,5 +86,9 @@ export class PublicLayoutComponent {
 
   isAdmin(user: AccountMe): boolean {
     return hasRole(user, 'admin');
+  }
+
+  isModerator(user: AccountMe): boolean {
+    return canModerate(user);
   }
 }
