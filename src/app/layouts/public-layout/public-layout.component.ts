@@ -81,7 +81,12 @@ export class PublicLayoutComponent {
   }
 
   getUserDisplayName(user: AccountMe): string {
-    return user.username ?? user.email ?? 'Minha conta';
+    return user.username || user.email || 'Minha conta';
+  }
+
+  getUserInitial(user: AccountMe): string {
+    const name = this.getUserDisplayName(user);
+    return name.charAt(0).toUpperCase();
   }
 
   isAdmin(user: AccountMe): boolean {

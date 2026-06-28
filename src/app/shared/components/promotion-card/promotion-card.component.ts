@@ -106,6 +106,10 @@ export class PromotionCardComponent implements OnChanges {
     return colors[Math.abs(hash) % colors.length];
   }
 
+  get externalOfferUrl(): string {
+    return this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '';
+  }
+
   get externalOfferLabel() {
     const destinationName = this.normalizeDestinationName(
       this.promotion.sellerName?.trim() ||

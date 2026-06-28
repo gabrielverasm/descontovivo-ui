@@ -23,7 +23,8 @@
               type="button"
               (click)="toggleUserMenu()"
               [attr.aria-expanded]="isUserMenuOpen"
-            >{{ getUserDisplayName(user) }} ▾</button>
+              [title]="getUserDisplayName(user)"
+            >{{ getUserInitial(user) }} {{ getUserDisplayName(user) }} ▾</button>
             @if (isUserMenuOpen) {
               <div class="public-layout__user-dropdown">
                 @if (isModerator(user)) {

@@ -31,8 +31,6 @@
       </div>
     </div>
 
-    <p>{{ promotion.description }}</p>
-
     <div class="promotion-card__top-row">
       <app-promotion-trust-signals
         [promotion]="promotion"
@@ -54,14 +52,16 @@
         </div>
 
         <div class="promotion-card__actions" aria-label="Ações da promoção">
-          <a
-            class="promotion-card__offer-link"
-            [href]="promotion.offerUrl || promotion.storeUrl"
-            target="_blank"
-            rel="nofollow noopener noreferrer"
-            (click)="$event.stopPropagation()"
-            >{{ externalOfferLabel }}</a
-          >
+          @if (externalOfferUrl) {
+            <a
+              class="promotion-card__offer-link"
+              [href]="externalOfferUrl"
+              target="_blank"
+              rel="nofollow noopener noreferrer"
+              (click)="$event.stopPropagation()"
+              >{{ externalOfferLabel }}</a
+            >
+          }
           <a
             class="promotion-card__offer-link promotion-card__offer-link--primary"
             [routerLink]="['/promocoes', detailId]"
