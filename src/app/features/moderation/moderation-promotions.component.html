@@ -1,0 +1,92 @@
+<section class="moderation">
+  <h1 class="moderation__title">Moderar promoções</h1>
+  <p class="moderation__desc">Promoções pendentes aguardando aprovação ou rejeição.</p>
+
+  @if (loading) {
+    <p class="moderation__loading">Carregando...</p>
+  }
+
+  @if (error) {
+    <div class="moderation__error" role="alert">{{ error }}</div>
+  }
+
+  @if (!loading && !error && promotions.length === 0) {
+    <p class="moderation__empty">Nenhuma promoção pendente para moderação.</p>
+  }
+
+  @for (promo of promotions; track promo.id) {
+    <article class="moderation__card">
+      <div class="moderation__card-image">
+        @if (promo.imageUrl) {
+          <img [src]="promo.imageUrl" [alt]="promo.title" loading="lazy" />
+        }
+      </div>
+
+      <div class="moderation__card-info">
+        <h2 class="moderation__card-title">{{ promo.title }}</h2>
+
+        <div class="moderation__card-details">
+          <span class="moderation__price">R$ {{ promo.currentPrice | number:'1.2-2' }}</span>
+          @if (promo.originalPrice) {
+            <span class="moderation__original-price">R$ {{ promo.originalPrice | number:'1.2-2' }}</span>
+          }
+          @if (promo.couponCode) {
+            <span class="moderation__coupon">Cupom: {{ promo.couponCode }}</span>
+          }
+        </div>
+
+        @if (promo.storeName) {
+          <p class="moderation__meta">Loja: {{ promo.storeName }}</p>
+        }
+        @if (promo.createdBy) {
+          <p class="moderation__meta">Autor: {{ promo.createdBy }}</p>
+        }
+        @if (promo.createdAt) {
+          <p class="moderation__meta">Criado em: {{ promo.createdAt }}</p>
+        }
+
+        <a class="moderation__link" [href]="promo.storeUrl || promo.offerUrl" target="_blank" rel="noopener">Ver oferta ↗</a>
+      </div>
+
+      <div class="moderation__card-actions">
+        @if (rejectingId === promo.id) {
+          <div class="moderation__reject-form">
+            <input
+              type="text"
+              placeholder="Motivo (opcional)"
+              [(ngModel)]="rejectReason"
+              [disabled]="actionInProgress === promo.id"
+            />
+            <div class="moderation__reject-buttons">
+              <button
+                type="button"
+                class="moderation__btn moderation__btn--danger"
+                [disabled]="actionInProgress === promo.id"
+                (click)="confirmReject(promo)"
+              >Confirmar rejeição</button>
+              <button
+                type="button"
+                class="moderation__btn"
+                [disabled]="actionInProgress === promo.id"
+                (click)="cancelReject()"
+              >Cancelar</button>
+            </div>
+          </div>
+        } @else {
+          <button
+            type="button"
+            class="moderation__btn moderation__btn--approve"
+            [disabled]="actionInProgress === promo.id"
+            (click)="approve(promo)"
+          >Aprovar</button>
+          <button
+            type="button"
+            class="moderation__btn moderation__btn--danger"
+            [disabled]="actionInProgress === promo.id"
+            (click)="startReject(promo)"
+          >Rejeitar</button>
+        }
+      </div>
+    </article>
+  }
+</section>
