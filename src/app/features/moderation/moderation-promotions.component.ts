@@ -33,6 +33,7 @@ export class ModerationPromotionsComponent implements OnInit {
   editForm: Partial<ModerationDecisionRequest> = {};
   rejectReason = '';
   showRejectInput = false;
+  soldAndDeliveredByStore = false;
 
   ngOnInit(): void {
     this.load();
@@ -100,6 +101,45 @@ export class ModerationPromotionsComponent implements OnInit {
       category: promo.category || '',
       availability: promo.availability || '',
     };
+    const store = this.getCurrentStoreName();
+    this.soldAndDeliveredByStore = !!store &&
+      (this.editForm.soldBy || '').trim().toLowerCase() === store.trim().toLowerCase() &&
+      (this.editForm.deliveredBy || '').trim().toLowerCase() === store.trim().toLowerCase();
+  }
+
+  getCurrentStoreName(): string {
+    if (!this.selectedPromo) return '';
+    const name = this.selectedPromo.store?.name || this.selectedPromo.storeName || '';
+    return name === 'loja-nao-identificada' ? '' : name;
+  }
+
+  hasValidStoreName(): boolean {
+    return !!this.getCurrentStoreName();
+  }
+
+  useStoreForSoldBy(): void {
+    const store = this.getCurrentStoreName();
+    if (store) this.editForm.soldBy = store;
+  }
+
+  useStoreForDeliveredBy(): void {
+    const store = this.getCurrentStoreName();
+    if (store) this.editForm.deliveredBy = store;
+  }
+
+  copySoldByToDeliveredBy(): void {
+    this.editForm.deliveredBy = this.editForm.soldBy || '';
+  }
+
+  toggleSoldAndDeliveredByStore(checked: boolean): void {
+    this.soldAndDeliveredByStore = checked;
+    if (checked) {
+      const store = this.getCurrentStoreName();
+      if (store) {
+        this.editForm.soldBy = store;
+        this.editForm.deliveredBy = store;
+      }
+    }
   }
 
   closeValidation(): void {

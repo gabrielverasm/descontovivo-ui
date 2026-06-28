@@ -20,68 +20,111 @@
     <p class="mod__status">Nenhuma promoção pendente para validação.</p>
   }
 
-  <div class="mod__layout">
-    <!-- Queue list -->
-    <div class="mod__queue">
-      @for (promo of promotions; track promo.id) {
-        <article
-          class="mod__item"
-          [class.mod__item--active]="selectedPromo?.id === promo.id"
-        >
-          <div class="mod__item-img">
-            <app-promotion-image [promotion]="promo" variant="card" />
-          </div>
+  <!-- Validation panel (top) -->
+  @if (selectedPromo) {
+    <div class="mod__panel">
+      <header class="mod__panel-header">
+        <h2 class="mod__panel-title">Validação</h2>
+        <button type="button" class="mod__btn mod__btn--ghost" (click)="closeValidation()">✕ Fechar</button>
+      </header>
 
-          <div class="mod__item-body">
-            <h2 class="mod__item-title">{{ promo.title }}</h2>
-            <div class="mod__item-meta">
-              <span class="mod__item-price">R$ {{ promo.currentPrice | number:'1.2-2' }}</span>
-              @if (promo.storeName && promo.storeName !== 'loja-nao-identificada') {
-                <span class="mod__item-store">{{ promo.storeName }}</span>
-              }
-              @if (promo.createdAt) {
-                <span class="mod__item-date">{{ promo.createdAt | date:'dd/MM/yy HH:mm' }}</span>
-              }
-            </div>
-            @if (getMissingFields(promo).length > 0) {
-              <div class="mod__item-missing">
-                <span class="mod__badge mod__badge--warn">{{ getMissingFields(promo).length }} campo(s) faltando</span>
-              </div>
-            }
-          </div>
-
-          <div class="mod__item-actions">
-            <button
-              type="button"
-              class="mod__btn mod__btn--primary"
-              [disabled]="actionInProgress === promo.id"
-              (click)="openValidation(promo)"
-            >Validar</button>
-            <button
-              type="button"
-              class="mod__btn mod__btn--ghost-danger"
-              [disabled]="actionInProgress === promo.id"
-              (click)="rejectFromQueue(promo)"
-            >Rejeitar</button>
-          </div>
-        </article>
-      }
-    </div>
-
-    <!-- Validation panel -->
-    @if (selectedPromo) {
-      <aside class="mod__panel">
-        <header class="mod__panel-header">
-          <h2 class="mod__panel-title">Validação</h2>
-          <button type="button" class="mod__btn mod__btn--ghost" (click)="closeValidation()">✕ Fechar</button>
-        </header>
-
+      <div class="mod__panel-body">
         <!-- Image -->
         <div class="mod__panel-image">
           <app-promotion-image [promotion]="selectedPromo" variant="detail" />
         </div>
 
-        <!-- Useful links -->
+        <!-- Form columns -->
+        <div class="mod__panel-fields">
+          <!-- Col 1: Dados principais -->
+          <div class="mod__form-col">
+            <h3 class="mod__form-title">Dados principais</h3>
+
+            <label class="mod__field">
+              <span>Título</span>
+              <input type="text" [(ngModel)]="editForm.title" />
+            </label>
+
+            <label class="mod__field">
+              <span>Descrição</span>
+              <textarea rows="2" [(ngModel)]="editForm.description"></textarea>
+            </label>
+
+            <label class="mod__field">
+              <span>Link da oferta</span>
+              <input type="url" [(ngModel)]="editForm.url" />
+            </label>
+
+            <label class="mod__field">
+              <span>Cupom</span>
+              <input type="text" [(ngModel)]="editForm.couponCode" />
+            </label>
+
+            <div class="mod__field-row">
+              <label class="mod__field">
+                <span>Preço atual</span>
+                <input type="number" step="0.01" [(ngModel)]="editForm.currentPrice" />
+              </label>
+              <label class="mod__field">
+                <span>Preço original</span>
+                <input type="number" step="0.01" [(ngModel)]="editForm.originalPrice" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Col 2: Loja, venda, entrega + ações -->
+          <div class="mod__form-col">
+            <h3 class="mod__form-title">Loja, venda e entrega</h3>
+
+            <div class="mod__field mod__field--readonly">
+              <span>Loja</span>
+              <p class="mod__field-value">{{ getCurrentStoreName() || '—' }}</p>
+            </div>
+
+            <label class="mod__field-check" [class.mod__field-check--disabled]="!hasValidStoreName()">
+              <input type="checkbox" [checked]="soldAndDeliveredByStore" [disabled]="!hasValidStoreName()" (change)="toggleSoldAndDeliveredByStore($any($event.target).checked)" />
+              <span>Vendido e entregue pela loja</span>
+            </label>
+
+            <div class="mod__field">
+              <span class="mod__field-label-row">
+                Vendido por
+                <button type="button" class="mod__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForSoldBy()">Usar loja</button>
+              </span>
+              <input type="text" [(ngModel)]="editForm.soldBy" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" />
+            </div>
+
+            <div class="mod__field">
+              <span class="mod__field-label-row">
+                Entregue por
+                <button type="button" class="mod__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForDeliveredBy()">Usar loja</button>
+                <button type="button" class="mod__btn-micro" [disabled]="soldAndDeliveredByStore" (click)="copySoldByToDeliveredBy()">Copiar vendido</button>
+              </span>
+              <input type="text" [(ngModel)]="editForm.deliveredBy" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" />
+            </div>
+
+            <div class="mod__field-row">
+              <label class="mod__field">
+                <span>Categoria</span>
+                <input type="text" [(ngModel)]="editForm.category" placeholder="Ex: Eletrônicos" />
+              </label>
+              <label class="mod__field">
+                <span>Disponibilidade</span>
+                <select [(ngModel)]="editForm.availability">
+                  <option value="">Selecione</option>
+                  <option value="AVAILABLE">Disponível</option>
+                  <option value="EXPIRED">Expirada</option>
+                  <option value="UNAVAILABLE">Indisponível</option>
+                  <option value="UNKNOWN">Desconhecida</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Links + diagnostics -->
+      <div class="mod__panel-extras">
         <div class="mod__panel-links">
           @if (getOfferLink(selectedPromo)) {
             <a class="mod__link" [href]="getOfferLink(selectedPromo)" target="_blank" rel="noopener">Abrir oferta original ↗</a>
@@ -91,9 +134,8 @@
           }
         </div>
 
-        <!-- Field diagnostics -->
         <div class="mod__diag">
-          <h3 class="mod__diag-title">Diagnóstico de campos</h3>
+          <h3 class="mod__diag-title">Diagnóstico</h3>
           <div class="mod__diag-grid">
             @for (field of getFieldDiagnostics(selectedPromo); track field.label) {
               <span class="mod__badge" [class.mod__badge--ok]="field.status === 'ok'" [class.mod__badge--warn]="field.status === 'missing'" [class.mod__badge--opt]="field.status === 'optional'">
@@ -102,124 +144,65 @@
             }
           </div>
         </div>
+      </div>
 
-        <!-- Edit form -->
-        <div class="mod__form">
-          <h3 class="mod__form-title">Dados principais</h3>
-
+      <!-- Reject input -->
+      @if (showRejectInput) {
+        <div class="mod__reject">
           <label class="mod__field">
-            <span>Título</span>
-            <input type="text" [(ngModel)]="editForm.title" />
+            <span>Motivo da rejeição</span>
+            <input type="text" [(ngModel)]="rejectReason" placeholder="Motivo (opcional)" />
           </label>
-
-          <label class="mod__field">
-            <span>Descrição</span>
-            <textarea rows="3" [(ngModel)]="editForm.description"></textarea>
-          </label>
-
-          <label class="mod__field">
-            <span>Link da oferta</span>
-            <input type="url" [(ngModel)]="editForm.url" />
-          </label>
-
-          <label class="mod__field">
-            <span>Cupom</span>
-            <input type="text" [(ngModel)]="editForm.couponCode" />
-          </label>
-
-          <h3 class="mod__form-title">Preço</h3>
-
-          <div class="mod__field-row">
-            <label class="mod__field">
-              <span>Preço atual</span>
-              <input type="number" step="0.01" [(ngModel)]="editForm.currentPrice" />
-            </label>
-            <label class="mod__field">
-              <span>Preço original</span>
-              <input type="number" step="0.01" [(ngModel)]="editForm.originalPrice" />
-            </label>
-          </div>
-
-          <h3 class="mod__form-title">Loja, venda e entrega</h3>
-
-          <div class="mod__field mod__field--readonly">
-            <span>Loja</span>
-            <p class="mod__field-value">{{ selectedPromo.store?.name || selectedPromo.storeName || '—' }}</p>
-          </div>
-
-          <div class="mod__field-row">
-            <label class="mod__field">
-              <span>Vendido por</span>
-              <input type="text" [(ngModel)]="editForm.soldBy" placeholder="Ex: Amazon" />
-            </label>
-            <label class="mod__field">
-              <span>Entregue por</span>
-              <input type="text" [(ngModel)]="editForm.deliveredBy" placeholder="Ex: Amazon" />
-            </label>
-          </div>
-
-          <div class="mod__field-row">
-            <label class="mod__field">
-              <span>Categoria</span>
-              <input type="text" [(ngModel)]="editForm.category" placeholder="Ex: Eletrônicos" />
-            </label>
-            <label class="mod__field">
-              <span>Disponibilidade</span>
-              <select [(ngModel)]="editForm.availability">
-                <option value="">Selecione</option>
-                <option value="AVAILABLE">Disponível</option>
-                <option value="EXPIRED">Expirada</option>
-                <option value="UNAVAILABLE">Indisponível</option>
-                <option value="UNKNOWN">Desconhecida</option>
-              </select>
-            </label>
+          <div class="mod__reject-actions">
+            <button type="button" class="mod__btn mod__btn--danger" [disabled]="actionInProgress === selectedPromo.id" (click)="confirmReject(selectedPromo)">Confirmar rejeição</button>
+            <button type="button" class="mod__btn mod__btn--ghost" (click)="cancelReject()">Cancelar</button>
           </div>
         </div>
+      }
 
-        <!-- Reject input -->
-        @if (showRejectInput) {
-          <div class="mod__reject">
-            <label class="mod__field">
-              <span>Motivo da rejeição</span>
-              <input type="text" [(ngModel)]="rejectReason" placeholder="Motivo (opcional)" />
-            </label>
-            <div class="mod__reject-actions">
-              <button
-                type="button"
-                class="mod__btn mod__btn--danger"
-                [disabled]="actionInProgress === selectedPromo.id"
-                (click)="confirmReject(selectedPromo)"
-              >Confirmar rejeição</button>
-              <button type="button" class="mod__btn mod__btn--ghost" (click)="cancelReject()">Cancelar</button>
-            </div>
-          </div>
+      <!-- Panel actions -->
+      <footer class="mod__panel-footer">
+        <button type="button" class="mod__btn mod__btn--secondary" [disabled]="actionInProgress === selectedPromo.id" (click)="saveEdits()">Salvar ajustes</button>
+        <button type="button" class="mod__btn mod__btn--primary" [disabled]="actionInProgress === selectedPromo.id" (click)="publish()">Publicar promoção</button>
+        @if (!showRejectInput) {
+          <button type="button" class="mod__btn mod__btn--ghost-danger" [disabled]="actionInProgress === selectedPromo.id" (click)="startReject()">Rejeitar</button>
         }
+        <button type="button" class="mod__btn mod__btn--ghost" (click)="closeValidation()">Cancelar validação</button>
+      </footer>
+    </div>
+  }
 
-        <!-- Panel actions -->
-        <footer class="mod__panel-footer">
-          <button
-            type="button"
-            class="mod__btn mod__btn--secondary"
-            [disabled]="actionInProgress === selectedPromo.id"
-            (click)="saveEdits()"
-          >Salvar ajustes</button>
-          <button
-            type="button"
-            class="mod__btn mod__btn--primary"
-            [disabled]="actionInProgress === selectedPromo.id"
-            (click)="publish()"
-          >Publicar promoção</button>
-          @if (!showRejectInput) {
-            <button
-              type="button"
-              class="mod__btn mod__btn--ghost-danger"
-              [disabled]="actionInProgress === selectedPromo.id"
-              (click)="startReject()"
-            >Rejeitar</button>
+  <!-- Queue list (below) -->
+  <div class="mod__queue">
+    @for (promo of promotions; track promo.id) {
+      <article class="mod__item" [class.mod__item--active]="selectedPromo?.id === promo.id">
+        <div class="mod__item-img">
+          <app-promotion-image [promotion]="promo" variant="card" />
+        </div>
+
+        <div class="mod__item-body">
+          <h2 class="mod__item-title">{{ promo.title }}</h2>
+          <div class="mod__item-meta">
+            <span class="mod__item-price">R$ {{ promo.currentPrice | number:'1.2-2' }}</span>
+            @if (promo.storeName && promo.storeName !== 'loja-nao-identificada') {
+              <span class="mod__item-store">{{ promo.storeName }}</span>
+            }
+            @if (promo.createdAt) {
+              <span class="mod__item-date">{{ promo.createdAt | date:'dd/MM/yy HH:mm' }}</span>
+            }
+          </div>
+          @if (getMissingFields(promo).length > 0) {
+            <div class="mod__item-missing">
+              <span class="mod__badge mod__badge--warn">{{ getMissingFields(promo).length }} campo(s) faltando</span>
+            </div>
           }
-          <button type="button" class="mod__btn mod__btn--ghost" (click)="closeValidation()">Cancelar validação</button>
-        </footer>
-      </aside>
+        </div>
+
+        <div class="mod__item-actions">
+          <button type="button" class="mod__btn mod__btn--primary" [disabled]="actionInProgress === promo.id" (click)="openValidation(promo)">Validar</button>
+          <button type="button" class="mod__btn mod__btn--ghost-danger" [disabled]="actionInProgress === promo.id" (click)="rejectFromQueue(promo)">Rejeitar</button>
+        </div>
+      </article>
     }
   </div>
 </section>
