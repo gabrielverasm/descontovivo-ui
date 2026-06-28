@@ -105,7 +105,7 @@
 
         <!-- Edit form -->
         <div class="mod__form">
-          <h3 class="mod__form-title">Editar antes de publicar</h3>
+          <h3 class="mod__form-title">Dados principais</h3>
 
           <label class="mod__field">
             <span>Título</span>
@@ -122,6 +122,13 @@
             <input type="url" [(ngModel)]="editForm.url" />
           </label>
 
+          <label class="mod__field">
+            <span>Cupom</span>
+            <input type="text" [(ngModel)]="editForm.couponCode" />
+          </label>
+
+          <h3 class="mod__form-title">Preço</h3>
+
           <div class="mod__field-row">
             <label class="mod__field">
               <span>Preço atual</span>
@@ -133,22 +140,40 @@
             </label>
           </div>
 
+          <h3 class="mod__form-title">Loja, venda e entrega</h3>
+
+          <div class="mod__field mod__field--readonly">
+            <span>Loja</span>
+            <p class="mod__field-value">{{ selectedPromo.store?.name || selectedPromo.storeName || '—' }}</p>
+          </div>
+
           <div class="mod__field-row">
             <label class="mod__field">
-              <span>Cupom</span>
-              <input type="text" [(ngModel)]="editForm.couponCode" />
+              <span>Vendido por</span>
+              <input type="text" [(ngModel)]="editForm.soldBy" placeholder="Ex: Amazon" />
             </label>
             <label class="mod__field">
-              <span>Loja (slug)</span>
-              <input type="text" [(ngModel)]="editForm.storeSlug" />
+              <span>Entregue por</span>
+              <input type="text" [(ngModel)]="editForm.deliveredBy" placeholder="Ex: Amazon" />
             </label>
           </div>
 
-          @if (selectedPromo.availability) {
-            <p class="mod__field-info">
-              <span>Disponibilidade:</span> {{ selectedPromo.availability }}
-            </p>
-          }
+          <div class="mod__field-row">
+            <label class="mod__field">
+              <span>Categoria</span>
+              <input type="text" [(ngModel)]="editForm.category" placeholder="Ex: Eletrônicos" />
+            </label>
+            <label class="mod__field">
+              <span>Disponibilidade</span>
+              <select [(ngModel)]="editForm.availability">
+                <option value="">Selecione</option>
+                <option value="AVAILABLE">Disponível</option>
+                <option value="EXPIRED">Expirada</option>
+                <option value="UNAVAILABLE">Indisponível</option>
+                <option value="UNKNOWN">Desconhecida</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <!-- Reject input -->
