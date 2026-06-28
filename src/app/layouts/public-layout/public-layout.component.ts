@@ -81,12 +81,19 @@ export class PublicLayoutComponent {
   }
 
   getUserDisplayName(user: AccountMe): string {
-    return user.username || user.email || 'Minha conta';
+    const generics = ['user', 'usuario', 'usuário', 'usuario desconhecido', 'usuário desconhecido', 'minha conta'];
+    const isGeneric = (v: string | null | undefined): boolean =>
+      !v || generics.includes(v.trim().toLowerCase());
+
+    if (!isGeneric(user.name)) return user.name!.trim();
+    if (!isGeneric(user.preferredUsername ?? user.preferred_username)) return (user.preferredUsername ?? user.preferred_username)!.trim();
+    if (!isGeneric(user.username)) return user.username!.trim();
+    if (user.email) return user.email.split('@')[0];
+    return 'Minha conta';
   }
 
   getUserInitial(user: AccountMe): string {
-    const name = this.getUserDisplayName(user);
-    return name.charAt(0).toUpperCase();
+    return this.getUserDisplayName(user).charAt(0).toUpperCase();
   }
 
   isAdmin(user: AccountMe): boolean {
