@@ -27,10 +27,25 @@
         />
 
         <app-file-field
-          label="Imagem do produto"
+          label="Imagem do produto *"
           name="imageFile"
-          accept="image/*"
+          accept=".jpg,.jpeg,.png,.webp"
+          hint="Aceitamos JPG, PNG e WebP. Sua imagem será automaticamente cortada para 300×300 e otimizada em WebP para garantir carregamento rápido."
+          [required]="true"
+          [previewUrl]="imagePreviewUrl"
+          [sizeKB]="imageSizeKB"
+          [statusText]="imageStatusText"
+          [error]="imageError"
+          (fileSelected)="onImageSelected($event)"
         />
+
+        <button
+          class="publish__submit"
+          type="submit"
+          [disabled]="submitDisabled"
+        >
+          Publicar promoção
+        </button>
       </form>
     </section>
 
@@ -41,6 +56,7 @@
           <li>Use o link direto do produto, sem encurtadores.</li>
           <li>Confira se a promoção ainda está ativa antes de enviar.</li>
           <li>Ofertas enviadas ficam pendentes até serem aprovadas.</li>
+          <li>A imagem será redimensionada para 300×300 automaticamente.</li>
         </ul>
       </div>
     </aside>
