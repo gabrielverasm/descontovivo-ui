@@ -2,6 +2,7 @@ import { Component, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
 import { ImageProcessingService } from '../../core/services/image-processing.service';
+import { PromotionCreateRequest, PromotionService } from '../../core/services/promotion.service';
 import { UploadResult, UploadService } from '../../core/services/upload.service';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
@@ -20,8 +21,11 @@ export class PublishPromotionComponent implements OnDestroy {
   private readonly meta = inject(Meta);
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
+  private readonly promotionService = inject(PromotionService);
 
   title = '';
+  url = '';
+  currentPrice = '';
 
   imagePreviewUrl: string | null = null;
   imageSizeKB: number | null = null;
@@ -29,6 +33,10 @@ export class PublishPromotionComponent implements OnDestroy {
   imageError: string | null = null;
   imageUrl: string | null = null;
   imageKey: string | null = null;
+
+  submitting = false;
+  submitMessage: string | null = null;
+  submitError: string | null = null;
 
   get imageStatusText(): string | null {
     switch (this.imageStatus) {
@@ -40,7 +48,12 @@ export class PublishPromotionComponent implements OnDestroy {
   }
 
   get submitDisabled(): boolean {
-    return !this.imageUrl || this.imageStatus === 'processing' || this.imageStatus === 'uploading';
+    return this.submitting || !this.imageUrl || !this.imageKey || this.imageStatus !== 'done'
+      || !this.title.trim() || !this.url.trim() || !this.currentPrice;
+  }
+
+  get submitButtonText(): string {
+    return this.submitting ? 'Publicando...' : 'Publicar promoção';
   }
 
   constructor() {
@@ -51,7 +64,47 @@ export class PublishPromotionComponent implements OnDestroy {
     this.revokePreview();
   }
 
+  onSubmit(): void {
+    if (this.submitDisabled) return;
+
+    const price = parseFloat(this.currentPrice);
+    if (isNaN(price) || price <= 0) {
+      this.submitError = 'Preço inválido.';
+      return;
+    }
+
+    this.submitting = true;
+    this.submitError = null;
+    this.submitMessage = null;
+
+    const payload: PromotionCreateRequest = {
+      title: this.title.trim(),
+      url: this.url.trim(),
+      currentPrice: price,
+      imageUrl: this.imageUrl!,
+      imageKey: this.imageKey!,
+    };
+
+    this.promotionService.createPromotion(payload).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.submitMessage = 'Promoção enviada para moderação com sucesso.';
+        this.resetForm();
+      },
+      error: () => {
+        this.submitting = false;
+        this.submitError = 'Erro ao publicar promoção. Tente novamente.';
+      },
+    });
+  }
+
+  clearSubmitFeedback(): void {
+    this.submitMessage = null;
+    this.submitError = null;
+  }
+
   async onImageSelected(file: File): Promise<void> {
+    this.clearSubmitFeedback();
     this.resetImage();
 
     const validationError = this.imageProcessing.validate(file);
@@ -88,6 +141,13 @@ export class PublishPromotionComponent implements OnDestroy {
     this.imageUrl = null;
     this.imageKey = null;
     this.imageStatus = 'idle';
+  }
+
+  private resetForm(): void {
+    this.title = '';
+    this.url = '';
+    this.currentPrice = '';
+    this.resetImage();
   }
 
   private revokePreview(): void {

@@ -3,27 +3,34 @@
 
   <div class="publish__content">
     <section class="publish__main" aria-label="Publicar oferta">
-      <form class="publish__card" aria-label="Formulário de publicação de promoção">
+      <form class="publish__card" aria-label="Formulário de publicação de promoção" (ngSubmit)="onSubmit()">
         <app-floating-field
           class="publish__link"
           label="Link da oferta *"
-          name="storeUrl"
+          name="url"
           type="url"
           [required]="true"
+          [(ngModel)]="url"
+          (ngModelChange)="clearSubmitFeedback()"
         />
 
         <app-floating-field
-          label="Título do produto em oferta"
+          label="Título do produto em oferta *"
           name="title"
           type="text"
+          [required]="true"
           [(ngModel)]="title"
+          (ngModelChange)="clearSubmitFeedback()"
         />
 
         <app-floating-field
-          label="Preço"
+          label="Preço *"
           name="currentPrice"
           type="number"
           [min]="0"
+          [required]="true"
+          [(ngModel)]="currentPrice"
+          (ngModelChange)="clearSubmitFeedback()"
         />
 
         <app-file-field
@@ -39,12 +46,20 @@
           (fileSelected)="onImageSelected($event)"
         />
 
+        @if (submitMessage) {
+          <p class="publish__success">{{ submitMessage }}</p>
+        }
+
+        @if (submitError) {
+          <p class="publish__error">{{ submitError }}</p>
+        }
+
         <button
           class="publish__submit"
           type="submit"
           [disabled]="submitDisabled"
         >
-          Publicar promoção
+          {{ submitButtonText }}
         </button>
       </form>
     </section>

@@ -5,6 +5,18 @@ import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { PagedResponse, Promotion } from '../models/promotion.model';
 
+export interface PromotionCreateRequest {
+  title: string;
+  url: string;
+  currentPrice: number;
+  imageUrl: string;
+  imageKey: string;
+  description?: string;
+  originalPrice?: number;
+  couponCode?: string;
+  storeSlug?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PromotionService {
   private readonly http = inject(HttpClient);
@@ -50,6 +62,10 @@ export class PromotionService {
         ),
         catchError(() => of([])),
       );
+  }
+
+  createPromotion(request: PromotionCreateRequest): Observable<Promotion> {
+    return this.http.post<Promotion>(this.baseUrl, request);
   }
 
   /** Compat: usado pelo promotion-detail para carregar lista completa */
