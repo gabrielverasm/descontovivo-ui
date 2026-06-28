@@ -67,6 +67,16 @@ p {
   color: #526070;
 }
 
+.publish__success {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.publish__error {
+  color: #ef4444;
+  font-weight: 600;
+}
+
 @media (max-width: 760px) {
   .publish__content {
     grid-template-columns: 1fr;
