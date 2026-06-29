@@ -40,6 +40,11 @@ export class PromotionCardComponent implements OnChanges {
     });
   }
 
+  get commentsLabel(): string {
+    const count = this.actualCommentsCount;
+    return `${count} ${count === 1 ? 'comentário' : 'comentários'}`;
+  }
+
   get publisherName(): string {
     return this.promotion.authorUsername || this.promotion.createdBy || 'Usuário';
   }

@@ -299,15 +299,25 @@
 
 .promotion-detail__related-pages {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: nowrap;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 0.35rem;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.promotion-detail__related-pages > button:first-child,
-.promotion-detail__related-pages > button:last-child {
-  font-weight: 800;
-  padding: 0 1rem;
+.promotion-detail__related-pages button {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.55rem;
+  font-size: 0.85rem;
+}
+
+.promotion-detail__related-ellipsis {
+  min-width: 1rem;
+  text-align: center;
+  color: #64748b;
+  font-weight: 700;
 }
 
 .promotion-detail__related-page.is-active {

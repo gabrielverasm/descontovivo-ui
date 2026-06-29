@@ -44,7 +44,7 @@
             <dd
               class="promotion-detail__published"
               [attr.title]="(promotion.publishedAt || promotion.createdAt) | date: 'dd/MM/yyyy HH:mm:ss'"
-            >{{ publishedAgo }}</dd>
+            >{{ publisherName }} · {{ publishedAgo }}</dd>
           </div>
         </dl>
 
@@ -144,34 +144,35 @@
         }
 
         @if (hasRelatedPagination) {
-          <div class="promotion-detail__related-pages">
+          <nav class="promotion-detail__related-pages" aria-label="Paginação de ofertas parecidas">
             <button
               type="button"
               (click)="showPreviousRelatedPromotions()"
               [disabled]="relatedPage === 0"
-            >
-              ← Anterior
-            </button>
-            @for (page of relatedPages; track page) {
-              <button
-                type="button"
-                class="promotion-detail__related-page"
-                [class.is-active]="page === relatedPage + 1"
-                [disabled]="page === relatedPage + 1"
-                [attr.aria-current]="page === relatedPage + 1 ? 'page' : null"
-                (click)="showRelatedPromotionsPage(page)"
-              >
-                {{ page }}
-              </button>
+              aria-label="Página anterior"
+            >‹</button>
+            @for (item of visibleRelatedPageNumbers; track $index) {
+              @if (item === 'ellipsis') {
+                <span class="promotion-detail__related-ellipsis" aria-hidden="true">…</span>
+              } @else {
+                <button
+                  type="button"
+                  class="promotion-detail__related-page"
+                  [class.is-active]="item === relatedPage + 1"
+                  [disabled]="item === relatedPage + 1"
+                  [attr.aria-current]="item === relatedPage + 1 ? 'page' : null"
+                  [attr.aria-label]="'Página ' + item"
+                  (click)="showRelatedPromotionsPage(item)"
+                >{{ item }}</button>
+              }
             }
             <button
               type="button"
               (click)="showNextRelatedPromotions()"
               [disabled]="relatedPage + 1 >= relatedPageCount"
-            >
-              Próxima →
-            </button>
-          </div>
+              aria-label="Próxima página"
+            >›</button>
+          </nav>
         }
       </section>
 
