@@ -231,7 +231,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   get publishedAgo(): string {
-    const diffMs = Math.max(0, Date.now() - new Date(this.promotion!.createdAt).getTime());
+    const diffMs = Math.max(0, Date.now() - new Date(this.promotion!.publishedAt || this.promotion!.createdAt).getTime());
     const m = 60000, h = 3600000, d = 86400000, w = 604800000, mo = 2592000000, y = 31536000000;
     if (diffMs < h) { const v = Math.floor(diffMs / m); return `há ${v} ${v === 1 ? 'minuto' : 'minutos'}`; }
     if (diffMs < d) { const v = Math.floor(diffMs / h); return `há ${v} ${v === 1 ? 'hora' : 'horas'}`; }
@@ -259,7 +259,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.editForm = {
       title: this.promotion.title,
       description: this.promotion.description,
-      url: this.promotion.offerUrl || this.promotion.storeUrl || '',
+      url: this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '',
       currentPrice: this.promotion.currentPrice?.toString() ?? '',
       originalPrice: this.promotion.originalPrice?.toString() ?? '',
       couponCode: this.promotion.couponCode ?? '',
@@ -303,14 +303,16 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.adminError = '';
     this.moderationService.decide(this.promotion.id, req).subscribe({
       next: (updated) => {
-        this.promotion = updated;
+        this.promotion = this.normalizeUpdated(updated);
+        const idx = this.allPromotions.findIndex((p) => p.id === updated.id);
+        if (idx >= 0) this.allPromotions[idx] = this.promotion;
         this.isEditMode = false;
         this.isAdminSaving = false;
         this.adminMessage = 'Promoção atualizada com sucesso.';
       },
       error: () => {
         this.isAdminSaving = false;
-        this.adminError = 'Erro ao salvar. Tente novamente.';
+        this.adminError = 'Não foi possível salvar as alterações.';
       }
     });
   }
@@ -448,6 +450,32 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     ));
 
     return [...relatedPromotions, ...fallbackPromotions];
+  }
+
+  private normalizeUpdated(p: Partial<Promotion> & { id: string }): Promotion {
+    const base = this.promotion!;
+    return {
+      ...base,
+      ...p,
+      url: p.url || p.offerUrl || base.url || base.offerUrl || '',
+      offerUrl: p.url || p.offerUrl || base.offerUrl || base.url || '',
+      storeUrl: p.storeUrl || base.storeUrl || '',
+      storeName: p.storeName || p.store?.name || base.storeName || '',
+      tags: p.tags || base.tags || [],
+      likesCount: p.likesCount ?? base.likesCount ?? 0,
+      dislikesCount: p.dislikesCount ?? base.dislikesCount ?? 0,
+      commentsCount: p.commentsCount ?? base.commentsCount ?? 0,
+      status: p.status || base.status || 'approved',
+      createdBy: p.createdBy || base.createdBy || '',
+      createdAt: p.createdAt || base.createdAt,
+      publishedAt: p.publishedAt || base.publishedAt || p.createdAt || base.createdAt,
+      imageUrl: p.imageUrl || base.imageUrl || '',
+      description: p.description ?? base.description,
+      currentPrice: p.currentPrice ?? base.currentPrice,
+      originalPrice: p.originalPrice ?? base.originalPrice,
+      couponCode: p.couponCode ?? base.couponCode,
+      category: p.category || base.category || '',
+    } as Promotion;
   }
 
   private getPromotionDateTime(promotion: Promotion) {

@@ -6,7 +6,7 @@
       Use <code>publishAt</code> para definir a data/hora exibida de publicação, útil para importações retroativas.
       Se omitido, a API usa a hora do processamento. Isso não agenda publicação futura — a promoção é importada já publicada.
       Formato ISO 8601 com fuso: <code>2026-06-27T21:30:00-03:00</code>.
-      Valide localmente ou faça Dry run antes de importar.
+      Valide localmente ou faça uma simulação antes de importar.
     </p>
   </header>
 
@@ -60,7 +60,7 @@
       <div class="import__panel-actions">
         <button type="button" (click)="loadExample()" [disabled]="loading">Carregar exemplo</button>
         <button type="button" (click)="validateJson()" [disabled]="loading">Validar JSON</button>
-        <button type="button" (click)="dryRun()" [disabled]="loading || !isJsonValid">Dry run</button>
+        <button type="button" (click)="dryRun()" [disabled]="loading || !isJsonValid">Simular importação</button>
         <button type="button" class="import__btn-primary" (click)="importar()" [disabled]="loading || !isJsonValid">
           Importar promoções
         </button>
@@ -141,11 +141,11 @@
   @if (result) {
     <div class="import__result" [class.import__result--dry]="result.dryRun">
       @if (result.dryRun) {
-        <p class="import__dry-notice">⚠️ Dry run — nada foi gravado.</p>
+        <p class="import__dry-notice">⚠️ Simulação — nada foi gravado.</p>
       }
       <table class="import__summary">
         <tbody>
-          <tr><td>Batch ID</td><td>{{ result.batchId }}</td></tr>
+          <tr><td>ID do lote</td><td>{{ result.batchId }}</td></tr>
           <tr><td>Criados</td><td>{{ result.created }}</td></tr>
           <tr><td>Ignorados (dedup)</td><td>{{ result.skipped }}</td></tr>
           <tr><td>Erros</td><td>{{ result.errors.length }}</td></tr>

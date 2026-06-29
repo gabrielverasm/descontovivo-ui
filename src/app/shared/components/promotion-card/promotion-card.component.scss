@@ -67,6 +67,13 @@ h2 {
   white-space: nowrap;
 }
 
+.promotion-card__publisher-name {
+  max-width: 6.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .promotion-card__publisher-avatar {
   position: relative;
   display: inline-flex;
@@ -226,6 +233,42 @@ a {
 
 @media (max-width: 520px) {
   .promotion-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 0.65rem;
+    padding: 0.7rem;
+  }
+
+  h2 {
+    font-size: 0.85rem;
+  }
+
+  .promotion-card__top-row {
+    display: none;
+  }
+
+  .promotion-card__publisher {
+    font-size: 0.72rem;
+  }
+
+  .promotion-card__publisher-name {
+    display: none;
+  }
+
+  .promotion-card__actions {
+    gap: 0.4rem;
+  }
+
+  .promotion-card__offer-link {
+    min-height: 1.9rem;
+    font-size: 0.78rem;
+    padding: 0 0.6rem;
+  }
+
+  .promotion-card__prices app-promotion-vote-buttons {
+    display: none;
+  }
+
+  .promotion-card__comment-preview {
+    font-size: 0.72rem;
   }
 }

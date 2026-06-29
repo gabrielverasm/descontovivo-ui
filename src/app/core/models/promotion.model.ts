@@ -47,6 +47,7 @@ export interface Promotion {
   createdAt: string;
   publishedAt?: string;
   createdBy: string;
+  authorUsername?: string;
   store?: PromotionStore;
 }
 
