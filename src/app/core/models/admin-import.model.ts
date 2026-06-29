@@ -4,11 +4,11 @@ export interface AdminImportItem {
   description: string;
   marketplace: string;
   storeName: string;
-  sellerName?: string;
-  soldBy?: string;
-  deliveredBy?: string;
+  sellerName?: string | null;
+  soldBy?: string | null;
+  deliveredBy?: string | null;
   productUrl: string;
-  imageUrl?: string;
+  imageUrl: string;
   currentPrice: number;
   originalPrice?: number | null;
   coupon?: string | null;
@@ -32,7 +32,6 @@ export interface AdminImportResponse {
   batchId: string;
   dryRun: boolean;
   created: number;
-  updated: number;
   skipped: number;
   errors: AdminImportError[];
 }
