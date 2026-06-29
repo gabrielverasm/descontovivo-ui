@@ -90,7 +90,7 @@ export class PromotionService {
       commentsCount: p.commentsCount ?? 0,
       status: p.status || 'approved',
       createdBy: p.createdBy || '',
-      createdAt: p.createdAt || p.publishedAt || new Date().toISOString(),
+      createdAt: p.publishedAt || p.createdAt || new Date().toISOString(),
       imageUrl: p.imageUrl || '',
     };
   }

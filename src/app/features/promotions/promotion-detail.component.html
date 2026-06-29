@@ -43,7 +43,7 @@
             <dt>Publicado</dt>
             <dd
               class="promotion-detail__published"
-              [attr.title]="promotion.createdAt | date: 'dd/MM/yyyy HH:mm:ss'"
+              [attr.title]="(promotion.publishedAt || promotion.createdAt) | date: 'dd/MM/yyyy HH:mm:ss'"
             >{{ publishedAgo }}</dd>
           </div>
         </dl>
@@ -133,7 +133,7 @@
             @for (relatedPromotion of visibleRelatedPromotions; track relatedPromotion.id) {
               <app-related-promotion-item
                 [promotion]="relatedPromotion"
-                [publishedAgo]="getPublishedAgo(relatedPromotion.createdAt)"
+                [publishedAgo]="getPublishedAgo(relatedPromotion.publishedAt || relatedPromotion.createdAt)"
               />
             }
           </div>

@@ -1,11 +1,8 @@
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
 
 import { CommentService } from '../../../core/services/comment.service';
-import { UserService } from '../../../core/services/user.service';
 import { Promotion } from '../../../core/models/promotion.model';
-import { User } from '../../../core/models/user.model';
 import { PromotionContextComponent } from './promotion-context.component';
 import { PromotionImageComponent } from '../promotion-image/promotion-image.component';
 import { PromotionPriceComponent } from '../promotion-price/promotion-price.component';
@@ -29,27 +26,35 @@ import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.componen
 export class PromotionCardComponent implements OnChanges {
   private readonly router = inject(Router);
   private readonly commentService = inject(CommentService);
-  private readonly userService = inject(UserService);
   @Input({ required: true }) promotion!: Promotion;
 
   latestCommentPreview = 'ainda não há comentários';
   actualCommentsCount = 0;
-  publisher: User = { id: '', name: 'Usuario DescontoVivo', role: 'user' };
 
   ngOnChanges() {
-    forkJoin({
-      latestComment: this.commentService.getLatestCommentByPromotionId(this.promotion.id),
-      commentCount: this.commentService.getCommentCountByPromotionId(this.promotion.id),
-      user: this.userService.getUserById(this.promotion.createdBy)
-    }).subscribe(({ latestComment, commentCount, user }) => {
-      this.latestCommentPreview = latestComment?.content || 'ainda não há comentários';
-      this.actualCommentsCount = commentCount;
-      this.publisher = user ?? { id: this.promotion.createdBy, name: 'Usuario DescontoVivo', role: 'user' };
+    this.commentService.getLatestCommentByPromotionId(this.promotion.id).subscribe((c) => {
+      this.latestCommentPreview = c?.content || 'ainda não há comentários';
+    });
+    this.commentService.getCommentCountByPromotionId(this.promotion.id).subscribe((n) => {
+      this.actualCommentsCount = n;
     });
   }
 
+  get publisherName(): string {
+    return this.promotion.authorUsername || this.promotion.createdBy || 'Usuário';
+  }
+
+  get publisherShortName(): string {
+    const name = this.publisherName;
+    return name.length > 10 ? `${name.slice(0, 9)}…` : name;
+  }
+
+  get publisherInitial(): string {
+    return this.publisherName.charAt(0).toUpperCase() || 'U';
+  }
+
   get publishedAgo() {
-    const createdAt = new Date(this.promotion.createdAt).getTime();
+    const createdAt = new Date(this.promotion.publishedAt || this.promotion.createdAt).getTime();
     const diffMs = Math.max(0, Date.now() - createdAt);
     const minute = 60 * 1000;
     const hour = 60 * minute;
@@ -101,7 +106,7 @@ export class PromotionCardComponent implements OnChanges {
   get publisherAvatarColor(): string {
     const colors = ['#172033', '#2563eb', '#7c3aed', '#0891b2', '#059669', '#dc2626', '#d97706'];
     let hash = 0;
-    const name = this.publisher.name;
+    const name = this.publisherName;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
     return colors[Math.abs(hash) % colors.length];
   }
