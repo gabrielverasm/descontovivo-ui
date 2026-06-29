@@ -1,59 +1,143 @@
 <section class="import">
-  <h1 class="import__title">Importar promoções</h1>
-  <p class="import__desc">
-    Cole abaixo o JSON com as promoções para importação.
-    A autenticação usa o token JWT do usuário admin logado.
-  </p>
+  <header class="import__header">
+    <h1 class="import__title">Importar promoções</h1>
+    <p class="import__desc">
+      Cole um JSON com várias promoções. Use <code>imageUrl</code> público direto.
+      Use <code>publishAt</code> para definir a data/hora exibida de publicação, útil para importações retroativas.
+      Se omitido, a API usa a hora do processamento. Isso não agenda publicação futura — a promoção é importada já publicada.
+      Formato ISO 8601 com fuso: <code>2026-06-27T21:30:00-03:00</code>.
+      Valide localmente ou faça Dry run antes de importar.
+    </p>
+  </header>
 
-  <div class="import__format">
-    <button type="button" class="import__format-toggle" (click)="toggleFormat()" [attr.aria-expanded]="showFormat">
-      Formato esperado do JSON {{ showFormat ? '▾' : '▸' }}
-    </button>
-    @if (showFormat) {
-      <pre class="import__format-code">{{ exampleFormatted }}</pre>
-      <ul class="import__format-notes">
-        <li><code>batchId</code> — identifica a importação (ex: batch-2026-06-27-001)</li>
-        <li><code>sourceId</code> — deve ser único por oferta</li>
-        <li><code>publishAt</code> — opcional; se omitido, a API publica na hora do processamento</li>
-        <li><code>verifiedAt</code> — opcional</li>
-        <li>Preço deve ser número (ex: <code>459.90</code>)</li>
-        <li><code>productUrl</code> e <code>imageUrl</code> devem ser URLs reais na importação definitiva</li>
-      </ul>
-    }
+  <details class="import__format">
+    <summary class="import__format-toggle">Ver exemplo de JSON</summary>
+    <pre class="import__format-code">{{ exampleFormatted }}</pre>
+    <ul class="import__format-notes">
+      <li><code>batchId</code> — identifica a importação</li>
+      <li><code>sourceId</code> — único por oferta (dedup)</li>
+      <li><code>publishAt</code> — data/hora exibida de publicação (retroativa). Se omitido, usa a hora do processamento. Não aceita datas futuras</li>
+      <li><code>imageUrl</code> — URL pública direta da imagem (obrigatório)</li>
+      <li><code>marketplace</code> — AMAZON, MAGALU, MERCADOLIVRE, KABUM, ALIEXPRESS</li>
+      <li><code>category</code> — ELETRONICOS, CASA, MODA, BELEZA, ESPORTE, ALIMENTOS, LIVROS, GAMES, OUTROS</li>
+    </ul>
+  </details>
+
+  <div class="import__body">
+    <!-- Coluna esquerda: textarea -->
+    <div class="import__editor">
+      <label for="json-input" class="import__label">JSON de importação</label>
+      <textarea
+        id="json-input"
+        rows="22"
+        spellcheck="false"
+        placeholder="Cole o JSON aqui..."
+        [(ngModel)]="jsonText"
+      ></textarea>
+    </div>
+
+    <!-- Coluna direita: painel de ações -->
+    <aside class="import__panel">
+      <div class="import__panel-stats">
+        @if (validatedItems.length > 0) {
+          <div class="import__stat">
+            <span class="import__stat-label">Itens</span>
+            <span class="import__stat-value">{{ validatedItems.length }}</span>
+          </div>
+          <div class="import__stat import__stat--error">
+            <span class="import__stat-label">Erros</span>
+            <span class="import__stat-value">{{ totalErrors }}</span>
+          </div>
+          <div class="import__stat import__stat--warn">
+            <span class="import__stat-label">Avisos</span>
+            <span class="import__stat-value">{{ totalWarnings }}</span>
+          </div>
+        } @else {
+          <p class="import__panel-hint">Cole o JSON e clique em "Validar JSON" para ver o diagnóstico.</p>
+        }
+      </div>
+
+      <div class="import__panel-actions">
+        <button type="button" (click)="loadExample()" [disabled]="loading">Carregar exemplo</button>
+        <button type="button" (click)="validateJson()" [disabled]="loading">Validar JSON</button>
+        <button type="button" (click)="dryRun()" [disabled]="loading || !isJsonValid">Dry run</button>
+        <button type="button" class="import__btn-primary" (click)="importar()" [disabled]="loading || !isJsonValid">
+          Importar promoções
+        </button>
+      </div>
+
+      @if (loading) {
+        <p class="import__loading">⏳ Processando...</p>
+      }
+
+      @if (parseError) {
+        <div class="import__error" role="alert">{{ parseError }}</div>
+      }
+      @if (httpError) {
+        <div class="import__error" role="alert">{{ httpError }}</div>
+      }
+    </aside>
   </div>
 
-  <div class="import__field">
-    <label for="json-input">JSON de importação</label>
-    <textarea
-      id="json-input"
-      rows="16"
-      spellcheck="false"
-      placeholder="Cole o JSON aqui..."
-      [(ngModel)]="jsonText"
-    ></textarea>
-  </div>
-
-  <div class="import__actions">
-    <button type="button" (click)="loadExample()" [disabled]="loading">Carregar exemplo</button>
-    <button type="button" (click)="validateJson()" [disabled]="loading">Validar JSON</button>
-    <button type="button" (click)="dryRun()" [disabled]="loading">Dry run</button>
-    <button type="button" class="import__btn-primary" (click)="importar()" [disabled]="loading">
-      Importar promoções
-    </button>
-  </div>
-
-  @if (loading) {
-    <p class="import__loading">Processando...</p>
+  <!-- Preview após validação -->
+  @if (validatedItems.length > 0) {
+    <div class="import__preview">
+      <h2 class="import__preview-title">Prévia dos itens ({{ validatedItems.length }})</h2>
+      <div class="import__preview-list">
+        @for (item of validatedItems; track item.sourceId) {
+          <div class="import__preview-item" [class.import__preview-item--error]="item._errors.length > 0">
+            <div class="import__preview-img">
+              @if (item.imageUrl && !item._imgError) {
+                <img
+                  [src]="item.imageUrl"
+                  [alt]="item.title"
+                  loading="lazy"
+                  (load)="onImgLoad(item)"
+                  (error)="onImgError(item)"
+                />
+              } @else {
+                <div class="import__preview-img-placeholder">Sem imagem</div>
+              }
+            </div>
+            <div class="import__preview-info">
+              <strong class="import__preview-item-title">{{ item.title }}</strong>
+              <div class="import__preview-meta">
+                <span class="import__preview-price">R$ {{ item.currentPrice | number:'1.2-2' }}</span>
+                @if (item.originalPrice) {
+                  <span class="import__preview-original">R$ {{ item.originalPrice | number:'1.2-2' }}</span>
+                }
+                <span class="import__preview-store">{{ item.storeName }}</span>
+                @if (item.category) {
+                  <span class="import__preview-cat">{{ item.category }}</span>
+                }
+              </div>
+              <div class="import__preview-details">
+                @if (item.soldBy) { <span>Vendido por: {{ item.soldBy }}</span> }
+                @if (item.deliveredBy) { <span>Entregue por: {{ item.deliveredBy }}</span> }
+                @if (item.publishAt) { <span>Publicação: {{ item.publishAt }}</span> }
+              </div>
+              @if (item._errors.length > 0) {
+                <div class="import__preview-messages import__preview-messages--error">
+                  @for (e of item._errors; track e.field) {
+                    <span>❌ {{ e.field }}: {{ e.message }}</span>
+                  }
+                </div>
+              }
+              @if (item._warnings.length > 0) {
+                <div class="import__preview-messages import__preview-messages--warn">
+                  @for (w of item._warnings; track w.field) {
+                    <span>⚠️ {{ w.field }}: {{ w.message }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
   }
 
-  @if (parseError) {
-    <div class="import__error" role="alert">{{ parseError }}</div>
-  }
-
-  @if (httpError) {
-    <div class="import__error" role="alert">{{ httpError }}</div>
-  }
-
+  <!-- Resultado da importação -->
   @if (result) {
     <div class="import__result" [class.import__result--dry]="result.dryRun">
       @if (result.dryRun) {
@@ -61,11 +145,10 @@
       }
       <table class="import__summary">
         <tbody>
-          <tr><td>batchId</td><td>{{ result.batchId }}</td></tr>
-          <tr><td>created</td><td>{{ result.created }}</td></tr>
-          <tr><td>updated</td><td>{{ result.updated }}</td></tr>
-          <tr><td>skipped</td><td>{{ result.skipped }}</td></tr>
-          <tr><td>errors</td><td>{{ result.errors.length }}</td></tr>
+          <tr><td>Batch ID</td><td>{{ result.batchId }}</td></tr>
+          <tr><td>Criados</td><td>{{ result.created }}</td></tr>
+          <tr><td>Ignorados (dedup)</td><td>{{ result.skipped }}</td></tr>
+          <tr><td>Erros</td><td>{{ result.errors.length }}</td></tr>
         </tbody>
       </table>
 
@@ -75,7 +158,7 @@
 
       @if (result.errors.length > 0) {
         <div class="import__errors-detail">
-          <h3>Erros por item</h3>
+          <h3>Erros retornados pela API</h3>
           @for (err of result.errors; track err.sourceId + err.field) {
             <div class="import__error-item">
               <strong>{{ err.sourceId }}</strong> → {{ err.field }}: {{ err.message }}
