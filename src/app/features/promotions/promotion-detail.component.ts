@@ -139,6 +139,15 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     return Array.from({ length: this.relatedPageCount }, (_, index) => index + 1);
   }
 
+  get visibleRelatedPageNumbers(): Array<number | 'ellipsis'> {
+    const total = this.relatedPageCount;
+    const current = this.relatedPage + 1;
+    if (total <= 5) return this.relatedPages;
+    if (current <= 3) return [1, 2, 3, 4, 'ellipsis', total];
+    if (current >= total - 2) return [1, 'ellipsis', total - 3, total - 2, total - 1, total];
+    return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
+  }
+
   get visibleRelatedPromotions() {
     const start = this.relatedPage * this.relatedPageSize;
     return this.relatedPromotions.slice(start, start + this.relatedPageSize);
@@ -228,6 +237,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
     const elapsedDays = Math.floor(elapsedHours / 24);
     return `há ${elapsedDays} ${elapsedDays === 1 ? 'dia' : 'dias'}`;
+  }
+
+  get publisherName(): string {
+    return this.promotion?.authorUsername || this.promotion?.createdBy || 'Usuário';
   }
 
   get publishedAgo(): string {
@@ -479,7 +492,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   private getPromotionDateTime(promotion: Promotion) {
-    return new Date(promotion.createdAt).getTime();
+    return new Date(promotion.publishedAt || promotion.createdAt).getTime();
   }
 
   private getTitleWords(title: string) {
