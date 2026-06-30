@@ -25,9 +25,14 @@ span {
   :host:not(.promotion-image--detail) {
     max-width: 240px;
   }
+
+  :host(.promotion-image--detail) {
+    max-width: 128px;
+    max-height: 128px;
+  }
 }
 
 :host(.promotion-image--detail) {
-  max-width: 300px;
-  max-height: 300px;
+  max-width: 160px;
+  max-height: 160px;
 }
