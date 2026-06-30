@@ -112,10 +112,10 @@ Arquivos estáticos em `public/`:
 
 ## SEO
 
-- `robots.txt` com Allow/Disallow por área.
-- `sitemap.xml` estático com páginas públicas.
-- `SeoService` aplicando meta tags por rota (`title`, `description`, `robots`).
-- Rotas públicas com `index, follow`; rotas privadas com `noindex, nofollow`.
+- `robots.txt` permite crawl geral (`Allow: /`), sem Disallow.
+- `sitemap.xml` estático com páginas públicas úteis.
+- `SeoService` aplica meta tags por rota (`title`, `description`, `robots`).
+- Rotas privadas usam `noindex, nofollow` via meta tag (controle exclusivo pelo SeoService).
 - Limitação: SPA sem SSR/prerender — Google indexa via JavaScript rendering.
 
 Detalhes em [`docs/SEO.md`](docs/SEO.md).
