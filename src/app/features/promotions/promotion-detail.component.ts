@@ -9,9 +9,12 @@ import { Comment } from '../../core/models/comment.model';
 import { Promotion } from '../../core/models/promotion.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
+import { ImageProcessingService } from '../../core/services/image-processing.service';
 import { ModerationDecisionRequest, ModerationService } from '../../core/services/moderation.service';
 import { PromotionService } from '../../core/services/promotion.service';
+import { UploadService } from '../../core/services/upload.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
 import { PromotionPriceComponent } from '../../shared/components/promotion-price/promotion-price.component';
@@ -35,6 +38,7 @@ interface CommentReply {
   imports: [
     DatePipe,
     EmptyStateComponent,
+    FileFieldComponent,
     FormsModule,
     RouterLink,
     PromotionContextComponent,
@@ -67,6 +71,8 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly commentService = inject(CommentService);
   private readonly authService = inject(AuthService);
   private readonly moderationService = inject(ModerationService);
+  private readonly imageProcessing = inject(ImageProcessingService);
+  private readonly uploadService = inject(UploadService);
 
   // Admin state
   isEditMode = false;
@@ -75,6 +81,23 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   adminMessage = '';
   adminError = '';
   editForm = { title: '', description: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeSlug: '' };
+
+  // Admin image upload
+  adminImageBlob: Blob | null = null;
+  adminImagePreviewUrl: string | null = null;
+  adminImageSizeKB: number | null = null;
+  adminImageError: string | null = null;
+  adminImageStatus: 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error' = 'idle';
+
+  get adminImageStatusText(): string | null {
+    switch (this.adminImageStatus) {
+      case 'processing': return 'Processando imagem…';
+      case 'ready': return 'Nova imagem selecionada';
+      case 'uploading': return 'Enviando imagem…';
+      case 'done': return 'Upload concluído';
+      default: return null;
+    }
+  }
 
   get canModerate(): boolean { return this.authService.canModerate(); }
   get isAdmin(): boolean { return this.authService.hasRole('admin'); }
@@ -254,11 +277,8 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     const v = Math.floor(diffMs / y); return `há ${v} ${v === 1 ? 'ano' : 'anos'}`;
   }
 
-  getAvatarColor(name: string): string {
-    const colors = ['#172033', '#2563eb', '#7c3aed', '#0891b2', '#059669', '#dc2626', '#d97706'];
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    return colors[Math.abs(hash) % colors.length];
+  getAvatarColor(_name: string): string {
+    return 'linear-gradient(135deg, #0ea5e9, #2563eb)';
   }
 
   returnToPromotionsList() {
@@ -286,6 +306,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   cancelEdit() {
     this.isEditMode = false;
     this.adminError = '';
+    this.resetAdminImage();
   }
 
   submitEdit() {
@@ -300,6 +321,32 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       this.adminError = 'Preço atual inválido.';
       return;
     }
+
+    this.isAdminSaving = true;
+    this.adminError = '';
+
+    this.doSubmitEdit(price).then();
+  }
+
+  private async doSubmitEdit(price: number): Promise<void> {
+    const f = this.editForm;
+    let imageKey: string | undefined;
+
+    if (this.adminImageBlob && this.adminImageStatus === 'ready') {
+      try {
+        this.adminImageStatus = 'uploading';
+        const result = await this.uploadService.uploadPromotionImage(this.adminImageBlob);
+        imageKey = result.imageKey;
+        this.adminImageStatus = 'done';
+      } catch {
+        this.adminImageStatus = 'error';
+        this.adminImageError = 'Não foi possível enviar a nova imagem.';
+        this.isAdminSaving = false;
+        this.adminError = 'Não foi possível enviar a nova imagem.';
+        return;
+      }
+    }
+
     const req: ModerationDecisionRequest = {
       action: 'EDIT',
       reason: 'Ajuste administrativo no detalhe da promoção',
@@ -312,9 +359,9 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     if (!isNaN(origPrice) && origPrice > 0) req.originalPrice = origPrice;
     if (f.couponCode.trim()) req.couponCode = f.couponCode.trim();
     if (f.storeSlug.trim()) req.storeSlug = f.storeSlug.trim();
-    this.isAdminSaving = true;
-    this.adminError = '';
-    this.moderationService.decide(this.promotion.id, req).subscribe({
+    if (imageKey) req.imageKey = imageKey;
+
+    this.moderationService.decide(this.promotion!.id, req).subscribe({
       next: (updated) => {
         this.promotion = this.normalizeUpdated(updated);
         const idx = this.allPromotions.findIndex((p) => p.id === updated.id);
@@ -322,12 +369,47 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
         this.isEditMode = false;
         this.isAdminSaving = false;
         this.adminMessage = 'Promoção atualizada com sucesso.';
+        this.resetAdminImage();
       },
       error: () => {
         this.isAdminSaving = false;
         this.adminError = 'Não foi possível salvar as alterações.';
       }
     });
+  }
+
+  async onAdminImageSelected(file: File): Promise<void> {
+    this.resetAdminImage();
+    const validationError = this.imageProcessing.validate(file);
+    if (validationError) {
+      this.adminImageError = validationError;
+      this.adminImageStatus = 'error';
+      return;
+    }
+    try {
+      this.adminImageStatus = 'processing';
+      const processed = await this.imageProcessing.process(file);
+      this.adminImageBlob = processed.blob;
+      this.adminImagePreviewUrl = processed.previewUrl;
+      this.adminImageSizeKB = processed.sizeKB;
+      this.adminImageStatus = 'ready';
+    } catch {
+      this.adminImageError = 'Falha ao processar imagem. Tente novamente.';
+      this.adminImageStatus = 'error';
+    }
+  }
+
+  removeAdminImage(): void {
+    this.resetAdminImage();
+  }
+
+  private resetAdminImage(): void {
+    if (this.adminImagePreviewUrl) URL.revokeObjectURL(this.adminImagePreviewUrl);
+    this.adminImageBlob = null;
+    this.adminImagePreviewUrl = null;
+    this.adminImageSizeKB = null;
+    this.adminImageError = null;
+    this.adminImageStatus = 'idle';
   }
 
   confirmRemove() {

@@ -10,7 +10,11 @@
 .mod__panel-header { display: flex; justify-content: space-between; align-items: center; }
 .mod__panel-title { margin: 0; font-size: 1rem; font-weight: 800; color: #1e293b; }
 .mod__panel-body { display: grid; gap: 1rem; }
-.mod__panel-image { max-width: 300px; max-height: 300px; }
+.mod__panel-image { max-width: 300px; max-height: unset; display: grid; gap: 0.6rem; }
+.mod__panel-image-new { display: grid; gap: 0.35rem; }
+.mod__panel-image-new img { width: 100%; max-width: 280px; max-height: 280px; object-fit: contain; border-radius: 8px; border: 2px solid #2563eb33; }
+.mod__panel-image-label { font-size: 0.72rem; font-weight: 700; color: #2563eb; text-transform: uppercase; }
+.mod__panel-image-upload { margin-top: 0.25rem; }
 
 ::ng-deep .mod__panel-image app-promotion-image {
   display: grid;
