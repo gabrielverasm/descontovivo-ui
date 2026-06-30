@@ -1,111 +1,49 @@
-# TODO DescontoVivo
+# TODO DescontoVivo UI
 
-Checklist vivo para acompanhar a evolução do MVP sem misturar planejamento com implementação.
+Checklist de evolução do projeto.
 
 ## Concluído
 
-- [x] Migração/base Angular 21.
-- [x] Estrutura standalone com `bootstrapApplication`.
-- [x] Estrutura principal em `core`, `shared`, `layouts` e `features`.
-- [x] Models iniciais.
-- [x] Mocks iniciais.
-- [x] Páginas placeholder do MVP.
-- [x] Componentes compartilhados iniciais.
-- [x] Rotas iniciais.
-- [x] README inicial.
-- [x] `docs/MVP.md` inicial.
+- [x] Angular 21 standalone com `bootstrapApplication`.
+- [x] Estrutura: `core`, `shared`, `layouts`, `features`.
+- [x] Rotas lazy com `loadComponent`.
+- [x] Feed público com promoções reais da API (paginação, busca).
+- [x] Detalhe da promoção com votos.
+- [x] Publicação autenticada com upload de imagem para R2.
+- [x] Login/cadastro via Keycloak/OIDC.
+- [x] Guards: auth, email-verified, moderator, admin.
+- [x] Interceptor Bearer automático.
+- [x] Painel de moderação (aprovar, rejeitar, remover, editar com troca de imagem).
+- [x] Import admin por JSON batch.
+- [x] SEO básico: SeoService, robots.txt, sitemap.xml estático.
+- [x] Deploy Cloudflare Pages.
+- [x] Remoção de mocks — produção consome API real.
+- [x] Páginas institucionais (sobre, serviços, transparência).
+- [x] Páginas de erro (404, erro genérico).
 
 ## Próximo foco
 
-- [ ] Revisar visual no navegador.
-- [ ] Corrigir textos sem acento, se existirem.
-- [ ] Melhorar home/feed.
-- [ ] Melhorar card de promoção.
-- [ ] Melhorar página de listagem/busca.
-- [ ] Melhorar página de detalhe.
-- [ ] Melhorar página de publicar promoção.
-- [ ] Conferir responsividade mobile.
+- [ ] Listagem e envio completo de comentários na UI.
+- [ ] Limpeza de SCSS budgets (warnings de build).
+- [ ] Setup de testes unitários (karma-jasmine ou migrar para Jest/Vitest).
+- [ ] Sitemap dinâmico com URLs de promoções.
+- [ ] SSR / prerender para SEO e Open Graph.
+- [ ] JSON-LD structured data para promoções.
+- [ ] Dashboard admin melhorado.
+- [ ] Integração de afiliados.
+- [ ] Notificações para autores (promoção aprovada/rejeitada).
 
-## MVP funcional
+## Qualidade técnica
 
-- [ ] Login visual.
-- [ ] Cadastro visual.
-- [ ] Publicar promoção visual.
-- [ ] Curtir promoção mockado.
-- [ ] Comentar mockado.
-- [ ] Buscar promoção mockada.
-- [ ] Página 404.
-- [ ] Página 500.
+- [ ] Resolver warnings de SCSS budget no build.
+- [ ] Configurar linting (ESLint + Angular rules).
+- [ ] Configurar formatter (Prettier).
+- [ ] Configurar testes unitários funcionando.
+- [ ] CI com validação de build + lint em PRs.
 
-## UI Clean Hybrid
+## Decisões de produto
 
-- [ ] Refinar hierarquia visual da home.
-- [ ] Ajustar espaçamentos e densidade do feed.
-- [ ] Melhorar estados de cards e botões.
-- [ ] Revisar consistencia de cores, bordas e sombras.
-- [ ] Evitar visual de dashboard/admin.
-- [ ] Validar experiencia em telas pequenas.
-
-## Qualidade tecnica
-
-- [ ] Revisar imports standalone.
-- [ ] Conferir ausencia de `AppModule`.
-- [ ] Conferir dependencias Angular 21 no `package.json`.
-- [ ] Rodar build e observar warnings de bundle e CSS.
-- [ ] Rodar `git diff --check` antes de fechar fases relevantes.
-- [ ] Manter `styles.scss` enxuto.
-- [ ] Criar scripts npm de qualidade para padronizar validação antes de commit, como `format`, `format:check`, `lint`, `test` e `quality`.
-- [ ] Corrigir ou configurar o setup de testes Angular para que `npm run test` funcione sem erro de dependência ausente.
-
-## Acessibilidade e SEO
-
-- [ ] Revisar headings por pagina.
-- [ ] Conferir textos alternativos de imagens.
-- [ ] Conferir labels e `aria-label` em ações importantes.
-- [ ] Revisar navegação por teclado.
-- [ ] Preparar metadados por rota quando houver conteudo real.
-- [ ] Manter metadados base em `index.html`.
-
-## Pipeline de imagens de promoções
-
-- [ ] Definir padrão de imagem do card: 200x200 no layout, usando arquivo otimizado maior como 400x400 ou 512x512.
-- [ ] Usar `object-fit: contain` nos cards para evitar corte ruim do produto.
-- [ ] Criar fallback visual para promoções sem imagem.
-- [ ] Permitir imagem enviada pelo usuário na publicação da promoção.
-- [ ] No backend futuro, criar job assíncrono para tentar extrair imagens do link da oferta.
-- [ ] Priorizar imagens vindas de `og:image`, schema.org e imagem principal do produto.
-- [ ] Gerar 2 ou 3 imagens candidatas para o moderador escolher na aprovação.
-- [ ] Padronizar imagens no backend: redimensionar, comprimir, converter para WebP e gerar miniaturas.
-- [ ] Avaliar remoção de fundo como melhoria futura, não obrigatória no MVP.
-- [ ] Armazenar imagens processadas em storage próprio, evitando hotlink direto dos sites das lojas.
-- [ ] Definir política de cache e limpeza de imagens antigas.
-- [ ] Garantir que o feed público use somente imagens aprovadas e armazenadas pelo DescontoVivo.
-
-## Backend futuro
-
-- [ ] Autenticação real, ainda fora da fase atual.
-- [ ] Persistência real, ainda fora da fase atual.
-- [ ] Moderação real, ainda fora da fase atual.
-- [ ] Painel admin, ainda fora da fase atual.
-- [ ] Integração com lojas, ainda fora da fase atual.
-- [ ] Notificações reais, ainda fora da fase atual.
-
-## Fora do escopo por enquanto
-
-- [ ] Criar backend.
-- [ ] Criar autenticação real.
-- [ ] Criar cadastro real.
-- [ ] Criar persistência.
-- [ ] Alterar favicon, logo ou assets de marca.
-- [ ] Implementar painel administrativo.
-- [ ] Fazer integrações reais com lojas.
-- [ ] Fazer notificações reais.
-- [ ] Remoção automática de fundo.
-- [ ] Crawler avançado de imagens.
-- [ ] Storage definitivo de imagens.
-- [ ] Moderação avançada de imagens.
-
-## Decisoes de produto
-
-- [x] A home `/` deve ser o feed principal de promocoes.
-- [x] `/promocoes` deve existir apenas como redirecionamento para `/`.
+- [x] Home `/` é o feed principal.
+- [x] `/promocoes` redireciona para `/`.
+- [x] Toda promoção publicada entra como `PENDING_REVIEW`.
+- [x] Feed exibe apenas promoções `PUBLISHED`.
