@@ -470,6 +470,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.resetAdminImage();
     this.backButtonObserver?.disconnect();
     clearTimeout(this.floatingBackAnimationTimeout);
     this.routeSubscription.unsubscribe();
