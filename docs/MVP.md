@@ -1,55 +1,50 @@
-# DescontoVivo MVP
+# DescontoVivo MVP — Estado Atual
 
 ## Objetivo
 
-O DescontoVivo e um portal de promocoes inspirado em comunidades como Gatry e Promobit, mas com identidade propria, foco em clareza e moderacao antes da publicacao publica.
+Portal público de promoções com moderação, comunidade e foco em confiança. Usuários publicam ofertas, moderadores aprovam, e o feed exibe apenas conteúdo verificado.
 
-## Escopo inicial
+## O que está implementado
 
-- Feed publico com promocoes aprovadas.
-- Busca simples por titulo, descricao, loja, categoria e tags.
-- Pagina de detalhe da promocao.
-- Fluxos placeholder de login, cadastro e publicacao.
-- Mock centralizado para dados de promocoes.
-- Paginas de erro 404 e 500.
+- Feed público com promoções aprovadas (paginação, busca, filtros).
+- Página de detalhe da promoção com votos e contadores de comentários.
+- Publicação autenticada com upload de imagem para Cloudflare R2.
+- Login e cadastro via Keycloak/OIDC (Authorization Code + PKCE).
+- Painel de moderação: aprovar, rejeitar, remover, editar promoção com troca de imagem.
+- Import admin por JSON batch.
+- SEO básico: `SeoService`, `robots.txt`, `sitemap.xml` estático.
+- Guards (auth, email-verified, moderator, admin) e interceptor Bearer.
+- Deploy automático via Cloudflare Pages.
 
-## Regras do produto
+## Parcialmente implementado
 
-- Apenas usuarios cadastrados devem publicar promocoes no produto final.
-- Toda promocao enviada entra com status `pending`.
-- Apenas promocoes com status `approved` aparecem no feed publico.
-- Promocoes `rejected` ou `pending` nao devem ser exibidas publicamente.
-- A moderacao real ainda nao esta implementada.
+- Comentários: contadores vindos da API; listagem/envio completo na UI está no roadmap.
 
-## Fora do escopo neste momento
+## Fora do escopo atual
 
-- Backend real.
-- Autenticacao real.
-- Persistencia.
-- Integracao com lojas.
-- Painel administrativo de moderacao.
-- Alteracoes de favicon, logo ou assets de marca.
+- SSR / prerender.
+- Sitemap dinâmico com URLs de promoções.
+- Worker/crawler automático de ofertas.
+- Integração de afiliados.
+- Testes unitários (setup karma-jasmine pendente).
 
-## Stack alvo
+## Stack
 
-- Angular standalone com `bootstrapApplication`.
-- Rotas standalone com `loadComponent`.
-- TypeScript compativel com Angular 21.
-- CSS por componente, mantendo `styles.scss` enxuto.
+- Angular 21 standalone (`bootstrapApplication`, lazy routes via `loadComponent`).
+- TypeScript.
+- SCSS por componente.
+- `angular-auth-oidc-client` para OIDC.
+- Cloudflare Pages (hosting).
 
 ## Arquitetura
 
-- `src/app/core`: models, mocks e futuros servicos centrais.
-- `src/app/shared`: componentes reutilizaveis e utilitarios compartilhados.
-- `src/app/layouts`: layouts de pagina.
-- `src/app/features`: paginas e fluxos do produto.
+- `src/app/core/` — services, guards, interceptors, models, utils.
+- `src/app/features/` — páginas e fluxos por domínio.
+- `src/app/shared/` — componentes reutilizáveis.
+- `src/app/layouts/` — layouts de página.
 
-## Validacao manual
+## Validação
 
-Depois de instalar dependencias, validar:
-
-- `npm run build`
-- budgets de bundle e CSS no output do build
-- warnings de estilos
-- navegacao das rotas principais
-- exibicao apenas de promocoes aprovadas no feed publico
+```bash
+npm run build    # validação principal
+```
