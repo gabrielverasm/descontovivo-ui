@@ -29,15 +29,23 @@ export class ImageProcessingService {
       const url = URL.createObjectURL(file);
       img.onload = () => {
         URL.revokeObjectURL(url);
-        const side = Math.min(img.width, img.height);
-        const sx = (img.width - side) / 2;
-        const sy = (img.height - side) / 2;
 
         const canvas = document.createElement('canvas');
         canvas.width = OUTPUT_SIZE;
         canvas.height = OUTPUT_SIZE;
         const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, sx, sy, side, side, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+
+        // White background to fill padding areas
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+
+        // Contain: fit entire image preserving aspect ratio
+        const scale = Math.min(OUTPUT_SIZE / img.width, OUTPUT_SIZE / img.height);
+        const dw = img.width * scale;
+        const dh = img.height * scale;
+        const dx = (OUTPUT_SIZE - dw) / 2;
+        const dy = (OUTPUT_SIZE - dh) / 2;
+        ctx.drawImage(img, 0, 0, img.width, img.height, dx, dy, dw, dh);
 
         canvas.toBlob(
           (blob) => {
