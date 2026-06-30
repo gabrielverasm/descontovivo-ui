@@ -5,6 +5,7 @@ import { finalize } from 'rxjs';
 import { Promotion } from '../../core/models/promotion.model';
 import { ImageProcessingService } from '../../core/services/image-processing.service';
 import { ModerationService, ModerationDecisionRequest } from '../../core/services/moderation.service';
+import { SeoService } from '../../core/services/seo.service';
 import { UploadService } from '../../core/services/upload.service';
 import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
@@ -26,6 +27,10 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
   private readonly moderationService = inject(ModerationService);
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
+
+  constructor() {
+    inject(SeoService).setNoIndex();
+  }
 
   promotions: Promotion[] = [];
   loading = true;

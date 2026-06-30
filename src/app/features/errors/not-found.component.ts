@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-not-found',
@@ -8,4 +9,8 @@ import { RouterLink } from '@angular/router';
   templateUrl: './not-found.component.html',
   styleUrl: './not-found.component.scss'
 })
-export class NotFoundComponent {}
+export class NotFoundComponent {
+  constructor() {
+    inject(SeoService).setNoIndex();
+  }
+}

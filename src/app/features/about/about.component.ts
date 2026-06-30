@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-about',
@@ -13,8 +14,10 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 export class AboutComponent {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly seo = inject(SeoService);
 
   constructor() {
+    this.seo.setIndexFollow();
     this.title.setTitle('Sobre o DescontoVivo | Promoções com contexto, comunidade e segurança');
     this.meta.updateTag({
       name: 'description',

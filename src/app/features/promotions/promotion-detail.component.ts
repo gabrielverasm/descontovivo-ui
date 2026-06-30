@@ -10,6 +10,7 @@ import { Promotion } from '../../core/models/promotion.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
 import { ImageProcessingService } from '../../core/services/image-processing.service';
+import { SeoService } from '../../core/services/seo.service';
 import { ModerationDecisionRequest, ModerationService } from '../../core/services/moderation.service';
 import { PromotionService } from '../../core/services/promotion.service';
 import { UploadService } from '../../core/services/upload.service';
@@ -73,6 +74,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly moderationService = inject(ModerationService);
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
+  private readonly seo = inject(SeoService);
 
   // Admin state
   isEditMode = false;
@@ -140,7 +142,8 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       0
     );
 
-    return this.commentCount + localRepliesCount;
+    const baseCount = this.commentCount || this.promotion?.commentsCount || 0;
+    return baseCount + localRepliesCount;
   }
 
   get shownCommentsCount() {
@@ -489,8 +492,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   private updateSeoMeta() {
     if (!this.promotion) {
-      this.titleService.setTitle('Promoção não encontrada | DescontoVivo');
-      this.meta.updateTag({ name: 'description', content: 'Confira as melhores promoções no DescontoVivo.' });
+      this.seo.setNonIndexable(
+        'Promoção não encontrada | DescontoVivo',
+        'Confira as melhores promoções no DescontoVivo.'
+      );
       return;
     }
 
@@ -498,8 +503,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     const priceStr = currentPrice != null ? ` por R$${currentPrice.toFixed(2).replace('.', ',')}` : '';
     const storeStr = storeName ? ` em ${storeName}` : '';
 
-    this.titleService.setTitle(`${title} | DescontoVivo`);
-    this.meta.updateTag({ name: 'description', content: `Veja a promoção ${title}${priceStr}${storeStr} no DescontoVivo.` });
+    this.seo.setIndexable(
+      `${title} | DescontoVivo`,
+      `Veja a promoção ${title}${priceStr}${storeStr} no DescontoVivo.`
+    );
   }
 
   private normalizeDestinationName(destinationName: string) {

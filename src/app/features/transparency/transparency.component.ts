@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { SeoService } from '../../core/services/seo.service';
 
 // TODO [Amazon Associados]: Quando o cadastro no programa Amazon Associados for
 // aprovado e links de afiliado Amazon estiverem ativos no site, será necessário:
@@ -21,8 +22,10 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 export class TransparencyComponent {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly seo = inject(SeoService);
 
   constructor() {
+    this.seo.setIndexFollow();
     this.title.setTitle('Transparência | DescontoVivo');
     this.meta.updateTag({
       name: 'description',

@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { PromotionCardComponent } from '../../shared/components/promotion-card/promotion-card.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PromotionService } from '../../core/services/promotion.service';
+import { SeoService } from '../../core/services/seo.service';
 import { Promotion } from '../../core/models/promotion.model';
 
 @Component({
@@ -13,12 +14,17 @@ import { Promotion } from '../../core/models/promotion.model';
 })
 export class PromotionsComponent implements OnInit {
   private readonly promotionService = inject(PromotionService);
+  private readonly seo = inject(SeoService);
 
   promotions: Promotion[] = [];
   loading = true;
   error = '';
 
   ngOnInit(): void {
+    this.seo.setIndexable(
+      'Promoções | DescontoVivo',
+      'DescontoVivo reúne promoções compartilhadas pela comunidade, com ofertas revisadas antes de aparecerem no site.'
+    );
     this.promotionService.getPromotions(0, 30).subscribe({
       next: (res) => {
         this.promotions = res.content;
