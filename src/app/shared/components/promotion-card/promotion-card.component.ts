@@ -109,11 +109,23 @@ export class PromotionCardComponent implements OnChanges {
   }
 
   get publisherAvatarColor(): string {
-    const colors = ['#172033', '#2563eb', '#7c3aed', '#0891b2', '#059669', '#dc2626', '#d97706'];
-    let hash = 0;
-    const name = this.publisherName;
-    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    return colors[Math.abs(hash) % colors.length];
+    return 'linear-gradient(135deg, #0ea5e9, #2563eb)';
+  }
+
+  get publishedDateFull(): string {
+    const date = new Date(this.promotion.publishedAt || this.promotion.createdAt);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `Publicado em ${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} às ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  }
+
+  get publishedDateISO(): string {
+    return new Date(this.promotion.publishedAt || this.promotion.createdAt).toISOString();
+  }
+
+  get commentsLabelShort(): string {
+    const count = this.actualCommentsCount;
+    if (count === 0) return 'Ainda não há comentários';
+    return `${count} ${count === 1 ? 'comentário' : 'comentários'}`;
   }
 
   get externalOfferUrl(): string {

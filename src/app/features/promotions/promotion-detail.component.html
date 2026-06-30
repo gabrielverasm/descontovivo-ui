@@ -43,7 +43,7 @@
             <dt>Publicado</dt>
             <dd
               class="promotion-detail__published"
-              [attr.title]="(promotion.publishedAt || promotion.createdAt) | date: 'dd/MM/yyyy HH:mm:ss'"
+              [attr.title]="'Publicado em ' + ((promotion.publishedAt || promotion.createdAt) | date: 'dd/MM/yyyy') + ' às ' + ((promotion.publishedAt || promotion.createdAt) | date: 'HH:mm:ss')"
             >{{ publisherName }} · {{ publishedAgo }}</dd>
           </div>
         </dl>
@@ -105,6 +105,30 @@
                 <app-floating-field label="Preço original" name="edit-originalPrice" [(ngModel)]="editForm.originalPrice" />
                 <app-floating-field label="Cupom" name="edit-couponCode" [(ngModel)]="editForm.couponCode" />
                 <app-floating-field label="Loja (slug)" name="edit-storeSlug" [(ngModel)]="editForm.storeSlug" />
+
+                <div class="promotion-detail__admin-image">
+                  @if (adminImagePreviewUrl) {
+                    <div class="promotion-detail__admin-image-preview">
+                      <span class="promotion-detail__admin-image-label">Nova imagem selecionada</span>
+                      <img [src]="adminImagePreviewUrl" alt="Prévia da nova imagem" width="150" height="150" />
+                      <button type="button" (click)="removeAdminImage()">Remover imagem selecionada</button>
+                    </div>
+                  } @else {
+                    <p class="promotion-detail__admin-image-label">Imagem atual</p>
+                  }
+                  <app-file-field
+                    label="Trocar imagem"
+                    name="admin-image"
+                    accept="image/jpeg,image/png,image/webp"
+                    hint="JPG, PNG ou WebP. Máx. 5 MB."
+                    [previewUrl]="null"
+                    [sizeKB]="adminImageSizeKB"
+                    [statusText]="adminImageStatusText"
+                    [error]="adminImageError"
+                    (fileSelected)="onAdminImageSelected($event)"
+                  />
+                </div>
+
                 <div class="promotion-detail__admin-buttons">
                   <button type="submit" [disabled]="isAdminSaving">Salvar alterações</button>
                   <button type="button" (click)="cancelEdit()" [disabled]="isAdminSaving">Cancelar</button>

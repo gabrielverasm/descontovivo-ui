@@ -16,6 +16,7 @@ export interface ModerationDecisionRequest {
   originalPrice?: number;
   couponCode?: string;
   imageUrl?: string;
+  imageKey?: string | null;
   availability?: string;
   storeSlug?: string;
   soldBy?: string | null;

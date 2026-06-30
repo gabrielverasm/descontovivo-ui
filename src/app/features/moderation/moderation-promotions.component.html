@@ -31,7 +31,29 @@
       <div class="mod__panel-body">
         <!-- Image -->
         <div class="mod__panel-image">
-          <app-promotion-image [promotion]="selectedPromo" variant="detail" />
+          @if (newImagePreviewUrl) {
+            <div class="mod__panel-image-new">
+              <span class="mod__panel-image-label">Nova imagem selecionada</span>
+              <img [src]="newImagePreviewUrl" alt="Prévia da nova imagem" width="280" height="280" />
+              <button type="button" class="mod__btn mod__btn--ghost" (click)="removeNewImage()">Remover imagem selecionada</button>
+            </div>
+          } @else {
+            <app-promotion-image [promotion]="selectedPromo" variant="detail" />
+          }
+
+          <div class="mod__panel-image-upload">
+            <app-file-field
+              label="Trocar imagem"
+              name="mod-image"
+              accept="image/jpeg,image/png,image/webp"
+              hint="JPG, PNG ou WebP. Máx. 5 MB."
+              [previewUrl]="null"
+              [sizeKB]="newImageSizeKB"
+              [statusText]="newImageStatusText"
+              [error]="newImageError"
+              (fileSelected)="onNewImageSelected($event)"
+            />
+          </div>
         </div>
 
         <!-- Form columns -->

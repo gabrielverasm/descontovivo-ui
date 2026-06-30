@@ -1,9 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Promotion } from '../../core/models/promotion.model';
+import { ImageProcessingService } from '../../core/services/image-processing.service';
 import { ModerationService, ModerationDecisionRequest } from '../../core/services/moderation.service';
+import { UploadService } from '../../core/services/upload.service';
+import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
 
 interface FieldDiag {
@@ -15,12 +18,14 @@ interface FieldDiag {
 @Component({
   selector: 'app-moderation-promotions',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, DatePipe, PromotionImageComponent],
+  imports: [FormsModule, DecimalPipe, DatePipe, PromotionImageComponent, FileFieldComponent],
   templateUrl: './moderation-promotions.component.html',
   styleUrl: './moderation-promotions.component.scss',
 })
-export class ModerationPromotionsComponent implements OnInit {
+export class ModerationPromotionsComponent implements OnInit, OnDestroy {
   private readonly moderationService = inject(ModerationService);
+  private readonly imageProcessing = inject(ImageProcessingService);
+  private readonly uploadService = inject(UploadService);
 
   promotions: Promotion[] = [];
   loading = true;
@@ -35,8 +40,69 @@ export class ModerationPromotionsComponent implements OnInit {
   showRejectInput = false;
   soldAndDeliveredByStore = false;
 
+  // Image upload
+  newImageBlob: Blob | null = null;
+  newImagePreviewUrl: string | null = null;
+  newImageSizeKB: number | null = null;
+  newImageError: string | null = null;
+  newImageStatus: 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error' = 'idle';
+
+  get newImageStatusText(): string | null {
+    switch (this.newImageStatus) {
+      case 'processing': return 'Processando imagem…';
+      case 'ready': return 'Nova imagem selecionada';
+      case 'uploading': return 'Enviando imagem…';
+      case 'done': return 'Upload concluído';
+      default: return null;
+    }
+  }
+
   ngOnInit(): void {
     this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.revokeImagePreview();
+  }
+
+  async onNewImageSelected(file: File): Promise<void> {
+    this.resetNewImage();
+    const validationError = this.imageProcessing.validate(file);
+    if (validationError) {
+      this.newImageError = validationError;
+      this.newImageStatus = 'error';
+      return;
+    }
+    try {
+      this.newImageStatus = 'processing';
+      const processed = await this.imageProcessing.process(file);
+      this.newImageBlob = processed.blob;
+      this.newImagePreviewUrl = processed.previewUrl;
+      this.newImageSizeKB = processed.sizeKB;
+      this.newImageStatus = 'ready';
+    } catch {
+      this.newImageError = 'Falha ao processar imagem. Tente novamente.';
+      this.newImageStatus = 'error';
+    }
+  }
+
+  removeNewImage(): void {
+    this.resetNewImage();
+  }
+
+  private resetNewImage(): void {
+    this.revokeImagePreview();
+    this.newImageBlob = null;
+    this.newImagePreviewUrl = null;
+    this.newImageSizeKB = null;
+    this.newImageError = null;
+    this.newImageStatus = 'idle';
+  }
+
+  private revokeImagePreview(): void {
+    if (this.newImagePreviewUrl) {
+      URL.revokeObjectURL(this.newImagePreviewUrl);
+    }
   }
 
   load(): void {
@@ -146,6 +212,7 @@ export class ModerationPromotionsComponent implements OnInit {
     this.selectedPromo = null;
     this.showRejectInput = false;
     this.rejectReason = '';
+    this.resetNewImage();
   }
 
   getOfferLink(promo: Promotion): string {
@@ -153,12 +220,31 @@ export class ModerationPromotionsComponent implements OnInit {
   }
 
   // Actions
-  saveEdits(): void {
+  async saveEdits(): Promise<void> {
     if (!this.selectedPromo) return;
     this.actionInProgress = this.selectedPromo.id;
     this.error = '';
     this.successMessage = '';
+
+    let imageKey: string | undefined;
+    if (this.newImageBlob && this.newImageStatus === 'ready') {
+      try {
+        this.newImageStatus = 'uploading';
+        const result = await this.uploadService.uploadPromotionImage(this.newImageBlob);
+        imageKey = result.imageKey;
+        this.newImageStatus = 'done';
+      } catch {
+        this.newImageStatus = 'error';
+        this.newImageError = 'Não foi possível enviar a nova imagem.';
+        this.actionInProgress = null;
+        this.error = 'Não foi possível enviar a nova imagem.';
+        return;
+      }
+    }
+
     const req = this.buildEditRequest();
+    if (imageKey) req.imageKey = imageKey;
+
     this.moderationService.decide(this.selectedPromo.id, req).pipe(
       finalize(() => (this.actionInProgress = null)),
     ).subscribe({
@@ -166,19 +252,36 @@ export class ModerationPromotionsComponent implements OnInit {
         this.updateInList(updated);
         this.selectedPromo = updated;
         this.openValidation(updated);
+        this.resetNewImage();
         this.successMessage = 'Ajustes salvos com sucesso.';
       },
       error: () => (this.error = 'Erro ao salvar ajustes.'),
     });
   }
 
-  publish(): void {
+  async publish(): Promise<void> {
     if (!this.selectedPromo) return;
     this.actionInProgress = this.selectedPromo.id;
     this.error = '';
     this.successMessage = '';
 
-    const hasEdits = this.hasFormChanges();
+    let imageKey: string | undefined;
+    if (this.newImageBlob && this.newImageStatus === 'ready') {
+      try {
+        this.newImageStatus = 'uploading';
+        const result = await this.uploadService.uploadPromotionImage(this.newImageBlob);
+        imageKey = result.imageKey;
+        this.newImageStatus = 'done';
+      } catch {
+        this.newImageStatus = 'error';
+        this.newImageError = 'Não foi possível enviar a nova imagem.';
+        this.actionInProgress = null;
+        this.error = 'Não foi possível enviar a nova imagem.';
+        return;
+      }
+    }
+
+    const hasEdits = this.hasFormChanges() || !!imageKey;
     const promoId = this.selectedPromo.id;
 
     const doApprove = () => {
@@ -191,6 +294,7 @@ export class ModerationPromotionsComponent implements OnInit {
         next: () => {
           this.removeFromList(promoId);
           this.selectedPromo = null;
+          this.resetNewImage();
           this.successMessage = 'Promoção publicada com sucesso!';
         },
         error: () => (this.error = 'Erro ao publicar promoção.'),
@@ -198,7 +302,9 @@ export class ModerationPromotionsComponent implements OnInit {
     };
 
     if (hasEdits) {
-      this.moderationService.decide(promoId, this.buildEditRequest()).subscribe({
+      const req = this.buildEditRequest();
+      if (imageKey) req.imageKey = imageKey;
+      this.moderationService.decide(promoId, req).subscribe({
         next: () => doApprove(),
         error: () => {
           this.actionInProgress = null;
