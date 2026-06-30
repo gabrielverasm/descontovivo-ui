@@ -1,2 +1,10 @@
 User-agent: *
-Disallow: /
+Allow: /
+
+Disallow: /admin/
+Disallow: /moderacao/
+Disallow: /login
+Disallow: /cadastro
+Disallow: /erro
+
+Sitemap: https://descontovivo.com/sitemap.xml

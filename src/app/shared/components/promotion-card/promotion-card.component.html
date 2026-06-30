@@ -52,7 +52,7 @@
               class="promotion-card__offer-link"
               [href]="externalOfferUrl"
               target="_blank"
-              rel="nofollow noopener noreferrer"
+              rel="nofollow sponsored noopener noreferrer"
               (click)="$event.stopPropagation()"
               >{{ externalOfferLabel }}</a
             >
@@ -68,9 +68,6 @@
 
       <p class="promotion-card__comment-preview">
         <span class="promotion-card__comment-count">{{ commentsLabelShort }}</span>
-        @if (actualCommentsCount > 0) {
-          <span class="promotion-card__comment-extra">: {{ latestCommentPreview }}</span>
-        }
       </p>
     </div>
   </div>

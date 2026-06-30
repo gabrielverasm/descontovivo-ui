@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { Meta } from '@angular/platform-browser';
 import { ImageProcessingService } from '../../core/services/image-processing.service';
 import { PromotionCreateRequest, PromotionService } from '../../core/services/promotion.service';
+import { SeoService } from '../../core/services/seo.service';
 import { UploadResult, UploadService } from '../../core/services/upload.service';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
@@ -19,6 +20,7 @@ type ImageStatus = 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'err
 })
 export class PublishPromotionComponent implements OnDestroy {
   private readonly meta = inject(Meta);
+  private readonly seo = inject(SeoService);
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
   private readonly promotionService = inject(PromotionService);
@@ -63,6 +65,7 @@ export class PublishPromotionComponent implements OnDestroy {
   }
 
   constructor() {
+    this.seo.setIndexFollow();
     this.meta.updateTag({ name: 'description', content: 'Compartilhe uma promoção com a comunidade do DescontoVivo para análise antes da publicação.' });
   }
 

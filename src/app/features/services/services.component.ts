@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-services',
@@ -13,8 +14,10 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 export class ServicesComponent {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly seo = inject(SeoService);
 
   constructor() {
+    this.seo.setIndexFollow();
     this.title.setTitle('Serviços | DescontoVivo');
     this.meta.updateTag({
       name: 'description',

@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { AdminImportService } from '../../../core/services/admin-import.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { AdminImportItem, AdminImportRequest, AdminImportResponse } from '../../../core/models/admin-import.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
@@ -80,6 +81,10 @@ const VALID_MARKETPLACES = [
 })
 export class ImportPromotionsComponent {
   private readonly importService = inject(AdminImportService);
+
+  constructor() {
+    inject(SeoService).setNoIndex();
+  }
 
   jsonText = '';
   parseError = '';

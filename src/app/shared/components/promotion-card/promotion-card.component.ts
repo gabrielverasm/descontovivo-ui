@@ -1,7 +1,6 @@
-import { Component, Input, OnChanges, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
-import { CommentService } from '../../../core/services/comment.service';
 import { Promotion } from '../../../core/models/promotion.model';
 import { PromotionContextComponent } from './promotion-context.component';
 import { PromotionImageComponent } from '../promotion-image/promotion-image.component';
@@ -23,21 +22,12 @@ import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.componen
   templateUrl: './promotion-card.component.html',
   styleUrl: './promotion-card.component.scss',
 })
-export class PromotionCardComponent implements OnChanges {
+export class PromotionCardComponent {
   private readonly router = inject(Router);
-  private readonly commentService = inject(CommentService);
   @Input({ required: true }) promotion!: Promotion;
 
-  latestCommentPreview = 'ainda não há comentários';
-  actualCommentsCount = 0;
-
-  ngOnChanges() {
-    this.commentService.getLatestCommentByPromotionId(this.promotion.id).subscribe((c) => {
-      this.latestCommentPreview = c?.content || 'ainda não há comentários';
-    });
-    this.commentService.getCommentCountByPromotionId(this.promotion.id).subscribe((n) => {
-      this.actualCommentsCount = n;
-    });
+  get actualCommentsCount(): number {
+    return this.promotion.commentsCount ?? 0;
   }
 
   get commentsLabel(): string {

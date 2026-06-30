@@ -1,27 +1,26 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { Comment } from '../models/comment.model';
-import { COMMENTS_MOCK, getLatestPromotionComment, getPromotionCommentCount, getRootPromotionComments } from '../mocks/comments.mock';
 
 @Injectable({ providedIn: 'root' })
 export class CommentService {
-  getRootCommentsByPromotionId(promotionId: string): Observable<Comment[]> {
-    return of([...getRootPromotionComments(promotionId)]);
+  getRootCommentsByPromotionId(_promotionId: string): Observable<Comment[]> {
+    return of([]);
   }
 
-  getCommentCountByPromotionId(promotionId: string): Observable<number> {
-    return of(getPromotionCommentCount(promotionId));
+  getCommentCountByPromotionId(_promotionId: string): Observable<number> {
+    return of(0);
   }
 
   getAllComments(): Observable<Comment[]> {
-    return of([...COMMENTS_MOCK]);
+    return of([]);
   }
 
-  getRepliesByParentCommentId(parentCommentId: string): Observable<Comment[]> {
-    return of(COMMENTS_MOCK.filter((c) => c.parentCommentId === parentCommentId));
+  getRepliesByParentCommentId(_parentCommentId: string): Observable<Comment[]> {
+    return of([]);
   }
 
-  getLatestCommentByPromotionId(promotionId: string): Observable<Comment | undefined> {
-    return of(getLatestPromotionComment(promotionId));
+  getLatestCommentByPromotionId(_promotionId: string): Observable<Comment | undefined> {
+    return of(undefined);
   }
 }
