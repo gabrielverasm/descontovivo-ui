@@ -1,7 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin, map, Subscription, switchMap } from 'rxjs';
 
@@ -66,8 +65,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly commentsPageSize = 5;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly meta = inject(Meta);
-  private readonly titleService = inject(Title);
   private readonly promotionService = inject(PromotionService);
   private readonly commentService = inject(CommentService);
   private readonly authService = inject(AuthService);
@@ -503,10 +500,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     const priceStr = currentPrice != null ? ` por R$${currentPrice.toFixed(2).replace('.', ',')}` : '';
     const storeStr = storeName ? ` em ${storeName}` : '';
 
-    this.seo.setIndexable(
-      `${title} | DescontoVivo`,
-      `Veja a promoção ${title}${priceStr}${storeStr} no DescontoVivo.`
-    );
+    this.seo.setIndexable({
+      title: `${title} | DescontoVivo`,
+      description: `Veja a promoção ${title}${priceStr}${storeStr} no DescontoVivo.`,
+      canonicalPath: `/promocoes/${this.promotion.slug || this.promotion.id}`,
+      imageUrl: this.promotion.imageUrl || undefined
+    });
   }
 
   private normalizeDestinationName(destinationName: string) {

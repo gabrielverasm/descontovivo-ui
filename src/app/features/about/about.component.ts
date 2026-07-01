@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { SeoService } from '../../core/services/seo.service';
@@ -12,17 +11,11 @@ import { SeoService } from '../../core/services/seo.service';
   styleUrl: './about.component.scss'
 })
 export class AboutComponent {
-  private readonly title = inject(Title);
-  private readonly meta = inject(Meta);
-  private readonly seo = inject(SeoService);
-
   constructor() {
-    this.seo.setIndexFollow();
-    this.title.setTitle('Sobre o DescontoVivo | Promoções com contexto, comunidade e segurança');
-    this.meta.updateTag({
-      name: 'description',
-      content:
-        'Conheça o DescontoVivo, uma comunidade de promoções com comentários, curadoria, sinais de confiança e informações para ajudar você a comprar melhor e com mais segurança.'
+    inject(SeoService).setIndexable({
+      title: 'Sobre o DescontoVivo | Promoções com contexto, comunidade e segurança',
+      description: 'Conheça o DescontoVivo, uma comunidade de promoções com comentários, curadoria, sinais de confiança e informações para ajudar você a comprar melhor e com mais segurança.',
+      canonicalPath: '/sobre'
     });
   }
 }

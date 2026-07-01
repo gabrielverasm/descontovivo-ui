@@ -1,6 +1,5 @@
 import { Component, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Meta } from '@angular/platform-browser';
 import { ImageProcessingService } from '../../core/services/image-processing.service';
 import { PromotionCreateRequest, PromotionService } from '../../core/services/promotion.service';
 import { SeoService } from '../../core/services/seo.service';
@@ -19,7 +18,6 @@ type ImageStatus = 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'err
   styleUrl: './publish-promotion.component.scss',
 })
 export class PublishPromotionComponent implements OnDestroy {
-  private readonly meta = inject(Meta);
   private readonly seo = inject(SeoService);
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
@@ -65,8 +63,10 @@ export class PublishPromotionComponent implements OnDestroy {
   }
 
   constructor() {
-    this.seo.setIndexFollow();
-    this.meta.updateTag({ name: 'description', content: 'Compartilhe uma promoção com a comunidade do DescontoVivo para análise antes da publicação.' });
+    this.seo.setNonIndexable(
+      'Publicar promoção | DescontoVivo',
+      'Compartilhe uma promoção com a comunidade do DescontoVivo para análise antes da publicação.'
+    );
   }
 
   ngOnDestroy(): void {
