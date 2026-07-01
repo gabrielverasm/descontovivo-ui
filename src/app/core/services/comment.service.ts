@@ -1,26 +1,19 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { Comment } from '../models/comment.model';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { CommentResponse } from '../models/comment.model';
 
 @Injectable({ providedIn: 'root' })
 export class CommentService {
-  getRootCommentsByPromotionId(_promotionId: string): Observable<Comment[]> {
-    return of([]);
+  private readonly http = inject(HttpClient);
+  private readonly base = environment.apiBaseUrl;
+
+  listByPromotion(slug: string): Observable<CommentResponse[]> {
+    return this.http.get<CommentResponse[]>(`${this.base}/promotions/${slug}/comments`);
   }
 
-  getCommentCountByPromotionId(_promotionId: string): Observable<number> {
-    return of(0);
-  }
-
-  getAllComments(): Observable<Comment[]> {
-    return of([]);
-  }
-
-  getRepliesByParentCommentId(_parentCommentId: string): Observable<Comment[]> {
-    return of([]);
-  }
-
-  getLatestCommentByPromotionId(_promotionId: string): Observable<Comment | undefined> {
-    return of(undefined);
+  createComment(slug: string, content: string): Observable<CommentResponse> {
+    return this.http.post<CommentResponse>(`${this.base}/promotions/${slug}/comments`, { content });
   }
 }
