@@ -21,10 +21,11 @@ export class PromotionsComponent implements OnInit {
   error = '';
 
   ngOnInit(): void {
-    this.seo.setIndexable(
-      'Promoções | DescontoVivo',
-      'DescontoVivo reúne promoções compartilhadas pela comunidade, com ofertas revisadas antes de aparecerem no site.'
-    );
+    this.seo.setIndexable({
+      title: 'Promoções | DescontoVivo',
+      description: 'DescontoVivo reúne promoções compartilhadas pela comunidade, com ofertas revisadas antes de aparecerem no site.',
+      canonicalPath: '/'
+    });
     this.promotionService.getPromotions(0, 30).subscribe({
       next: (res) => {
         this.promotions = res.content;

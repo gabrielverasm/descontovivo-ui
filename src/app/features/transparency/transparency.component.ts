@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { SeoService } from '../../core/services/seo.service';
@@ -20,17 +19,11 @@ import { SeoService } from '../../core/services/seo.service';
   styleUrl: './transparency.component.scss',
 })
 export class TransparencyComponent {
-  private readonly title = inject(Title);
-  private readonly meta = inject(Meta);
-  private readonly seo = inject(SeoService);
-
   constructor() {
-    this.seo.setIndexFollow();
-    this.title.setTitle('Transparência | DescontoVivo');
-    this.meta.updateTag({
-      name: 'description',
-      content:
-        'Saiba como o DescontoVivo lida com links, comissões e curadoria de ofertas.',
+    inject(SeoService).setIndexable({
+      title: 'Transparência | DescontoVivo',
+      description: 'Saiba como o DescontoVivo lida com links, comissões e curadoria de ofertas.',
+      canonicalPath: '/transparencia'
     });
   }
 }
