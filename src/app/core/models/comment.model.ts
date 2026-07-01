@@ -10,3 +10,12 @@ export interface Comment {
   likesCount: number;
   dislikesCount?: number;
 }
+
+export interface CommentResponse {
+  id: string;
+  parentId?: string | null;
+  authorName: string;
+  content: string;
+  removed: boolean;
+  createdAt: string;
+}

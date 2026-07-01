@@ -2,9 +2,9 @@ import { DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { forkJoin, map, Subscription, switchMap } from 'rxjs';
+import { map, Subscription, switchMap } from 'rxjs';
 
-import { Comment } from '../../core/models/comment.model';
+import { CommentResponse } from '../../core/models/comment.model';
 import { Promotion } from '../../core/models/promotion.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
@@ -23,14 +23,6 @@ import { PromotionVoteButtonsComponent } from '../../shared/components/promotion
 
 import { FloatingFieldComponent } from '../../shared/components/floating-field/floating-field.component';
 import { RelatedPromotionItemComponent } from '../../shared/components/related-promotion-item/related-promotion-item.component';
-
-interface CommentReply {
-  id: string;
-  commentId: string;
-  authorName: string;
-  content: string;
-  createdAt: string;
-}
 
 @Component({
   selector: 'app-promotion-detail',
@@ -100,54 +92,76 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   get canModerate(): boolean { return this.authService.canModerate(); }
   get isAdmin(): boolean { return this.authService.hasRole('admin'); }
-  private allComments: Comment[] = [];
-  private commentCount = 0;
   promotion?: Promotion;
-  comments: Comment[] = [];
-  readonly replyDrafts: Record<string, string> = {};
-  readonly openReplyForms: Record<string, boolean> = {};
-  readonly localRepliesByComment: Record<string, CommentReply[]> = {};
+  comments: CommentResponse[] = [];
   relatedPage = 0;
   relatedExpanded = false;
   visibleCommentsCount = this.commentsPageSize;
   relatedPromotions: Promotion[] = [];
+  newCommentContent = '';
+  isSubmittingComment = false;
+  commentError = '';
 
   private readonly routeSubscription: Subscription = this.route.paramMap.pipe(
     switchMap((params) => {
       const id = params.get('id') || '';
-      return forkJoin({
-        promotions: this.promotionService.getApprovedPromotions(),
-        comments: this.commentService.getRootCommentsByPromotionId(id),
-        allComments: this.commentService.getAllComments(),
-        commentCount: this.commentService.getCommentCountByPromotionId(id)
-      }).pipe(map((data) => ({ ...data, id })));
+      return this.promotionService.getApprovedPromotions().pipe(
+        map((promotions) => ({ promotions, id }))
+      );
     })
-  ).subscribe(({ promotions, comments, allComments, commentCount, id }) => {
+  ).subscribe(({ promotions, id }) => {
     this.allPromotions = promotions;
-    this.allComments = allComments;
-    this.commentCount = commentCount;
-    this.setPromotion(id, comments);
+    this.setPromotion(id);
+    this.loadComments();
   });
 
   get visibleComments() {
     return this.comments.slice(0, this.visibleCommentsCount);
   }
 
-  get totalCommentsCount() {
-    const localRepliesCount = Object.values(this.localRepliesByComment).reduce(
-      (total, replies) => total + replies.length,
-      0
-    );
+  get canComment(): boolean { return this.authService.canComment(); }
+  get isAuthenticated(): boolean { return this.authService.canComment(); }
 
-    const baseCount = this.commentCount || this.promotion?.commentsCount || 0;
-    return baseCount + localRepliesCount;
+  get totalCommentsCount() {
+    return this.comments.length || this.promotion?.commentsCount || 0;
   }
 
   get shownCommentsCount() {
-    return this.visibleComments.reduce(
-      (total, comment) => total + 1 + this.getCommentReplies(comment).length,
-      0
-    );
+    return Math.min(this.visibleCommentsCount, this.comments.length);
+  }
+
+  loadComments() {
+    const slug = this.promotion?.slug || this.promotion?.id;
+    if (!slug) return;
+    this.commentService.listByPromotion(slug).subscribe({
+      next: (comments) => {
+        this.comments = comments.filter((c) => !c.parentId);
+        this.visibleCommentsCount = this.commentsPageSize;
+      }
+    });
+  }
+
+  submitComment() {
+    const content = this.newCommentContent.trim();
+    if (!content || this.isSubmittingComment) return;
+    const slug = this.promotion?.slug || this.promotion?.id;
+    if (!slug) return;
+    this.isSubmittingComment = true;
+    this.commentError = '';
+    this.commentService.createComment(slug, content).subscribe({
+      next: (created) => {
+        this.newCommentContent = '';
+        this.isSubmittingComment = false;
+        this.comments = [created, ...this.comments];
+        if (this.promotion) {
+          this.promotion = { ...this.promotion, commentsCount: (this.promotion.commentsCount ?? 0) + 1 };
+        }
+      },
+      error: () => {
+        this.isSubmittingComment = false;
+        this.commentError = 'Não foi possível publicar o comentário. Tente novamente.';
+      }
+    });
   }
 
   get hasMoreComments() {
@@ -193,42 +207,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     );
 
     return destinationName ? `Acessar oferta na ${destinationName}` : 'Acessar oferta';
-  }
-
-  getCommentReplies(comment: Comment) {
-    const mockedReplies = this.allComments.filter((reply) => reply.parentCommentId === comment.id).map((reply) => ({
-      id: reply.id,
-      commentId: comment.id,
-      authorName: reply.author.name,
-      content: reply.content,
-      createdAt: reply.createdAt
-    }));
-
-    return [...mockedReplies, ...(this.localRepliesByComment[comment.id] ?? [])];
-  }
-
-  toggleReplyForm(comment: Comment) {
-    this.openReplyForms[comment.id] = !this.openReplyForms[comment.id];
-  }
-
-  addReply(comment: Comment) {
-    const content = this.replyDrafts[comment.id]?.trim();
-
-    if (!content) {
-      return;
-    }
-
-    const nextReply: CommentReply = {
-      id: `reply-${comment.id}-${Date.now()}`,
-      commentId: comment.id,
-      authorName: 'Você',
-      content,
-      createdAt: new Date().toISOString()
-    };
-
-    this.localRepliesByComment[comment.id] = [...(this.localRepliesByComment[comment.id] ?? []), nextReply];
-    this.replyDrafts[comment.id] = '';
-    this.openReplyForms[comment.id] = false;
   }
 
   loadMoreComments() {
@@ -476,11 +454,11 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.routeSubscription.unsubscribe();
   }
 
-  private setPromotion(promotionId: string | null, comments?: Comment[]) {
+  private setPromotion(promotionId: string | null) {
     this.promotion = this.allPromotions.find(
       (promotion) => promotion.id === promotionId || promotion.slug === promotionId,
     );
-    this.comments = comments ?? [];
+    this.comments = [];
     this.relatedPromotions = this.promotion ? this.findRelatedPromotions(this.promotion) : [];
     this.relatedPage = 0;
     this.visibleCommentsCount = this.commentsPageSize;

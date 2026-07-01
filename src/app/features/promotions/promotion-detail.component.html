@@ -214,67 +214,16 @@
             @for (comment of visibleComments; track comment.id) {
               <article class="promotion-detail__comment">
                 <div class="promotion-detail__comment-avatar" aria-hidden="true"
-                  [style.background]="getAvatarColor(comment.author.name)">
-                  @if (comment.author.avatarUrl) {
-                    <img
-                      [src]="comment.author.avatarUrl"
-                      [alt]="comment.author.name"
-                      loading="lazy"
-                    />
-                  } @else {
-                    <span>{{ comment.author.name.charAt(0) }}</span>
-                  }
+                  [style.background]="getAvatarColor(comment.authorName)">
+                  <span>{{ comment.authorName.charAt(0) }}</span>
                 </div>
 
                 <div class="promotion-detail__comment-body">
                   <header>
-                    <strong>{{ comment.author.name }}</strong>
+                    <strong>{{ comment.authorName }}</strong>
                     <span>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
                   </header>
                   <p>{{ comment.content }}</p>
-
-                  <div class="promotion-detail__comment-actions">
-                    <app-promotion-vote-buttons
-                      [likesCount]="comment.likesCount"
-                      [dislikesCount]="comment.dislikesCount"
-                      contextLabel="comentário"
-                    ></app-promotion-vote-buttons>
-
-                    <button type="button" (click)="toggleReplyForm(comment)">
-                      {{ openReplyForms[comment.id] ? 'Cancelar' : 'Responder' }}
-                    </button>
-                  </div>
-
-                  @if (getCommentReplies(comment).length) {
-                    <div class="promotion-detail__replies">
-                      @for (reply of getCommentReplies(comment); track reply.id) {
-                        <article class="promotion-detail__reply">
-                          <header>
-                            <strong>{{ reply.authorName }}</strong>
-                            <span>{{ reply.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-                          </header>
-                          <p>{{ reply.content }}</p>
-                        </article>
-                      }
-                    </div>
-                  }
-
-                  @if (openReplyForms[comment.id]) {
-                    <form
-                      class="promotion-detail__reply-form"
-                      (ngSubmit)="addReply(comment)"
-                    >
-                      <app-floating-field
-                        [textarea]="true"
-                        label="Escreva uma resposta"
-                        [name]="'reply-' + comment.id"
-                        [rows]="3"
-                        ariaLabel="Responder comentário"
-                        [(ngModel)]="replyDrafts[comment.id]"
-                      />
-                      <button type="submit">Enviar resposta</button>
-                    </form>
-                  }
                 </div>
               </article>
             }
@@ -292,6 +241,28 @@
         } @else {
           <p class="promotion-detail__comments-empty">
             Ainda não há comentários para esta promoção.
+          </p>
+        }
+
+        @if (isAuthenticated) {
+          <form class="promotion-detail__comment-form" (ngSubmit)="submitComment()">
+            <app-floating-field
+              [textarea]="true"
+              label="Escreva um comentário"
+              name="new-comment"
+              [rows]="3"
+              [(ngModel)]="newCommentContent"
+            />
+            @if (commentError) {
+              <p class="promotion-detail__comment-error">{{ commentError }}</p>
+            }
+            <button type="submit" [disabled]="isSubmittingComment || !newCommentContent.trim()">
+              {{ isSubmittingComment ? 'Publicando…' : 'Comentar' }}
+            </button>
+          </form>
+        } @else {
+          <p class="promotion-detail__comments-login">
+            <a routerLink="/login">Entre na sua conta</a> para comentar nesta promoção.
           </p>
         }
       </section>
