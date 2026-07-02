@@ -23,6 +23,7 @@ import { PromotionDetailCommentsComponent } from './components/promotion-detail-
 import { PromotionDetailRelatedComponent } from './components/promotion-detail-related/promotion-detail-related.component';
 import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
 import { resolveStoreName } from '../../shared/utils/store-name.util';
+import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../shared/utils/seller.util';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -156,6 +157,14 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   get externalOfferUrl() {
     return this.promotion?.url || this.promotion?.offerUrl || this.promotion?.storeUrl || '';
+  }
+
+  get isAmazonFulfillment(): boolean {
+    return isSoldAndDeliveredByAmazon(this.promotion?.soldBy, this.promotion?.deliveredBy);
+  }
+
+  get amazonTrustLabel(): string {
+    return getAmazonTrustLabel();
   }
 
   get externalOfferLabel() {

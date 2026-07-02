@@ -6,6 +6,19 @@
       <section>
         <h1>{{ promotion.title }}</h1>
 
+        @if (isAmazonFulfillment) {
+          <a
+            class="promotion-detail__amazon-badge"
+            routerLink="/servicos"
+            fragment="amazon-prime"
+            aria-label="Entender Amazon Prime"
+            title="Entender Amazon Prime"
+          >
+            <span class="promotion-detail__amazon-icon" aria-hidden="true"></span>
+            <span>{{ amazonTrustLabel }}</span>
+          </a>
+        }
+
         <div class="promotion-detail__signals">
           <app-promotion-trust-signals
             [promotion]="promotion"

@@ -84,20 +84,6 @@ a:focus-visible,
   height: 1.4rem;
 }
 
-.promotion-context__icon--amazon {
-  width: 1.2rem;
-  height: 1.2rem;
-  background-color: var(--promotion-amazon-shield-color, #0779ff);
-  mask-image: url('/brand/shield-prime.svg');
-  mask-size: contain;
-  mask-repeat: no-repeat;
-  mask-position: center;
-  -webkit-mask-image: url('/brand/shield-prime.svg');
-  -webkit-mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-}
-
 @media (max-width: 760px) {
   .promotion-context {
     grid-template-columns: repeat(3, minmax(6.5rem, 1fr));
