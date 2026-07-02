@@ -1,0 +1,84 @@
+.create-promo {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0cc;
+  border-radius: 12px;
+  background: #f8fafc;
+  margin-bottom: 1rem;
+}
+
+.create-promo__title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #172033;
+}
+
+.create-promo__form {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.create-promo__row--half {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.create-promo__image {
+  padding: 0.4rem 0;
+}
+
+.create-promo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.3rem;
+}
+
+.create-promo__btn {
+  min-height: 2.25rem;
+  border: 1px solid #1720332e;
+  border-radius: 999px;
+  background: #fff;
+  color: #172033;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  padding: 0 0.9rem;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.create-promo__btn--submit {
+  border-color: transparent;
+  background: #172033;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: #2563eb;
+  }
+}
+
+.create-promo__btn--cancel:hover:not(:disabled) {
+  border-color: transparent;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+}
+
+.create-promo__error {
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .create-promo__row--half {
+    grid-template-columns: 1fr;
+  }
+}

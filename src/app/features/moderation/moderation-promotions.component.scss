@@ -2,6 +2,7 @@
 .mod__header { display: grid; gap: 0.25rem; }
 .mod__title { margin: 0; font-size: 1.4rem; font-weight: 800; color: #1e293b; }
 .mod__desc { margin: 0; color: #526070; font-size: 0.88rem; }
+.mod__btn--create { justify-self: start; margin-top: 0.4rem; }
 .mod__status { margin: 0; font-size: 0.85rem; color: #526070; padding: 0.5rem 0.75rem; border-radius: 6px; }
 .mod__status--loading { color: #2563eb; font-weight: 600; }
 .mod__status--error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; font-weight: 600; }
