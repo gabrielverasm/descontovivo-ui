@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FloatingFieldComponent } from '../../../../shared/components/floating-field/floating-field.component';
 import { PromotionImageUploadComponent } from '../../../../shared/components/promotion-image-upload/promotion-image-upload.component';
+import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../../shared/utils/money-input.util';
 
 @Component({
   selector: 'app-promotion-detail-admin',
@@ -17,7 +18,7 @@ export class PromotionDetailAdminComponent {
   @Input() isAdminSaving = false;
   @Input() adminMessage = '';
   @Input() adminError = '';
-  @Input() editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeSlug: '' };
+  @Input() editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '' };
   @Input() adminImagePreviewUrl: string | null = null;
   @Input() adminImageSizeKB: number | null = null;
   @Input() adminImageStatusText: string | null = null;
@@ -31,4 +32,9 @@ export class PromotionDetailAdminComponent {
   @Output() executeRemove = new EventEmitter<void>();
   @Output() imageSelected = new EventEmitter<File>();
   @Output() removeImage = new EventEmitter<void>();
+
+  onPriceInput(field: 'currentPrice' | 'originalPrice', value: string): void {
+    const digits = onlyDigits(value);
+    this.editForm[field] = formatCentsToBRL(digits);
+  }
 }

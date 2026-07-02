@@ -130,11 +130,14 @@ export class PromotionCardComponent {
       '',
     );
 
-    return destinationName ? `Ir para ${destinationName}` : 'Ir para loja';
+    return destinationName ? `Ir para ${destinationName}` : 'Ir para oferta';
   }
 
   private normalizeDestinationName(destinationName: string) {
-    return destinationName.toLowerCase() === 'amazon.com.br' ? 'Amazon' : destinationName;
+    const lower = destinationName.toLowerCase();
+    if (lower === 'loja não identificada' || lower === 'loja-nao-identificada') return '';
+    if (lower === 'amazon.com.br') return 'Amazon';
+    return destinationName;
   }
 
   get detailId(): string {

@@ -4,6 +4,8 @@ import { Promotion } from '../../../../core/models/promotion.model';
 import { ModerationDecisionRequest } from '../../../../core/services/moderation.service';
 import { PromotionImageComponent } from '../../../../shared/components/promotion-image/promotion-image.component';
 import { PromotionImageUploadComponent } from '../../../../shared/components/promotion-image-upload/promotion-image-upload.component';
+import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../../shared/utils/money-input.util';
+import { resolveStoreName } from '../../../../shared/utils/store-name.util';
 
 interface FieldDiag {
   label: string;
@@ -43,17 +45,53 @@ export class ModerationPromotionPanelComponent {
   @Output() copySoldByToDeliveredBy = new EventEmitter<void>();
   @Output() rejectReasonChange = new EventEmitter<string>();
 
+  currentPriceDisplay = '';
+  originalPriceDisplay = '';
+  private currentPriceDigits = '';
+  private originalPriceDigits = '';
+
+  @Input()
+  set priceValues(val: { currentPrice?: number; originalPrice?: number }) {
+    if (val.currentPrice != null) {
+      this.currentPriceDigits = Math.round(val.currentPrice * 100).toString();
+      this.currentPriceDisplay = formatCentsToBRL(this.currentPriceDigits);
+    } else {
+      this.currentPriceDigits = '';
+      this.currentPriceDisplay = '';
+    }
+    if (val.originalPrice != null) {
+      this.originalPriceDigits = Math.round(val.originalPrice * 100).toString();
+      this.originalPriceDisplay = formatCentsToBRL(this.originalPriceDigits);
+    } else {
+      this.originalPriceDigits = '';
+      this.originalPriceDisplay = '';
+    }
+  }
+
+  onCurrentPriceInput(event: Event): void {
+    const raw = (event.target as HTMLInputElement).value;
+    this.currentPriceDigits = onlyDigits(raw);
+    this.currentPriceDisplay = formatCentsToBRL(this.currentPriceDigits);
+    this.editForm.currentPrice = parseBRLInputToNumber(this.currentPriceDisplay) ?? undefined;
+  }
+
+  onOriginalPriceInput(event: Event): void {
+    const raw = (event.target as HTMLInputElement).value;
+    this.originalPriceDigits = onlyDigits(raw);
+    this.originalPriceDisplay = formatCentsToBRL(this.originalPriceDigits);
+    this.editForm.originalPrice = parseBRLInputToNumber(this.originalPriceDisplay) ?? undefined;
+  }
+
   get isActionDisabled(): boolean {
     return this.actionInProgress === this.promotion.id;
   }
 
   getCurrentStoreName(): string {
-    const name = this.promotion.store?.name || this.promotion.storeName || '';
-    return name === 'loja-nao-identificada' ? '' : name;
+    return resolveStoreName(this.promotion.store?.name || this.promotion.storeName);
   }
 
   hasValidStoreName(): boolean {
-    return !!this.getCurrentStoreName();
+    return !!(this.editForm.storeName?.trim() || this.getCurrentStoreName());
   }
 
   getOfferLink(): string {
