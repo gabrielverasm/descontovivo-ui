@@ -47,9 +47,8 @@
 
 .public-layout__brand img {
   width: auto;
-  max-width: 210px;
-  max-height: 70px;
-  height: auto;
+  max-width: 180px;
+  height: 36px;
   object-fit: contain;
 }
 
@@ -64,17 +63,19 @@
 .public-layout__menu {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.28rem;
+  gap: 0.2rem;
+  align-items: center;
   justify-content: flex-end;
 }
 
 .public-layout__nav a,
 .public-layout__menu a {
-  border-radius: var(--dv-radius-sm);
+  border-radius: 999px;
   color: #334155;
-  font-weight: 750;
+  font-size: 0.82rem;
+  font-weight: 700;
   line-height: 1;
-  padding: 0.64rem 0.78rem;
+  padding: 0.5rem 0.85rem;
   text-decoration: none;
   transition:
     background var(--dv-transition),
@@ -83,7 +84,7 @@
 
 .public-layout__nav a:hover,
 .public-layout__menu a:hover {
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(37, 99, 235, 0.07);
   color: #2563eb;
 }
 
@@ -91,7 +92,6 @@
 .public-layout__menu a.is-active {
   background: rgba(37, 99, 235, 0.08);
   color: #2563eb;
-  box-shadow: inset 0 -2px 0 #2563eb;
 }
 
 .public-layout__menu-button {
@@ -251,25 +251,55 @@
 }
 
 .public-layout__user-toggle {
-  border: 0;
-  border-radius: var(--dv-radius-sm, 6px);
-  background: rgba(37, 99, 235, 0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid rgba(23, 32, 51, 0.12);
+  border-radius: 999px;
+  background: #fff;
   color: #334155;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  padding: 0.48rem 0.7rem;
+  padding: 0.32rem 0.7rem 0.32rem 0.32rem;
   cursor: pointer;
   line-height: 1;
-  max-width: 160px;
+  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .public-layout__user-toggle:hover {
-  background: rgba(37, 99, 235, 0.12);
-  color: #2563eb;
+  background: rgba(37, 99, 235, 0.05);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+.public-layout__user-toggle:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
+}
+
+.public-layout__user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.public-layout__user-chevron {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  line-height: 1;
+  margin-left: -0.1rem;
 }
 
 .public-layout__user-dropdown {
@@ -375,9 +405,8 @@
   }
 
   .public-layout__brand img {
-    content: url('/brand/Logo.svg');
-    max-width: 36px;
-    max-height: 36px;
+    max-width: 140px;
+    height: 30px;
   }
 
   .public-layout__nav {
@@ -392,5 +421,13 @@
     right: 1rem;
     left: auto;
     width: min(16rem, calc(100vw - 2rem));
+  }
+
+  .public-layout__user-name {
+    display: none;
+  }
+
+  .public-layout__user-toggle {
+    padding: 0.28rem;
   }
 }
