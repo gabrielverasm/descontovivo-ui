@@ -7,6 +7,7 @@ import { PromotionImageComponent } from '../promotion-image/promotion-image.comp
 import { PromotionPriceComponent } from '../promotion-price/promotion-price.component';
 import { PromotionTrustSignalsComponent } from './promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.component';
+import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../utils/seller.util';
 
 @Component({
   selector: 'app-promotion-card',
@@ -116,6 +117,14 @@ export class PromotionCardComponent {
     const count = this.actualCommentsCount;
     if (count === 0) return 'Ainda não há comentários';
     return `${count} ${count === 1 ? 'comentário' : 'comentários'}`;
+  }
+
+  get isAmazonFulfillment(): boolean {
+    return isSoldAndDeliveredByAmazon(this.promotion.soldBy, this.promotion.deliveredBy);
+  }
+
+  get amazonTrustLabel(): string {
+    return getAmazonTrustLabel();
   }
 
   get externalOfferUrl(): string {

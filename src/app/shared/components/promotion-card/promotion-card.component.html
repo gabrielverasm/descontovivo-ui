@@ -26,6 +26,20 @@
       </div>
     </div>
 
+    @if (isAmazonFulfillment) {
+      <a
+        class="promotion-card__amazon-badge"
+        routerLink="/servicos"
+        fragment="amazon-prime"
+        aria-label="Entender Amazon Prime"
+        title="Entender Amazon Prime"
+        (click)="$event.stopPropagation()"
+      >
+        <span class="promotion-card__amazon-icon" aria-hidden="true"></span>
+        <span>{{ amazonTrustLabel }}</span>
+      </a>
+    }
+
     <div class="promotion-card__top-row">
       <app-promotion-trust-signals
         [promotion]="promotion"
