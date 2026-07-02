@@ -1,0 +1,291 @@
+.mod-panel {
+  display: grid;
+  gap: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 1rem 1.25rem;
+}
+
+.mod-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mod-panel__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.mod-panel__body {
+  display: grid;
+  gap: 1rem;
+}
+
+.mod-panel__image {
+  max-width: 300px;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.mod-panel__fields {
+  display: grid;
+  gap: 1rem;
+}
+
+.mod-panel__extras,
+.mod-panel__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.mod-panel__link {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #2563eb;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.mod-panel__diag {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mod-panel__diag-title,
+.mod-panel__form-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.mod-panel__diag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.mod-panel__form-col {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.mod-panel__field {
+  display: grid;
+  gap: 0.2rem;
+
+  span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+  }
+
+  input,
+  textarea,
+  select {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.84rem;
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+  }
+
+  input:disabled {
+    background: #f1f5f9;
+    color: #64748b;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+}
+
+.mod-panel__field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.mod-panel__field--readonly .mod-panel__field-value {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #1e293b;
+  padding: 0.35rem 0;
+}
+
+.mod-panel__field-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.mod-panel__field-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+  }
+
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.mod-panel__btn-micro {
+  border: none;
+  background: none;
+  color: #2563eb;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  text-transform: none;
+
+  &:hover {
+    background: #eff6ff;
+  }
+
+  &:disabled {
+    color: #94a3b8;
+    cursor: not-allowed;
+  }
+}
+
+.mod-panel__reject {
+  display: grid;
+  gap: 0.5rem;
+  border-top: 1px solid #fecaca;
+  padding-top: 0.7rem;
+}
+
+.mod-panel__reject-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.mod-panel__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 0.8rem;
+}
+
+.mod-panel__badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.mod-panel__badge--ok {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.mod-panel__badge--warn {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.mod-panel__badge--opt {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.mod-panel__btn {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.mod-panel__btn--primary {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.mod-panel__btn--secondary {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.mod-panel__btn--danger {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
+
+.mod-panel__btn--ghost,
+.mod-panel__btn--ghost-danger {
+  background: transparent;
+  border-color: transparent;
+}
+
+.mod-panel__btn--ghost {
+  color: #64748b;
+}
+
+.mod-panel__btn--ghost-danger {
+  color: #dc2626;
+}
+
+@media (min-width: 768px) {
+  .mod-panel__body {
+    grid-template-columns: auto 1fr;
+  }
+}
+
+@media (min-width: 900px) {
+  .mod-panel__fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .mod-panel__field-row {
+    grid-template-columns: 1fr;
+  }
+}

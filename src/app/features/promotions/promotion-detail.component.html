@@ -67,205 +67,52 @@
         </div>
 
         @if (canModerate) {
-          <div class="promotion-detail__admin">
-            <span class="promotion-detail__admin-title">Ações administrativas</span>
-
-            @if (adminMessage) {
-              <p class="promotion-detail__admin-success">{{ adminMessage }}</p>
-            }
-            @if (adminError) {
-              <p class="promotion-detail__admin-error">{{ adminError }}</p>
-            }
-
-            @if (!isEditMode && !isRemoveConfirm) {
-              <div class="promotion-detail__admin-buttons">
-                <button type="button" (click)="openEditMode()" [disabled]="isAdminSaving">Editar promoção</button>
-                @if (isAdmin) {
-                  <button type="button" class="promotion-detail__admin-remove" (click)="confirmRemove()" [disabled]="isAdminSaving">Remover promoção</button>
-                }
-              </div>
-            }
-
-            @if (isRemoveConfirm) {
-              <div class="promotion-detail__admin-confirm">
-                <p>Tem certeza que deseja remover esta promoção?</p>
-                <div class="promotion-detail__admin-buttons">
-                  <button type="button" class="promotion-detail__admin-remove" (click)="executeRemove()" [disabled]="isAdminSaving">Confirmar remoção</button>
-                  <button type="button" (click)="cancelRemove()" [disabled]="isAdminSaving">Cancelar</button>
-                </div>
-              </div>
-            }
-
-            @if (isEditMode) {
-              <form class="promotion-detail__admin-form" (ngSubmit)="submitEdit()">
-                <app-floating-field label="Título" name="edit-title" [(ngModel)]="editForm.title" />
-                <app-floating-field label="URL da oferta" name="edit-url" [(ngModel)]="editForm.url" />
-                <app-floating-field label="Descrição" name="edit-description" [textarea]="true" [rows]="3" [(ngModel)]="editForm.description" />
-                <app-floating-field label="Preço atual" name="edit-currentPrice" [(ngModel)]="editForm.currentPrice" />
-                <app-floating-field label="Preço original" name="edit-originalPrice" [(ngModel)]="editForm.originalPrice" />
-                <app-floating-field label="Cupom" name="edit-couponCode" [(ngModel)]="editForm.couponCode" />
-                <app-floating-field label="Loja (slug)" name="edit-storeSlug" [(ngModel)]="editForm.storeSlug" />
-
-                <div class="promotion-detail__admin-image">
-                  @if (adminImagePreviewUrl) {
-                    <div class="promotion-detail__admin-image-preview">
-                      <span class="promotion-detail__admin-image-label">Nova imagem selecionada</span>
-                      <img [src]="adminImagePreviewUrl" alt="Prévia da nova imagem" width="150" height="150" />
-                      <button type="button" (click)="removeAdminImage()">Remover imagem selecionada</button>
-                    </div>
-                  } @else {
-                    <p class="promotion-detail__admin-image-label">Imagem atual</p>
-                  }
-                  <app-file-field
-                    label="Trocar imagem"
-                    name="admin-image"
-                    accept="image/jpeg,image/png,image/webp"
-                    hint="JPG, PNG ou WebP. Máx. 5 MB."
-                    [previewUrl]="null"
-                    [sizeKB]="adminImageSizeKB"
-                    [statusText]="adminImageStatusText"
-                    [error]="adminImageError"
-                    (fileSelected)="onAdminImageSelected($event)"
-                  />
-                </div>
-
-                <div class="promotion-detail__admin-buttons">
-                  <button type="submit" [disabled]="isAdminSaving">Salvar alterações</button>
-                  <button type="button" (click)="cancelEdit()" [disabled]="isAdminSaving">Cancelar</button>
-                </div>
-              </form>
-            }
-          </div>
+          <app-promotion-detail-admin
+            [isAdmin]="isAdmin"
+            [isEditMode]="isEditMode"
+            [isRemoveConfirm]="isRemoveConfirm"
+            [isAdminSaving]="isAdminSaving"
+            [adminMessage]="adminMessage"
+            [adminError]="adminError"
+            [editForm]="editForm"
+            [adminImagePreviewUrl]="adminImagePreviewUrl"
+            [adminImageSizeKB]="adminImageSizeKB"
+            [adminImageStatusText]="adminImageStatusText"
+            [adminImageError]="adminImageError"
+            (openEdit)="openEditMode()"
+            (cancelEdit)="cancelEdit()"
+            (submitEdit)="submitEdit()"
+            (confirmRemove)="confirmRemove()"
+            (cancelRemove)="cancelRemove()"
+            (executeRemove)="executeRemove()"
+            (imageSelected)="onAdminImageSelected($event)"
+            (removeImage)="removeAdminImage()"
+          />
         }
       </section>
     </article>
 
     <div class="promotion-detail__below">
-      <section class="promotion-detail__related" [class.is-expanded]="relatedExpanded" aria-labelledby="promotion-related-title">
-        <div class="promotion-detail__related-heading">
-          <div>
-            <h2 id="promotion-related-title">Ofertas parecidas</h2>
-            <p>Outras promoções com categoria, tags ou produto semelhante.</p>
-          </div>
-          <button class="promotion-detail__related-toggle" type="button" (click)="relatedExpanded = !relatedExpanded">
-            {{ relatedExpanded ? 'Recolher' : 'Expandir' }}
-          </button>
-        </div>
+      <app-promotion-detail-related
+        [relatedPromotions]="relatedPromotions"
+        [relatedPage]="relatedPage"
+        [relatedExpanded]="relatedExpanded"
+        (relatedExpandedChange)="relatedExpanded = $event"
+        (pageChange)="relatedPage = $event"
+      />
 
-        @if (visibleRelatedPromotions.length) {
-          <div class="promotion-detail__related-list">
-            @for (relatedPromotion of visibleRelatedPromotions; track relatedPromotion.id) {
-              <app-related-promotion-item
-                [promotion]="relatedPromotion"
-                [publishedAgo]="getPublishedAgo(relatedPromotion.publishedAt || relatedPromotion.createdAt)"
-              />
-            }
-          </div>
-        } @else {
-          <p class="promotion-detail__related-empty">
-            Ainda não encontramos ofertas parecidas para esta promoção.
-          </p>
-        }
-
-        @if (hasRelatedPagination) {
-          <nav class="promotion-detail__related-pages" aria-label="Paginação de ofertas parecidas">
-            <button
-              type="button"
-              (click)="showPreviousRelatedPromotions()"
-              [disabled]="relatedPage === 0"
-              aria-label="Página anterior"
-            >‹</button>
-            @for (item of visibleRelatedPageNumbers; track $index) {
-              @if (item === 'ellipsis') {
-                <span class="promotion-detail__related-ellipsis" aria-hidden="true">…</span>
-              } @else {
-                <button
-                  type="button"
-                  class="promotion-detail__related-page"
-                  [class.is-active]="item === relatedPage + 1"
-                  [disabled]="item === relatedPage + 1"
-                  [attr.aria-current]="item === relatedPage + 1 ? 'page' : null"
-                  [attr.aria-label]="'Página ' + item"
-                  (click)="showRelatedPromotionsPage(item)"
-                >{{ item }}</button>
-              }
-            }
-            <button
-              type="button"
-              (click)="showNextRelatedPromotions()"
-              [disabled]="relatedPage + 1 >= relatedPageCount"
-              aria-label="Próxima página"
-            >›</button>
-          </nav>
-        }
-      </section>
-
-      <section class="promotion-detail__comments" aria-labelledby="promotion-comments-title">
-        <div class="promotion-detail__comments-heading">
-          <div>
-            <p>Comunidade</p>
-            <h2 id="promotion-comments-title">Comentários</h2>
-          </div>
-          <span>{{ shownCommentsCount }} de {{ totalCommentsCount }}</span>
-        </div>
-
-        @if (comments.length) {
-          <div class="promotion-detail__comments-list">
-            @for (comment of visibleComments; track comment.id) {
-              <article class="promotion-detail__comment">
-                <div class="promotion-detail__comment-avatar" aria-hidden="true"
-                  [style.background]="getAvatarColor(comment.authorName)">
-                  <span>{{ comment.authorName.charAt(0) }}</span>
-                </div>
-
-                <div class="promotion-detail__comment-body">
-                  <header>
-                    <strong>{{ comment.authorName }}</strong>
-                    <span>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-                  </header>
-                  <p>{{ comment.content }}</p>
-                </div>
-              </article>
-            }
-
-            @if (hasMoreComments) {
-              <button
-                class="promotion-detail__comments-more"
-                type="button"
-                (click)="loadMoreComments()"
-              >
-                Carregar mais comentários
-              </button>
-            }
-          </div>
-        } @else {
-          <p class="promotion-detail__comments-empty">
-            Ainda não há comentários para esta promoção.
-          </p>
-        }
-
-        @if (isAuthenticated) {
-          <form class="promotion-detail__comment-form" (ngSubmit)="submitComment()">
-            <app-floating-field
-              [textarea]="true"
-              label="Escreva um comentário"
-              name="new-comment"
-              [rows]="3"
-              [(ngModel)]="newCommentContent"
-            />
-            @if (commentError) {
-              <p class="promotion-detail__comment-error">{{ commentError }}</p>
-            }
-            <button type="submit" [disabled]="isSubmittingComment || !newCommentContent.trim()">
-              {{ isSubmittingComment ? 'Publicando…' : 'Comentar' }}
-            </button>
-          </form>
-        } @else {
-          <p class="promotion-detail__comments-login">
-            <a routerLink="/login">Entre na sua conta</a> para comentar nesta promoção.
-          </p>
-        }
-      </section>
+      <app-promotion-detail-comments
+        [comments]="comments"
+        [visibleCommentsCount]="visibleCommentsCount"
+        [totalCommentsCount]="totalCommentsCount"
+        [isAuthenticated]="isAuthenticated"
+        [isSubmittingComment]="isSubmittingComment"
+        [commentError]="commentError"
+        [newCommentContent]="newCommentContent"
+        (newCommentContentChange)="newCommentContent = $event"
+        (submitComment)="submitComment()"
+        (loadMore)="loadMoreComments()"
+      />
     </div>
   } @else {
     <app-empty-state

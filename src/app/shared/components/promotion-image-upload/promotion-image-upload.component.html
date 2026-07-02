@@ -1,0 +1,21 @@
+<div class="promotion-image-upload" [class.promotion-image-upload--disabled]="disabled">
+  @if (previewUrl) {
+    <div class="promotion-image-upload__preview" [class.promotion-image-upload__preview--moderation]="previewSize === 'moderation'">
+      <span class="promotion-image-upload__label">{{ previewLabel }}</span>
+      <img [src]="previewUrl" alt="Prévia da nova imagem" />
+      <button type="button" (click)="onRemove()" [disabled]="disabled">Remover imagem selecionada</button>
+    </div>
+  }
+
+  <app-file-field
+    [label]="label"
+    [name]="name"
+    [accept]="accept"
+    [hint]="hint"
+    [previewUrl]="null"
+    [sizeKB]="sizeKB"
+    [statusText]="statusText"
+    [error]="error"
+    (fileSelected)="onFileSelected($event)"
+  />
+</div>
