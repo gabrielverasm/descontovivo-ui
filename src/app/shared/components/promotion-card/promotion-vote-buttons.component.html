@@ -2,9 +2,11 @@
   class="promotion-vote promotion-vote--like"
   type="button"
   [attr.aria-label]="likeAriaLabel"
-  [class.is-active]="userPriceVote === 'like'"
-  [attr.aria-pressed]="userPriceVote === 'like'"
+  [class.is-active]="userPriceVote === 'LIKE'"
+  [attr.aria-pressed]="userPriceVote === 'LIKE'"
   [attr.title]="likeTitle"
+  [disabled]="voting"
+  [attr.aria-busy]="voting"
   (click)="$event.stopPropagation(); toggleLikePrice()"
 >
   <img src="/brand/like.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
@@ -15,9 +17,11 @@
   class="promotion-vote promotion-vote--dislike"
   type="button"
   [attr.aria-label]="dislikeAriaLabel"
-  [class.is-active]="userPriceVote === 'dislike'"
-  [attr.aria-pressed]="userPriceVote === 'dislike'"
+  [class.is-active]="userPriceVote === 'DISLIKE'"
+  [attr.aria-pressed]="userPriceVote === 'DISLIKE'"
   [attr.title]="dislikeTitle"
+  [disabled]="voting"
+  [attr.aria-busy]="voting"
   (click)="$event.stopPropagation(); toggleDislikePrice()"
 >
   <img src="/brand/dislike.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
