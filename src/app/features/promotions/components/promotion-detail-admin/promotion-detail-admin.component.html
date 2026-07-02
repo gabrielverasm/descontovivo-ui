@@ -35,6 +35,20 @@
       <app-floating-field label="Preço original" name="edit-originalPrice" inputmode="numeric" [(ngModel)]="editForm.originalPrice" (valueChange)="onPriceInput('originalPrice', $event)" />
       <app-floating-field label="Cupom" name="edit-couponCode" [(ngModel)]="editForm.couponCode" />
       <app-floating-field label="Nome da loja" name="edit-storeName" [(ngModel)]="editForm.storeName" />
+      <app-floating-field label="Vendido por" name="edit-soldBy" [(ngModel)]="editForm.soldBy" placeholder="Ex.: Amazon.com.br" />
+      <app-floating-field label="Entregue por" name="edit-deliveredBy" [(ngModel)]="editForm.deliveredBy" placeholder="Ex.: Amazon.com.br" />
+      <app-floating-field label="Categoria" name="edit-category" [(ngModel)]="editForm.category" placeholder="Ex.: Eletrônicos" />
+
+      <label class="detail-admin__field">
+        <span class="detail-admin__field-label">Disponibilidade</span>
+        <select name="edit-availability" [(ngModel)]="editForm.availability">
+          <option value="">Selecione</option>
+          <option value="AVAILABLE">Disponível</option>
+          <option value="EXPIRED">Expirada</option>
+          <option value="UNAVAILABLE">Indisponível</option>
+          <option value="UNKNOWN">Desconhecida</option>
+        </select>
+      </label>
 
       <div class="detail-admin__image">
         @if (!adminImagePreviewUrl) {

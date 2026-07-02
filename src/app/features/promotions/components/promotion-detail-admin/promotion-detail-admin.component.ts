@@ -18,7 +18,7 @@ export class PromotionDetailAdminComponent {
   @Input() isAdminSaving = false;
   @Input() adminMessage = '';
   @Input() adminError = '';
-  @Input() editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '' };
+  @Input() editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '', soldBy: '', deliveredBy: '', category: '', availability: '' };
   @Input() adminImagePreviewUrl: string | null = null;
   @Input() adminImageSizeKB: number | null = null;
   @Input() adminImageStatusText: string | null = null;

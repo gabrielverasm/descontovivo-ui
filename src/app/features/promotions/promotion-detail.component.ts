@@ -71,7 +71,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   isRemoveConfirm = false;
   adminMessage = '';
   adminError = '';
-  editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '' };
+  editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '', soldBy: '', deliveredBy: '', category: '', availability: '' };
 
   // Admin image upload
   adminImageBlob: Blob | null = null;
@@ -214,7 +214,11 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       currentPrice: formatCentsToBRL(numberToCents(this.promotion.currentPrice)),
       originalPrice: this.promotion.originalPrice ? formatCentsToBRL(numberToCents(this.promotion.originalPrice)) : '',
       couponCode: this.promotion.couponCode ?? '',
-      storeName: resolveStoreName(this.promotion.store?.name)
+      storeName: resolveStoreName(this.promotion.store?.name),
+      soldBy: this.promotion.soldBy ?? '',
+      deliveredBy: this.promotion.deliveredBy ?? '',
+      category: this.promotion.category ?? '',
+      availability: this.promotion.availability ?? '',
     };
     this.isEditMode = true;
     this.adminMessage = '';
@@ -277,6 +281,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     if (f.couponCode.trim()) req.couponCode = f.couponCode.trim();
     if (f.storeName.trim()) req.storeName = f.storeName.trim();
     if (imageKey) req.imageKey = imageKey;
+    req.soldBy = f.soldBy.trim() || null;
+    req.deliveredBy = f.deliveredBy.trim() || null;
+    req.category = f.category.trim() || null;
+    if (f.availability.trim()) req.availability = f.availability.trim();
 
     this.moderationService.decide(this.promotion!.id, req).subscribe({
       next: (updated) => {
