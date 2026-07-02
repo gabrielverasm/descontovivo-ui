@@ -4,7 +4,14 @@
       <dt>Vendido e entregue por:</dt>
       <dd>
         {{ deliveryProviderName }}
-        @if (isTrustedFulfillment) {
+        @if (isAmazonFulfillment) {
+          <span
+            class="promotion-context__icon promotion-context__icon--amazon"
+            [attr.aria-label]="amazonTrustLabel"
+            [attr.title]="amazonTrustLabel"
+            tabindex="0"
+          ></span>
+        } @else if (isTrustedFulfillment) {
           <span
             class="promotion-context__icon promotion-context__icon--fulfillment"
             aria-label="Vendido/Entregue por loja reconhecida"
@@ -20,7 +27,7 @@
             />
           </span>
         }
-        @if (!isTrustedFulfillment && isMarketplaceSeller) {
+        @if (!isTrustedFulfillment && !isAmazonFulfillment && isMarketplaceSeller) {
           <span
             class="promotion-context__icon promotion-context__icon--warning"
             aria-label="Atenção ao marketplace"
@@ -33,42 +40,34 @@
       </dd>
     </div>
   } @else {
-    @if (isTrustedFulfillment) {
-      <div class="promotion-context__item promotion-context__item--trusted">
-        <dt>Vendido por:</dt>
-        <dd>
-          {{ promotion.trustedStoreName }}
-          <span
-            class="promotion-context__icon promotion-context__icon--fulfillment"
-            aria-label="Vendido/Entregue por loja reconhecida"
-            [attr.title]="trustedFulfillmentTitle"
-            tabindex="0"
-          >
-            <img
-              src="/brand/trusted-marketplace.svg"
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              decoding="async"
-            />
-          </span>
-        </dd>
-      </div>
-    }
-
-    @if (isTrustedFulfillment) {
-      <div>
-        <dt>Entregue por:</dt>
-        <dd>{{ deliveryProviderName }}</dd>
-      </div>
-    }
-
-    @if (!isTrustedFulfillment && promotion.sellerName) {
+    @if (sellerProviderName) {
       <div>
         <dt>Vendido por:</dt>
         <dd>
-          {{ promotion.sellerName }}
-          @if (isMarketplaceSeller) {
+          {{ sellerProviderName }}
+          @if (isAmazonFulfillment) {
+            <span
+              class="promotion-context__icon promotion-context__icon--amazon"
+              [attr.aria-label]="amazonTrustLabel"
+              [attr.title]="amazonTrustLabel"
+              tabindex="0"
+            ></span>
+          } @else if (isTrustedFulfillment) {
+            <span
+              class="promotion-context__icon promotion-context__icon--fulfillment"
+              aria-label="Vendido/Entregue por loja reconhecida"
+              [attr.title]="trustedFulfillmentTitle"
+              tabindex="0"
+            >
+              <img
+                src="/brand/trusted-marketplace.svg"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+          } @else if (isMarketplaceSeller) {
             <span
               class="promotion-context__icon promotion-context__icon--warning"
               aria-label="Atenção ao marketplace"
@@ -82,7 +81,7 @@
       </div>
     }
 
-    @if (!isTrustedFulfillment && deliveryProviderName) {
+    @if (deliveryProviderName) {
       <div>
         <dt>Entregue por:</dt>
         <dd>{{ deliveryProviderName }}</dd>

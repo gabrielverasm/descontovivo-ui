@@ -2,6 +2,11 @@ import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
+import {
+  isUsefulSellerValue,
+  isSoldAndDeliveredByAmazon,
+  getAmazonTrustLabel,
+} from '../../utils/seller.util';
 
 @Component({
   selector: 'app-promotion-context',
@@ -13,6 +18,33 @@ import { Promotion } from '../../../core/models/promotion.model';
 export class PromotionContextComponent {
   @Input({ required: true }) promotion!: Promotion;
 
+  /** Fonte primária: soldBy > sellerName > trustedStoreName */
+  get sellerProviderName(): string {
+    if (isUsefulSellerValue(this.promotion.soldBy)) return this.promotion.soldBy!.trim();
+    if (isUsefulSellerValue(this.promotion.sellerName)) return this.promotion.sellerName!.trim();
+    if (isUsefulSellerValue(this.promotion.trustedStoreName)) return this.promotion.trustedStoreName!.trim();
+    return '';
+  }
+
+  /** Fonte primária: deliveredBy > deliveryInfo > trustedStoreName */
+  get deliveryProviderName(): string {
+    if (isUsefulSellerValue(this.promotion.deliveredBy)) return this.promotion.deliveredBy!.trim();
+
+    if (isUsefulSellerValue(this.promotion.trustedStoreName)) return this.promotion.trustedStoreName!.trim();
+
+    const deliveryInfo = this.promotion.deliveryInfo?.trim();
+    if (!deliveryInfo || !isUsefulSellerValue(deliveryInfo)) return '';
+
+    const normalizedDelivery = deliveryInfo.toLowerCase();
+    if (normalizedDelivery.includes('amazon')) return 'Amazon';
+    if (normalizedDelivery.includes('magalu')) return 'Magalu';
+    if (normalizedDelivery.includes('mercado livre')) return 'Mercado Livre';
+    if (normalizedDelivery.includes('loja') || normalizedDelivery.includes('marketplace')) {
+      return isUsefulSellerValue(this.promotion.storeName) ? this.promotion.storeName : '';
+    }
+    return deliveryInfo;
+  }
+
   get isTrustedFulfillment() {
     return Boolean(
       this.promotion.isSoldAndDeliveredByTrustedStore && this.promotion.trustedStoreName,
@@ -23,40 +55,13 @@ export class PromotionContextComponent {
     return 'Marketplace grande e reconhecido. Compra mais segura, mas confira as condições antes de finalizar.';
   }
 
-  get deliveryProviderName() {
-    const deliveryInfo = this.promotion.deliveryInfo?.trim();
-
-    if (this.promotion.trustedStoreName) {
-      return this.promotion.trustedStoreName;
-    }
-
-    if (!deliveryInfo) {
-      return '';
-    }
-
-    const normalizedDelivery = deliveryInfo.toLowerCase();
-
-    if (normalizedDelivery.includes('amazon')) {
-      return 'Amazon';
-    }
-
-    if (normalizedDelivery.includes('magalu')) {
-      return 'Magalu';
-    }
-
-    if (normalizedDelivery.includes('mercado livre')) {
-      return 'Mercado Livre';
-    }
-
-    if (normalizedDelivery.includes('loja') || normalizedDelivery.includes('marketplace')) {
-      return this.promotion.storeName;
-    }
-
-    return deliveryInfo;
+  /** Quando soldBy e deliveredBy indicam Amazon */
+  get isAmazonFulfillment(): boolean {
+    return isSoldAndDeliveredByAmazon(this.promotion.soldBy, this.promotion.deliveredBy);
   }
 
-  get sellerProviderName() {
-    return this.promotion.sellerName?.trim() || this.promotion.trustedStoreName?.trim() || '';
+  get amazonTrustLabel(): string {
+    return getAmazonTrustLabel();
   }
 
   get isSameSellerAndDelivery() {
