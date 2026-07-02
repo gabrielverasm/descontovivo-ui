@@ -13,5 +13,27 @@
         <app-promotion-card [promotion]="promo" />
       }
     </div>
+
+    @if (hasMore || loadMoreError) {
+      <div class="promotions-feed__load-more">
+        @if (loadMoreError) {
+          <p class="promotions-feed__load-more-error" role="alert">{{ loadMoreError }}</p>
+        }
+        @if (hasMore) {
+          <button
+            type="button"
+            class="promotions-feed__load-more-btn"
+            [disabled]="loadingMore"
+            (click)="loadMore()"
+          >
+            @if (loadingMore) {
+              Carregando…
+            } @else {
+              Carregar mais promoções
+            }
+          </button>
+        }
+      </div>
+    }
   }
 </main>

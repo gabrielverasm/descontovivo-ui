@@ -8,6 +8,7 @@ import { PromotionPriceComponent } from '../promotion-price/promotion-price.comp
 import { PromotionTrustSignalsComponent } from './promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.component';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../utils/seller.util';
+import { sharePromotion } from '../../utils/share-promotion.util';
 
 @Component({
   selector: 'app-promotion-card',
@@ -155,6 +156,11 @@ export class PromotionCardComponent {
 
   openDetails() {
     void this.router.navigate(['/promocoes', this.detailId]);
+  }
+
+  share(event: Event) {
+    event.stopPropagation();
+    void sharePromotion(this.promotion);
   }
 
   openDetailsFromKeyboard(event: KeyboardEvent) {

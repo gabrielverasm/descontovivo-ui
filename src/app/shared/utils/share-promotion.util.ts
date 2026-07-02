@@ -1,0 +1,104 @@
+/**
+ * Helper para compartilhar promoção via Web Share API ou clipboard fallback.
+ */
+
+export interface SharePromotionData {
+  title: string;
+  currentPrice: number;
+  slug?: string;
+  id: string;
+  imageUrl?: string | null;
+}
+
+function buildShareUrl(promotion: SharePromotionData): string {
+  const path = `/promocoes/${promotion.slug || promotion.id}`;
+  return `${window.location.origin}${path}`;
+}
+
+function buildShareText(promotion: SharePromotionData): string {
+  const price = promotion.currentPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  return `Olha essa promoção no DescontoVivo: ${promotion.title} por ${price}`;
+}
+
+function buildClipboardText(promotion: SharePromotionData, url: string): string {
+  return `${buildShareText(promotion)}\n${url}`;
+}
+
+function getImageExtension(mimeType: string): string {
+  if (mimeType.includes('png')) return '.png';
+  if (mimeType.includes('webp')) return '.webp';
+  if (mimeType.includes('gif')) return '.gif';
+  return '.jpg';
+}
+
+function getImageFileName(promotion: SharePromotionData, blob: Blob): string {
+  const slug = promotion.slug || promotion.id;
+  const ext = getImageExtension(blob.type);
+  return `descontovivo-promocao-${slug}${ext}`;
+}
+
+async function buildImageFile(imageUrl: string, promotion: SharePromotionData): Promise<File | null> {
+  try {
+    const resolvedUrl = new URL(imageUrl, window.location.origin).toString();
+    const response = await fetch(resolvedUrl);
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    if (!blob.type.startsWith('image/')) return null;
+    const fileName = getImageFileName(promotion, blob);
+    return new File([blob], fileName, { type: blob.type });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Compartilha a promoção. Retorna true se conseguiu compartilhar/copiar.
+ * Tenta incluir imagem quando o navegador suportar.
+ */
+export async function sharePromotion(promotion: SharePromotionData): Promise<boolean> {
+  const url = buildShareUrl(promotion);
+  const text = buildShareText(promotion);
+
+  if (navigator.share) {
+    // Tentar compartilhar com imagem
+    const imageFile = promotion.imageUrl ? await buildImageFile(promotion.imageUrl, promotion) : null;
+
+    if (imageFile) {
+      const dataWithFile: ShareData = { title: promotion.title, text, url, files: [imageFile] };
+
+      if (navigator.canShare?.(dataWithFile)) {
+        try {
+          await navigator.share(dataWithFile);
+          return true;
+        } catch (e: unknown) {
+          if (e instanceof DOMException && e.name === 'AbortError') return false;
+          // Se falhar com imagem, tenta sem imagem abaixo
+        }
+      }
+    }
+
+    // Compartilhar sem imagem
+    try {
+      await navigator.share({ title: promotion.title, text, url });
+      return true;
+    } catch (e: unknown) {
+      if (e instanceof DOMException && e.name === 'AbortError') return false;
+    }
+  }
+
+  // Clipboard fallback
+  const clipboardText = buildClipboardText(promotion, url);
+
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(clipboardText);
+      return true;
+    } catch {
+      // Clipboard falhou
+    }
+  }
+
+  // Último fallback
+  window.prompt('Copie o link da promoção:', url);
+  return false;
+}
