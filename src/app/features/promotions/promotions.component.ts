@@ -60,7 +60,7 @@ export class PromotionsComponent implements OnInit {
         } else {
           this.promotions = [...this.promotions, ...res.content];
         }
-        this.currentPage = res.number;
+        this.currentPage = res.page;
         this.totalPages = res.totalPages;
         this.loading = false;
         this.loadingMore = false;

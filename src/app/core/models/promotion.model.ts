@@ -55,5 +55,5 @@ export interface PagedResponse<T> {
   totalElements: number;
   totalPages: number;
   size: number;
-  number: number;
+  page: number;
 }
