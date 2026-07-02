@@ -73,6 +73,16 @@
             ← Promoções
           </button>
 
+          <button
+            type="button"
+            class="promotion-detail__share-btn"
+            aria-label="Compartilhar promoção"
+            title="Compartilhar promoção"
+            (click)="sharePromotion()"
+          >
+            <span class="promotion-detail__share-icon" aria-hidden="true"></span>
+          </button>
+
           @if (externalOfferUrl) {
             <a
               class="promotion-detail__cta"

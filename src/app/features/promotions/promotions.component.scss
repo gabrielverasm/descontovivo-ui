@@ -26,3 +26,50 @@
   color: #6b7280;
   font-size: 1rem;
 }
+
+.promotions-feed__load-more {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0 0.5rem;
+}
+
+.promotions-feed__load-more-btn {
+  min-height: 2.5rem;
+  border: 1px solid rgba(23, 32, 51, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  color: #172033;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  font-size: 0.88rem;
+  padding: 0 1.4rem;
+  transition:
+    background var(--dv-transition),
+    border-color var(--dv-transition),
+    color var(--dv-transition);
+}
+
+.promotions-feed__load-more-btn:hover {
+  border-color: transparent;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+}
+
+.promotions-feed__load-more-btn:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
+}
+
+.promotions-feed__load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.promotions-feed__load-more-error {
+  color: #dc2626;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+}

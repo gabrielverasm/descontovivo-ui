@@ -24,6 +24,7 @@ import { PromotionDetailRelatedComponent } from './components/promotion-detail-r
 import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
 import { resolveStoreName } from '../../shared/utils/store-name.util';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../shared/utils/seller.util';
+import { sharePromotion } from '../../shared/utils/share-promotion.util';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -204,6 +205,11 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     void this.router.navigate(['/promocoes'], {
       queryParams: this.promotion ? { highlight: this.promotion.id } : undefined,
     });
+  }
+
+  sharePromotion() {
+    if (!this.promotion) return;
+    void sharePromotion(this.promotion);
   }
 
   openEditMode() {

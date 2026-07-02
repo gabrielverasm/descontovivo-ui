@@ -68,6 +68,15 @@
         </div>
 
         <div class="promotion-card__actions" aria-label="Ações da promoção">
+          <button
+            type="button"
+            class="promotion-card__share-btn"
+            aria-label="Compartilhar promoção"
+            title="Compartilhar promoção"
+            (click)="share($event)"
+          >
+            <span class="promotion-card__share-icon" aria-hidden="true"></span>
+          </button>
           @if (externalOfferUrl) {
             <a
               class="promotion-card__offer-link"
