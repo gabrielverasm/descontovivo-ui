@@ -26,11 +26,11 @@
         <app-floating-field
           label="Preço *"
           name="currentPrice"
-          type="number"
-          [min]="0"
+          type="text"
+          inputmode="numeric"
           [required]="true"
           [(ngModel)]="currentPrice"
-          (ngModelChange)="clearSubmitFeedback()"
+          (ngModelChange)="onPriceInput($event)"
         />
 
         <app-file-field

@@ -19,6 +19,7 @@ export class FloatingFieldComponent implements ControlValueAccessor {
   @Input() label = '';
   @Input() name = '';
   @Input() type = 'text';
+  @Input() inputmode: string | null = null;
   @Input() autocomplete = 'off';
   @Input() required = false;
   @Input() min: string | number | null = null;

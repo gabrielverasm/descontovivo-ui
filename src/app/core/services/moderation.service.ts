@@ -18,6 +18,7 @@ export interface ModerationDecisionRequest {
   imageKey?: string | null;
   availability?: string;
   storeSlug?: string;
+  storeName?: string;
   soldBy?: string | null;
   deliveredBy?: string | null;
   category?: string | null;

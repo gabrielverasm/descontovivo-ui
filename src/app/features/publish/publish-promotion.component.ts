@@ -7,6 +7,7 @@ import { UploadResult, UploadService } from '../../core/services/upload.service'
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
 import { FloatingFieldComponent } from '../../shared/components/floating-field/floating-field.component';
+import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
 
 type ImageStatus = 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error';
 
@@ -26,6 +27,7 @@ export class PublishPromotionComponent implements OnDestroy {
   title = '';
   url = '';
   currentPrice = '';
+  private currentPriceDigits = '';
 
   processedImageBlob: Blob | null = null;
   imagePreviewUrl: string | null = null;
@@ -51,7 +53,7 @@ export class PublishPromotionComponent implements OnDestroy {
 
   get submitDisabled(): boolean {
     if (this.submitting) return true;
-    if (!this.title.trim() || !this.url.trim() || !this.currentPrice) return true;
+    if (!this.title.trim() || !this.url.trim() || !this.currentPriceDigits) return true;
     if (this.imageStatus !== 'ready' && this.imageStatus !== 'done') return true;
     return false;
   }
@@ -73,11 +75,17 @@ export class PublishPromotionComponent implements OnDestroy {
     this.revokePreview();
   }
 
+  onPriceInput(value: string): void {
+    this.clearSubmitFeedback();
+    this.currentPriceDigits = onlyDigits(value);
+    this.currentPrice = formatCentsToBRL(this.currentPriceDigits);
+  }
+
   async onSubmit(): Promise<void> {
     if (this.submitDisabled) return;
 
-    const price = parseFloat(this.currentPrice);
-    if (isNaN(price) || price <= 0) {
+    const price = parseBRLInputToNumber(this.currentPrice);
+    if (!price || price <= 0) {
       this.submitError = 'Preço inválido.';
       return;
     }
@@ -173,6 +181,7 @@ export class PublishPromotionComponent implements OnDestroy {
     this.title = '';
     this.url = '';
     this.currentPrice = '';
+    this.currentPriceDigits = '';
     this.resetImage();
   }
 

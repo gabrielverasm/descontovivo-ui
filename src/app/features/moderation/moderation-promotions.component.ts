@@ -9,6 +9,7 @@ import { SeoService } from '../../core/services/seo.service';
 import { UploadService } from '../../core/services/upload.service';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
 import { ModerationPromotionPanelComponent } from './components/moderation-promotion-panel/moderation-promotion-panel.component';
+import { resolveStoreName } from '../../shared/utils/store-name.util';
 
 @Component({
   selector: 'app-moderation-promotions',
@@ -147,6 +148,7 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
       currentPrice: promo.currentPrice,
       originalPrice: promo.originalPrice,
       couponCode: promo.couponCode || '',
+      storeName: this.getCurrentStoreName() || '',
       soldBy: promo.soldBy || '',
       deliveredBy: promo.deliveredBy || '',
       category: promo.category || '',
@@ -160,17 +162,16 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
 
   getCurrentStoreName(): string {
     if (!this.selectedPromo) return '';
-    const name = this.selectedPromo.store?.name || this.selectedPromo.storeName || '';
-    return name === 'loja-nao-identificada' ? '' : name;
+    return resolveStoreName(this.selectedPromo.store?.name || this.selectedPromo.storeName);
   }
 
   useStoreForSoldBy(): void {
-    const store = this.getCurrentStoreName();
+    const store = this.editForm.storeName?.trim() || this.getCurrentStoreName();
     if (store) this.editForm.soldBy = store;
   }
 
   useStoreForDeliveredBy(): void {
-    const store = this.getCurrentStoreName();
+    const store = this.editForm.storeName?.trim() || this.getCurrentStoreName();
     if (store) this.editForm.deliveredBy = store;
   }
 
@@ -342,6 +343,7 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     if (f.currentPrice != null) req.currentPrice = f.currentPrice;
     if (f.originalPrice != null && !isNaN(Number(f.originalPrice))) req.originalPrice = Number(f.originalPrice);
     if (f.couponCode?.trim()) req.couponCode = f.couponCode.trim();
+    if (f.storeName?.trim()) req.storeName = f.storeName.trim();
     req.soldBy = f.soldBy?.trim() ?? '';
     req.deliveredBy = f.deliveredBy?.trim() ?? '';
     req.category = f.category?.trim() ?? '';

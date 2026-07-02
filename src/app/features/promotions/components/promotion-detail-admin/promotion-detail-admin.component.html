@@ -31,10 +31,10 @@
     <form class="detail-admin__form" (ngSubmit)="submitEdit.emit()">
       <app-floating-field label="Título" name="edit-title" [(ngModel)]="editForm.title" />
       <app-floating-field label="URL da oferta" name="edit-url" [(ngModel)]="editForm.url" />
-      <app-floating-field label="Preço atual" name="edit-currentPrice" [(ngModel)]="editForm.currentPrice" />
-      <app-floating-field label="Preço original" name="edit-originalPrice" [(ngModel)]="editForm.originalPrice" />
+      <app-floating-field label="Preço atual" name="edit-currentPrice" inputmode="numeric" [(ngModel)]="editForm.currentPrice" (valueChange)="onPriceInput('currentPrice', $event)" />
+      <app-floating-field label="Preço original" name="edit-originalPrice" inputmode="numeric" [(ngModel)]="editForm.originalPrice" (valueChange)="onPriceInput('originalPrice', $event)" />
       <app-floating-field label="Cupom" name="edit-couponCode" [(ngModel)]="editForm.couponCode" />
-      <app-floating-field label="Loja (slug)" name="edit-storeSlug" [(ngModel)]="editForm.storeSlug" />
+      <app-floating-field label="Nome da loja" name="edit-storeName" [(ngModel)]="editForm.storeName" />
 
       <div class="detail-admin__image">
         @if (!adminImagePreviewUrl) {

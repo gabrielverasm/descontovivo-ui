@@ -21,6 +21,8 @@ import { PromotionVoteButtonsComponent } from '../../shared/components/promotion
 import { PromotionDetailAdminComponent } from './components/promotion-detail-admin/promotion-detail-admin.component';
 import { PromotionDetailCommentsComponent } from './components/promotion-detail-comments/promotion-detail-comments.component';
 import { PromotionDetailRelatedComponent } from './components/promotion-detail-related/promotion-detail-related.component';
+import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
+import { resolveStoreName } from '../../shared/utils/store-name.util';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -68,7 +70,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   isRemoveConfirm = false;
   adminMessage = '';
   adminError = '';
-  editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeSlug: '' };
+  editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '' };
 
   // Admin image upload
   adminImageBlob: Blob | null = null;
@@ -200,10 +202,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.editForm = {
       title: this.promotion.title,
       url: this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '',
-      currentPrice: this.promotion.currentPrice?.toString() ?? '',
-      originalPrice: this.promotion.originalPrice?.toString() ?? '',
+      currentPrice: formatCentsToBRL(numberToCents(this.promotion.currentPrice)),
+      originalPrice: this.promotion.originalPrice ? formatCentsToBRL(numberToCents(this.promotion.originalPrice)) : '',
       couponCode: this.promotion.couponCode ?? '',
-      storeSlug: this.promotion.store?.slug ?? ''
+      storeName: resolveStoreName(this.promotion.store?.name)
     };
     this.isEditMode = true;
     this.adminMessage = '';
@@ -223,8 +225,8 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       this.adminError = 'Título, URL e preço atual são obrigatórios.';
       return;
     }
-    const price = parseFloat(f.currentPrice);
-    if (isNaN(price) || price <= 0) {
+    const price = parseBRLInputToNumber(f.currentPrice);
+    if (!price || price <= 0) {
       this.adminError = 'Preço atual inválido.';
       return;
     }
@@ -261,10 +263,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       url: f.url.trim(),
       currentPrice: price
     };
-    const origPrice = parseFloat(f.originalPrice);
-    if (!isNaN(origPrice) && origPrice > 0) req.originalPrice = origPrice;
+    const origPrice = parseBRLInputToNumber(f.originalPrice);
+    if (origPrice && origPrice > 0) req.originalPrice = origPrice;
     if (f.couponCode.trim()) req.couponCode = f.couponCode.trim();
-    if (f.storeSlug.trim()) req.storeSlug = f.storeSlug.trim();
+    if (f.storeName.trim()) req.storeName = f.storeName.trim();
     if (imageKey) req.imageKey = imageKey;
 
     this.moderationService.decide(this.promotion!.id, req).subscribe({
@@ -415,7 +417,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   private normalizeDestinationName(destinationName: string) {
-    return destinationName.toLowerCase() === 'amazon.com.br' ? 'Amazon' : destinationName;
+    const lower = destinationName.toLowerCase();
+    if (lower === 'loja não identificada' || lower === 'loja-nao-identificada') return '';
+    if (lower === 'amazon.com.br') return 'Amazon';
+    return destinationName;
   }
 
   private findRelatedPromotions(currentPromotion: Promotion) {

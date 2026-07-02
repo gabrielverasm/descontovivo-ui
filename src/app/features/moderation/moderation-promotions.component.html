@@ -25,6 +25,7 @@
     <app-moderation-promotion-panel
       [promotion]="selectedPromo"
       [editForm]="editForm"
+      [priceValues]="{ currentPrice: editForm.currentPrice, originalPrice: editForm.originalPrice }"
       [actionInProgress]="actionInProgress"
       [newImagePreviewUrl]="newImagePreviewUrl"
       [newImageSizeKB]="newImageSizeKB"
