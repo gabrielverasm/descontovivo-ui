@@ -36,3 +36,17 @@ span {
   max-width: 156px;
   max-height: 156px;
 }
+
+:host(.promotion-image--moderation-panel) {
+  width: 300px;
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+}
+
+:host(.promotion-image--moderation-panel) img {
+  width: calc(100% - 1rem);
+  height: calc(100% - 1rem);
+  max-width: 280px;
+  max-height: 280px;
+}

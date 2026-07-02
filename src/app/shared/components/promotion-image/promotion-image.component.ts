@@ -2,7 +2,7 @@ import { Component, HostBinding, Input } from '@angular/core';
 
 import { Promotion } from '../../../core/models/promotion.model';
 
-type PromotionImageVariant = 'card' | 'detail';
+type PromotionImageVariant = 'card' | 'detail' | 'moderationPanel';
 
 @Component({
   selector: 'app-promotion-image',
@@ -30,6 +30,11 @@ export class PromotionImageComponent {
   @HostBinding('class.promotion-image--detail')
   get isDetailVariant() {
     return this.variant === 'detail';
+  }
+
+  @HostBinding('class.promotion-image--moderation-panel')
+  get isModerationPanelVariant() {
+    return this.variant === 'moderationPanel';
   }
 
   markImageUnavailable() {

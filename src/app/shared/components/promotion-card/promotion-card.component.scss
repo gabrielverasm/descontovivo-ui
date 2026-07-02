@@ -101,7 +101,6 @@ a {
   text-decoration: none;
 }
 
-
 .promotion-card__top-row {
   display: grid;
   grid-template-columns: minmax(8rem, 0.6fr) minmax(25rem, 1fr);
@@ -173,7 +172,6 @@ a {
 
 .promotion-card__offer-link--primary:hover {
   background: #2563eb;
-  border-color: transparent;
   color: #fff;
 }
 
@@ -257,8 +255,6 @@ a {
 
   .promotion-card__comment-preview {
     font-size: 0.72rem;
-    margin: 0;
-    padding: 0;
     line-height: 1.2;
   }
 

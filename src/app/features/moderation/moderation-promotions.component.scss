@@ -16,24 +16,6 @@
 .mod__panel-image-label { font-size: 0.72rem; font-weight: 700; color: #2563eb; text-transform: uppercase; }
 .mod__panel-image-upload { margin-top: 0.25rem; }
 
-::ng-deep .mod__panel-image app-promotion-image {
-  display: grid;
-  place-items: center;
-  width: 300px;
-  max-width: 100%;
-  max-height: 300px;
-  aspect-ratio: 1;
-  border-radius: 8px;
-  overflow: hidden;
-}
-::ng-deep .mod__panel-image app-promotion-image img {
-  width: calc(100% - 1rem);
-  height: calc(100% - 1rem);
-  max-width: 280px;
-  max-height: 280px;
-  object-fit: contain;
-}
-
 .mod__panel-fields { display: grid; gap: 1rem; }
 .mod__panel-extras, .mod__panel-links { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; }
 .mod__link { font-size: 0.78rem; font-weight: 700; color: #2563eb; text-decoration: none; &:hover { text-decoration: underline; } }
