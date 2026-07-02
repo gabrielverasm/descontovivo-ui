@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { adminGuard } from './core/guards/admin.guard';
+import { authGuard } from './core/guards/auth.guard';
 import { emailVerifiedGuard } from './core/guards/email-verified.guard';
 import { moderatorGuard } from './core/guards/moderator.guard';
 import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
@@ -49,6 +50,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/services/services.component').then((m) => m.ServicesComponent),
         title: 'Serviços | DescontoVivo',
+      },
+      {
+        path: 'minha-conta',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/account/account.component').then((m) => m.AccountComponent),
+        title: 'Minha conta | DescontoVivo',
       },
       {
         path: 'transparencia',

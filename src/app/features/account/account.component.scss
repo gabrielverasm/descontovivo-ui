@@ -1,0 +1,291 @@
+.account-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem 0 3rem;
+}
+
+.account-page__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.account-page__subtitle {
+  margin: 0.35rem 0 1.2rem;
+  color: #526070;
+  font-size: 0.88rem;
+}
+
+.account-page__loading {
+  color: #64748b;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.account-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 1rem;
+}
+
+.account-card__title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.account-card__profile {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.account-card__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.account-card__info {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.account-card__name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 750;
+  color: #172033;
+}
+
+.account-card__email {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #64748b;
+}
+
+.account-card__username {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.account-card__roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.account-card__role {
+  display: inline-block;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.07);
+  color: #2563eb;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.account-card__text {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: #334155;
+}
+
+.account-card__text--secondary {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.account-card__text--hint {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.account-card__text--hint a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.account-card__text--hint a:hover {
+  text-decoration: underline;
+}
+
+.account-card__form {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+
+.account-card__field {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.account-card__field span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.account-card__field select,
+.account-card__field textarea {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  padding: 0.55rem 0.7rem;
+}
+
+.account-card__field select {
+  min-height: 2.25rem;
+  cursor: pointer;
+}
+
+.account-card__field textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+
+.account-card__field select:focus,
+.account-card__field textarea:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 1px;
+}
+
+.account-card__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.account-card__btn {
+  min-height: 2.25rem;
+  border: 1px solid rgba(23, 32, 51, 0.15);
+  border-radius: 999px;
+  background: #172033;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  font-size: 0.84rem;
+  padding: 0 1rem;
+  transition: background var(--dv-transition);
+}
+
+.account-card__btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.account-card__btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.account-card__btn:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
+}
+
+.account-card__btn--danger {
+  background: #fff;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.account-card__btn--danger:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.account-card__success {
+  margin: 0;
+  color: #059669;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.account-card__error {
+  margin: 0;
+  color: #dc2626;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.account-card__requests {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.account-card__request {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.8rem;
+  align-items: center;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.account-card__request-type {
+  font-weight: 700;
+  color: #172033;
+}
+
+.account-card__request-status {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.account-card__request-status--pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: #92400e;
+}
+
+.account-card__request-status--in_review {
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+}
+
+.account-card__request-status--completed {
+  background: rgba(5, 150, 105, 0.08);
+  color: #047857;
+}
+
+.account-card__request-status--rejected {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+}
+
+.account-card__request-date {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.account-card__request-resolved {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-style: italic;
+}

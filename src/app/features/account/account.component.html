@@ -1,0 +1,123 @@
+<main class="account-page">
+  @if (currentUser$ | async; as user) {
+    <h1 class="account-page__title">Minha conta</h1>
+    <p class="account-page__subtitle">Confira os dados usados para identificar sua participação no DescontoVivo.</p>
+
+    <!-- Dados da conta -->
+    <section class="account-card">
+      <h2 class="account-card__title">Dados da conta</h2>
+      <div class="account-card__profile">
+        <span class="account-card__avatar" [attr.aria-label]="'Avatar de ' + getUserDisplayName(user)">
+          {{ getUserInitial(user) }}
+        </span>
+        <div class="account-card__info">
+          <p class="account-card__name">{{ getUserDisplayName(user) }}</p>
+          <p class="account-card__email">{{ user.email || 'E-mail não informado' }}</p>
+          @if (user.username) {
+            <p class="account-card__username">{{ '@' + user.username }}</p>
+          }
+        </div>
+      </div>
+      <div class="account-card__roles">
+        @for (role of getRoles(user); track role) {
+          <span class="account-card__role">{{ role }}</span>
+        }
+      </div>
+    </section>
+
+    <!-- Alterações da conta -->
+    <section class="account-card">
+      <h2 class="account-card__title">Alterações da conta</h2>
+      <p class="account-card__text">
+        Alterações sensíveis como senha e e-mail dependem do provedor de autenticação.
+        Para alterar senha, use a recuperação/alteração disponível na tela de login.
+      </p>
+      <div class="account-card__actions">
+        <button type="button" class="account-card__btn account-card__btn--danger" (click)="logout()">Sair da conta</button>
+      </div>
+    </section>
+
+    <!-- Privacidade e dados -->
+    <section class="account-card">
+      <h2 class="account-card__title">Privacidade e dados</h2>
+      <p class="account-card__text">
+        Você pode solicitar acesso, correção ou exclusão dos seus dados pessoais tratados pelo DescontoVivo.
+        Algumas informações podem precisar ser mantidas por obrigação legal, segurança, prevenção a fraude
+        ou registro de operações permitidas pela legislação.
+      </p>
+      <p class="account-card__text account-card__text--secondary">
+        Quando a exclusão total não for possível, poderemos anonimizar, bloquear ou remover dados que
+        não sejam mais necessários, conforme avaliação do pedido.
+      </p>
+
+      @if (successMessage) {
+        <p class="account-card__success">{{ successMessage }}</p>
+      }
+      @if (errorMessage) {
+        <p class="account-card__error">{{ errorMessage }}</p>
+      }
+
+      <form class="account-card__form" (ngSubmit)="submitRequest()">
+        <label class="account-card__field">
+          <span>Tipo de solicitação</span>
+          <select [(ngModel)]="requestType" name="requestType" required>
+            <option value="">Selecione...</option>
+            @for (opt of requestTypes; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="account-card__field">
+          <span>Detalhes da solicitação</span>
+          <textarea
+            [(ngModel)]="requestDetails"
+            name="requestDetails"
+            placeholder="Explique brevemente o que você precisa."
+            rows="3"
+            maxlength="2000"
+          ></textarea>
+        </label>
+
+        <button type="submit" class="account-card__btn" [disabled]="submitting">
+          @if (submitting) { Enviando… } @else { Enviar solicitação }
+        </button>
+      </form>
+
+      <p class="account-card__text account-card__text--hint">
+        <a routerLink="/transparencia" fragment="dados-pessoais">Saiba mais sobre privacidade e transparência</a>
+      </p>
+    </section>
+
+    <!-- Minhas solicitações recentes -->
+    <section class="account-card">
+      <h2 class="account-card__title">Minhas solicitações recentes</h2>
+      @if (loadingRequests) {
+        <p class="account-card__text account-card__text--secondary">Carregando...</p>
+      } @else if (myRequests.length === 0) {
+        <p class="account-card__text account-card__text--secondary">Você ainda não enviou solicitações de dados.</p>
+      } @else {
+        <div class="account-card__requests">
+          @for (req of myRequests; track req.id) {
+            <div class="account-card__request">
+              <span class="account-card__request-type">{{ translateType(req.type) }}</span>
+              <span
+                class="account-card__request-status"
+                [class.account-card__request-status--pending]="req.status === 'PENDING'"
+                [class.account-card__request-status--in_review]="req.status === 'IN_REVIEW'"
+                [class.account-card__request-status--completed]="req.status === 'COMPLETED'"
+                [class.account-card__request-status--rejected]="req.status === 'REJECTED'"
+              >{{ translateStatus(req.status) }}</span>
+              <span class="account-card__request-date">{{ req.createdAt | date:'dd/MM/yyyy' }}</span>
+              @if (req.resolvedAt) {
+                <span class="account-card__request-resolved">Resolvida em {{ req.resolvedAt | date:'dd/MM/yyyy' }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </section>
+  } @else {
+    <p class="account-page__loading">Carregando dados da conta...</p>
+  }
+</main>

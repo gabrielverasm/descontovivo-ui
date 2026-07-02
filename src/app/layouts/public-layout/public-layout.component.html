@@ -28,6 +28,7 @@
             ><span class="public-layout__user-avatar" aria-hidden="true">{{ getUserInitial(user) }}</span> <span class="public-layout__user-name">{{ getUserDisplayName(user) }}</span><span class="public-layout__user-chevron" aria-hidden="true">▾</span></button>
             @if (isUserMenuOpen) {
               <div class="public-layout__user-dropdown">
+                <a routerLink="/minha-conta" routerLinkActive="is-active" (click)="closeUserMenu()">Minha conta</a>
                 @if (isModerator(user)) {
                   <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" (click)="closeUserMenu()">Moderar promoções</a>
                 }
@@ -75,6 +76,7 @@
         @if (currentUser$ | async; as user) {
           <hr class="public-layout__menu-divider" />
           <span class="public-layout__menu-user">{{ getUserDisplayName(user) }}</span>
+          <a routerLink="/minha-conta" routerLinkActive="is-active" (click)="closeMenu()">Minha conta</a>
           @if (isModerator(user)) {
             <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Moderar promoções</a>
           }
