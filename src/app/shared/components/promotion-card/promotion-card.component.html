@@ -30,8 +30,8 @@
       <div class="promotion-card__trust-badges" aria-label="Sinais de confiança">
         <a
           class="promotion-card__trust-badge promotion-card__trust-badge--prime"
-          routerLink="/servicos"
-          fragment="amazon-prime"
+          routerLink="/transparencia"
+          fragment="selo-prime"
           [attr.aria-label]="amazonTrustLabel + '. Entender Amazon Prime'"
           [attr.title]="amazonTrustLabel + '. Entender Amazon Prime'"
           (click)="$event.stopPropagation()"
@@ -47,12 +47,12 @@
       </div>
     }
 
-    <div class="promotion-card__top-row">
-      <app-promotion-trust-signals
-        [promotion]="promotion"
-        aria-label="Sinais da promoção"
-      ></app-promotion-trust-signals>
+    <app-promotion-trust-signals
+      [promotion]="promotion"
+      aria-label="Sinais da promoção"
+    ></app-promotion-trust-signals>
 
+    <div class="promotion-card__top-row">
       <app-promotion-context [promotion]="promotion"></app-promotion-context>
     </div>
 

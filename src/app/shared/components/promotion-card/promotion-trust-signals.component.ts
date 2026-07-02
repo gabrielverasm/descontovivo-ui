@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
+import { isUsefulSellerValue, isSoldAndDeliveredByAmazon } from '../../utils/seller.util';
 
 @Component({
   selector: 'app-promotion-trust-signals',
@@ -13,70 +14,43 @@ import { Promotion } from '../../../core/models/promotion.model';
 export class PromotionTrustSignalsComponent {
   @Input({ required: true }) promotion!: Promotion;
 
-  get hasDealSignal() {
-    return Boolean(this.promotion.offerBadge && this.promotion.offerBadge !== 'Comum');
+  get isAmazonFulfillment(): boolean {
+    return isSoldAndDeliveredByAmazon(this.promotion.soldBy, this.promotion.deliveredBy);
   }
 
-  get dealSignalLabel() {
-    return this.promotion.offerBadge === 'Muito boa'
-      ? 'Oferta muito boa'
-      : 'Oferta com bom desconto';
+  get isSoldAndDeliveredBySameStore(): boolean {
+    if (this.isAmazonFulfillment) return false;
+    const sold = this.promotion.soldBy?.trim();
+    const delivered = this.promotion.deliveredBy?.trim();
+    if (!isUsefulSellerValue(sold) || !isUsefulSellerValue(delivered)) return false;
+    const normSold = sold!.toLowerCase().replace(/\.com\.br$/i, '');
+    const normDelivered = delivered!.toLowerCase().replace(/\.com\.br$/i, '');
+    return normSold === normDelivered;
   }
 
-  get hasReviewSignal() {
-    return Boolean(this.promotion.trustBadge || this.promotion.isSoldAndDeliveredByTrustedStore);
+  get isMarketplaceSeller(): boolean {
+    if (this.isAmazonFulfillment) return false;
+    if (this.isSoldAndDeliveredBySameStore) return false;
+    const sold = this.promotion.soldBy?.trim();
+    const delivered = this.promotion.deliveredBy?.trim();
+    return isUsefulSellerValue(sold) && isUsefulSellerValue(delivered);
   }
 
-  get reviewSignalTitle() {
-    return (
-      this.promotion.trustTooltip ||
-      'Oferta revisada. Passou por uma checagem básica antes de aparecer no feed.'
-    );
+  get hasCoupon(): boolean {
+    return Boolean(this.promotion.couponCode?.trim());
   }
 
-  get reviewSignalLabel() {
-    return this.isTrustedMarketplaceSignal ? 'Marketplace grande reconhecido' : 'Oferta revisada';
+  get soldAndDeliveredTitle(): string {
+    return 'A mesma loja aparece como vendedora e responsável pela entrega.';
   }
 
-  get isTrustedMarketplaceSignal() {
-    return Boolean(this.promotion.isSoldAndDeliveredByTrustedStore && this.promotion.trustedStoreName);
+  get marketplaceTitle(): string {
+    return 'A oferta pode envolver vendedor terceiro ou marketplace. Confira os dados na loja antes de comprar.';
   }
 
-  get warningBadgeDescription() {
-    const warningBadge = this.promotion.warningBadge?.toLowerCase() || '';
-
-    if (warningBadge.includes('frete')) {
-      return 'Confira o valor do frete antes de comprar. Em algumas regiões, o frete pode reduzir a vantagem da oferta.';
-    }
-
-    if (warningBadge.includes('vendedor')) {
-      return (
-        this.promotion.sellerWarning ||
-        'Vendedor de marketplace: pode não ser uma loja grande reconhecida. Confira reputação, prazo, frete e política de troca antes de comprar.'
-      );
-    }
-
-    if (warningBadge.includes('marketplace')) {
-      return (
-        this.promotion.sellerWarning ||
-        'Vendedor de marketplace: pode não ser uma loja grande reconhecida. Confira reputação, prazo, frete e política de troca antes de comprar.'
-      );
-    }
-
-    return this.promotion.warningBadge || 'Sinal de atenção para esta oferta.';
-  }
-
-  get isShippingWarning() {
-    return this.promotion.warningBadge?.toLowerCase().includes('frete') || false;
-  }
-
-  get isMarketplaceWarning() {
-    return this.promotion.warningBadge?.toLowerCase().includes('marketplace') || false;
-  }
-
-  get couponBadgeDescription() {
+  get couponTitle(): string {
     return this.promotion.couponCode
       ? `Use o cupom ${this.promotion.couponCode} antes de finalizar a compra.`
-      : 'Cupom disponível para esta oferta.';
+      : 'Esta promoção pode ter cupom informado.';
   }
 }

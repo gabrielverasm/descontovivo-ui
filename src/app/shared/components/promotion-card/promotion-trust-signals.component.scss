@@ -5,71 +5,57 @@
   align-items: center;
 }
 
-.promotion-signal {
-  position: relative;
-  display: inline-grid;
-  place-items: center;
-  flex: 0 0 auto;
+.promotion-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1.1;
+  padding: 0.24rem 0.56rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--dv-transition), border-color var(--dv-transition);
 }
 
-.promotion-signal:focus-visible,
-.promotion-badge:focus-visible,
-a:focus-visible {
+.promotion-badge:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.28);
   outline-offset: 3px;
 }
 
-.promotion-signal img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.promotion-badge--prime {
+  background: transparent;
+  border-color: transparent;
+  color: #1d4ed8;
+  font-weight: 800;
 }
 
-.promotion-signal--deal {
-  color: #ff2323;
-  width: 1.6rem;
-  height: 1.4rem;
+.promotion-badge--prime:hover {
+  background: rgba(37, 99, 235, 0.06);
+  color: #2563eb;
 }
 
-.promotion-signal--shipping {
-  color: #f59e0b;
-  width: 1.9rem;
-  height: 1.42rem;
+.promotion-badge--trust {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.15);
+  color: #047857;
 }
 
-.promotion-signal--review {
-  width: 1.2rem;
-  height: 1.4rem;
+.promotion-badge--trust:hover {
+  background: rgba(5, 150, 105, 0.1);
+  border-color: rgba(5, 150, 105, 0.25);
 }
 
-.promotion-signal--trusted-marketplace {
-  width: 1.42rem;
-  height: 1.42rem;
-  border-radius: 999px;
-  background: #2563eb;
-  color: #fff;
-  padding: 0.2rem;
-}
-
-.promotion-signal--warning {
-  width: 1.4rem;
-  height: 1.4rem;
-}
-
-.promotion-badge {
-  border: 1px solid transparent;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 850;
-  line-height: 1.1;
-  padding: 0.24rem 0.56rem;
-}
-
-.promotion-badge--warning {
-  background: rgba(245, 158, 11, 0.14);
-  border-color: rgba(245, 158, 11, 0.2);
+.promotion-badge--marketplace {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.18);
   color: #92400e;
+}
+
+.promotion-badge--marketplace:hover {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.28);
 }
 
 .promotion-badge--coupon {
@@ -78,19 +64,6 @@ a:focus-visible {
   color: #1d4ed8;
 }
 
-.promotion-badge--prime {
-  display: inline-flex;
-  align-items: center;
-  border-color: transparent;
-  background: transparent;
-  color: #1d4ed8;
-  font-size: 0.7rem;
-  font-weight: 800;
-  line-height: 1;
-  padding: 0.04rem 0.12rem;
-  text-decoration: none;
-}
-
-.promotion-badge--prime:hover {
-  color: #2563eb;
+.promotion-badge--coupon:hover {
+  background: rgba(37, 99, 235, 0.06);
 }
