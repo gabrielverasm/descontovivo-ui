@@ -1,6 +1,5 @@
 import { DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, Subscription, switchMap } from 'rxjs';
 
@@ -14,15 +13,14 @@ import { ModerationDecisionRequest, ModerationService } from '../../core/service
 import { PromotionService } from '../../core/services/promotion.service';
 import { UploadService } from '../../core/services/upload.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
 import { PromotionPriceComponent } from '../../shared/components/promotion-price/promotion-price.component';
 import { PromotionTrustSignalsComponent } from '../../shared/components/promotion-card/promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from '../../shared/components/promotion-card/promotion-vote-buttons.component';
-
-import { FloatingFieldComponent } from '../../shared/components/floating-field/floating-field.component';
-import { RelatedPromotionItemComponent } from '../../shared/components/related-promotion-item/related-promotion-item.component';
+import { PromotionDetailAdminComponent } from './components/promotion-detail-admin/promotion-detail-admin.component';
+import { PromotionDetailCommentsComponent } from './components/promotion-detail-comments/promotion-detail-comments.component';
+import { PromotionDetailRelatedComponent } from './components/promotion-detail-related/promotion-detail-related.component';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -30,16 +28,15 @@ import { RelatedPromotionItemComponent } from '../../shared/components/related-p
   imports: [
     DatePipe,
     EmptyStateComponent,
-    FileFieldComponent,
-    FormsModule,
     RouterLink,
     PromotionContextComponent,
     PromotionImageComponent,
     PromotionPriceComponent,
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent,
-    FloatingFieldComponent,
-    RelatedPromotionItemComponent
+    PromotionDetailAdminComponent,
+    PromotionDetailCommentsComponent,
+    PromotionDetailRelatedComponent,
   ],
   templateUrl: './promotion-detail.component.html',
   styleUrl: './promotion-detail.component.scss'
@@ -115,19 +112,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.loadComments();
   });
 
-  get visibleComments() {
-    return this.comments.slice(0, this.visibleCommentsCount);
-  }
-
-  get canComment(): boolean { return this.authService.canComment(); }
   get isAuthenticated(): boolean { return this.authService.canComment(); }
 
   get totalCommentsCount() {
     return this.comments.length || this.promotion?.commentsCount || 0;
-  }
-
-  get shownCommentsCount() {
-    return Math.min(this.visibleCommentsCount, this.comments.length);
   }
 
   loadComments() {
@@ -164,36 +152,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  get hasMoreComments() {
-    return this.visibleCommentsCount < this.comments.length;
-  }
-
-  get relatedPageCount() {
-    return Math.ceil(this.relatedPromotions.length / this.relatedPageSize);
-  }
-
-  get relatedPages() {
-    return Array.from({ length: this.relatedPageCount }, (_, index) => index + 1);
-  }
-
-  get visibleRelatedPageNumbers(): Array<number | 'ellipsis'> {
-    const total = this.relatedPageCount;
-    const current = this.relatedPage + 1;
-    if (total <= 5) return this.relatedPages;
-    if (current <= 3) return [1, 2, 3, 4, 'ellipsis', total];
-    if (current >= total - 2) return [1, 'ellipsis', total - 3, total - 2, total - 1, total];
-    return [1, 'ellipsis', current - 1, current, current + 1, 'ellipsis', total];
-  }
-
-  get visibleRelatedPromotions() {
-    const start = this.relatedPage * this.relatedPageSize;
-    return this.relatedPromotions.slice(start, start + this.relatedPageSize);
-  }
-
-  get hasRelatedPagination() {
-    return this.relatedPromotions.length > this.relatedPageSize;
-  }
-
   get externalOfferUrl() {
     return this.promotion?.url || this.promotion?.offerUrl || this.promotion?.storeUrl || '';
   }
@@ -216,30 +174,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  showPreviousRelatedPromotions() {
-    this.relatedPage = Math.max(0, this.relatedPage - 1);
-  }
-
-  showNextRelatedPromotions() {
-    this.relatedPage = Math.min(this.relatedPageCount - 1, this.relatedPage + 1);
-  }
-
-  showRelatedPromotionsPage(page: number) {
-    this.relatedPage = page - 1;
-  }
-
-  getPublishedAgo(createdAt: string) {
-    const elapsedMilliseconds = Date.now() - new Date(createdAt).getTime();
-    const elapsedHours = Math.max(1, Math.floor(elapsedMilliseconds / 3600000));
-
-    if (elapsedHours < 24) {
-      return `há ${elapsedHours} ${elapsedHours === 1 ? 'hora' : 'horas'}`;
-    }
-
-    const elapsedDays = Math.floor(elapsedHours / 24);
-    return `há ${elapsedDays} ${elapsedDays === 1 ? 'dia' : 'dias'}`;
-  }
-
   get publisherName(): string {
     return this.promotion?.authorUsername || this.promotion?.createdBy || 'Usuário';
   }
@@ -253,10 +187,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     if (diffMs < mo) { const v = Math.min(4, Math.floor(diffMs / w)); return `há ${v} ${v === 1 ? 'semana' : 'semanas'}`; }
     if (diffMs < y) { const v = Math.min(12, Math.floor(diffMs / mo)); return `há ${v} ${v === 1 ? 'mês' : 'meses'}`; }
     const v = Math.floor(diffMs / y); return `há ${v} ${v === 1 ? 'ano' : 'anos'}`;
-  }
-
-  getAvatarColor(_name: string): string {
-    return 'linear-gradient(135deg, #0ea5e9, #2563eb)';
   }
 
   returnToPromotionsList() {

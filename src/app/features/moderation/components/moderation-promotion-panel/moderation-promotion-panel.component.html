@@ -1,0 +1,173 @@
+<div class="mod-panel">
+  <header class="mod-panel__header">
+    <h2 class="mod-panel__title">Validação</h2>
+    <button type="button" class="mod-panel__btn mod-panel__btn--ghost" (click)="close.emit()">✕ Fechar</button>
+  </header>
+
+  <div class="mod-panel__body">
+    <!-- Image -->
+    <div class="mod-panel__image">
+      @if (newImagePreviewUrl) {
+        <app-promotion-image-upload
+          previewSize="moderation"
+          [previewUrl]="newImagePreviewUrl"
+          [sizeKB]="newImageSizeKB"
+          [statusText]="newImageStatusText"
+          [error]="newImageError"
+          label="Trocar imagem"
+          name="mod-image"
+          (fileSelected)="imageSelected.emit($event)"
+          (removed)="removeImage.emit()"
+        />
+      } @else {
+        <app-promotion-image [promotion]="promotion" variant="moderationPanel" />
+        <app-promotion-image-upload
+          previewSize="moderation"
+          [previewUrl]="null"
+          [sizeKB]="newImageSizeKB"
+          [statusText]="newImageStatusText"
+          [error]="newImageError"
+          label="Trocar imagem"
+          name="mod-image"
+          (fileSelected)="imageSelected.emit($event)"
+          (removed)="removeImage.emit()"
+        />
+      }
+    </div>
+
+    <!-- Form columns -->
+    <div class="mod-panel__fields">
+      <!-- Col 1: Dados principais -->
+      <div class="mod-panel__form-col">
+        <h3 class="mod-panel__form-title">Dados principais</h3>
+
+        <label class="mod-panel__field">
+          <span>Título</span>
+          <input type="text" [(ngModel)]="editForm.title" />
+        </label>
+
+        <label class="mod-panel__field">
+          <span>Descrição</span>
+          <textarea rows="2" [(ngModel)]="editForm.description"></textarea>
+        </label>
+
+        <label class="mod-panel__field">
+          <span>Link da oferta</span>
+          <input type="url" [(ngModel)]="editForm.url" />
+        </label>
+
+        <label class="mod-panel__field">
+          <span>Cupom</span>
+          <input type="text" [(ngModel)]="editForm.couponCode" />
+        </label>
+
+        <div class="mod-panel__field-row">
+          <label class="mod-panel__field">
+            <span>Preço atual</span>
+            <input type="number" step="0.01" [(ngModel)]="editForm.currentPrice" />
+          </label>
+          <label class="mod-panel__field">
+            <span>Preço original</span>
+            <input type="number" step="0.01" [(ngModel)]="editForm.originalPrice" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Col 2: Loja, venda, entrega + ações -->
+      <div class="mod-panel__form-col">
+        <h3 class="mod-panel__form-title">Loja, venda e entrega</h3>
+
+        <div class="mod-panel__field mod-panel__field--readonly">
+          <span>Loja</span>
+          <p class="mod-panel__field-value">{{ getCurrentStoreName() || '—' }}</p>
+        </div>
+
+        <label class="mod-panel__field-check" [class.mod-panel__field-check--disabled]="!hasValidStoreName()">
+          <input type="checkbox" [checked]="soldAndDeliveredByStore" [disabled]="!hasValidStoreName()" (change)="toggleSoldDelivered.emit($any($event.target).checked)" />
+          <span>Vendido e entregue pela loja</span>
+        </label>
+
+        <div class="mod-panel__field">
+          <span class="mod-panel__field-label-row">
+            Vendido por
+            <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForSoldBy.emit()">Usar loja</button>
+          </span>
+          <input type="text" [(ngModel)]="editForm.soldBy" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" />
+        </div>
+
+        <div class="mod-panel__field">
+          <span class="mod-panel__field-label-row">
+            Entregue por
+            <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForDeliveredBy.emit()">Usar loja</button>
+            <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore" (click)="copySoldByToDeliveredBy.emit()">Copiar vendido</button>
+          </span>
+          <input type="text" [(ngModel)]="editForm.deliveredBy" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" />
+        </div>
+
+        <div class="mod-panel__field-row">
+          <label class="mod-panel__field">
+            <span>Categoria</span>
+            <input type="text" [(ngModel)]="editForm.category" placeholder="Ex: Eletrônicos" />
+          </label>
+          <label class="mod-panel__field">
+            <span>Disponibilidade</span>
+            <select [(ngModel)]="editForm.availability">
+              <option value="">Selecione</option>
+              <option value="AVAILABLE">Disponível</option>
+              <option value="EXPIRED">Expirada</option>
+              <option value="UNAVAILABLE">Indisponível</option>
+              <option value="UNKNOWN">Desconhecida</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Links + diagnostics -->
+  <div class="mod-panel__extras">
+    <div class="mod-panel__links">
+      @if (getOfferLink()) {
+        <a class="mod-panel__link" [href]="getOfferLink()" target="_blank" rel="noopener">Abrir oferta original ↗</a>
+      }
+      @if (promotion.imageUrl) {
+        <a class="mod-panel__link" [href]="promotion.imageUrl" target="_blank" rel="noopener">Abrir imagem ↗</a>
+      }
+    </div>
+
+    <div class="mod-panel__diag">
+      <h3 class="mod-panel__diag-title">Diagnóstico</h3>
+      <div class="mod-panel__diag-grid">
+        @for (field of getFieldDiagnostics(); track field.label) {
+          <span class="mod-panel__badge" [class.mod-panel__badge--ok]="field.status === 'ok'" [class.mod-panel__badge--warn]="field.status === 'missing'" [class.mod-panel__badge--opt]="field.status === 'optional'">
+            {{ field.label }}
+          </span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject input -->
+  @if (showRejectInput) {
+    <div class="mod-panel__reject">
+      <label class="mod-panel__field">
+        <span>Motivo da rejeição</span>
+        <input type="text" [ngModel]="rejectReason" (ngModelChange)="onRejectReasonChange($event)" placeholder="Motivo (opcional)" />
+      </label>
+      <div class="mod-panel__reject-actions">
+        <button type="button" class="mod-panel__btn mod-panel__btn--danger" [disabled]="isActionDisabled" (click)="confirmReject.emit()">Confirmar rejeição</button>
+        <button type="button" class="mod-panel__btn mod-panel__btn--ghost" (click)="cancelReject.emit()">Cancelar</button>
+      </div>
+    </div>
+  }
+
+  <!-- Panel actions -->
+  <footer class="mod-panel__footer">
+    <button type="button" class="mod-panel__btn mod-panel__btn--secondary" [disabled]="isActionDisabled" (click)="save.emit()">Salvar ajustes</button>
+    <button type="button" class="mod-panel__btn mod-panel__btn--primary" [disabled]="isActionDisabled" (click)="publish.emit()">Publicar promoção</button>
+    @if (!showRejectInput) {
+      <button type="button" class="mod-panel__btn mod-panel__btn--ghost-danger" [disabled]="isActionDisabled" (click)="startReject.emit()">Rejeitar</button>
+    }
+    <button type="button" class="mod-panel__btn mod-panel__btn--ghost" (click)="close.emit()">Cancelar validação</button>
+  </footer>
+</div>

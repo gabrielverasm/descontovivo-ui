@@ -1,0 +1,58 @@
+<section class="detail-related" [class.is-expanded]="relatedExpanded" aria-labelledby="promotion-related-title">
+  <div class="detail-related__heading">
+    <div>
+      <h2 id="promotion-related-title">Ofertas parecidas</h2>
+      <p>Outras promoções com categoria, tags ou produto semelhante.</p>
+    </div>
+    <button class="detail-related__toggle" type="button" (click)="toggleExpanded()">
+      {{ relatedExpanded ? 'Recolher' : 'Expandir' }}
+    </button>
+  </div>
+
+  @if (visibleRelatedPromotions.length) {
+    <div class="detail-related__list">
+      @for (relatedPromotion of visibleRelatedPromotions; track relatedPromotion.id) {
+        <app-related-promotion-item
+          [promotion]="relatedPromotion"
+          [publishedAgo]="getPublishedAgo(relatedPromotion.publishedAt || relatedPromotion.createdAt)"
+        />
+      }
+    </div>
+  } @else {
+    <p class="detail-related__empty">
+      Ainda não encontramos ofertas parecidas para esta promoção.
+    </p>
+  }
+
+  @if (hasRelatedPagination) {
+    <nav class="detail-related__pages" aria-label="Paginação de ofertas parecidas">
+      <button
+        type="button"
+        (click)="showPrevious()"
+        [disabled]="relatedPage === 0"
+        aria-label="Página anterior"
+      >‹</button>
+      @for (item of visibleRelatedPageNumbers; track $index) {
+        @if (item === 'ellipsis') {
+          <span class="detail-related__ellipsis" aria-hidden="true">…</span>
+        } @else {
+          <button
+            type="button"
+            class="detail-related__page"
+            [class.is-active]="item === relatedPage + 1"
+            [disabled]="item === relatedPage + 1"
+            [attr.aria-current]="item === relatedPage + 1 ? 'page' : null"
+            [attr.aria-label]="'Página ' + item"
+            (click)="showPage(item)"
+          >{{ item }}</button>
+        }
+      }
+      <button
+        type="button"
+        (click)="showNext()"
+        [disabled]="relatedPage + 1 >= relatedPageCount"
+        aria-label="Próxima página"
+      >›</button>
+    </nav>
+  }
+</section>

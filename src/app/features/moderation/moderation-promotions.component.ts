@@ -7,19 +7,13 @@ import { ImageProcessingService } from '../../core/services/image-processing.ser
 import { ModerationService, ModerationDecisionRequest } from '../../core/services/moderation.service';
 import { SeoService } from '../../core/services/seo.service';
 import { UploadService } from '../../core/services/upload.service';
-import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
-
-interface FieldDiag {
-  label: string;
-  status: 'ok' | 'missing' | 'optional';
-}
-
+import { ModerationPromotionPanelComponent } from './components/moderation-promotion-panel/moderation-promotion-panel.component';
 
 @Component({
   selector: 'app-moderation-promotions',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, DatePipe, PromotionImageComponent, FileFieldComponent],
+  imports: [FormsModule, DecimalPipe, DatePipe, PromotionImageComponent, ModerationPromotionPanelComponent],
   templateUrl: './moderation-promotions.component.html',
   styleUrl: './moderation-promotions.component.scss',
 })
@@ -127,30 +121,18 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Field diagnostics
-  getFieldDiagnostics(promo: Promotion): FieldDiag[] {
+  getMissingFields(promo: Promotion): string[] {
     const has = (v: unknown) => v !== undefined && v !== null && String(v).trim() !== '';
     const badStore = !promo.store?.name && (!promo.storeName || promo.storeName === 'loja-nao-identificada');
-    return [
+    const fields: Array<{ label: string; status: string }> = [
       { label: 'Título', status: has(promo.title) ? 'ok' : 'missing' },
       { label: 'Descrição', status: has(promo.description) && promo.description !== promo.title ? 'ok' : 'missing' },
       { label: 'Link da oferta', status: has(promo.url) || has(promo.offerUrl) || has(promo.storeUrl) ? 'ok' : 'missing' },
       { label: 'Preço atual', status: has(promo.currentPrice) ? 'ok' : 'missing' },
-      { label: 'Preço original', status: has(promo.originalPrice) ? 'ok' : 'optional' },
-      { label: 'Cupom', status: has(promo.couponCode) ? 'ok' : 'optional' },
       { label: 'Loja', status: badStore ? 'missing' : 'ok' },
       { label: 'Imagem', status: has(promo.imageUrl) ? 'ok' : 'missing' },
-      { label: 'Vendido por', status: has(promo.soldBy) ? 'ok' : 'optional' },
-      { label: 'Entregue por', status: has(promo.deliveredBy) ? 'ok' : 'optional' },
-      { label: 'Categoria', status: has(promo.category) ? 'ok' : 'optional' },
-      { label: 'Disponibilidade', status: has(promo.availability) ? 'ok' : 'optional' },
     ];
-  }
-
-  getMissingFields(promo: Promotion): string[] {
-    return this.getFieldDiagnostics(promo)
-      .filter((f) => f.status === 'missing')
-      .map((f) => f.label);
+    return fields.filter((f) => f.status === 'missing').map((f) => f.label);
   }
 
   // Validation panel
@@ -182,10 +164,6 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     if (!this.selectedPromo) return '';
     const name = this.selectedPromo.store?.name || this.selectedPromo.storeName || '';
     return name === 'loja-nao-identificada' ? '' : name;
-  }
-
-  hasValidStoreName(): boolean {
-    return !!this.getCurrentStoreName();
   }
 
   useStoreForSoldBy(): void {
@@ -220,9 +198,7 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     this.resetNewImage();
   }
 
-  getOfferLink(promo: Promotion): string {
-    return promo.url || promo.offerUrl || promo.storeUrl || '';
-  }
+
 
   // Actions
   async saveEdits(): Promise<void> {
