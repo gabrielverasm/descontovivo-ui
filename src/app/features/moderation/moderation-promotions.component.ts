@@ -9,12 +9,13 @@ import { SeoService } from '../../core/services/seo.service';
 import { UploadService } from '../../core/services/upload.service';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
 import { ModerationPromotionPanelComponent } from './components/moderation-promotion-panel/moderation-promotion-panel.component';
+import { ModerationCreatePromotionComponent } from './components/moderation-create-promotion/moderation-create-promotion.component';
 import { resolveStoreName } from '../../shared/utils/store-name.util';
 
 @Component({
   selector: 'app-moderation-promotions',
   standalone: true,
-  imports: [FormsModule, DecimalPipe, DatePipe, PromotionImageComponent, ModerationPromotionPanelComponent],
+  imports: [FormsModule, DecimalPipe, DatePipe, PromotionImageComponent, ModerationPromotionPanelComponent, ModerationCreatePromotionComponent],
   templateUrl: './moderation-promotions.component.html',
   styleUrl: './moderation-promotions.component.scss',
 })
@@ -32,6 +33,7 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
   error = '';
   actionInProgress: string | null = null;
   successMessage = '';
+  showCreateForm = false;
 
   // Validation panel
   selectedPromo: Promotion | null = null;
@@ -103,6 +105,20 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     if (this.newImagePreviewUrl) {
       URL.revokeObjectURL(this.newImagePreviewUrl);
     }
+  }
+
+  openCreateForm(): void {
+    this.showCreateForm = true;
+  }
+
+  closeCreateForm(): void {
+    this.showCreateForm = false;
+  }
+
+  onPromotionCreated(): void {
+    this.showCreateForm = false;
+    this.successMessage = 'Promoção adicionada com sucesso. Ela foi publicada diretamente.';
+    this.load();
   }
 
   load(): void {

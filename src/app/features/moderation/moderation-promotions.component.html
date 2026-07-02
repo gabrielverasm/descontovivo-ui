@@ -2,7 +2,17 @@
   <header class="mod__header">
     <h1 class="mod__title">Fila de validação</h1>
     <p class="mod__desc">Promoções pendentes aguardando revisão e aprovação.</p>
+    @if (!showCreateForm) {
+      <button type="button" class="mod__btn mod__btn--primary mod__btn--create" (click)="openCreateForm()">Adicionar promoção</button>
+    }
   </header>
+
+  @if (showCreateForm) {
+    <app-moderation-create-promotion
+      (created)="onPromotionCreated()"
+      (cancel)="closeCreateForm()"
+    />
+  }
 
   @if (loading) {
     <p class="mod__status mod__status--loading">Carregando fila...</p>

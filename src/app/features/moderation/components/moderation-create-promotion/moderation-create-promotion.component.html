@@ -1,0 +1,57 @@
+<div class="create-promo">
+  <h2 class="create-promo__title">Adicionar promoção manual</h2>
+
+  @if (error) {
+    <p class="create-promo__error">{{ error }}</p>
+  }
+
+  <form class="create-promo__form" (ngSubmit)="submit()">
+    <div class="create-promo__row">
+      <app-floating-field label="Link da oferta *" name="create-url" [(ngModel)]="form.url" />
+    </div>
+
+    <div class="create-promo__row">
+      <app-floating-field label="Título da promoção *" name="create-title" [(ngModel)]="form.title" />
+    </div>
+
+    <div class="create-promo__row create-promo__row--half">
+      <app-floating-field label="Preço atual *" name="create-currentPrice" inputmode="numeric" [(ngModel)]="form.currentPrice" (valueChange)="onPriceInput('currentPrice', $event)" />
+      <app-floating-field label="Preço original" name="create-originalPrice" inputmode="numeric" [(ngModel)]="form.originalPrice" (valueChange)="onPriceInput('originalPrice', $event)" />
+    </div>
+
+    <div class="create-promo__row create-promo__row--half">
+      <app-floating-field label="Cupom" name="create-coupon" [(ngModel)]="form.couponCode" />
+      <app-floating-field label="Nome da loja" name="create-storeName" [(ngModel)]="form.storeName" />
+    </div>
+
+    <div class="create-promo__row create-promo__row--half">
+      <app-floating-field label="Vendido por" name="create-soldBy" [(ngModel)]="form.soldBy" placeholder="Ex.: Amazon.com.br" />
+      <app-floating-field label="Entregue por" name="create-deliveredBy" [(ngModel)]="form.deliveredBy" placeholder="Ex.: Amazon.com.br" />
+    </div>
+
+    <div class="create-promo__row">
+      <app-floating-field label="Categoria" name="create-category" [(ngModel)]="form.category" placeholder="Ex.: Eletrônicos" />
+    </div>
+
+    <div class="create-promo__image">
+      <app-promotion-image-upload
+        [previewUrl]="imagePreviewUrl"
+        [sizeKB]="imageSizeKB"
+        [statusText]="imageStatusText"
+        [error]="imageError"
+        label="Imagem do produto *"
+        name="create-image"
+        [disabled]="saving"
+        (fileSelected)="onImageSelected($event)"
+        (removed)="removeImage()"
+      />
+    </div>
+
+    <div class="create-promo__actions">
+      <button type="button" class="create-promo__btn create-promo__btn--cancel" [disabled]="saving" (click)="cancel.emit()">Cancelar</button>
+      <button type="submit" class="create-promo__btn create-promo__btn--submit" [disabled]="saving">
+        @if (saving) { Adicionando… } @else { Adicionar promoção }
+      </button>
+    </div>
+  </form>
+</div>
