@@ -1,12 +1,10 @@
 <dl class="promotion-context" [class.promotion-context--merged]="isSameSellerAndDelivery">
-  @if (isAmazonFulfillment) {
-    <!-- Badge handled by parent card/detail; only show shipping here -->
-  } @else if (isSameSellerAndDelivery) {
+  @if (isSameSellerAndDelivery) {
     <div class="promotion-context__item promotion-context__item--trusted">
       <dt>Vendido e entregue por:</dt>
       <dd>
         {{ deliveryProviderName }}
-        @if (isTrustedFulfillment) {
+        @if (isTrustedFulfillment && !isAmazonFulfillment) {
           <span
             class="promotion-context__icon promotion-context__icon--fulfillment"
             aria-label="Vendido/Entregue por loja reconhecida"
@@ -22,7 +20,7 @@
             />
           </span>
         }
-        @if (!isTrustedFulfillment && isMarketplaceSeller) {
+        @if (!isTrustedFulfillment && !isAmazonFulfillment && isMarketplaceSeller) {
           <span
             class="promotion-context__icon promotion-context__icon--warning"
             aria-label="Atenção ao marketplace"
@@ -40,7 +38,7 @@
         <dt>Vendido por:</dt>
         <dd>
           {{ sellerProviderName }}
-          @if (isTrustedFulfillment) {
+          @if (isTrustedFulfillment && !isAmazonFulfillment) {
             <span
               class="promotion-context__icon promotion-context__icon--fulfillment"
               aria-label="Vendido/Entregue por loja reconhecida"
@@ -55,7 +53,7 @@
                 decoding="async"
               />
             </span>
-          } @else if (isMarketplaceSeller) {
+          } @else if (!isAmazonFulfillment && isMarketplaceSeller) {
             <span
               class="promotion-context__icon promotion-context__icon--warning"
               aria-label="Atenção ao marketplace"

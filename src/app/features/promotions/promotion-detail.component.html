@@ -7,16 +7,23 @@
         <h1>{{ promotion.title }}</h1>
 
         @if (isAmazonFulfillment) {
-          <a
-            class="promotion-detail__amazon-badge"
-            routerLink="/servicos"
-            fragment="amazon-prime"
-            aria-label="Entender Amazon Prime"
-            title="Entender Amazon Prime"
-          >
-            <span class="promotion-detail__amazon-icon" aria-hidden="true"></span>
-            <span>{{ amazonTrustLabel }}</span>
-          </a>
+          <div class="promotion-detail__trust-badges" aria-label="Sinais de confiança">
+            <a
+              class="promotion-detail__trust-badge promotion-detail__trust-badge--prime"
+              routerLink="/servicos"
+              fragment="amazon-prime"
+              [attr.aria-label]="amazonTrustLabel + '. Entender Amazon Prime'"
+              [attr.title]="amazonTrustLabel + '. Entender Amazon Prime'"
+            >
+              <img
+                src="/brand/shield-prime.svg"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+          </div>
         }
 
         <div class="promotion-detail__signals">

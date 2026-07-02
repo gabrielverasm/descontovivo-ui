@@ -110,50 +110,42 @@ a {
   padding-top: 0.48rem;
 }
 
-.promotion-card__amazon-badge {
+.promotion-card__trust-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.promotion-card__trust-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  align-self: start;
-  padding: 0.3rem 0.7rem;
-  border: 1px solid var(--promotion-amazon-badge-border, rgba(7, 121, 255, 0.2));
-  border-radius: 999px;
-  background: var(--promotion-amazon-badge-bg, rgba(7, 121, 255, 0.06));
-  color: var(--promotion-amazon-badge-text, #0c5fbf);
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
-  width: fit-content;
+  justify-content: center;
+  padding: 0.28rem 0.45rem;
+  border: 1px solid var(--promotion-amazon-badge-border, rgba(7, 121, 255, 0.18));
+  border-radius: 0.45rem;
+  background: var(--promotion-amazon-badge-bg, rgba(7, 121, 255, 0.05));
   text-decoration: none;
   cursor: pointer;
   transition: background var(--dv-transition), border-color var(--dv-transition);
 }
 
-.promotion-card__amazon-badge:hover {
-  background: var(--promotion-amazon-badge-bg-hover, rgba(7, 121, 255, 0.12));
-  border-color: var(--promotion-amazon-badge-border-hover, rgba(7, 121, 255, 0.35));
+.promotion-card__trust-badge:hover {
+  background: var(--promotion-amazon-badge-bg-hover, rgba(7, 121, 255, 0.11));
+  border-color: var(--promotion-amazon-badge-border-hover, rgba(7, 121, 255, 0.32));
 }
 
-.promotion-card__amazon-badge:focus-visible {
+.promotion-card__trust-badge:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.28);
   outline-offset: 3px;
 }
 
-.promotion-card__amazon-icon {
-  display: inline-block;
-  flex: 0 0 auto;
-  width: 1.15rem;
-  height: 1.15rem;
-  background-color: var(--promotion-amazon-shield-color, #0779ff);
-  mask-image: url('/brand/shield-prime.svg');
-  mask-size: contain;
-  mask-repeat: no-repeat;
-  mask-position: center;
-  -webkit-mask-image: url('/brand/shield-prime.svg');
-  -webkit-mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
+.promotion-card__trust-badge--prime img {
+  display: block;
+  width: 2.8rem;
+  height: auto;
+  max-height: 1.4rem;
+  object-fit: contain;
 }
 
 .promotion-card__top-row app-promotion-context {
@@ -277,16 +269,9 @@ a {
     display: none;
   }
 
-  .promotion-card__amazon-badge {
-    font-size: 0.68rem;
-    padding: 0.22rem 0.55rem;
-    gap: 0.3rem;
-    white-space: normal;
-  }
-
-  .promotion-card__amazon-icon {
-    width: 0.95rem;
-    height: 0.95rem;
+  .promotion-card__trust-badge--prime img {
+    width: 2.4rem;
+    max-height: 1.2rem;
   }
 
   .promotion-card__publisher {
