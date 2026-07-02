@@ -1,89 +1,38 @@
-@if (hasDealSignal) {
-  <span
-    class="promotion-signal promotion-signal--deal"
-    [attr.aria-label]="dealSignalLabel"
-    [attr.title]="dealSignalLabel"
-    tabindex="0"
-  >
-    <img src="/brand/discount-tag.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-  </span>
-}
-
-@if (hasReviewSignal) {
-  <span
-    class="promotion-signal promotion-signal--review"
-    [class.promotion-signal--trusted-marketplace]="isTrustedMarketplaceSignal"
-    [attr.aria-label]="reviewSignalLabel"
-    [attr.title]="reviewSignalTitle"
-    tabindex="0"
-  >
-    @if (isTrustedMarketplaceSignal) {
-      <img
-        src="/brand/trusted-marketplace.svg"
-        alt=""
-        aria-hidden="true"
-        loading="lazy"
-        decoding="async"
-      />
-    } @else {
-      <img src="/brand/shield.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-    }
-  </span>
-}
-
-@if (promotion.warningBadge && isShippingWarning) {
-  <span
-    class="promotion-signal promotion-signal--shipping"
-    [attr.aria-label]="warningBadgeDescription"
-    [attr.title]="warningBadgeDescription"
-    tabindex="0"
-  >
-    <img src="/brand/orange-truck.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-  </span>
-}
-
-@if (promotion.warningBadge && isMarketplaceWarning) {
-  <span
-    class="promotion-signal promotion-signal--warning"
-    [attr.aria-label]="warningBadgeDescription"
-    [attr.title]="warningBadgeDescription"
-    tabindex="0"
-  >
-    <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-  </span>
-}
-
-@if (promotion.warningBadge && !isShippingWarning && !isMarketplaceWarning) {
-  <span
-    class="promotion-badge promotion-badge--warning"
-    [attr.aria-label]="warningBadgeDescription"
-    [attr.title]="warningBadgeDescription"
-    tabindex="0"
-  >
-    {{ promotion.warningBadge }}
-  </span>
-}
-
-@if (promotion.couponCode) {
-  <span
-    class="promotion-badge promotion-badge--coupon"
-    [attr.aria-label]="couponBadgeDescription"
-    [attr.title]="couponBadgeDescription"
-    tabindex="0"
-  >
-    Cupom: {{ promotion.couponCode }}
-  </span>
-}
-
-@if (promotion.shippingInfo === 'Prime') {
+@if (isSoldAndDeliveredBySameStore) {
   <a
-    class="promotion-badge promotion-badge--prime"
-    routerLink="/servicos"
-    fragment="amazon-prime"
-    aria-label="Entender Amazon Prime"
-    title="Entender Amazon Prime"
+    class="promotion-badge promotion-badge--trust"
+    routerLink="/transparencia"
+    fragment="selo-vendido-entregue"
+    [attr.aria-label]="soldAndDeliveredTitle"
+    [attr.title]="soldAndDeliveredTitle"
     (click)="$event.stopPropagation()"
   >
-    Prime
+    Vendido e entregue
+  </a>
+}
+
+@if (isMarketplaceSeller) {
+  <a
+    class="promotion-badge promotion-badge--marketplace"
+    routerLink="/transparencia"
+    fragment="selo-marketplace"
+    [attr.aria-label]="marketplaceTitle"
+    [attr.title]="marketplaceTitle"
+    (click)="$event.stopPropagation()"
+  >
+    Marketplace
+  </a>
+}
+
+@if (hasCoupon) {
+  <a
+    class="promotion-badge promotion-badge--coupon"
+    routerLink="/transparencia"
+    fragment="selo-cupom"
+    [attr.aria-label]="couponTitle"
+    [attr.title]="couponTitle"
+    (click)="$event.stopPropagation()"
+  >
+    Cupom: {{ promotion.couponCode }}
   </a>
 }
