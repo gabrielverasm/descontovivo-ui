@@ -27,7 +27,6 @@ const EXAMPLE_JSON: AdminImportRequest = {
     {
       sourceId: 'amazon-echo-dot-5-20250627',
       title: 'Echo Dot 5ª geração com Alexa',
-      description: 'Oferta para quem quer começar com casa inteligente.',
       marketplace: 'AMAZON',
       storeName: 'Amazon',
       sellerName: 'Amazon.com.br',
@@ -45,7 +44,6 @@ const EXAMPLE_JSON: AdminImportRequest = {
     {
       sourceId: 'kabum-ssd-kingston-20250627',
       title: 'SSD Kingston A400 480GB SATA',
-      description: 'SSD básico com bom custo-benefício para upgrade.',
       marketplace: 'KABUM',
       storeName: 'KaBuM!',
       sellerName: 'KaBuM!',
@@ -169,7 +167,6 @@ export class ImportPromotionsComponent {
     // Obrigatórios
     if (!item.sourceId?.trim()) errors.push({ sourceId: sid, field: 'sourceId', message: 'Obrigatório', severity: 'error' });
     if (!item.title?.trim()) errors.push({ sourceId: sid, field: 'title', message: 'Obrigatório', severity: 'error' });
-    if (!item.description?.trim()) errors.push({ sourceId: sid, field: 'description', message: 'Obrigatório', severity: 'error' });
     if (!item.productUrl?.trim()) errors.push({ sourceId: sid, field: 'productUrl', message: 'Obrigatório', severity: 'error' });
     else if (!this.isUrl(item.productUrl)) errors.push({ sourceId: sid, field: 'productUrl', message: 'Deve ser URL válida', severity: 'error' });
     if (!item.imageUrl?.trim()) errors.push({ sourceId: sid, field: 'imageUrl', message: 'Obrigatório', severity: 'error' });

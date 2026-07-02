@@ -126,7 +126,6 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     const badStore = !promo.store?.name && (!promo.storeName || promo.storeName === 'loja-nao-identificada');
     const fields: Array<{ label: string; status: string }> = [
       { label: 'Título', status: has(promo.title) ? 'ok' : 'missing' },
-      { label: 'Descrição', status: has(promo.description) && promo.description !== promo.title ? 'ok' : 'missing' },
       { label: 'Link da oferta', status: has(promo.url) || has(promo.offerUrl) || has(promo.storeUrl) ? 'ok' : 'missing' },
       { label: 'Preço atual', status: has(promo.currentPrice) ? 'ok' : 'missing' },
       { label: 'Loja', status: badStore ? 'missing' : 'ok' },
@@ -144,7 +143,6 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     this.error = '';
     this.editForm = {
       title: promo.title,
-      description: promo.description,
       url: promo.url || promo.offerUrl || promo.storeUrl || '',
       currentPrice: promo.currentPrice,
       originalPrice: promo.originalPrice,
@@ -341,7 +339,6 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     };
     if (f.title) req.title = f.title;
     if (f.url) req.url = f.url;
-    if (f.description) req.description = f.description;
     if (f.currentPrice != null) req.currentPrice = f.currentPrice;
     if (f.originalPrice != null && !isNaN(Number(f.originalPrice))) req.originalPrice = Number(f.originalPrice);
     if (f.couponCode?.trim()) req.couponCode = f.couponCode.trim();
@@ -358,7 +355,6 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     const f = this.editForm;
     const norm = (v: unknown) => (v == null || String(v).trim() === '') ? '' : String(v).trim();
     return norm(f.title) !== norm(p.title) ||
-      norm(f.description) !== norm(p.description) ||
       norm(f.url) !== norm(p.url || p.offerUrl || p.storeUrl) ||
       f.currentPrice !== p.currentPrice ||
       norm(f.originalPrice) !== norm(p.originalPrice) ||

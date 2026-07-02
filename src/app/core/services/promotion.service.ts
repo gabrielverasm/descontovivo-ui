@@ -11,7 +11,6 @@ export interface PromotionCreateRequest {
   currentPrice: number;
   imageUrl: string;
   imageKey: string;
-  description?: string;
   originalPrice?: number;
   couponCode?: string;
   storeSlug?: string;

@@ -68,7 +68,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   isRemoveConfirm = false;
   adminMessage = '';
   adminError = '';
-  editForm = { title: '', description: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeSlug: '' };
+  editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeSlug: '' };
 
   // Admin image upload
   adminImageBlob: Blob | null = null;
@@ -199,7 +199,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     if (!this.promotion) return;
     this.editForm = {
       title: this.promotion.title,
-      description: this.promotion.description,
       url: this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '',
       currentPrice: this.promotion.currentPrice?.toString() ?? '',
       originalPrice: this.promotion.originalPrice?.toString() ?? '',
@@ -260,7 +259,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       reason: 'Ajuste administrativo no detalhe da promoção',
       title: f.title.trim(),
       url: f.url.trim(),
-      description: f.description.trim() || undefined,
       currentPrice: price
     };
     const origPrice = parseFloat(f.originalPrice);
@@ -480,7 +478,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       createdAt: p.createdAt || base.createdAt,
       publishedAt: p.publishedAt || base.publishedAt || p.createdAt || base.createdAt,
       imageUrl: p.imageUrl || base.imageUrl || '',
-      description: p.description ?? base.description,
+
       currentPrice: p.currentPrice ?? base.currentPrice,
       originalPrice: p.originalPrice ?? base.originalPrice,
       couponCode: p.couponCode ?? base.couponCode,
