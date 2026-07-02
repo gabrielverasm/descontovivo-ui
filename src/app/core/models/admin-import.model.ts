@@ -1,7 +1,6 @@
 export interface AdminImportItem {
   sourceId: string;
   title: string;
-  description: string;
   marketplace: string;
   storeName: string;
   sellerName?: string | null;

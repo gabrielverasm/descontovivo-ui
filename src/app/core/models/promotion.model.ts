@@ -11,7 +11,6 @@ export interface Promotion {
   id: string;
   slug?: string;
   title: string;
-  description: string;
   currentPrice: number;
   originalPrice?: number;
   discountPercentage?: number;

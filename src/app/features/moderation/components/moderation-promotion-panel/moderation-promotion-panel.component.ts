@@ -66,7 +66,6 @@ export class ModerationPromotionPanelComponent {
     const badStore = !promo.store?.name && (!promo.storeName || promo.storeName === 'loja-nao-identificada');
     return [
       { label: 'Título', status: has(promo.title) ? 'ok' : 'missing' },
-      { label: 'Descrição', status: has(promo.description) && promo.description !== promo.title ? 'ok' : 'missing' },
       { label: 'Link da oferta', status: has(promo.url) || has(promo.offerUrl) || has(promo.storeUrl) ? 'ok' : 'missing' },
       { label: 'Preço atual', status: has(promo.currentPrice) ? 'ok' : 'missing' },
       { label: 'Preço original', status: has(promo.originalPrice) ? 'ok' : 'optional' },

@@ -11,7 +11,6 @@ export interface ModerationDecisionRequest {
   reason: string;
   title?: string;
   url?: string;
-  description?: string;
   currentPrice?: number;
   originalPrice?: number;
   couponCode?: string;
