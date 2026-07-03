@@ -291,6 +291,16 @@
   padding: 0.35rem;
   box-shadow: 0 12px 32px rgba(17, 24, 39, 0.1);
   z-index: 100;
+
+  // Invisible bridge covering the gap between toggle and dropdown
+  &::before {
+    content: '';
+    position: absolute;
+    top: -0.5rem;
+    left: 0;
+    right: 0;
+    height: 0.5rem;
+  }
 }
 
 .public-layout__info-dropdown a {
@@ -390,6 +400,16 @@
   padding: 0.35rem;
   box-shadow: 0 12px 32px rgba(17, 24, 39, 0.1);
   z-index: 100;
+
+  // Invisible bridge covering the gap between toggle and dropdown
+  &::before {
+    content: '';
+    position: absolute;
+    top: -0.55rem;
+    left: 0;
+    right: 0;
+    height: 0.55rem;
+  }
 }
 
 .public-layout__user-dropdown a,

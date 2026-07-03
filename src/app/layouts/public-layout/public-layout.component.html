@@ -14,7 +14,7 @@
           >Promoções</a
         >
         <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
-        <div class="public-layout__info-menu" (mouseenter)="openInfoMenu()" (mouseleave)="closeInfoMenu()">
+        <div class="public-layout__info-menu" (mouseenter)="openInfoMenu()" (mouseleave)="scheduleCloseInfoMenu()">
           <button
             class="public-layout__info-toggle"
             type="button"
@@ -31,7 +31,7 @@
           }
         </div>
         @if (currentUser$ | async; as user) {
-          <div class="public-layout__user-menu" (mouseenter)="openUserMenu()" (mouseleave)="closeUserMenu()">
+          <div class="public-layout__user-menu" (mouseenter)="openUserMenu()" (mouseleave)="scheduleCloseUserMenu()">
             <button
               class="public-layout__user-toggle"
               type="button"
