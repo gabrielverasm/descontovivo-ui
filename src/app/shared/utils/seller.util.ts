@@ -48,14 +48,32 @@ export function getAmazonTrustLabel(): string {
   return 'Vendido e entregue pela Amazon';
 }
 
+function sellerCompactKey(value: string): string {
+  return normalizeSellerName(value).replace(/[\s-]+/g, '');
+}
+
 export function isSameSeller(a: string | null | undefined, b: string | null | undefined): boolean {
   if (!isUsefulSellerValue(a) || !isUsefulSellerValue(b)) return false;
+
   const na = normalizeSellerName(a!);
   const nb = normalizeSellerName(b!);
+
   if (na === nb) return true;
+
+  const ka = sellerCompactKey(a!);
+  const kb = sellerCompactKey(b!);
+
+  if (ka && kb && ka === kb) return true;
+
+  // Fallback: substring match only when both are long enough and one fully contains the other.
+  // Guard against false positives like "Pague Menos" matching "Menos" by requiring
+  // the shorter string to be at least 60% of the longer string's length.
   if (na.length >= 3 && nb.length >= 3) {
-    if (na.includes(nb) || nb.includes(na)) return true;
+    const shorter = na.length <= nb.length ? na : nb;
+    const longer = na.length > nb.length ? na : nb;
+    if (shorter.length / longer.length >= 0.6 && longer.includes(shorter)) return true;
   }
+
   return false;
 }
 
