@@ -102,3 +102,8 @@ export function hasPartnerDelivery(promotion: Promotion): boolean {
   if (!isUsefulSellerValue(storeName) || !isUsefulSellerValue(promotion.deliveredBy)) return false;
   return !isStoreSeller(promotion, promotion.deliveredBy);
 }
+
+export function isDeliveredByStore(promotion: Promotion): boolean {
+  if (!isUsefulSellerValue(promotion.deliveredBy)) return false;
+  return isStoreSeller(promotion, promotion.deliveredBy);
+}

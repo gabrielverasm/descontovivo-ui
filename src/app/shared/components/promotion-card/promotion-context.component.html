@@ -20,7 +20,21 @@
     @if (sellerProviderName) {
       <div>
         <dt>Vendido por:</dt>
-        <dd>{{ sellerProviderName }}</dd>
+        <dd>
+          {{ sellerProviderName }}
+          @if (showThirdPartySellerIcon) {
+            <a
+              class="promotion-context__warning-link"
+              routerLink="/transparencia"
+              fragment="selo-vendedor-terceiro"
+              [title]="thirdPartySellerTitle"
+              [attr.aria-label]="thirdPartySellerTitle"
+              (click)="$event.stopPropagation()"
+            >
+              <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" class="promotion-context__warning" />
+            </a>
+          }
+        </dd>
       </div>
     }
 
@@ -29,7 +43,18 @@
         <dt>Entregue por:</dt>
         <dd>
           {{ deliveryProviderName }}
-          @if (showPartnerDeliveryIcon) {
+          @if (showStoreDeliveryIcon) {
+            <a
+              class="promotion-context__truck-link"
+              routerLink="/transparencia"
+              fragment="selo-entrega-propria"
+              title="Entrega pela própria loja. Entenda este sinal."
+              aria-label="Entrega pela própria loja. Entenda este sinal."
+              (click)="$event.stopPropagation()"
+            >
+              <img src="/brand/truck-green.svg" alt="" aria-hidden="true" class="promotion-context__truck" />
+            </a>
+          } @else if (showPartnerDeliveryIcon) {
             <a
               class="promotion-context__truck-link"
               routerLink="/transparencia"

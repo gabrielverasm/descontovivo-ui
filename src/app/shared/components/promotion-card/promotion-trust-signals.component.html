@@ -21,29 +21,6 @@
   }
 }
 
-@if (showThirdPartySeller) {
-  @if (clickable) {
-    <a
-      class="promotion-badge"
-      routerLink="/transparencia"
-      fragment="selo-vendedor-terceiro"
-      [attr.aria-label]="thirdPartyTitle"
-      [attr.title]="thirdPartyTitle"
-      (click)="$event.stopPropagation()"
-    >
-      <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-    </a>
-  } @else {
-    <span
-      class="promotion-badge promotion-badge--static"
-      [attr.aria-label]="thirdPartyTitle"
-      [attr.title]="thirdPartyTitle"
-    >
-      <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-    </span>
-  }
-}
-
 @if (hasPriceSignal) {
   @if (clickable) {
     <a
