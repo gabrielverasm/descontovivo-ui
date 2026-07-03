@@ -97,6 +97,15 @@ export const routes: Routes = [
         title: 'Importar promoções | Admin | DescontoVivo',
       },
       {
+        path: 'admin/solicitacoes-de-dados',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/data-requests/admin-data-requests.component').then(
+            (m) => m.AdminDataRequestsComponent,
+          ),
+        title: 'Solicitações de dados | Admin | DescontoVivo',
+      },
+      {
         path: 'erro',
         loadComponent: () =>
           import('./features/errors/server-error.component').then((m) => m.ServerErrorComponent),

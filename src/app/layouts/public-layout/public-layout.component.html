@@ -48,6 +48,7 @@
                 }
                 @if (isAdmin(user)) {
                   <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" (click)="closeUserMenu()">Importar promoções</a>
+                  <a routerLink="/admin/solicitacoes-de-dados" routerLinkActive="is-active" (click)="closeUserMenu()">Solicitações de dados</a>
                 }
                 <button type="button" (click)="logout(); closeUserMenu()">Sair</button>
               </div>
@@ -99,6 +100,7 @@
           }
           @if (isAdmin(user)) {
             <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
+            <a routerLink="/admin/solicitacoes-de-dados" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Solicitações de dados</a>
           }
           <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
         } @else {
