@@ -1,11 +1,11 @@
 <dl class="promotion-context">
   @if (showStoreFulfilled) {
     <div class="promotion-context__item">
-      <dt>
+      <dt>Vendido e entregue por:</dt>
+      <dd>
+        {{ deliveryProviderName }}
         <img src="/brand/truck-green.svg" alt="" aria-hidden="true" class="promotion-context__truck" />
-        Vendido e entregue por:
-      </dt>
-      <dd>{{ deliveryProviderName }}</dd>
+      </dd>
     </div>
   } @else {
     @if (sellerProviderName) {
@@ -17,13 +17,13 @@
 
     @if (deliveryProviderName) {
       <div>
-        <dt>
+        <dt>Entregue por:</dt>
+        <dd>
+          {{ deliveryProviderName }}
           @if (showPartnerDeliveryIcon) {
             <img src="/brand/truck-orange.svg" alt="" aria-hidden="true" class="promotion-context__truck" />
           }
-          Entregue por:
-        </dt>
-        <dd>{{ deliveryProviderName }}</dd>
+        </dd>
       </div>
     }
   }
