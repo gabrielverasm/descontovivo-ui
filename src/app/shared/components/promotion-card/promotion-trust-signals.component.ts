@@ -5,7 +5,6 @@ import { Promotion } from '../../../core/models/promotion.model';
 import {
   isSoldAndDeliveredByAmazon,
   isSoldAndDeliveredByStore,
-  hasThirdPartySeller,
 } from '../../utils/seller.util';
 
 @Component({
@@ -31,11 +30,6 @@ export class PromotionTrustSignalsComponent {
     return isSoldAndDeliveredByStore(this.promotion);
   }
 
-  get showThirdPartySeller(): boolean {
-    if (this.isAmazonFulfillment) return false;
-    return hasThirdPartySeller(this.promotion);
-  }
-
   get hasCoupon(): boolean {
     return Boolean(this.promotion.couponCode?.trim());
   }
@@ -56,10 +50,6 @@ export class PromotionTrustSignalsComponent {
 
   get soldAndDeliveredTitle(): string {
     return 'A loja aparece como vendedora e responsável pela entrega. É um bom sinal, mas confira os dados no site da loja.';
-  }
-
-  get thirdPartyTitle(): string {
-    return 'Pode envolver vendedor terceiro. Confira reputação, avaliações, prazo, frete e política de troca antes de comprar.';
   }
 
   get couponTitle(): string {

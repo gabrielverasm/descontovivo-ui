@@ -6,7 +6,9 @@ import {
   isUsefulSellerValue,
   isSoldAndDeliveredByAmazon,
   isSoldAndDeliveredByStore,
+  isDeliveredByStore,
   hasPartnerDelivery,
+  hasThirdPartySeller,
 } from '../../utils/seller.util';
 
 @Component({
@@ -33,11 +35,27 @@ export class PromotionContextComponent {
     return isSoldAndDeliveredByStore(this.promotion);
   }
 
+  get showThirdPartySellerIcon(): boolean {
+    if (this.showStoreFulfilled) return false;
+    return hasThirdPartySeller(this.promotion);
+  }
+
+  get showStoreDeliveryIcon(): boolean {
+    if (this.showStoreFulfilled) return false;
+    return isDeliveredByStore(this.promotion);
+  }
+
   get showPartnerDeliveryIcon(): boolean {
+    if (this.showStoreFulfilled) return false;
+    if (this.showStoreDeliveryIcon) return false;
     return hasPartnerDelivery(this.promotion);
   }
 
   get isAmazonFulfillment(): boolean {
     return isSoldAndDeliveredByAmazon(this.promotion.soldBy, this.promotion.deliveredBy);
+  }
+
+  get thirdPartySellerTitle(): string {
+    return 'Vendedor terceiro. Confira reputação, avaliações, prazo, frete e política de troca antes de comprar.';
   }
 }
