@@ -14,8 +14,22 @@
           >Promoções</a
         >
         <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
-        <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
-        <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
+        <div class="public-layout__info-menu">
+          <button
+            class="public-layout__info-toggle"
+            type="button"
+            (click)="toggleInfoMenu()"
+            [attr.aria-expanded]="isInfoMenuOpen"
+            aria-label="Informações"
+          >Informações <span class="public-layout__info-chevron" aria-hidden="true">▾</span></button>
+          @if (isInfoMenuOpen) {
+            <div class="public-layout__info-dropdown">
+              <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeInfoMenu()">Sobre</a>
+              <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeInfoMenu()">Serviços</a>
+              <a routerLink="/transparencia" routerLinkActive="is-active" (click)="closeInfoMenu()">Transparência</a>
+            </div>
+          }
+        </div>
         @if (currentUser$ | async; as user) {
           <div class="public-layout__user-menu">
             <button
@@ -71,8 +85,11 @@
           >Promoções</a
         >
         <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
-        <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
+        <hr class="public-layout__menu-divider" />
+        <span class="public-layout__menu-section">Informações</span>
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
+        <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
+        <a routerLink="/transparencia" routerLinkActive="is-active" (click)="closeMenu()">Transparência</a>
         @if (currentUser$ | async; as user) {
           <hr class="public-layout__menu-divider" />
           <span class="public-layout__menu-user">{{ getUserDisplayName(user) }}</span>

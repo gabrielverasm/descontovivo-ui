@@ -35,6 +35,7 @@ export interface Promotion {
   offerBadge?: string;
   warningBadge?: string;
   couponCode?: string;
+  priceSignal?: 'NONE' | 'GOOD_PRICE' | 'GREAT_PRICE';
   affiliateProgram?: AffiliateProgram;
   sponsoredLink?: boolean;
   likesCount: number;

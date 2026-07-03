@@ -1,4 +1,18 @@
-@if (isSoldAndDeliveredBySameStore) {
+@if (hasPriceSignal) {
+  <a
+    class="promotion-badge promotion-badge--price"
+    routerLink="/transparencia"
+    fragment="selo-preco-bom"
+    [attr.aria-label]="priceSignalTitle"
+    [attr.title]="priceSignalTitle"
+    (click)="$event.stopPropagation()"
+  >
+    <img src="/brand/discount-tag.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    {{ priceSignalLabel }}
+  </a>
+}
+
+@if (showSoldAndDeliveredByStore) {
   <a
     class="promotion-badge promotion-badge--trust"
     routerLink="/transparencia"
@@ -7,20 +21,36 @@
     [attr.title]="soldAndDeliveredTitle"
     (click)="$event.stopPropagation()"
   >
-    Vendido e entregue
+    <img src="/brand/truck-green.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    Vendido e entregue pela loja
   </a>
 }
 
-@if (isMarketplaceSeller) {
+@if (showThirdPartySeller) {
   <a
-    class="promotion-badge promotion-badge--marketplace"
+    class="promotion-badge promotion-badge--warning"
     routerLink="/transparencia"
-    fragment="selo-marketplace"
-    [attr.aria-label]="marketplaceTitle"
-    [attr.title]="marketplaceTitle"
+    fragment="selo-vendedor-terceiro"
+    [attr.aria-label]="thirdPartyTitle"
+    [attr.title]="thirdPartyTitle"
     (click)="$event.stopPropagation()"
   >
-    Marketplace
+    <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    Vendedor terceiro
+  </a>
+}
+
+@if (showPartnerDelivery) {
+  <a
+    class="promotion-badge promotion-badge--partner"
+    routerLink="/transparencia"
+    fragment="selo-entrega-parceiro"
+    [attr.aria-label]="partnerDeliveryTitle"
+    [attr.title]="partnerDeliveryTitle"
+    (click)="$event.stopPropagation()"
+  >
+    <img src="/brand/truck-orange.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    Entrega por parceiro
   </a>
 }
 

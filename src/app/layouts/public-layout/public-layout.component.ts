@@ -19,6 +19,7 @@ export class PublicLayoutComponent {
   isHeaderCompact = false;
   isMenuOpen = false;
   isUserMenuOpen = false;
+  isInfoMenuOpen = false;
   showBackToTop = false;
 
   @HostListener('window:scroll')
@@ -57,10 +58,20 @@ export class PublicLayoutComponent {
 
   toggleUserMenu() {
     this.isUserMenuOpen = !this.isUserMenuOpen;
+    this.isInfoMenuOpen = false;
   }
 
   closeUserMenu() {
     this.isUserMenuOpen = false;
+  }
+
+  toggleInfoMenu() {
+    this.isInfoMenuOpen = !this.isInfoMenuOpen;
+    this.isUserMenuOpen = false;
+  }
+
+  closeInfoMenu() {
+    this.isInfoMenuOpen = false;
   }
 
   get year() {
