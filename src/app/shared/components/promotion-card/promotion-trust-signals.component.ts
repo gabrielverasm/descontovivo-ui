@@ -2,7 +2,13 @@ import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
-import { isUsefulSellerValue, isSoldAndDeliveredByAmazon } from '../../utils/seller.util';
+import {
+  isUsefulSellerValue,
+  isSoldAndDeliveredByAmazon,
+  isSoldAndDeliveredByStore,
+  hasThirdPartySeller,
+  hasPartnerDelivery,
+} from '../../utils/seller.util';
 
 @Component({
   selector: 'app-promotion-trust-signals',
@@ -18,34 +24,49 @@ export class PromotionTrustSignalsComponent {
     return isSoldAndDeliveredByAmazon(this.promotion.soldBy, this.promotion.deliveredBy);
   }
 
-  get isSoldAndDeliveredBySameStore(): boolean {
-    if (this.isAmazonFulfillment) return false;
-    const sold = this.promotion.soldBy?.trim();
-    const delivered = this.promotion.deliveredBy?.trim();
-    if (!isUsefulSellerValue(sold) || !isUsefulSellerValue(delivered)) return false;
-    const normSold = sold!.toLowerCase().replace(/\.com\.br$/i, '');
-    const normDelivered = delivered!.toLowerCase().replace(/\.com\.br$/i, '');
-    return normSold === normDelivered;
+  get showSoldAndDeliveredByStore(): boolean {
+    return isSoldAndDeliveredByStore(this.promotion);
   }
 
-  get isMarketplaceSeller(): boolean {
+  get showThirdPartySeller(): boolean {
     if (this.isAmazonFulfillment) return false;
-    if (this.isSoldAndDeliveredBySameStore) return false;
-    const sold = this.promotion.soldBy?.trim();
-    const delivered = this.promotion.deliveredBy?.trim();
-    return isUsefulSellerValue(sold) && isUsefulSellerValue(delivered);
+    return hasThirdPartySeller(this.promotion);
+  }
+
+  get showPartnerDelivery(): boolean {
+    if (this.isAmazonFulfillment) return false;
+    if (this.showSoldAndDeliveredByStore) return false;
+    return hasPartnerDelivery(this.promotion);
   }
 
   get hasCoupon(): boolean {
     return Boolean(this.promotion.couponCode?.trim());
   }
 
-  get soldAndDeliveredTitle(): string {
-    return 'A mesma loja aparece como vendedora e responsável pela entrega.';
+  get hasPriceSignal(): boolean {
+    return this.promotion.priceSignal === 'GOOD_PRICE' || this.promotion.priceSignal === 'GREAT_PRICE';
   }
 
-  get marketplaceTitle(): string {
-    return 'A oferta pode envolver vendedor terceiro ou marketplace. Confira os dados na loja antes de comprar.';
+  get priceSignalLabel(): string {
+    return this.promotion.priceSignal === 'GREAT_PRICE' ? 'Preço muito bom' : 'Preço bom';
+  }
+
+  get priceSignalTitle(): string {
+    return this.promotion.priceSignal === 'GREAT_PRICE'
+      ? 'Preço marcado como muito bom pela moderação. Confira preço final, frete e condições antes de comprar.'
+      : 'Preço marcado como bom pela moderação. Confira preço final, frete e condições antes de comprar.';
+  }
+
+  get soldAndDeliveredTitle(): string {
+    return 'A loja aparece como vendedora e responsável pela entrega. É um bom sinal, mas confira os dados no site da loja.';
+  }
+
+  get thirdPartyTitle(): string {
+    return 'Pode envolver vendedor terceiro. Confira reputação, avaliações, prazo, frete e política de troca antes de comprar.';
+  }
+
+  get partnerDeliveryTitle(): string {
+    return 'A entrega pode ser feita por parceiro ou responsável diferente da loja principal. Confira prazo, frete e política de troca.';
   }
 
   get couponTitle(): string {

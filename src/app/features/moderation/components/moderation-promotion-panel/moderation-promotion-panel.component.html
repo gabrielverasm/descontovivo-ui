@@ -115,6 +115,16 @@
             </select>
           </label>
         </div>
+
+        <div class="mod-panel__field">
+          <span>Selo de preço</span>
+          <select [(ngModel)]="editForm.priceSignal">
+            <option value="NONE">Sem selo de preço</option>
+            <option value="GOOD_PRICE">Preço bom</option>
+            <option value="GREAT_PRICE">Preço muito bom</option>
+          </select>
+          <small class="mod-panel__hint">Use apenas quando a moderação conferiu que o preço está realmente interessante.</small>
+        </div>
       </div>
     </div>
   </div>

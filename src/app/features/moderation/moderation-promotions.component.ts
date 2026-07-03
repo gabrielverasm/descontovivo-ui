@@ -169,6 +169,7 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
       deliveredBy: promo.deliveredBy || '',
       category: promo.category || '',
       availability: promo.availability || '',
+      priceSignal: promo.priceSignal || 'NONE',
     };
     const store = this.getCurrentStoreName();
     this.soldAndDeliveredByStore = !!store &&
@@ -364,6 +365,7 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
     req.deliveredBy = f.deliveredBy?.trim() ?? '';
     req.category = f.category?.trim() ?? '';
     if (f.availability?.trim()) req.availability = f.availability.trim();
+    if (f.priceSignal) req.priceSignal = f.priceSignal;
     return req;
   }
 

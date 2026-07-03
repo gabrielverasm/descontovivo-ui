@@ -94,10 +94,20 @@ p {
 }
 
 .transparency-seal h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   margin: 0 0 0.35rem;
   font-size: 0.92rem;
   font-weight: 800;
   color: #1e293b;
+}
+
+.transparency-seal__icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .transparency-seal p {

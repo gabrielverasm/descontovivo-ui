@@ -22,6 +22,7 @@ export interface ModerationDecisionRequest {
   soldBy?: string | null;
   deliveredBy?: string | null;
   category?: string | null;
+  priceSignal?: string;
 }
 
 @Injectable({ providedIn: 'root' })
