@@ -1,13 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
 import {
-  isUsefulSellerValue,
   isSoldAndDeliveredByAmazon,
   isSoldAndDeliveredByStore,
   hasThirdPartySeller,
-  hasPartnerDelivery,
 } from '../../utils/seller.util';
 
 @Component({
@@ -19,6 +17,11 @@ import {
 })
 export class PromotionTrustSignalsComponent {
   @Input({ required: true }) promotion!: Promotion;
+  @Input() clickable = true;
+  @Input() compact = false;
+
+  @HostBinding('class.promotion-trust-signals--compact')
+  get compactClass(): boolean { return this.compact; }
 
   get isAmazonFulfillment(): boolean {
     return isSoldAndDeliveredByAmazon(this.promotion.soldBy, this.promotion.deliveredBy);
@@ -31,12 +34,6 @@ export class PromotionTrustSignalsComponent {
   get showThirdPartySeller(): boolean {
     if (this.isAmazonFulfillment) return false;
     return hasThirdPartySeller(this.promotion);
-  }
-
-  get showPartnerDelivery(): boolean {
-    if (this.isAmazonFulfillment) return false;
-    if (this.showSoldAndDeliveredByStore) return false;
-    return hasPartnerDelivery(this.promotion);
   }
 
   get hasCoupon(): boolean {
@@ -63,10 +60,6 @@ export class PromotionTrustSignalsComponent {
 
   get thirdPartyTitle(): string {
     return 'Pode envolver vendedor terceiro. Confira reputação, avaliações, prazo, frete e política de troca antes de comprar.';
-  }
-
-  get partnerDeliveryTitle(): string {
-    return 'A entrega pode ser feita por parceiro ou responsável diferente da loja principal. Confira prazo, frete e política de troca.';
   }
 
   get couponTitle(): string {

@@ -1,9 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { PromotionCardComponent } from '../../shared/components/promotion-card/promotion-card.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PromotionService } from '../../core/services/promotion.service';
 import { SeoService } from '../../core/services/seo.service';
 import { Promotion } from '../../core/models/promotion.model';
+import { PromotionsFeedStateService } from './promotions-feed-state.service';
 
 @Component({
   selector: 'app-promotions',
@@ -12,13 +13,15 @@ import { Promotion } from '../../core/models/promotion.model';
   templateUrl: './promotions.component.html',
   styleUrl: './promotions.component.scss',
 })
-export class PromotionsComponent implements OnInit {
+export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly promotionService = inject(PromotionService);
   private readonly seo = inject(SeoService);
+  private readonly feedState = inject(PromotionsFeedStateService);
 
   private readonly pageSize = 12;
   private currentPage = 0;
   private totalPages = 1;
+  private pendingScrollY: number | null = null;
 
   promotions: Promotion[] = [];
   loading = true;
@@ -36,7 +39,35 @@ export class PromotionsComponent implements OnInit {
       description: 'DescontoVivo reúne promoções compartilhadas pela comunidade, com ofertas revisadas antes de aparecerem no site.',
       canonicalPath: '/'
     });
-    this.loadPage(0);
+
+    const saved = this.feedState.restore();
+    if (saved) {
+      this.promotions = saved.promotions;
+      this.currentPage = saved.currentPage;
+      this.totalPages = saved.totalPages;
+      this.loading = false;
+      this.pendingScrollY = saved.scrollY;
+    } else {
+      this.loadPage(0);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.pendingScrollY !== null) {
+      const scrollY = this.pendingScrollY;
+      this.pendingScrollY = null;
+      // Wait for the view to render before restoring scroll
+      setTimeout(() => window.scrollTo(0, scrollY), 0);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.feedState.save({
+      promotions: this.promotions,
+      currentPage: this.currentPage,
+      totalPages: this.totalPages,
+      scrollY: window.scrollY,
+    });
   }
 
   loadMore(): void {
