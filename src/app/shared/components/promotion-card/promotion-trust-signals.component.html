@@ -1,16 +1,3 @@
-@if (hasPriceSignal) {
-  <a
-    class="promotion-badge"
-    routerLink="/transparencia"
-    fragment="selo-preco-bom"
-    [attr.aria-label]="priceSignalTitle"
-    [attr.title]="priceSignalTitle"
-    (click)="$event.stopPropagation()"
-  >
-    <img src="/brand/discount-tag.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-  </a>
-}
-
 @if (showSoldAndDeliveredByStore) {
   <a
     class="promotion-badge"
@@ -47,6 +34,32 @@
     (click)="$event.stopPropagation()"
   >
     <img src="/brand/truck-orange.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+  </a>
+}
+
+@if (hasPriceSignal) {
+  <a
+    class="promotion-badge"
+    routerLink="/transparencia"
+    fragment="selo-preco-bom"
+    [attr.aria-label]="priceSignalTitle"
+    [attr.title]="priceSignalTitle"
+    (click)="$event.stopPropagation()"
+  >
+    <img src="/brand/discount-tag.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+  </a>
+}
+
+@if (isAmazonFulfillment) {
+  <a
+    class="promotion-badge"
+    routerLink="/transparencia"
+    fragment="selo-prime"
+    [attr.aria-label]="primeTitle"
+    [attr.title]="primeTitle"
+    (click)="$event.stopPropagation()"
+  >
+    <img src="/brand/shield-prime.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
   </a>
 }
 

@@ -74,4 +74,8 @@ export class PromotionTrustSignalsComponent {
       ? `Use o cupom ${this.promotion.couponCode} antes de finalizar a compra.`
       : 'Esta promoção pode ter cupom informado.';
   }
+
+  get primeTitle(): string {
+    return 'Vendido e entregue pela Amazon. Pode ter benefícios Prime quando elegível.';
+  }
 }

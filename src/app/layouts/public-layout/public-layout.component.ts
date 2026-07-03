@@ -61,12 +61,22 @@ export class PublicLayoutComponent {
     this.isInfoMenuOpen = false;
   }
 
+  openUserMenu() {
+    this.isUserMenuOpen = true;
+    this.isInfoMenuOpen = false;
+  }
+
   closeUserMenu() {
     this.isUserMenuOpen = false;
   }
 
   toggleInfoMenu() {
     this.isInfoMenuOpen = !this.isInfoMenuOpen;
+    this.isUserMenuOpen = false;
+  }
+
+  openInfoMenu() {
+    this.isInfoMenuOpen = true;
     this.isUserMenuOpen = false;
   }
 
