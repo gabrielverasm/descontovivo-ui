@@ -7,6 +7,7 @@
   <div class="related-promotion-item__info">
     <h3>{{ promotion.title }}</h3>
     <app-promotion-price [promotion]="promotion" />
+    <app-promotion-trust-signals [promotion]="promotion" [clickable]="false" [compact]="true" />
     <div class="related-promotion-item__meta">
       <span class="related-promotion-item__store">{{ promotion.storeName }}</span>
       <span class="related-promotion-item__age">

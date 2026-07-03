@@ -1,66 +1,93 @@
 @if (showSoldAndDeliveredByStore) {
-  <a
-    class="promotion-badge"
-    routerLink="/transparencia"
-    fragment="selo-vendido-entregue"
-    [attr.aria-label]="soldAndDeliveredTitle"
-    [attr.title]="soldAndDeliveredTitle"
-    (click)="$event.stopPropagation()"
-  >
-    <img src="/brand/store-fulfilled.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-  </a>
+  @if (clickable) {
+    <a
+      class="promotion-badge"
+      routerLink="/transparencia"
+      fragment="selo-vendido-entregue"
+      [attr.aria-label]="soldAndDeliveredTitle"
+      [attr.title]="soldAndDeliveredTitle"
+      (click)="$event.stopPropagation()"
+    >
+      <img src="/brand/store-fulfilled.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    </a>
+  } @else {
+    <span
+      class="promotion-badge promotion-badge--static"
+      [attr.aria-label]="soldAndDeliveredTitle"
+      [attr.title]="soldAndDeliveredTitle"
+    >
+      <img src="/brand/store-fulfilled.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    </span>
+  }
 }
 
 @if (showThirdPartySeller) {
-  <a
-    class="promotion-badge"
-    routerLink="/transparencia"
-    fragment="selo-vendedor-terceiro"
-    [attr.aria-label]="thirdPartyTitle"
-    [attr.title]="thirdPartyTitle"
-    (click)="$event.stopPropagation()"
-  >
-    <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-  </a>
-}
-
-@if (showPartnerDelivery) {
-  <a
-    class="promotion-badge"
-    routerLink="/transparencia"
-    fragment="selo-entrega-parceiro"
-    [attr.aria-label]="partnerDeliveryTitle"
-    [attr.title]="partnerDeliveryTitle"
-    (click)="$event.stopPropagation()"
-  >
-    <img src="/brand/truck-orange.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-  </a>
+  @if (clickable) {
+    <a
+      class="promotion-badge"
+      routerLink="/transparencia"
+      fragment="selo-vendedor-terceiro"
+      [attr.aria-label]="thirdPartyTitle"
+      [attr.title]="thirdPartyTitle"
+      (click)="$event.stopPropagation()"
+    >
+      <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    </a>
+  } @else {
+    <span
+      class="promotion-badge promotion-badge--static"
+      [attr.aria-label]="thirdPartyTitle"
+      [attr.title]="thirdPartyTitle"
+    >
+      <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    </span>
+  }
 }
 
 @if (hasPriceSignal) {
-  <a
-    class="promotion-badge"
-    routerLink="/transparencia"
-    fragment="selo-preco-bom"
-    [attr.aria-label]="priceSignalTitle"
-    [attr.title]="priceSignalTitle"
-    (click)="$event.stopPropagation()"
-  >
-    <img src="/brand/discount-tag.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-  </a>
+  @if (clickable) {
+    <a
+      class="promotion-badge"
+      routerLink="/transparencia"
+      fragment="selo-preco-bom"
+      [attr.aria-label]="priceSignalTitle"
+      [attr.title]="priceSignalTitle"
+      (click)="$event.stopPropagation()"
+    >
+      <img src="/brand/discount-tag.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    </a>
+  } @else {
+    <span
+      class="promotion-badge promotion-badge--static"
+      [attr.aria-label]="priceSignalTitle"
+      [attr.title]="priceSignalTitle"
+    >
+      <img src="/brand/discount-tag.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    </span>
+  }
 }
 
 @if (isAmazonFulfillment) {
-  <a
-    class="promotion-badge"
-    routerLink="/transparencia"
-    fragment="selo-prime"
-    [attr.aria-label]="primeTitle"
-    [attr.title]="primeTitle"
-    (click)="$event.stopPropagation()"
-  >
-    <img src="/brand/shield-prime.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-  </a>
+  @if (clickable) {
+    <a
+      class="promotion-badge"
+      routerLink="/transparencia"
+      fragment="selo-prime"
+      [attr.aria-label]="primeTitle"
+      [attr.title]="primeTitle"
+      (click)="$event.stopPropagation()"
+    >
+      <img src="/brand/shield-prime.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    </a>
+  } @else {
+    <span
+      class="promotion-badge promotion-badge--static"
+      [attr.aria-label]="primeTitle"
+      [attr.title]="primeTitle"
+    >
+      <img src="/brand/shield-prime.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
+    </span>
+  }
 }
 
 @if (hasCoupon) {

@@ -4,7 +4,16 @@
       <dt>Vendido e entregue por:</dt>
       <dd>
         {{ deliveryProviderName }}
-        <img src="/brand/truck-green.svg" alt="" aria-hidden="true" class="promotion-context__truck" />
+        <a
+          class="promotion-context__truck-link"
+          routerLink="/transparencia"
+          fragment="selo-entrega-propria"
+          title="Entrega pela própria loja. Entenda este sinal."
+          aria-label="Entrega pela própria loja. Entenda este sinal."
+          (click)="$event.stopPropagation()"
+        >
+          <img src="/brand/truck-green.svg" alt="" aria-hidden="true" class="promotion-context__truck" />
+        </a>
       </dd>
     </div>
   } @else {
@@ -21,7 +30,16 @@
         <dd>
           {{ deliveryProviderName }}
           @if (showPartnerDeliveryIcon) {
-            <img src="/brand/truck-orange.svg" alt="" aria-hidden="true" class="promotion-context__truck" />
+            <a
+              class="promotion-context__truck-link"
+              routerLink="/transparencia"
+              fragment="selo-entrega-parceiro"
+              title="Entrega por parceiro. Entenda este sinal."
+              aria-label="Entrega por parceiro. Entenda este sinal."
+              (click)="$event.stopPropagation()"
+            >
+              <img src="/brand/truck-orange.svg" alt="" aria-hidden="true" class="promotion-context__truck" />
+            </a>
           }
         </dd>
       </div>
