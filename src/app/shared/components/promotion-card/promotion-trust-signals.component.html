@@ -1,6 +1,6 @@
 @if (hasPriceSignal) {
   <a
-    class="promotion-badge promotion-badge--price"
+    class="promotion-badge"
     routerLink="/transparencia"
     fragment="selo-preco-bom"
     [attr.aria-label]="priceSignalTitle"
@@ -8,27 +8,25 @@
     (click)="$event.stopPropagation()"
   >
     <img src="/brand/discount-tag.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-    {{ priceSignalLabel }}
   </a>
 }
 
 @if (showSoldAndDeliveredByStore) {
   <a
-    class="promotion-badge promotion-badge--trust"
+    class="promotion-badge"
     routerLink="/transparencia"
     fragment="selo-vendido-entregue"
     [attr.aria-label]="soldAndDeliveredTitle"
     [attr.title]="soldAndDeliveredTitle"
     (click)="$event.stopPropagation()"
   >
-    <img src="/brand/truck-green.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-    Vendido e entregue pela loja
+    <img src="/brand/store-fulfilled.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
   </a>
 }
 
 @if (showThirdPartySeller) {
   <a
-    class="promotion-badge promotion-badge--warning"
+    class="promotion-badge"
     routerLink="/transparencia"
     fragment="selo-vendedor-terceiro"
     [attr.aria-label]="thirdPartyTitle"
@@ -36,13 +34,12 @@
     (click)="$event.stopPropagation()"
   >
     <img src="/brand/exclamacao.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-    Vendedor terceiro
   </a>
 }
 
 @if (showPartnerDelivery) {
   <a
-    class="promotion-badge promotion-badge--partner"
+    class="promotion-badge"
     routerLink="/transparencia"
     fragment="selo-entrega-parceiro"
     [attr.aria-label]="partnerDeliveryTitle"
@@ -50,19 +47,15 @@
     (click)="$event.stopPropagation()"
   >
     <img src="/brand/truck-orange.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" class="promotion-badge__icon" />
-    Entrega por parceiro
   </a>
 }
 
 @if (hasCoupon) {
-  <a
-    class="promotion-badge promotion-badge--coupon"
-    routerLink="/transparencia"
-    fragment="selo-cupom"
-    [attr.aria-label]="couponTitle"
+  <span
+    class="promotion-coupon"
     [attr.title]="couponTitle"
-    (click)="$event.stopPropagation()"
+    [attr.aria-label]="couponTitle"
   >
     Cupom: {{ promotion.couponCode }}
-  </a>
+  </span>
 }
