@@ -1,0 +1,216 @@
+<section class="data-requests">
+  <h1 class="data-requests__title">Solicitações de dados</h1>
+  <p class="data-requests__desc">
+    Analise pedidos de acesso, correção, anonimização, exclusão e outras solicitações de privacidade.
+  </p>
+
+  <!-- Filters -->
+  <div class="data-requests__filters">
+    <div class="data-requests__filter-group">
+      <label for="filter-status" class="data-requests__filter-label">Status</label>
+      <select
+        id="filter-status"
+        class="data-requests__select"
+        [(ngModel)]="filterStatus"
+        (ngModelChange)="onFilterChange()"
+      >
+        @for (opt of statusOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="data-requests__filter-group">
+      <label for="filter-type" class="data-requests__filter-label">Tipo</label>
+      <select
+        id="filter-type"
+        class="data-requests__select"
+        [(ngModel)]="filterType"
+        (ngModelChange)="onFilterChange()"
+      >
+        @for (opt of typeOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Success message -->
+  @if (successMessage) {
+    <div class="data-requests__success" role="status" aria-live="polite">{{ successMessage }}</div>
+  }
+
+  <!-- Error message -->
+  @if (error) {
+    <div class="data-requests__error" role="alert">{{ error }}</div>
+  }
+
+  <!-- Loading -->
+  @if (loading) {
+    <div class="data-requests__loading" role="status" aria-live="polite">
+      Carregando solicitações…
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!loading && !error && requests.length === 0) {
+    <p class="data-requests__empty">Não há solicitações com os filtros selecionados.</p>
+  }
+
+  <!-- Request list -->
+  @if (!loading && requests.length > 0) {
+    <ul class="data-requests__list">
+      @for (req of requests; track req.id) {
+        <li class="data-requests__item">
+          <div class="data-requests__item-header">
+            <span class="data-requests__type">{{ typeLabels[req.type] }}</span>
+            <span
+              class="data-requests__status"
+              [class.status--pending]="req.status === 'PENDING'"
+              [class.status--review]="req.status === 'IN_REVIEW'"
+              [class.status--completed]="req.status === 'COMPLETED'"
+              [class.status--rejected]="req.status === 'REJECTED'"
+            >
+              {{ statusLabels[req.status] }}
+            </span>
+          </div>
+
+          <div class="data-requests__item-body">
+            @if (req.displayName) {
+              <p class="data-requests__field">
+                <span class="data-requests__field-label">Nome:</span> {{ req.displayName }}
+              </p>
+            }
+            @if (req.username) {
+              <p class="data-requests__field">
+                <span class="data-requests__field-label">Usuário:</span> {{ req.username }}
+              </p>
+            }
+            @if (req.email) {
+              <p class="data-requests__field">
+                <span class="data-requests__field-label">E-mail:</span> {{ req.email }}
+              </p>
+            }
+            <p class="data-requests__field">
+              <span class="data-requests__field-label">Criado em:</span> {{ req.createdAt | date:'dd/MM/yyyy HH:mm' }}
+            </p>
+            @if (req.updatedAt) {
+              <p class="data-requests__field">
+                <span class="data-requests__field-label">Atualizado em:</span> {{ req.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+            }
+            @if (req.resolvedAt) {
+              <p class="data-requests__field">
+                <span class="data-requests__field-label">Resolvido em:</span> {{ req.resolvedAt | date:'dd/MM/yyyy HH:mm' }}
+              </p>
+            }
+            @if (req.details) {
+              <div class="data-requests__details">
+                <span class="data-requests__field-label">Detalhes:</span>
+                <p class="data-requests__details-text">{{ req.details }}</p>
+              </div>
+            }
+            @if (req.resolutionNote) {
+              <div class="data-requests__details">
+                <span class="data-requests__field-label">Nota de resolução:</span>
+                <p class="data-requests__details-text">{{ req.resolutionNote }}</p>
+              </div>
+            }
+          </div>
+
+          <div class="data-requests__item-actions">
+            @if (canChangeStatus(req)) {
+              @if (req.status === 'PENDING') {
+                <button
+                  type="button"
+                  class="data-requests__btn data-requests__btn--review"
+                  [disabled]="actionInProgress === req.id"
+                  (click)="markInReview(req)"
+                >
+                  Marcar em análise
+                </button>
+              }
+              <button
+                type="button"
+                class="data-requests__btn data-requests__btn--complete"
+                [disabled]="actionInProgress === req.id"
+                (click)="markCompleted(req)"
+              >
+                Concluir
+              </button>
+              <button
+                type="button"
+                class="data-requests__btn data-requests__btn--reject"
+                [disabled]="actionInProgress === req.id"
+                (click)="markRejected(req)"
+              >
+                Rejeitar
+              </button>
+            } @else {
+              <span class="data-requests__final-notice">Solicitação finalizada</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<!-- Update modal -->
+@if (showUpdateModal) {
+  <div class="data-requests__overlay" (click)="cancelUpdate()">
+    <div
+      class="data-requests__modal"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="'modal-title'"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="modal-title" class="data-requests__modal-title">{{ getUpdateModalTitle() }}</h2>
+
+      <div class="data-requests__modal-body">
+        <label for="update-note" class="data-requests__modal-label">
+          Nota de resolução
+          @if (isNoteRequired()) {
+            <span class="data-requests__required" aria-label="obrigatório">*</span>
+          }
+        </label>
+        <textarea
+          id="update-note"
+          class="data-requests__textarea"
+          [(ngModel)]="updateNote"
+          rows="4"
+          maxlength="2000"
+          [attr.placeholder]="isNoteRequired() ? 'Descreva a resolução aplicada…' : 'Nota opcional…'"
+          [attr.aria-required]="isNoteRequired()"
+        ></textarea>
+
+        @if (updateError) {
+          <p class="data-requests__modal-error" role="alert">{{ updateError }}</p>
+        }
+      </div>
+
+      <div class="data-requests__modal-actions">
+        <button
+          type="button"
+          class="data-requests__btn data-requests__btn--cancel"
+          (click)="cancelUpdate()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="data-requests__btn data-requests__btn--confirm"
+          [disabled]="actionInProgress !== null"
+          (click)="confirmUpdate()"
+        >
+          @if (actionInProgress) {
+            Atualizando…
+          } @else {
+            Confirmar
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
