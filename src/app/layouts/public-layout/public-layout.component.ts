@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
@@ -12,7 +12,7 @@ import { canModerate, hasRole } from '../../core/utils/permissions';
   templateUrl: './public-layout.component.html',
   styleUrl: './public-layout.component.scss'
 })
-export class PublicLayoutComponent {
+export class PublicLayoutComponent implements OnDestroy {
   private readonly authService = inject(AuthService);
   readonly currentUser$ = this.authService.currentUser$;
 
@@ -21,6 +21,15 @@ export class PublicLayoutComponent {
   isUserMenuOpen = false;
   isInfoMenuOpen = false;
   showBackToTop = false;
+
+  private infoMenuCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  private userMenuCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly MENU_CLOSE_DELAY = 220;
+
+  ngOnDestroy(): void {
+    this.clearInfoTimer();
+    this.clearUserTimer();
+  }
 
   @HostListener('window:scroll')
   onWindowScroll() {
@@ -43,6 +52,9 @@ export class PublicLayoutComponent {
     if (this.isMenuOpen) {
       this.closeMenu();
     }
+    if (this.isInfoMenuOpen) {
+      this.closeInfoMenu();
+    }
     if (this.isUserMenuOpen) {
       this.closeUserMenu();
     }
@@ -56,32 +68,93 @@ export class PublicLayoutComponent {
     this.isMenuOpen = false;
   }
 
-  toggleUserMenu() {
-    this.isUserMenuOpen = !this.isUserMenuOpen;
-    this.isInfoMenuOpen = false;
-  }
-
-  openUserMenu() {
-    this.isUserMenuOpen = true;
-    this.isInfoMenuOpen = false;
-  }
-
-  closeUserMenu() {
-    this.isUserMenuOpen = false;
-  }
+  // --- Info menu ---
 
   toggleInfoMenu() {
-    this.isInfoMenuOpen = !this.isInfoMenuOpen;
-    this.isUserMenuOpen = false;
+    if (this.isHoverCapable()) {
+      // Desktop with hover: click only opens, never closes.
+      this.openInfoMenu();
+      return;
+    }
+    // Mobile/touch: toggle open/close.
+    if (this.isInfoMenuOpen) {
+      this.closeInfoMenu();
+    } else {
+      this.openInfoMenu();
+    }
   }
 
   openInfoMenu() {
+    this.clearInfoTimer();
     this.isInfoMenuOpen = true;
-    this.isUserMenuOpen = false;
+    this.closeUserMenu();
+  }
+
+  scheduleCloseInfoMenu() {
+    this.clearInfoTimer();
+    this.infoMenuCloseTimer = setTimeout(() => {
+      this.isInfoMenuOpen = false;
+    }, this.MENU_CLOSE_DELAY);
   }
 
   closeInfoMenu() {
+    this.clearInfoTimer();
     this.isInfoMenuOpen = false;
+  }
+
+  // --- User menu ---
+
+  toggleUserMenu() {
+    if (this.isHoverCapable()) {
+      // Desktop with hover: click only opens, never closes.
+      this.openUserMenu();
+      return;
+    }
+    // Mobile/touch: toggle open/close.
+    if (this.isUserMenuOpen) {
+      this.closeUserMenu();
+    } else {
+      this.openUserMenu();
+    }
+  }
+
+  openUserMenu() {
+    this.clearUserTimer();
+    this.isUserMenuOpen = true;
+    this.closeInfoMenu();
+  }
+
+  scheduleCloseUserMenu(delay?: number) {
+    this.clearUserTimer();
+    this.userMenuCloseTimer = setTimeout(() => {
+      this.isUserMenuOpen = false;
+    }, delay ?? this.MENU_CLOSE_DELAY);
+  }
+
+  closeUserMenu() {
+    this.clearUserTimer();
+    this.isUserMenuOpen = false;
+  }
+
+  // --- Private helpers ---
+
+  private isHoverCapable(): boolean {
+    return typeof window !== 'undefined'
+      && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  }
+
+  private clearInfoTimer() {
+    if (this.infoMenuCloseTimer !== null) {
+      clearTimeout(this.infoMenuCloseTimer);
+      this.infoMenuCloseTimer = null;
+    }
+  }
+
+  private clearUserTimer() {
+    if (this.userMenuCloseTimer !== null) {
+      clearTimeout(this.userMenuCloseTimer);
+      this.userMenuCloseTimer = null;
+    }
   }
 
   get year() {
