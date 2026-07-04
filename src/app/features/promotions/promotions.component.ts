@@ -5,6 +5,8 @@ import { PromotionService } from '../../core/services/promotion.service';
 import { SeoService } from '../../core/services/seo.service';
 import { Promotion } from '../../core/models/promotion.model';
 import { PromotionsFeedStateService } from './promotions-feed-state.service';
+import { PublicNotificationStreamService } from '../../core/services/public-notification-stream.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-promotions',
@@ -17,17 +19,20 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly promotionService = inject(PromotionService);
   private readonly seo = inject(SeoService);
   private readonly feedState = inject(PromotionsFeedStateService);
+  private readonly notificationStream = inject(PublicNotificationStreamService);
 
   private readonly pageSize = 12;
   private currentPage = 0;
   private totalPages = 1;
   private pendingScrollY: number | null = null;
+  private notificationSub: Subscription | null = null;
 
   promotions: Promotion[] = [];
   loading = true;
   loadingMore = false;
   error = '';
   loadMoreError = '';
+  newPromotionsCount = 0;
 
   get hasMore(): boolean {
     return this.currentPage + 1 < this.totalPages;
@@ -38,6 +43,10 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
       title: 'Promoções | DescontoVivo',
       description: 'DescontoVivo reúne promoções compartilhadas pela comunidade, com ofertas revisadas antes de aparecerem no site.',
       canonicalPath: '/'
+    });
+
+    this.notificationSub = this.notificationStream.state$.subscribe((state) => {
+      this.newPromotionsCount = state.newPromotionsCount;
     });
 
     const saved = this.feedState.restore();
@@ -62,12 +71,39 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.notificationSub?.unsubscribe();
     this.feedState.save({
       promotions: this.promotions,
       currentPage: this.currentPage,
       totalPages: this.totalPages,
       scrollY: window.scrollY,
     });
+  }
+
+  refreshFeed(): void {
+    this.loading = true;
+    this.error = '';
+
+    this.promotionService.getPromotions(0, this.pageSize).subscribe({
+      next: (res) => {
+        this.promotions = res.content;
+        this.currentPage = res.page;
+        this.totalPages = res.totalPages;
+        this.loading = false;
+        this.loadingMore = false;
+
+        this.notificationStream.clearNewPromotions();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+      error: () => {
+        this.error = 'Não foi possível carregar as promoções. Tente novamente mais tarde.';
+        this.loading = false;
+      },
+    });
+  }
+
+  get newPromotionsBadge(): string {
+    return this.notificationStream.formatCount(this.newPromotionsCount);
   }
 
   loadMore(): void {

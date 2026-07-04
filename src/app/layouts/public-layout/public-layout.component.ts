@@ -1,9 +1,11 @@
-import { Component, HostListener, inject, OnDestroy } from '@angular/core';
+import { Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { AccountMe } from '../../core/models/account-me.model';
 import { canModerate, hasRole } from '../../core/utils/permissions';
+import { PublicNotificationStreamService, PublicNotificationState } from '../../core/services/public-notification-stream.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-public-layout',
@@ -12,9 +14,13 @@ import { canModerate, hasRole } from '../../core/utils/permissions';
   templateUrl: './public-layout.component.html',
   styleUrl: './public-layout.component.scss'
 })
-export class PublicLayoutComponent implements OnDestroy {
+export class PublicLayoutComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
+  private readonly notificationStream = inject(PublicNotificationStreamService);
   readonly currentUser$ = this.authService.currentUser$;
+
+  notificationState: PublicNotificationState = { connected: false, error: false, publishedCount: 0, latestPublishedAt: null, newPromotionsCount: 0 };
+  private notificationSub: Subscription | null = null;
 
   isHeaderCompact = false;
   isMenuOpen = false;
@@ -26,9 +32,18 @@ export class PublicLayoutComponent implements OnDestroy {
   private userMenuCloseTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly MENU_CLOSE_DELAY = 220;
 
+  ngOnInit(): void {
+    this.notificationStream.connect();
+    this.notificationSub = this.notificationStream.state$.subscribe((state) => {
+      this.notificationState = state;
+    });
+  }
+
   ngOnDestroy(): void {
     this.clearInfoTimer();
     this.clearUserTimer();
+    this.notificationSub?.unsubscribe();
+    this.notificationStream.disconnect();
   }
 
   @HostListener('window:scroll')
@@ -168,6 +183,14 @@ export class PublicLayoutComponent implements OnDestroy {
       top: 0,
       behavior: prefersReducedMotion ? 'auto' : 'smooth'
     });
+  }
+
+  get badgeText(): string {
+    return this.notificationStream.formatCount(this.notificationState.newPromotionsCount);
+  }
+
+  get hasNewPromotions(): boolean {
+    return this.notificationState.newPromotionsCount > 0;
   }
 
   logout(): void {

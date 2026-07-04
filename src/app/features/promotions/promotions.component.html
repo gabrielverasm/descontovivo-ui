@@ -1,4 +1,14 @@
 <main class="promotions-feed">
+  @if (newPromotionsCount > 0 && !loading) {
+    <button
+      type="button"
+      class="promotions-feed__new-bar"
+      (click)="refreshFeed()"
+      [attr.aria-label]="'Há ' + newPromotionsBadge + ' novas promoções. Clique para atualizar.'"
+    >
+      Há {{ newPromotionsBadge }} novas promoções. <span class="promotions-feed__new-bar-action">Atualizar</span>
+    </button>
+  }
   @if (loading) {
     <app-loading-state />
   } @else if (error) {
