@@ -7,12 +7,16 @@
 
       <nav class="public-layout__nav" aria-label="Navegação principal">
         <a
+          class="public-layout__nav-promotions"
           routerLink="/"
           routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="closeMenu()"
-          >Promoções</a
-        >
+          >Promoções
+          @if (hasNewPromotions) {
+            <span class="public-layout__badge public-layout__badge--nav" aria-hidden="true">{{ badgeText }}</span>
+          }
+        </a>
         <a routerLink="/publicar" routerLinkActive="is-active" (click)="closeMenu()">Publicar</a>
         <div class="public-layout__info-menu" (mouseenter)="openInfoMenu()" (mouseleave)="scheduleCloseInfoMenu()">
           <button
@@ -62,13 +66,16 @@
       <button
         class="public-layout__menu-button"
         type="button"
-        [attr.aria-label]="isMenuOpen ? 'Fechar menu' : 'Abrir menu'"
+        [attr.aria-label]="isMenuOpen ? 'Fechar menu' : hasNewPromotions ? badgeText + ' novas promoções — Abrir menu' : 'Abrir menu'"
         [attr.aria-expanded]="isMenuOpen"
         aria-controls="public-layout-compact-menu"
         (click)="toggleMenu()"
       >
         <img class="public-layout__button-icon public-layout__button-icon--mono" src="/brand/sanduiche-mono.svg" alt="" aria-hidden="true" />
         <img class="public-layout__button-icon public-layout__button-icon--hover" src="/brand/sanduiche-white.svg" alt="" aria-hidden="true" />
+        @if (hasNewPromotions) {
+          <span class="public-layout__badge public-layout__badge--menu" aria-hidden="true">{{ badgeText }}</span>
+        }
       </button>
 
       <nav
@@ -132,11 +139,14 @@
     <button
       class="public-layout__back-to-top"
       type="button"
-      aria-label="Voltar ao topo"
+      [attr.aria-label]="hasNewPromotions ? badgeText + ' novas promoções — Voltar ao topo' : 'Voltar ao topo'"
       (click)="scrollToTop()"
     >
       <img class="public-layout__button-icon public-layout__button-icon--mono" src="/brand/circle-up-mono.svg" alt="" aria-hidden="true" />
       <img class="public-layout__button-icon public-layout__button-icon--hover" src="/brand/circle-up-white.svg" alt="" aria-hidden="true" />
+      @if (hasNewPromotions) {
+        <span class="public-layout__badge" aria-hidden="true">{{ badgeText }}</span>
+      }
     </button>
   }
 </div>
