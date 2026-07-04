@@ -25,8 +25,10 @@ export class PublicNotificationStreamService implements OnDestroy {
 
   private eventSource: EventSource | null = null;
   private baselinePublishedCount: number | null = null;
+  private baselineLatestPublishedAt: string | null = null;
   private baseTitle = '';
   private routerSub: Subscription | null = null;
+  private visibilityHandler: (() => void) | null = null;
 
   private readonly stateSubject = new BehaviorSubject<PublicNotificationState>({
     connected: false,
@@ -44,9 +46,17 @@ export class PublicNotificationStreamService implements OnDestroy {
 
   connect(): void {
     if (typeof window === 'undefined' || !('EventSource' in window)) return;
-    if (this.eventSource) return;
+
+    // Allow reconnection if EventSource is closed (readyState === 2)
+    if (this.eventSource && this.eventSource.readyState !== EventSource.CLOSED) return;
+
+    // Clean up closed EventSource reference
+    if (this.eventSource && this.eventSource.readyState === EventSource.CLOSED) {
+      this.eventSource = null;
+    }
 
     this.subscribeToRouterEvents();
+    this.subscribeToVisibilityChange();
 
     const url = `${environment.apiBaseUrl}/events/public/stream`;
 
@@ -72,8 +82,13 @@ export class PublicNotificationStreamService implements OnDestroy {
       this.eventSource.onerror = () => {
         this.ngZone.run(() => {
           this.updateState({ connected: false, error: true });
+
+          // If EventSource is permanently closed (won't auto-reconnect),
+          // clear the reference so connect() can create a new one
+          if (this.eventSource?.readyState === EventSource.CLOSED) {
+            this.eventSource = null;
+          }
         });
-        // EventSource reconnects automatically; no manual retry needed.
       };
     });
   }
@@ -86,6 +101,7 @@ export class PublicNotificationStreamService implements OnDestroy {
     this.updateState({ connected: false, error: false });
     this.routerSub?.unsubscribe();
     this.routerSub = null;
+    this.unsubscribeVisibilityChange();
   }
 
   reconnect(): void {
@@ -96,6 +112,7 @@ export class PublicNotificationStreamService implements OnDestroy {
   clearNewPromotions(): void {
     const current = this.stateSubject.value;
     this.baselinePublishedCount = current.publishedCount;
+    this.baselineLatestPublishedAt = current.latestPublishedAt;
     this.updateState({ newPromotionsCount: 0 });
     this.restoreBaseTitle();
   }
@@ -126,6 +143,7 @@ export class PublicNotificationStreamService implements OnDestroy {
     // First event defines the baseline — no badge shown
     if (this.baselinePublishedCount === null) {
       this.baselinePublishedCount = publishedCount;
+      this.baselineLatestPublishedAt = latestPublishedAt;
       this.updateState({
         connected: true,
         error: false,
@@ -136,12 +154,20 @@ export class PublicNotificationStreamService implements OnDestroy {
       return;
     }
 
-    // Calculate new promotions
+    // Calculate new promotions based on count delta
     let newCount = publishedCount - this.baselinePublishedCount;
+
     if (newCount < 0) {
       // Count decreased (deletion/moderation) — don't show negative, reset baseline
       this.baselinePublishedCount = publishedCount;
+      this.baselineLatestPublishedAt = latestPublishedAt;
       newCount = 0;
+    } else if (newCount === 0 && latestPublishedAt && this.baselineLatestPublishedAt) {
+      // Edge case: count unchanged but latestPublishedAt is newer
+      // This can happen when one promotion was added and another removed simultaneously
+      if (latestPublishedAt > this.baselineLatestPublishedAt) {
+        newCount = 1;
+      }
     }
 
     this.updateState({
@@ -199,5 +225,26 @@ export class PublicNotificationStreamService implements OnDestroy {
           setTimeout(() => this.updateTabTitle(count), 0);
         }
       });
+  }
+
+  private subscribeToVisibilityChange(): void {
+    if (typeof document === 'undefined' || this.visibilityHandler) return;
+
+    this.visibilityHandler = () => {
+      if (document.visibilityState === 'visible') {
+        // Tab became visible again — ensure connection is alive
+        if (!this.eventSource || this.eventSource.readyState === EventSource.CLOSED) {
+          this.connect();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  private unsubscribeVisibilityChange(): void {
+    if (typeof document === 'undefined' || !this.visibilityHandler) return;
+    document.removeEventListener('visibilitychange', this.visibilityHandler);
+    this.visibilityHandler = null;
   }
 }
