@@ -5,6 +5,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { AccountMe } from '../../core/models/account-me.model';
 import { canModerate, hasRole } from '../../core/utils/permissions';
 import { PublicNotificationStreamService, PublicNotificationState } from '../../core/services/public-notification-stream.service';
+import { ModerationNotificationStreamService, ModerationNotificationState } from '../../core/services/moderation-notification-stream.service';
+import { AdminNotificationStreamService, AdminNotificationState } from '../../core/services/admin-notification-stream.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -17,10 +19,18 @@ import { Subscription } from 'rxjs';
 export class PublicLayoutComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly notificationStream = inject(PublicNotificationStreamService);
+  private readonly moderationStream = inject(ModerationNotificationStreamService);
+  private readonly adminStream = inject(AdminNotificationStreamService);
   readonly currentUser$ = this.authService.currentUser$;
 
   notificationState: PublicNotificationState = { connected: false, error: false, publishedCount: 0, latestPublishedAt: null, newPromotionsCount: 0 };
+  moderationState: ModerationNotificationState = { connected: false, error: false, moderationPendingCount: 0 };
+  adminState: AdminNotificationState = { connected: false, error: false, dataRequestsOpenCount: 0 };
+
   private notificationSub: Subscription | null = null;
+  private userSub: Subscription | null = null;
+  private moderationStateSub: Subscription | null = null;
+  private adminStateSub: Subscription | null = null;
 
   isHeaderCompact = false;
   isMenuOpen = false;
@@ -37,13 +47,40 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
     this.notificationSub = this.notificationStream.state$.subscribe((state) => {
       this.notificationState = state;
     });
+
+    this.userSub = this.authService.currentUser$.subscribe((user) => {
+      if (user && canModerate(user)) {
+        this.moderationStream.connect();
+      } else {
+        this.moderationStream.disconnect();
+      }
+
+      if (user && hasRole(user, 'admin')) {
+        this.adminStream.connect();
+      } else {
+        this.adminStream.disconnect();
+      }
+    });
+
+    this.moderationStateSub = this.moderationStream.state$.subscribe((state) => {
+      this.moderationState = state;
+    });
+
+    this.adminStateSub = this.adminStream.state$.subscribe((state) => {
+      this.adminState = state;
+    });
   }
 
   ngOnDestroy(): void {
     this.clearInfoTimer();
     this.clearUserTimer();
     this.notificationSub?.unsubscribe();
+    this.userSub?.unsubscribe();
+    this.moderationStateSub?.unsubscribe();
+    this.adminStateSub?.unsubscribe();
     this.notificationStream.disconnect();
+    this.moderationStream.disconnect();
+    this.adminStream.disconnect();
   }
 
   @HostListener('window:scroll')
@@ -87,11 +124,9 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
 
   toggleInfoMenu() {
     if (this.isHoverCapable()) {
-      // Desktop with hover: click only opens, never closes.
       this.openInfoMenu();
       return;
     }
-    // Mobile/touch: toggle open/close.
     if (this.isInfoMenuOpen) {
       this.closeInfoMenu();
     } else {
@@ -121,11 +156,9 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
 
   toggleUserMenu() {
     if (this.isHoverCapable()) {
-      // Desktop with hover: click only opens, never closes.
       this.openUserMenu();
       return;
     }
-    // Mobile/touch: toggle open/close.
     if (this.isUserMenuOpen) {
       this.closeUserMenu();
     } else {
@@ -191,6 +224,22 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
 
   get hasNewPromotions(): boolean {
     return this.notificationState.newPromotionsCount > 0;
+  }
+
+  get moderationBadgeText(): string {
+    return this.moderationStream.formatCount(this.moderationState.moderationPendingCount);
+  }
+
+  get hasModerationPending(): boolean {
+    return this.moderationState.moderationPendingCount > 0;
+  }
+
+  get dataRequestsBadgeText(): string {
+    return this.adminStream.formatCount(this.adminState.dataRequestsOpenCount);
+  }
+
+  get hasDataRequestsOpen(): boolean {
+    return this.adminState.dataRequestsOpenCount > 0;
   }
 
   logout(): void {

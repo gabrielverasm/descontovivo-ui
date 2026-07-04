@@ -455,6 +455,8 @@
 }
 
 .public-layout__admin-link {
+  display: inline-flex !important;
+  align-items: center;
   font-size: 0.78rem !important;
   font-weight: 700 !important;
   color: #7c3aed !important;
@@ -564,6 +566,17 @@
   min-width: 1rem;
   height: 1rem;
   padding: 0 0.25rem;
+}
+
+.public-layout__badge--inline {
+  position: relative;
+  top: auto;
+  right: auto;
+  margin-left: 0.4rem;
+  font-size: 0.58rem;
+  min-width: 0.95rem;
+  height: 0.95rem;
+  padding: 0 0.22rem;
 }
 
 @keyframes badge-pop {
