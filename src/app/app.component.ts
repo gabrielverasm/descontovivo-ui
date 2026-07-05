@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { take } from 'rxjs';
 import { AuthService } from './core/services/auth.service';
+import { AnalyticsService } from './core/analytics/analytics.service';
 
 @Component({
   selector: 'app-root',
@@ -12,8 +13,10 @@ import { AuthService } from './core/services/auth.service';
 })
 export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly analytics = inject(AnalyticsService);
 
   ngOnInit(): void {
     this.authService.checkAuth().pipe(take(1)).subscribe();
+    this.analytics.init();
   }
 }

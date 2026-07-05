@@ -9,6 +9,8 @@ import { PromotionTrustSignalsComponent } from './promotion-trust-signals.compon
 import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.component';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../utils/seller.util';
 import { sharePromotion } from '../../utils/share-promotion.util';
+import { AnalyticsService } from '../../../core/analytics/analytics.service';
+import { buildClickStoreParams, buildShareParams } from '../../../core/analytics/analytics-events';
 
 @Component({
   selector: 'app-promotion-card',
@@ -26,6 +28,7 @@ import { sharePromotion } from '../../utils/share-promotion.util';
 })
 export class PromotionCardComponent {
   private readonly router = inject(Router);
+  private readonly analytics = inject(AnalyticsService);
   @Input({ required: true }) promotion!: Promotion;
 
   get actualCommentsCount(): number {
@@ -166,7 +169,13 @@ export class PromotionCardComponent {
 
   share(event: Event) {
     event.stopPropagation();
-    void sharePromotion(this.promotion);
+    void sharePromotion(this.promotion).then((method) => {
+      if (method) {
+        this.analytics.trackSharePromotion(
+          buildShareParams(method, this.promotion.slug || this.promotion.id, this.promotion.storeName),
+        );
+      }
+    });
   }
 
   openDetailsFromKeyboard(event: KeyboardEvent) {
@@ -180,6 +189,18 @@ export class PromotionCardComponent {
 
     event.preventDefault();
     this.openDetails();
+  }
+
+  trackStoreClick(event: Event): void {
+    event.stopPropagation();
+    this.analytics.trackClickStore(
+      buildClickStoreParams(
+        this.promotion.id,
+        this.promotion.slug || this.promotion.id,
+        this.promotion.storeName,
+        'card',
+      ),
+    );
   }
 
 }

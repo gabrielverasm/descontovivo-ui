@@ -3,6 +3,7 @@ import { Meta } from '@angular/platform-browser';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { AnalyticsService } from '../../core/analytics/analytics.service';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +14,7 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 })
 export class LoginComponent {
   private readonly authService = inject(AuthService);
+  private readonly analytics = inject(AnalyticsService);
 
   constructor() {
     inject(SeoService).setNoIndex();
@@ -24,10 +26,12 @@ export class LoginComponent {
   }
 
   login(): void {
+    this.analytics.trackLoginStart();
     this.authService.login();
   }
 
   register(): void {
+    this.analytics.trackSignUpStart();
     this.authService.register();
   }
 }

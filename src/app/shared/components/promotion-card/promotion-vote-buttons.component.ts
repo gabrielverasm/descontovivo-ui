@@ -2,6 +2,8 @@ import { Component, inject, Input } from '@angular/core';
 
 import { Promotion } from '../../../core/models/promotion.model';
 import { VoteService, PriceVote } from '../../../core/services/vote.service';
+import { AnalyticsService } from '../../../core/analytics/analytics.service';
+import { buildPromotionVoteParams } from '../../../core/analytics/analytics-events';
 
 @Component({
   selector: 'app-promotion-vote-buttons',
@@ -11,18 +13,21 @@ import { VoteService, PriceVote } from '../../../core/services/vote.service';
 })
 export class PromotionVoteButtonsComponent {
   private readonly voteService = inject(VoteService);
+  private readonly analytics = inject(AnalyticsService);
 
   userPriceVote: PriceVote = null;
   localLikesCount = 0;
   localDislikesCount = 0;
   @Input() contextLabel = 'preço';
 
+  private promotionId = '';
   private promotionSlug = '';
   voting = false;
 
   @Input()
   set promotion(promotion: Promotion | undefined) {
     if (!promotion) return;
+    this.promotionId = promotion.id;
     this.promotionSlug = promotion.slug || promotion.id;
     this.localLikesCount = promotion.likesCount;
     this.localDislikesCount = promotion.dislikesCount ?? 0;
@@ -94,6 +99,9 @@ export class PromotionVoteButtonsComponent {
         this.localDislikesCount = res.dislikesCount;
         this.userPriceVote = res.userVote;
         this.voting = false;
+        this.analytics.trackPromotionVote(
+          buildPromotionVoteParams(this.promotionId, this.promotionSlug, type),
+        );
       },
       error: () => {
         // Rollback
