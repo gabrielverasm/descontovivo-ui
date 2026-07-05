@@ -91,6 +91,27 @@
     </script>
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+    <!-- Google tag (gtag.js) — consent default denied, page_view manual -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = window.gtag || gtag;
+
+      gtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied'
+      });
+    </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CNB2DKTPC5"></script>
+    <script>
+      gtag('js', new Date());
+      gtag('config', 'G-CNB2DKTPC5', {
+        send_page_view: false
+      });
+    </script>
   </head>
   <body>
     <app-root></app-root>

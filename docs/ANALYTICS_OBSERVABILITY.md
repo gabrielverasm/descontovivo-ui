@@ -57,24 +57,51 @@ Os números de Cloudflare e GA4 podem divergir. Isso é normal — Cloudflare co
 
 ### Configuração
 
-O Measurement ID é configurado no arquivo de environment:
+O GA4 usa o **snippet padrão do Google tag** diretamente no `src/index.html`:
 
+```html
+<!-- Google tag (gtag.js) — consent default denied, page_view manual -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  window.gtag = window.gtag || gtag;
+
+  gtag('consent', 'default', {
+    analytics_storage: 'denied',
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied'
+  });
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CNB2DKTPC5"></script>
+<script>
+  gtag('js', new Date());
+  gtag('config', 'G-CNB2DKTPC5', { send_page_view: false });
+</script>
 ```
-src/environments/environment.ts
-```
+
+**Pontos-chave:**
+
+- O Measurement ID (`G-CNB2DKTPC5`) está hardcoded no `index.html` e também configurado em `environment.ts`. Ambos devem ser iguais.
+- `consent default denied` é definido **antes** do `config` — GA4 não envia dados até o consent ser atualizado para granted.
+- `send_page_view: false` — page_view é disparado manualmente pelo `AnalyticsService` após navegação SPA.
+- O `AnalyticsService` **não** injeta scripts nem gerencia o dataLayer. O script é carregado estaticamente.
+- Não usar Google Tag Manager (GTM) nesta fase.
+
+### Measurement ID
+
+O ID é configurado em dois lugares (tradeoff pragmático aceito):
+
+1. `src/index.html` — snippet estático carregado pelo navegador
+2. `src/environments/environment.ts` → `analytics.ga4MeasurementId` — usado pelo `AnalyticsService` para decidir se GA4 está habilitado
 
 ```typescript
 analytics: {
-  ga4MeasurementId: 'G-XXXXXXXXXX', // Preencher com o ID real
+  ga4MeasurementId: 'G-CNB2DKTPC5',
 }
 ```
 
-**IMPORTANTE:** GA4 só começa a funcionar quando o Measurement ID é preenchido.
-Se `ga4MeasurementId` estiver vazio em produção:
-- A app **não quebra** e funciona normalmente
-- O script `gtag.js` **não é carregado** (zero impacto de performance)
-- Cloudflare Web Analytics continua funcionando independentemente (ativado pelo painel CF)
-- Nenhum evento é enviado para GA4
+**IMPORTANTE:** Se mudar o Measurement ID, atualizar os dois lugares.
 
 ### Comportamento por ambiente
 
@@ -86,19 +113,24 @@ Se `ga4MeasurementId` estiver vazio em produção:
 
 ### Consentimento
 
-- GA4 **só envia dados** após o usuário aceitar métricas no banner
-- Antes do aceite, `consent: default` é configurado com `analytics_storage: 'denied'`
+- GA4 carrega com `consent default denied` — nenhum dado é coletado antes do aceite
+- Quando o usuário aceita métricas no banner, o `AnalyticsService` chama:
+  ```typescript
+  window.gtag('consent', 'update', { analytics_storage: 'granted' });
+  ```
+- Após o update, o `AnalyticsService` dispara o page_view da página atual (caso tenha sido bloqueado)
 - Se o usuário recusar, GA4 permanece bloqueado durante toda a sessão
 - A escolha é persistida em `localStorage` (`descontovivo_analytics_consent`)
 - O banner não aparece novamente se o usuário já decidiu
-- Se no futuro houver opção de resetar preferências, aceitar após recusar funcionará (recarrega GA4 e atualiza consent)
 
 ### Controle no código
 
 - `AnalyticsService` centraliza todos os eventos
 - Componentes **não devem** chamar `window.gtag` diretamente
-- Em ambiente de desenvolvimento, todos os eventos e page_views são logados no console para validação
-- O Router NavigationEnd é assinado em **todos os ambientes** (dev e prod) para garantir rastreamento consistente
+- O service **não** injeta scripts, não enfileira eventos, não gerencia loading state
+- Em ambiente de desenvolvimento, todos os eventos são logados no console
+- O Router NavigationEnd é assinado em **todos os ambientes** para garantir rastreamento consistente
+- Eventos são enviados apenas quando: ga4Enabled + consent granted + window.gtag existe
 
 ---
 
