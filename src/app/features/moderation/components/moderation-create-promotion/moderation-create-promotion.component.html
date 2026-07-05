@@ -2,7 +2,7 @@
   <h2 class="create-promo__title">Adicionar promoção manual</h2>
 
   @if (error) {
-    <p class="create-promo__error">{{ error }}</p>
+    <p class="create-promo__error" role="alert">{{ error }}</p>
   }
 
   <form class="create-promo__form" (ngSubmit)="submit()">

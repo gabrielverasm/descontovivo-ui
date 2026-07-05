@@ -153,7 +153,7 @@
       </table>
 
       @if (result.created > 0 && !result.dryRun) {
-        <p class="import__success">✅ Importação concluída com sucesso.</p>
+        <p class="import__success" role="status" aria-live="polite">✅ Importação concluída com sucesso.</p>
       }
 
       @if (result.errors.length > 0) {

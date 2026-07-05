@@ -47,11 +47,11 @@
         />
 
         @if (submitMessage) {
-          <p class="publish__success">{{ submitMessage }}</p>
+          <p class="publish__success" role="status" aria-live="polite">{{ submitMessage }}</p>
         }
 
         @if (submitError) {
-          <p class="publish__error">{{ submitError }}</p>
+          <p class="publish__error" role="alert">{{ submitError }}</p>
         }
 
         <button

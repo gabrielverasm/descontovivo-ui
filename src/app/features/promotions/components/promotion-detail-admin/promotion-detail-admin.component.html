@@ -2,10 +2,10 @@
   <span class="detail-admin__title">Ações administrativas</span>
 
   @if (adminMessage) {
-    <p class="detail-admin__success">{{ adminMessage }}</p>
+    <p class="detail-admin__success" role="status" aria-live="polite">{{ adminMessage }}</p>
   }
   @if (adminError) {
-    <p class="detail-admin__error">{{ adminError }}</p>
+    <p class="detail-admin__error" role="alert">{{ adminError }}</p>
   }
 
   @if (!isEditMode && !isRemoveConfirm) {
