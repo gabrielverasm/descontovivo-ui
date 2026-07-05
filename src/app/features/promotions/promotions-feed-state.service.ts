@@ -6,6 +6,7 @@ export interface FeedState {
   promotions: Promotion[];
   currentPage: number;
   totalPages: number;
+  totalElements?: number;
   scrollY: number;
 }
 

@@ -137,7 +137,10 @@ export class AdminNotificationStreamService implements OnDestroy {
 
         buffer = lines.pop() ?? '';
 
-        for (const line of lines) {
+        for (const rawLine of lines) {
+          // Handle CRLF: server may send \r\n; after split('\n') the \r remains
+          const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+
           if (line.startsWith('event:')) {
             currentEvent = line.slice(6).trim();
           } else if (line.startsWith('data:')) {

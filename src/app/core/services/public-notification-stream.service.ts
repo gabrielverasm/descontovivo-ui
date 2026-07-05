@@ -17,6 +17,11 @@ export interface PublicNotificationState {
   newPromotionsCount: number;
 }
 
+export interface DisplayedFeedSnapshot {
+  publishedCount?: number;
+  latestPublishedAt?: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PublicNotificationStreamService implements OnDestroy {
   private readonly ngZone = inject(NgZone);
@@ -24,11 +29,16 @@ export class PublicNotificationStreamService implements OnDestroy {
   private readonly router = inject(Router);
 
   private eventSource: EventSource | null = null;
-  private baselinePublishedCount: number | null = null;
-  private baselineLatestPublishedAt: string | null = null;
-  private baseTitle = '';
   private routerSub: Subscription | null = null;
   private visibilityHandler: (() => void) | null = null;
+
+  // Server snapshot — updated by SSE events
+  private serverPublishedCount: number | null = null;
+  private serverLatestPublishedAt: string | null = null;
+
+  // Displayed snapshot — updated by the feed component after loading
+  private displayedPublishedCount: number | null = null;
+  private displayedLatestPublishedAt: string | null = null;
 
   private readonly stateSubject = new BehaviorSubject<PublicNotificationState>({
     connected: false,
@@ -109,10 +119,32 @@ export class PublicNotificationStreamService implements OnDestroy {
     this.connect();
   }
 
+  /**
+   * Called by the feed component after successfully loading promotions.
+   * Registers what the user is currently seeing so we can compare against the server.
+   */
+  setDisplayedFeedSnapshot(snapshot: DisplayedFeedSnapshot): void {
+    if (snapshot.publishedCount !== undefined) {
+      this.displayedPublishedCount = snapshot.publishedCount;
+    }
+    if (snapshot.latestPublishedAt !== undefined) {
+      this.displayedLatestPublishedAt = snapshot.latestPublishedAt ?? null;
+    }
+    this.recalculateNewPromotionsCount();
+  }
+
+  /**
+   * Clears the badge only if the displayed feed is now aligned with the server.
+   * Called after refreshFeed() completes successfully.
+   */
   clearNewPromotions(): void {
-    const current = this.stateSubject.value;
-    this.baselinePublishedCount = current.publishedCount;
-    this.baselineLatestPublishedAt = current.latestPublishedAt;
+    // Align displayed snapshot to current server state
+    if (this.serverPublishedCount !== null) {
+      this.displayedPublishedCount = this.serverPublishedCount;
+    }
+    if (this.serverLatestPublishedAt !== null) {
+      this.displayedLatestPublishedAt = this.serverLatestPublishedAt;
+    }
     this.updateState({ newPromotionsCount: 0 });
     this.restoreBaseTitle();
   }
@@ -140,34 +172,15 @@ export class PublicNotificationStreamService implements OnDestroy {
 
     const { publishedCount, latestPublishedAt } = data;
 
-    // First event defines the baseline — no badge shown
-    if (this.baselinePublishedCount === null) {
-      this.baselinePublishedCount = publishedCount;
-      this.baselineLatestPublishedAt = latestPublishedAt;
-      this.updateState({
-        connected: true,
-        error: false,
-        publishedCount,
-        latestPublishedAt,
-        newPromotionsCount: 0,
-      });
-      return;
-    }
+    // Update server snapshot
+    this.serverPublishedCount = publishedCount;
+    this.serverLatestPublishedAt = latestPublishedAt;
 
-    // Calculate new promotions based on count delta
-    let newCount = publishedCount - this.baselinePublishedCount;
-
-    if (newCount < 0) {
-      // Count decreased (deletion/moderation) — don't show negative, reset baseline
-      this.baselinePublishedCount = publishedCount;
-      this.baselineLatestPublishedAt = latestPublishedAt;
-      newCount = 0;
-    } else if (newCount === 0 && latestPublishedAt && this.baselineLatestPublishedAt) {
-      // Edge case: count unchanged but latestPublishedAt is newer
-      // This can happen when one promotion was added and another removed simultaneously
-      if (latestPublishedAt > this.baselineLatestPublishedAt) {
-        newCount = 1;
-      }
+    // If no displayed snapshot exists yet, use first server event as initial displayed state.
+    // The feed component will override this when it calls setDisplayedFeedSnapshot().
+    if (this.displayedPublishedCount === null && this.displayedLatestPublishedAt === null) {
+      this.displayedPublishedCount = publishedCount;
+      this.displayedLatestPublishedAt = latestPublishedAt;
     }
 
     this.updateState({
@@ -175,9 +188,41 @@ export class PublicNotificationStreamService implements OnDestroy {
       error: false,
       publishedCount,
       latestPublishedAt,
-      newPromotionsCount: newCount,
     });
 
+    this.recalculateNewPromotionsCount();
+  }
+
+  private recalculateNewPromotionsCount(): void {
+    if (this.serverPublishedCount === null) {
+      // No server data yet — nothing to compare
+      return;
+    }
+
+    let newCount = 0;
+
+    // Primary: compare counts
+    if (this.displayedPublishedCount !== null && this.serverPublishedCount > this.displayedPublishedCount) {
+      newCount = this.serverPublishedCount - this.displayedPublishedCount;
+    }
+
+    // Edge case: count is same but latestPublishedAt is newer
+    // (one added + one removed simultaneously)
+    if (
+      newCount === 0 &&
+      this.serverLatestPublishedAt &&
+      this.displayedLatestPublishedAt &&
+      this.serverLatestPublishedAt > this.displayedLatestPublishedAt
+    ) {
+      newCount = 1;
+    }
+
+    // If server count is lower (deletion/moderation), no negative badge
+    if (newCount < 0) {
+      newCount = 0;
+    }
+
+    this.updateState({ newPromotionsCount: newCount });
     this.updateTabTitle(newCount);
   }
 
@@ -192,7 +237,6 @@ export class PublicNotificationStreamService implements OnDestroy {
     const stripped = this.stripNotificationPrefix(currentTitle);
 
     if (count > 0) {
-      this.baseTitle = stripped;
       const prefix = count > 99 ? '(99+)' : `(${count})`;
       this.titleService.setTitle(`${prefix} ${stripped}`);
     } else {

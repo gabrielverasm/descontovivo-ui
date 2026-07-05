@@ -119,9 +119,9 @@ describe('AdminNotificationStreamService', () => {
     expect(url).not.toContain('access_token=');
   });
 
-  // --- Event parsing ---
+  // --- LF event parsing (standard) ---
 
-  it('should parse admin-data-requests event and update dataRequestsOpenCount', async () => {
+  it('should parse LF admin-data-requests event and update dataRequestsOpenCount', async () => {
     mockFetchResponse(['event:admin-data-requests\ndata:{"openCount":3}\n\n']);
     service.connect();
     await new Promise((r) => setTimeout(r, 50));
@@ -129,23 +129,97 @@ describe('AdminNotificationStreamService', () => {
     expect(service.snapshot.dataRequestsOpenCount).toBe(3);
   });
 
-  it('should ignore moderation-promotions event (handled by ModerationNotificationStreamService)', async () => {
-    mockFetchResponse(['event:moderation-promotions\ndata:{"pendingCount":5}\n\n']);
-    service.connect();
-    await new Promise((r) => setTimeout(r, 50));
-
-    // State should not have moderationPendingCount
-    expect((service.snapshot as any).moderationPendingCount).toBeUndefined();
-    expect(service.snapshot.dataRequestsOpenCount).toBe(0);
-  });
-
-  it('should handle heartbeat event', async () => {
+  it('should handle LF heartbeat event', async () => {
     mockFetchResponse(['event:heartbeat\ndata:\n\n']);
     service.connect();
     await new Promise((r) => setTimeout(r, 50));
 
     expect(service.snapshot.connected).toBeTrue();
     expect(service.snapshot.error).toBeFalse();
+  });
+
+  // --- CRLF event parsing ---
+
+  it('should parse CRLF admin-data-requests event and update dataRequestsOpenCount', async () => {
+    mockFetchResponse(['event:admin-data-requests\r\ndata:{"openCount":5}\r\n\r\n']);
+    service.connect();
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(service.snapshot.dataRequestsOpenCount).toBe(5);
+  });
+
+  it('should handle CRLF heartbeat event without breaking', async () => {
+    mockFetchResponse(['event:heartbeat\r\ndata:\r\n\r\n']);
+    service.connect();
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(service.snapshot.connected).toBeTrue();
+    expect(service.snapshot.error).toBeFalse();
+  });
+
+  it('should handle mixed LF and CRLF in same stream', async () => {
+    mockFetchResponse([
+      'event:heartbeat\r\ndata:\r\n\r\nevent:admin-data-requests\ndata:{"openCount":4}\n\n',
+    ]);
+    service.connect();
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(service.snapshot.dataRequestsOpenCount).toBe(4);
+    expect(service.snapshot.connected).toBeTrue();
+  });
+
+  // --- Absolute count (no baseline) ---
+
+  it('should use openCount as absolute value, not delta from baseline', async () => {
+    mockFetchResponse([
+      'event:admin-data-requests\ndata:{"openCount":2}\n\nevent:admin-data-requests\ndata:{"openCount":2}\n\n',
+    ]);
+    service.connect();
+    await new Promise((r) => setTimeout(r, 50));
+
+    // Count stays at 2, not accumulated
+    expect(service.snapshot.dataRequestsOpenCount).toBe(2);
+  });
+
+  it('should show openCount 0 when server reports 0 (badge removed)', async () => {
+    mockFetchResponse([
+      'event:admin-data-requests\ndata:{"openCount":4}\n\nevent:admin-data-requests\ndata:{"openCount":0}\n\n',
+    ]);
+    service.connect();
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(service.snapshot.dataRequestsOpenCount).toBe(0);
+  });
+
+  it('should show openCount 2 and maintain it until server sends different count', async () => {
+    mockFetchResponse(['event:admin-data-requests\ndata:{"openCount":2}\n\n']);
+    service.connect();
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(service.snapshot.dataRequestsOpenCount).toBe(2);
+    // Count persists
+    expect(service.snapshot.dataRequestsOpenCount).toBe(2);
+  });
+
+  it('should decrease openCount when server reports lower value (requests resolved)', async () => {
+    mockFetchResponse([
+      'event:admin-data-requests\ndata:{"openCount":5}\n\nevent:admin-data-requests\ndata:{"openCount":1}\n\n',
+    ]);
+    service.connect();
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect(service.snapshot.dataRequestsOpenCount).toBe(1);
+  });
+
+  // --- Other event handling ---
+
+  it('should ignore moderation-promotions event (handled by ModerationNotificationStreamService)', async () => {
+    mockFetchResponse(['event:moderation-promotions\ndata:{"pendingCount":5}\n\n']);
+    service.connect();
+    await new Promise((r) => setTimeout(r, 50));
+
+    expect((service.snapshot as any).moderationPendingCount).toBeUndefined();
+    expect(service.snapshot.dataRequestsOpenCount).toBe(0);
   });
 
   it('should handle invalid JSON without crashing', async () => {
