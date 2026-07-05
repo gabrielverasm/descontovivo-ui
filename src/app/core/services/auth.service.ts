@@ -1,14 +1,18 @@
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { BehaviorSubject, catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 import { AccountMe } from '../models/account-me.model';
 import { AccountService } from './account.service';
 import { canComment, canModerate, canPublish, canVote, hasRole } from '../utils/permissions';
 
+const RETURN_URL_KEY = 'descontovivo_return_url';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly oidc = inject(OidcSecurityService);
   private readonly accountService = inject(AccountService);
+  private readonly router = inject(Router);
 
   private readonly currentUserSubject = new BehaviorSubject<AccountMe | null>(null);
 
@@ -17,8 +21,14 @@ export class AuthService {
     map((result) => result.isAuthenticated),
   );
 
-  login(): void {
+  login(returnUrl?: string): void {
+    this.storeReturnUrl(returnUrl);
     this.oidc.authorize();
+  }
+
+  register(returnUrl?: string): void {
+    this.storeReturnUrl(returnUrl);
+    this.oidc.authorize(undefined, { customParams: { kc_action: 'register' } });
   }
 
   logout(): void {
@@ -29,7 +39,10 @@ export class AuthService {
     return this.oidc.checkAuth().pipe(
       switchMap((result) => {
         if (result.isAuthenticated) {
-          return this.loadCurrentUser().pipe(map(() => true));
+          return this.loadCurrentUser().pipe(
+            tap(() => this.navigateToReturnUrl()),
+            map(() => true),
+          );
         }
         this.currentUserSubject.next(null);
         return of(false);
@@ -69,5 +82,19 @@ export class AuthService {
 
   canComment(): boolean {
     return canComment(this.currentUserSubject.value);
+  }
+
+  private storeReturnUrl(returnUrl?: string): void {
+    if (returnUrl) {
+      sessionStorage.setItem(RETURN_URL_KEY, returnUrl);
+    }
+  }
+
+  private navigateToReturnUrl(): void {
+    const returnUrl = sessionStorage.getItem(RETURN_URL_KEY);
+    if (returnUrl) {
+      sessionStorage.removeItem(RETURN_URL_KEY);
+      this.router.navigateByUrl(returnUrl);
+    }
   }
 }
