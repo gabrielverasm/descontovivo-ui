@@ -23,7 +23,7 @@
   }
 
   @if (successMessage) {
-    <div class="mod__status mod__status--success">{{ successMessage }}</div>
+    <div class="mod__status mod__status--success" role="status" aria-live="polite">{{ successMessage }}</div>
   }
 
   @if (!loading && !error && promotions.length === 0 && !selectedPromo) {

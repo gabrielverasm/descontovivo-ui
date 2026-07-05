@@ -13,8 +13,8 @@ import { SeoService } from '../../core/services/seo.service';
 export class ServicesComponent {
   constructor() {
     inject(SeoService).setIndexable({
-      title: 'Serviços | DescontoVivo',
-      description: 'Entenda serviços de assinatura e benefícios ligados a grandes lojas, como Amazon Prime, antes de contratar.',
+      title: 'Lojas e Serviços | DescontoVivo',
+      description: 'Informações sobre as lojas monitoradas pelo DescontoVivo: Amazon, Mercado Livre, Magalu, Shopee e AliExpress. Dicas de frete, assinaturas e o que observar antes de comprar.',
       canonicalPath: '/servicos'
     });
   }

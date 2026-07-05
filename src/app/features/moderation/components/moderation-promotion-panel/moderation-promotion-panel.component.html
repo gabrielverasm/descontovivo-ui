@@ -87,7 +87,7 @@
             Vendido por
             <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForSoldBy.emit()">Usar loja</button>
           </span>
-          <input type="text" [(ngModel)]="editForm.soldBy" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" />
+          <input type="text" [(ngModel)]="editForm.soldBy" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" aria-label="Vendido por" />
         </div>
 
         <div class="mod-panel__field">
@@ -96,7 +96,7 @@
             <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForDeliveredBy.emit()">Usar loja</button>
             <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore" (click)="copySoldByToDeliveredBy.emit()">Copiar vendido</button>
           </span>
-          <input type="text" [(ngModel)]="editForm.deliveredBy" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" />
+          <input type="text" [(ngModel)]="editForm.deliveredBy" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" aria-label="Entregue por" />
         </div>
 
         <div class="mod-panel__field-row">
@@ -157,7 +157,7 @@
 
         <div class="mod-panel__field">
           <span>Selo de preço</span>
-          <select [(ngModel)]="editForm.priceSignal">
+          <select [(ngModel)]="editForm.priceSignal" aria-label="Selo de preço">
             <option value="NONE">Sem selo de preço</option>
             <option value="GOOD_PRICE">Preço bom</option>
             <option value="GREAT_PRICE">Preço muito bom</option>

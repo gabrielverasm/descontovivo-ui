@@ -51,10 +51,10 @@
       </p>
 
       @if (successMessage) {
-        <p class="account-card__success">{{ successMessage }}</p>
+        <p class="account-card__success" role="status" aria-live="polite">{{ successMessage }}</p>
       }
       @if (errorMessage) {
-        <p class="account-card__error">{{ errorMessage }}</p>
+        <p class="account-card__error" role="alert">{{ errorMessage }}</p>
       }
 
       <form class="account-card__form" (ngSubmit)="submitRequest()">
