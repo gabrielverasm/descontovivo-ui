@@ -9,6 +9,6 @@ export const environment = {
     postLogoutRedirectUri: 'https://descontovivo.com',
   },
   analytics: {
-    ga4MeasurementId: '', // TODO: Preencher com o Measurement ID do GA4 (ex: G-XXXXXXXXXX)
+    ga4MeasurementId: 'G-CNB2DKTPC5',
   },
 };
