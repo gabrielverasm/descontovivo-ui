@@ -67,6 +67,22 @@ export const routes: Routes = [
         title: 'Transparência | DescontoVivo',
       },
       {
+        path: 'privacidade',
+        loadComponent: () =>
+          import('./features/privacy/privacy.component').then(
+            (m) => m.PrivacyComponent,
+          ),
+        title: 'Política de Privacidade | DescontoVivo',
+      },
+      {
+        path: 'termos',
+        loadComponent: () =>
+          import('./features/terms/terms.component').then(
+            (m) => m.TermsComponent,
+          ),
+        title: 'Termos de Uso | DescontoVivo',
+      },
+      {
         path: 'login',
         loadComponent: () =>
           import('./features/auth/login.component').then((m) => m.LoginComponent),

@@ -1,0 +1,106 @@
+<main class="privacy-page">
+  <app-breadcrumb [items]="[{ label: 'Início', route: '/' }, { label: 'Política de Privacidade' }]" />
+
+  <section class="privacy-hero" aria-labelledby="privacy-title">
+    <h1 id="privacy-title">Política de Privacidade</h1>
+    <p>
+      Última atualização: 5 de julho de 2026
+    </p>
+  </section>
+
+  <div class="privacy-content">
+
+    <section>
+      <h2>Quem somos</h2>
+      <p>
+        O DescontoVivo é uma plataforma de curadoria e comunidade de promoções. Nosso objetivo é
+        ajudar usuários a encontrar boas ofertas com contexto, transparência e segurança.
+      </p>
+    </section>
+
+    <section>
+      <h2>Quais dados podemos tratar</h2>
+      <p>Ao usar o DescontoVivo, podemos tratar os seguintes dados:</p>
+      <ul>
+        <li>Dados de autenticação (login via provedor de identidade)</li>
+        <li>Nome ou apelido escolhido pelo usuário</li>
+        <li>E-mail, quando aplicável para conta ou comunicação</li>
+        <li>Promoções publicadas pelo usuário</li>
+        <li>Comentários em promoções</li>
+        <li>Votos e interações (curtir/não curtir)</li>
+        <li>Solicitações de acesso, correção ou exclusão de dados</li>
+        <li>Logs técnicos básicos (IP, navegador, timestamps de acesso)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Finalidade do tratamento</h2>
+      <p>Os dados são usados para:</p>
+      <ul>
+        <li>Operar sua conta e permitir login seguro</li>
+        <li>Permitir publicação e moderação de promoções e comentários</li>
+        <li>Segurança da plataforma e prevenção de abuso</li>
+        <li>Melhoria do serviço e experiência do usuário</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Moderação de conteúdo</h2>
+      <p>
+        Promoções e comentários publicados podem ser moderados pela equipe do DescontoVivo.
+        Conteúdo que viole os <a routerLink="/termos">Termos de Uso</a> pode ser editado,
+        rejeitado ou removido.
+      </p>
+    </section>
+
+    <section>
+      <h2>Links externos e afiliados</h2>
+      <p>
+        As promoções podem conter links para lojas e marketplaces terceiros. Ao clicar,
+        você será levado para o site da loja. Preços, condições e disponibilidade são
+        responsabilidade da loja de destino.
+      </p>
+      <p>
+        Algumas promoções podem conter links de afiliado, quando indicado. Isso não altera
+        o preço para você. Saiba mais em <a routerLink="/transparencia">Transparência</a>.
+      </p>
+    </section>
+
+    <section>
+      <h2>Compartilhamento de dados</h2>
+      <p>
+        O DescontoVivo <strong>não vende dados pessoais</strong>. Dados podem ser tratados
+        por serviços de infraestrutura, autenticação e hospedagem necessários para operar
+        a plataforma.
+      </p>
+    </section>
+
+    <section>
+      <h2>Seus direitos</h2>
+      <p>Como usuário, você pode solicitar:</p>
+      <ul>
+        <li>Acesso aos seus dados pessoais</li>
+        <li>Correção de dados incorretos</li>
+        <li>Exclusão ou anonimização de dados</li>
+      </ul>
+      <p>
+        Solicitações podem ser feitas pela página
+        <a routerLink="/minha-conta">Minha conta</a>, quando disponível, ou pelo
+        e-mail de contato abaixo.
+      </p>
+    </section>
+
+    <section>
+      <h2>Contato</h2>
+      <p>
+        Para dúvidas sobre privacidade ou seus dados:
+        <a href="mailto:contato&#64;descontovivo.com">contato&#64;descontovivo.com</a>
+      </p>
+    </section>
+
+  </div>
+
+  <div class="privacy-back">
+    <a class="privacy-button" routerLink="/">Voltar para promoções</a>
+  </div>
+</main>

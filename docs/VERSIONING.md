@@ -1,0 +1,32 @@
+# Versionamento — DescontoVivo UI
+
+## Versão atual
+
+**0.1.0** (MVP)
+
+## Convenção
+
+Usamos [SemVer](https://semver.org/) simplificado:
+
+| Tipo | Quando usar | Exemplo |
+|------|------------|---------|
+| **patch** (0.1.X) | Correção de bug, ajuste visual pequeno | 0.1.0 → 0.1.1 |
+| **minor** (0.X.0) | Nova feature, página, componente | 0.1.0 → 0.2.0 |
+| **major** (X.0.0) | Quebra de compatibilidade, redesign | 0.2.0 → 1.0.0 |
+
+## Onde atualizar
+
+- `src/app/core/app-version.ts` → constante `UI_VERSION`
+- O footer exibe a versão da UI e, quando disponível, da API.
+
+## Processo
+
+1. Toda PR deve avaliar se precisa de bump de versão.
+2. O checklist do PR template inclui lembrete de atualização.
+3. O footer exibe `UI v0.1.0 · API v0.1.0` para facilitar validação de deploy.
+
+## Histórico
+
+| Versão | Data | Descrição |
+|--------|------|-----------|
+| 0.1.0 | 2026-07-05 | MVP inicial |
