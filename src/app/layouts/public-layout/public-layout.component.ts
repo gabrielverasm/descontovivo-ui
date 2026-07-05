@@ -2,13 +2,15 @@ import { Component, HostListener, inject, OnDestroy, OnInit } from '@angular/cor
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { Title } from '@angular/platform-browser';
+import { Observable, Subscription, filter } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { AccountMe } from '../../core/models/account-me.model';
 import { canModerate, hasRole } from '../../core/utils/permissions';
 import { PublicNotificationStreamService, PublicNotificationState } from '../../core/services/public-notification-stream.service';
 import { ModerationNotificationStreamService, ModerationNotificationState } from '../../core/services/moderation-notification-stream.service';
 import { AdminNotificationStreamService, AdminNotificationState } from '../../core/services/admin-notification-stream.service';
-import { Subscription, filter } from 'rxjs';
+import { VersionService } from '../../core/services/version.service';
+import { UI_VERSION } from '../../core/app-version';
 
 @Component({
   selector: 'app-public-layout',
@@ -24,7 +26,10 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
   private readonly adminStream = inject(AdminNotificationStreamService);
   private readonly titleService = inject(Title);
   private readonly router = inject(Router);
+  private readonly versionService = inject(VersionService);
   readonly currentUser$ = this.authService.currentUser$;
+  readonly uiVersion = UI_VERSION;
+  readonly apiVersion$: Observable<string | null> = this.versionService.getApiVersion();
 
   notificationState: PublicNotificationState = { connected: false, error: false, publishedCount: 0, latestPublishedAt: null, newPromotionsCount: 0 };
   moderationState: ModerationNotificationState = { connected: false, error: false, moderationPendingCount: 0 };
