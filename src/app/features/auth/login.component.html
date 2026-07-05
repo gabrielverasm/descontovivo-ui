@@ -1,31 +1,29 @@
 <main class="auth-page">
-  <app-breadcrumb [items]="[{ label: 'Promoções', route: '/promocoes' }, { label: 'Entrar' }]" />
+  <app-breadcrumb [items]="[{ label: 'Promoções', route: '/promocoes' }, { label: 'Entrar ou criar conta' }]" />
 
   <div class="auth-page__content">
-    <section class="auth-page__card" aria-label="Entrar no DescontoVivo">
+    <section class="auth-page__card" aria-label="Entrar ou criar conta no DescontoVivo">
       <header>
-        <h1>Entrar no DescontoVivo</h1>
-        <span>Acesse sua conta para publicar, votar e comentar ofertas.</span>
+        <h1>Entrar ou criar conta</h1>
+        <p>Acesse sua conta ou crie uma conta grátis para participar da comunidade.</p>
       </header>
 
-      <div class="auth-page__form">
-        <p>O login é feito com sua conta segura via provedor de identidade.</p>
-        <button type="button" (click)="login()">Entrar com conta segura</button>
+      <div class="auth-page__benefits" aria-label="Benefícios da conta">
+        <p>Com uma conta grátis, você pode:</p>
+        <ul>
+          <li>Publicar ofertas</li>
+          <li>Comentar promoções</li>
+          <li>Votar em preços</li>
+          <li>Acompanhar oportunidades</li>
+        </ul>
       </div>
+
+      <div class="auth-page__actions">
+        <button type="button" class="auth-page__btn auth-page__btn--primary" (click)="login()">Entrar com conta segura</button>
+        <button type="button" class="auth-page__btn auth-page__btn--secondary" (click)="register()">Criar conta grátis</button>
+      </div>
+
+      <p class="auth-page__microcopy">Você será redirecionado para nosso provedor seguro de identidade.</p>
     </section>
-
-    <aside class="auth-page__signup" aria-labelledby="login-signup-title">
-      <h2 id="login-signup-title">Crie sua conta para participar</h2>
-      <span>Publique, vote e acompanhe promoções com a comunidade.</span>
-
-      <div class="auth-page__benefit-grid">
-        <span>Publicar ofertas</span>
-        <span>Comentar promoções</span>
-        <span>Votar em preços</span>
-        <span>Acompanhar oportunidades</span>
-      </div>
-
-      <a class="auth-page__signup-link" routerLink="/cadastro">Cadastrar</a>
-    </aside>
   </div>
 </main>

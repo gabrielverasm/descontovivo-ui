@@ -1,26 +1,5 @@
 <main class="auth-page">
-  <app-breadcrumb [items]="[{ label: 'Promoções', route: '/promocoes' }, { label: 'Cadastro' }]" />
-
-  <div class="auth-page__content">
-    <section class="auth-page__main" aria-labelledby="register-title">
-      <div class="auth-page__card">
-        <header>
-          <h1 id="register-title">Criar conta</h1>
-          <p>Entre na comunidade para publicar, votar e comentar ofertas.</p>
-        </header>
-
-        <p>Sua conta é criada e gerenciada em ambiente seguro pelo nosso provedor de identidade. Ao clicar no botão abaixo você será redirecionado para criar sua conta com segurança.</p>
-
-        <button type="button" (click)="register()">Criar conta</button>
-      </div>
-    </section>
-
-    <aside class="auth-page__side" aria-label="Acesso">
-      <div>
-        <strong>Já tem conta?</strong>
-        <p>Acesse para acompanhar suas publicações, votos e comentários.</p>
-        <a routerLink="/login">Entrar</a>
-      </div>
-    </aside>
+  <div class="auth-page__redirect" role="status" aria-live="polite">
+    <p>Redirecionando para criar sua conta...</p>
   </div>
 </main>

@@ -1,27 +1,28 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
-import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [RouterLink, BreadcrumbComponent],
+  imports: [],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.scss'
+  styleUrl: './register.component.scss',
 })
-export class RegisterComponent {
-  private readonly meta = inject(Meta);
+export class RegisterComponent implements OnInit {
   private readonly authService = inject(AuthService);
 
   constructor() {
     inject(SeoService).setNoIndex();
-    this.meta.updateTag({ name: 'description', content: 'Crie sua conta no DescontoVivo para enviar promoções, votar em ofertas e participar da comunidade.' });
+    inject(Meta).updateTag({
+      name: 'description',
+      content:
+        'Crie sua conta no DescontoVivo para enviar promoções, votar em ofertas e participar da comunidade.',
+    });
   }
 
-  register(): void {
-    this.authService.login();
+  ngOnInit(): void {
+    this.authService.register();
   }
 }
