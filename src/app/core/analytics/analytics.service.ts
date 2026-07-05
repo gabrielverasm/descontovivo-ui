@@ -62,11 +62,9 @@ export class AnalyticsService implements OnDestroy {
     if (analyticsConfig.ga4Enabled) {
       this.consentSub = this.consent.status$.subscribe((status) => {
         if (status === 'granted') {
-          this.loadGtagScript();
-          this.updateConsent('granted');
-        } else if (status === 'denied') {
-          this.updateConsent('denied');
+          this.activateGa4();
         }
+        // No action needed for denied — script is never loaded
       });
     }
 
@@ -168,46 +166,89 @@ export class AnalyticsService implements OnDestroy {
     }
   }
 
-  private loadGtagScript(): void {
+  /**
+   * Activates GA4 when consent is granted.
+   * Only loads the script once. On subsequent calls (e.g. consent toggled), does nothing.
+   *
+   * The correct initialization order for GA4 with consent mode:
+   * 1. Initialize dataLayer and window.gtag function
+   * 2. Set consent defaults (denied for all)
+   * 3. Update consent to granted (before config so GA4 knows it can collect)
+   * 4. Call gtag('js', new Date())
+   * 5. Call gtag('config', measurementId, { send_page_view: false })
+   * 6. Inject the gtag.js script tag
+   * 7. Fire an initial page_view for the current route
+   */
+  private activateGa4(): void {
     if (this.scriptLoaded) return;
     this.scriptLoaded = true;
 
     const id = analyticsConfig.ga4MeasurementId;
-    if (!id) return; // Safety: should not happen since ga4Enabled checks this
+    if (!id) return;
 
-    const doc = this.document;
+    this.initDataLayer();
+    this.setConsentDefault();
+    this.setConsentGranted();
+    this.configureMeasurement(id);
+    this.injectScript(id);
+    this.fireInitialPageView();
+  }
 
-    // Initialize dataLayer
+  /** Step 1: Initialize dataLayer and define window.gtag */
+  private initDataLayer(): void {
     window.dataLayer = window.dataLayer || [];
     window.gtag = function (...args: unknown[]) {
       window.dataLayer.push(args);
     };
+  }
 
-    // Set consent defaults before loading the script
+  /** Step 2: Set consent defaults to denied (required by Google consent mode v2) */
+  private setConsentDefault(): void {
     window.gtag('consent', 'default', {
       analytics_storage: 'denied',
       ad_storage: 'denied',
       ad_user_data: 'denied',
       ad_personalization: 'denied',
     });
+  }
 
-    // Configure GA4
+  /** Step 3: Update consent to granted BEFORE config so GA4 dispatches events */
+  private setConsentGranted(): void {
+    window.gtag('consent', 'update', {
+      analytics_storage: 'granted',
+    });
+  }
+
+  /** Step 4-5: Register gtag timestamp and configure measurement ID */
+  private configureMeasurement(id: string): void {
     window.gtag('js', new Date());
     window.gtag('config', id, { send_page_view: false });
+  }
 
-    // Load gtag.js script
+  /** Step 6: Inject the gtag.js script tag into the document head */
+  private injectScript(id: string): void {
+    const doc = this.document;
     const script = doc.createElement('script');
     script.async = true;
     script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
     doc.head.appendChild(script);
   }
 
-  private updateConsent(status: 'granted' | 'denied'): void {
-    if (typeof window.gtag !== 'function') return;
+  /**
+   * Step 7: Fire a page_view for the current route after GA4 is activated.
+   * The initial NavigationEnd likely fired before GA4 was ready, so this
+   * ensures the first page view is always collected.
+   */
+  private fireInitialPageView(): void {
+    const currentPath = this.router.url || '/';
 
-    window.gtag('consent', 'update', {
-      analytics_storage: status,
-    });
+    if (currentPath === this.lastTrackedPath) {
+      return;
+    }
+
+    this.lastTrackedPath = currentPath;
+    const title = this.titleService.getTitle();
+    this.trackPageView(buildPageViewParams(currentPath, title));
   }
 
   /**
