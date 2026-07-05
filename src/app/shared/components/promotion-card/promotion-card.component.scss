@@ -47,6 +47,15 @@ h2 {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   white-space: normal;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      color: #2563eb;
+    }
+  }
 }
 
 .promotion-card__title-row {

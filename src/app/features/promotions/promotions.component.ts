@@ -3,6 +3,7 @@ import { PromotionCardComponent } from '../../shared/components/promotion-card/p
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PromotionService } from '../../core/services/promotion.service';
 import { SeoService } from '../../core/services/seo.service';
+import { StructuredDataService } from '../../core/services/structured-data.service';
 import { Promotion } from '../../core/models/promotion.model';
 import { PromotionsFeedStateService } from './promotions-feed-state.service';
 import { PublicNotificationStreamService } from '../../core/services/public-notification-stream.service';
@@ -18,6 +19,7 @@ import { Subscription } from 'rxjs';
 export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly promotionService = inject(PromotionService);
   private readonly seo = inject(SeoService);
+  private readonly structuredData = inject(StructuredDataService);
   private readonly feedState = inject(PromotionsFeedStateService);
   private readonly notificationStream = inject(PublicNotificationStreamService);
 
@@ -41,9 +43,25 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.seo.setIndexable({
-      title: 'Promoções | DescontoVivo',
-      description: 'DescontoVivo reúne promoções compartilhadas pela comunidade, com ofertas revisadas antes de aparecerem no site.',
+      title: 'DescontoVivo: Promoções e ofertas compartilhadas pela comunidade',
+      description: 'DescontoVivo reúne promoções compartilhadas pela comunidade, com ofertas revisadas antes de aparecerem no site. Encontre descontos em tecnologia, casa, mercado e mais.',
       canonicalPath: '/'
+    });
+
+    this.structuredData.setStructuredData('sd-website', {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      'name': 'DescontoVivo',
+      'alternateName': 'Desconto Vivo',
+      'url': 'https://descontovivo.com/'
+    });
+
+    this.structuredData.setStructuredData('sd-organization', {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      'name': 'DescontoVivo',
+      'url': 'https://descontovivo.com/',
+      'logo': 'https://descontovivo.com/brand/logo-og-image.jpg'
     });
 
     this.notificationSub = this.notificationStream.state$.subscribe((state) => {
@@ -78,6 +96,8 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.notificationSub?.unsubscribe();
+    this.structuredData.removeStructuredData('sd-website');
+    this.structuredData.removeStructuredData('sd-organization');
     this.feedState.save({
       promotions: this.promotions,
       currentPage: this.currentPage,

@@ -10,7 +10,7 @@
 
   <div class="promotion-card__content">
     <div class="promotion-card__title-row">
-      <h2>{{ promotion.title }}</h2>
+      <h2><a [routerLink]="['/promocoes', detailId]" (click)="$event.stopPropagation()">{{ promotion.title }}</a></h2>
 
       <div class="promotion-card__publisher">
         <span
@@ -61,7 +61,7 @@
               class="promotion-card__offer-link"
               [href]="externalOfferUrl"
               target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
+              [attr.rel]="externalOfferRel"
               (click)="$event.stopPropagation()"
               >{{ externalOfferLabel }}</a
             >

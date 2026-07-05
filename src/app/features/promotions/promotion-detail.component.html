@@ -39,6 +39,10 @@
 
         <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
 
+        <p class="promotion-detail__context-text">
+          Oferta publicada no DescontoVivo para {{ promotion.title }}@if (promotion.storeName) { em {{ promotion.storeName }}}@if (promotion.soldBy) {, vendido por {{ promotion.soldBy }}}@if (promotion.deliveredBy) { e entregue por {{ promotion.deliveredBy }}}. Confira os detalhes antes de comprar.
+        </p>
+
         <div class="promotion-detail__tags" aria-label="Tags da promoção">
           @for (tag of promotion.tags; track tag) {
             <span>#{{ tag }}</span>
@@ -88,7 +92,7 @@
               class="promotion-detail__cta"
               [href]="externalOfferUrl"
               target="_blank"
-              rel="nofollow sponsored noopener noreferrer"
+              [attr.rel]="externalOfferRel"
               [attr.aria-label]="externalOfferLabel"
             >
               {{ externalOfferLabel }}

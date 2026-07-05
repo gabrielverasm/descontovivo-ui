@@ -27,6 +27,15 @@ export class PromotionImageComponent {
     return this.currentPromotion;
   }
 
+  get imageAlt(): string {
+    const title = this.currentPromotion.title;
+    const store = this.currentPromotion.storeName;
+    if (store && store.toLowerCase() !== 'loja não identificada' && store.toLowerCase() !== 'loja-nao-identificada') {
+      return `${title} em ${store}`;
+    }
+    return title;
+  }
+
   @HostBinding('class.promotion-image--detail')
   get isDetailVariant() {
     return this.variant === 'detail';
