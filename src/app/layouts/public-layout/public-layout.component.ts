@@ -1,13 +1,14 @@
 import { Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
+import { Title } from '@angular/platform-browser';
 import { AuthService } from '../../core/services/auth.service';
 import { AccountMe } from '../../core/models/account-me.model';
 import { canModerate, hasRole } from '../../core/utils/permissions';
 import { PublicNotificationStreamService, PublicNotificationState } from '../../core/services/public-notification-stream.service';
 import { ModerationNotificationStreamService, ModerationNotificationState } from '../../core/services/moderation-notification-stream.service';
 import { AdminNotificationStreamService, AdminNotificationState } from '../../core/services/admin-notification-stream.service';
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-public-layout',
@@ -21,6 +22,8 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
   private readonly notificationStream = inject(PublicNotificationStreamService);
   private readonly moderationStream = inject(ModerationNotificationStreamService);
   private readonly adminStream = inject(AdminNotificationStreamService);
+  private readonly titleService = inject(Title);
+  private readonly router = inject(Router);
   readonly currentUser$ = this.authService.currentUser$;
 
   notificationState: PublicNotificationState = { connected: false, error: false, publishedCount: 0, latestPublishedAt: null, newPromotionsCount: 0 };
@@ -31,6 +34,7 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
   private userSub: Subscription | null = null;
   private moderationStateSub: Subscription | null = null;
   private adminStateSub: Subscription | null = null;
+  private routerSub: Subscription | null = null;
 
   isHeaderCompact = false;
   isMenuOpen = false;
@@ -46,6 +50,7 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
     this.notificationStream.connect();
     this.notificationSub = this.notificationStream.state$.subscribe((state) => {
       this.notificationState = state;
+      this.updateBrowserNotificationTitle();
     });
 
     this.userSub = this.authService.currentUser$.subscribe((user) => {
@@ -64,11 +69,21 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
 
     this.moderationStateSub = this.moderationStream.state$.subscribe((state) => {
       this.moderationState = state;
+      this.updateBrowserNotificationTitle();
     });
 
     this.adminStateSub = this.adminStream.state$.subscribe((state) => {
       this.adminState = state;
+      this.updateBrowserNotificationTitle();
     });
+
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => {
+        // After navigation, Angular TitleStrategy sets the route title.
+        // Re-apply notification prefix after a microtask so TitleStrategy runs first.
+        setTimeout(() => this.updateBrowserNotificationTitle(), 0);
+      });
   }
 
   ngOnDestroy(): void {
@@ -78,6 +93,7 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
     this.userSub?.unsubscribe();
     this.moderationStateSub?.unsubscribe();
     this.adminStateSub?.unsubscribe();
+    this.routerSub?.unsubscribe();
     this.notificationStream.disconnect();
     this.moderationStream.disconnect();
     this.adminStream.disconnect();
@@ -240,6 +256,53 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
 
   get hasDataRequestsOpen(): boolean {
     return this.adminState.dataRequestsOpenCount > 0;
+  }
+
+  // --- User menu badge (sum of admin notifications) ---
+
+  get userMenuNotificationCount(): number {
+    return this.moderationState.moderationPendingCount + this.adminState.dataRequestsOpenCount;
+  }
+
+  get hasUserMenuNotifications(): boolean {
+    return this.userMenuNotificationCount > 0;
+  }
+
+  get userMenuNotificationBadgeText(): string {
+    return this.formatNotificationCount(this.userMenuNotificationCount);
+  }
+
+  // --- Browser tab title management ---
+
+  get browserTabNotificationCount(): number {
+    return this.notificationState.newPromotionsCount
+      + this.moderationState.moderationPendingCount
+      + this.adminState.dataRequestsOpenCount;
+  }
+
+  private updateBrowserNotificationTitle(): void {
+    if (typeof document === 'undefined') return;
+
+    const currentTitle = this.titleService.getTitle();
+    const stripped = this.stripNotificationPrefix(currentTitle);
+    const total = this.browserTabNotificationCount;
+
+    if (total > 0) {
+      const prefix = this.formatNotificationCount(total);
+      this.titleService.setTitle(`(${prefix}) ${stripped}`);
+    } else {
+      this.titleService.setTitle(stripped);
+    }
+  }
+
+  private stripNotificationPrefix(title: string): string {
+    return title.replace(/^\(\d+\+?\)\s+/, '');
+  }
+
+  private formatNotificationCount(count: number): string {
+    if (count <= 0) return '';
+    if (count > 99) return '99+';
+    return String(count);
   }
 
   logout(): void {

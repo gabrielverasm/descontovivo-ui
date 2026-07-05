@@ -1,7 +1,5 @@
 import { Injectable, inject, NgZone, OnDestroy } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { Router, NavigationEnd } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription, filter } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface PublicPromotionsEvent {
@@ -25,11 +23,8 @@ export interface DisplayedFeedSnapshot {
 @Injectable({ providedIn: 'root' })
 export class PublicNotificationStreamService implements OnDestroy {
   private readonly ngZone = inject(NgZone);
-  private readonly titleService = inject(Title);
-  private readonly router = inject(Router);
 
   private eventSource: EventSource | null = null;
-  private routerSub: Subscription | null = null;
   private visibilityHandler: (() => void) | null = null;
 
   // Server snapshot — updated by SSE events
@@ -65,7 +60,6 @@ export class PublicNotificationStreamService implements OnDestroy {
       this.eventSource = null;
     }
 
-    this.subscribeToRouterEvents();
     this.subscribeToVisibilityChange();
 
     const url = `${environment.apiBaseUrl}/events/public/stream`;
@@ -109,8 +103,6 @@ export class PublicNotificationStreamService implements OnDestroy {
       this.eventSource = null;
     }
     this.updateState({ connected: false, error: false });
-    this.routerSub?.unsubscribe();
-    this.routerSub = null;
     this.unsubscribeVisibilityChange();
   }
 
@@ -146,7 +138,6 @@ export class PublicNotificationStreamService implements OnDestroy {
       this.displayedLatestPublishedAt = this.serverLatestPublishedAt;
     }
     this.updateState({ newPromotionsCount: 0 });
-    this.restoreBaseTitle();
   }
 
   ngOnDestroy(): void {
@@ -223,52 +214,10 @@ export class PublicNotificationStreamService implements OnDestroy {
     }
 
     this.updateState({ newPromotionsCount: newCount });
-    this.updateTabTitle(newCount);
   }
 
   private updateState(partial: Partial<PublicNotificationState>): void {
     this.stateSubject.next({ ...this.stateSubject.value, ...partial });
-  }
-
-  private updateTabTitle(count: number): void {
-    if (typeof document === 'undefined') return;
-
-    const currentTitle = this.titleService.getTitle();
-    const stripped = this.stripNotificationPrefix(currentTitle);
-
-    if (count > 0) {
-      const prefix = count > 99 ? '(99+)' : `(${count})`;
-      this.titleService.setTitle(`${prefix} ${stripped}`);
-    } else {
-      this.titleService.setTitle(stripped);
-    }
-  }
-
-  private restoreBaseTitle(): void {
-    if (typeof document === 'undefined') return;
-    const currentTitle = this.titleService.getTitle();
-    const stripped = this.stripNotificationPrefix(currentTitle);
-    this.titleService.setTitle(stripped);
-  }
-
-  private stripNotificationPrefix(title: string): string {
-    return title.replace(/^\(\d+\+?\)\s+/, '');
-  }
-
-  private subscribeToRouterEvents(): void {
-    if (this.routerSub) return;
-
-    this.routerSub = this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(() => {
-        // After navigation, Angular sets the route title.
-        // Re-apply notification prefix if there are new promotions.
-        const count = this.stateSubject.value.newPromotionsCount;
-        if (count > 0) {
-          // Small delay to ensure Angular's TitleStrategy has run
-          setTimeout(() => this.updateTabTitle(count), 0);
-        }
-      });
   }
 
   private subscribeToVisibilityChange(): void {

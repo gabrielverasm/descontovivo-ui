@@ -457,15 +457,7 @@
 .public-layout__admin-link {
   display: inline-flex !important;
   align-items: center;
-  font-size: 0.78rem !important;
-  font-weight: 700 !important;
-  color: #7c3aed !important;
-  background: rgba(124, 58, 237, 0.06);
-  padding: 0.32rem 0.6rem !important;
-}
-
-.public-layout__admin-link:hover {
-  background: rgba(124, 58, 237, 0.12) !important;
+  gap: 0.35rem;
 }
 
 .public-layout__logout {
@@ -576,6 +568,17 @@
   font-size: 0.58rem;
   min-width: 0.95rem;
   height: 0.95rem;
+  padding: 0 0.22rem;
+}
+
+.public-layout__badge--user-menu {
+  position: relative;
+  top: auto;
+  right: auto;
+  margin-left: 0.25rem;
+  font-size: 0.58rem;
+  min-width: 0.92rem;
+  height: 0.92rem;
   padding: 0 0.22rem;
 }
 

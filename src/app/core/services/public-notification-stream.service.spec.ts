@@ -1,6 +1,4 @@
-import { TestBed, fakeAsync } from '@angular/core/testing';
-import { Title } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
 import { PublicNotificationStreamService } from './public-notification-stream.service';
 
 // Mock EventSource
@@ -61,7 +59,6 @@ class MockEventSource {
 
 describe('PublicNotificationStreamService', () => {
   let service: PublicNotificationStreamService;
-  let titleService: Title;
   let originalEventSource: typeof EventSource;
 
   beforeEach(() => {
@@ -71,14 +68,11 @@ describe('PublicNotificationStreamService', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideRouter([]),
         PublicNotificationStreamService,
       ],
     });
 
     service = TestBed.inject(PublicNotificationStreamService);
-    titleService = TestBed.inject(Title);
-    titleService.setTitle('Promoções | DescontoVivo');
   });
 
   afterEach(() => {
@@ -366,55 +360,6 @@ describe('PublicNotificationStreamService', () => {
     expect(service.formatCount(100)).toBe('99+');
     expect(service.formatCount(500)).toBe('99+');
   });
-
-  // --- Tab title ---
-
-  it('should update tab title with notification prefix', fakeAsync(() => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
-    service.setDisplayedFeedSnapshot({ publishedCount: 7, latestPublishedAt: null });
-
-    expect(titleService.getTitle()).toBe('(3) Promoções | DescontoVivo');
-  }));
-
-  it('should not stack title prefixes', fakeAsync(() => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
-    es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: null });
-    es.simulateMessage('promotions', { publishedCount: 14, latestPublishedAt: null });
-
-    expect(titleService.getTitle()).toBe('(4) Promoções | DescontoVivo');
-  }));
-
-  it('should restore title on clearNewPromotions', fakeAsync(() => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 13, latestPublishedAt: null });
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
-    expect(titleService.getTitle()).toBe('(3) Promoções | DescontoVivo');
-
-    service.clearNewPromotions();
-    expect(titleService.getTitle()).toBe('Promoções | DescontoVivo');
-  }));
-
-  it('should use 99+ in title when count exceeds 99', fakeAsync(() => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
-    es.simulateMessage('promotions', { publishedCount: 200, latestPublishedAt: null });
-
-    expect(titleService.getTitle()).toBe('(99+) Promoções | DescontoVivo');
-  }));
 
   // --- Malformed data ---
 
