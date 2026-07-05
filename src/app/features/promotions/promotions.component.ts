@@ -24,6 +24,7 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly pageSize = 12;
   private currentPage = 0;
   private totalPages = 1;
+  private totalElements = 0;
   private pendingScrollY: number | null = null;
   private notificationSub: Subscription | null = null;
 
@@ -54,8 +55,13 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
       this.promotions = saved.promotions;
       this.currentPage = saved.currentPage;
       this.totalPages = saved.totalPages;
+      this.totalElements = saved.totalElements ?? 0;
       this.loading = false;
       this.pendingScrollY = saved.scrollY;
+
+      // Register the cached/displayed feed snapshot so the SSE service
+      // can detect staleness even when using cached data
+      this.registerDisplayedSnapshot(saved.promotions, saved.totalElements);
     } else {
       this.loadPage(0);
     }
@@ -76,6 +82,7 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
       promotions: this.promotions,
       currentPage: this.currentPage,
       totalPages: this.totalPages,
+      totalElements: this.totalElements,
       scrollY: window.scrollY,
     });
   }
@@ -89,9 +96,12 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.promotions = res.content;
         this.currentPage = res.page;
         this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
         this.loading = false;
         this.loadingMore = false;
 
+        // Register the new displayed snapshot, then clear badge
+        this.registerDisplayedSnapshot(res.content, res.totalElements);
         this.notificationStream.clearNewPromotions();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
@@ -129,9 +139,15 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.currentPage = res.page;
         this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
         this.loading = false;
         this.loadingMore = false;
         this.loadMoreError = '';
+
+        // Register displayed snapshot on first page load (initial load or page 0)
+        if (isFirst) {
+          this.registerDisplayedSnapshot(res.content, res.totalElements);
+        }
       },
       error: () => {
         if (isFirst) {
@@ -142,6 +158,21 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loading = false;
         this.loadingMore = false;
       },
+    });
+  }
+
+  /**
+   * Registers the currently displayed feed state with the notification stream service
+   * so it can compare against the server's state and show a stale-feed badge.
+   */
+  private registerDisplayedSnapshot(promotions: Promotion[], totalElements?: number): void {
+    const latestPublishedAt = promotions.length > 0
+      ? (promotions[0].publishedAt || promotions[0].createdAt || null)
+      : null;
+
+    this.notificationStream.setDisplayedFeedSnapshot({
+      publishedCount: totalElements ?? promotions.length,
+      latestPublishedAt,
     });
   }
 }

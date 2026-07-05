@@ -144,142 +144,203 @@ describe('PublicNotificationStreamService', () => {
     const es = getEventSource();
     es.simulatePermanentClose();
 
-    // Now connect() should create a new EventSource
     service.connect();
     expect(MockEventSource.instances.length).toBe(2);
   });
 
-  it('should clear eventSource reference on permanent close', () => {
-    service.connect();
-    const es = getEventSource();
+  // --- Server vs Displayed snapshot model ---
 
-    // Simulate permanent failure (CLOSED state triggers in onerror)
-    es.simulatePermanentClose();
-
-    // Should be able to connect again
-    service.connect();
-    expect(MockEventSource.instances.length).toBe(2);
-    expect(service.snapshot.error).toBeTrue(); // Still in error until new one opens
-  });
-
-  // --- Baseline and badge detection ---
-
-  it('should define baseline on first promotions event without showing badge', () => {
+  it('should use first SSE event as initial displayed snapshot when feed has not registered yet', () => {
     service.connect();
     const es = getEventSource();
     es.simulateOpen();
     es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T00:00:00Z' });
 
+    // No badge because first event is used as initial displayed state
     expect(service.snapshot.publishedCount).toBe(10);
     expect(service.snapshot.newPromotionsCount).toBe(0);
   });
 
-  it('should calculate newPromotionsCount when publishedCount increases', () => {
+  it('should show badge when server publishedCount > displayed publishedCount', () => {
     service.connect();
     const es = getEventSource();
     es.simulateOpen();
 
-    // First event: baseline
+    // First event sets initial displayed snapshot
     es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
     expect(service.snapshot.newPromotionsCount).toBe(0);
 
     // Second event: count increased by 3
     es.simulateMessage('promotions', { publishedCount: 13, latestPublishedAt: '2026-07-01T12:00:00Z' });
     expect(service.snapshot.newPromotionsCount).toBe(3);
-    expect(service.snapshot.publishedCount).toBe(13);
   });
 
-  it('should not show negative count when publishedCount decreases', () => {
+  it('should detect staleness when feed registers snapshot older than server', () => {
+    service.connect();
+    const es = getEventSource();
+    es.simulateOpen();
+
+    // SSE delivers server state
+    es.simulateMessage('promotions', { publishedCount: 15, latestPublishedAt: '2026-07-02T10:00:00Z' });
+
+    // Initially no badge (first event is initial displayed)
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+
+    // Feed loads from cache and registers an older snapshot
+    service.setDisplayedFeedSnapshot({ publishedCount: 12, latestPublishedAt: '2026-07-01T08:00:00Z' });
+
+    // Now badge should show difference
+    expect(service.snapshot.newPromotionsCount).toBe(3);
+  });
+
+  it('should show badge when feed registers snapshot with older latestPublishedAt', () => {
+    service.connect();
+    const es = getEventSource();
+    es.simulateOpen();
+
+    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-02T10:00:00Z' });
+
+    // Feed registers same count but older date
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T08:00:00Z' });
+
+    // At least 1 new promotion detected via date comparison
+    expect(service.snapshot.newPromotionsCount).toBe(1);
+  });
+
+  it('should clear badge when feed catches up with server', () => {
+    service.connect();
+    const es = getEventSource();
+    es.simulateOpen();
+
+    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T08:00:00Z' });
+
+    // Feed registers stale snapshot
+    service.setDisplayedFeedSnapshot({ publishedCount: 8, latestPublishedAt: '2026-06-30T10:00:00Z' });
+    expect(service.snapshot.newPromotionsCount).toBe(2);
+
+    // Feed refreshes and catches up
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T08:00:00Z' });
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+  });
+
+  it('should not show negative count when server count decreases', () => {
     service.connect();
     const es = getEventSource();
     es.simulateOpen();
 
     es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
+
+    // Server count decreases (deletion/rejection)
     es.simulateMessage('promotions', { publishedCount: 8, latestPublishedAt: null });
 
     expect(service.snapshot.newPromotionsCount).toBe(0);
   });
 
-  it('should detect new content via latestPublishedAt when count unchanged', () => {
+  it('should maintain badge across navigation (no auto-clear)', () => {
     service.connect();
     const es = getEventSource();
     es.simulateOpen();
 
-    // Baseline with a known timestamp
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T10:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(0);
-
-    // Same count but newer timestamp (one added, one removed simultaneously)
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T15:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(1);
-  });
-
-  it('should not show badge when count and timestamp are unchanged', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T10:00:00Z' });
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T10:00:00Z' });
-
-    expect(service.snapshot.newPromotionsCount).toBe(0);
-  });
-
-  it('should not alert via latestPublishedAt when baseline has no timestamp', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    // Baseline with null timestamp
     es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
+    service.setDisplayedFeedSnapshot({ publishedCount: 7, latestPublishedAt: null });
+    expect(service.snapshot.newPromotionsCount).toBe(3);
 
-    // Same count with a timestamp — should not flag as new
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T15:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(0);
+    // Badge persists — no auto-clear from navigation or other events
+    expect(service.snapshot.newPromotionsCount).toBe(3);
+  });
+
+  it('first SSE should not hide badge if feed loaded is stale', () => {
+    // Feed registers first (from cache)
+    service.setDisplayedFeedSnapshot({ publishedCount: 5, latestPublishedAt: '2026-06-30T00:00:00Z' });
+
+    // SSE connects later with newer state
+    service.connect();
+    const es = getEventSource();
+    es.simulateOpen();
+    es.simulateMessage('promotions', { publishedCount: 8, latestPublishedAt: '2026-07-01T10:00:00Z' });
+
+    // Badge should show 3
+    expect(service.snapshot.newPromotionsCount).toBe(3);
   });
 
   // --- clearNewPromotions ---
 
-  it('should clear new promotions count and reset baseline', () => {
+  it('should clear badge and align displayed snapshot to server on clearNewPromotions', () => {
     service.connect();
     const es = getEventSource();
     es.simulateOpen();
 
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
     es.simulateMessage('promotions', { publishedCount: 15, latestPublishedAt: '2026-07-01T12:00:00Z' });
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-06-30T10:00:00Z' });
     expect(service.snapshot.newPromotionsCount).toBe(5);
 
     service.clearNewPromotions();
     expect(service.snapshot.newPromotionsCount).toBe(0);
 
-    // Further events should use new baseline of 15
+    // Further events use new aligned baseline
     es.simulateMessage('promotions', { publishedCount: 17, latestPublishedAt: '2026-07-01T14:00:00Z' });
     expect(service.snapshot.newPromotionsCount).toBe(2);
   });
 
-  it('should not accumulate badge after clear and equal count but same timestamp', () => {
+  it('should not show badge after clear when same event arrives', () => {
+    service.connect();
+    const es = getEventSource();
+    es.simulateOpen();
+
+    es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: '2026-07-01T12:00:00Z' });
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T08:00:00Z' });
+    expect(service.snapshot.newPromotionsCount).toBe(2);
+
+    service.clearNewPromotions();
+
+    // Same event (no change)
+    es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: '2026-07-01T12:00:00Z' });
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+  });
+
+  // --- setDisplayedFeedSnapshot edge cases ---
+
+  it('should handle setDisplayedFeedSnapshot before any SSE event arrives', () => {
+    // No SSE connected yet — feed loads before stream
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T00:00:00Z' });
+
+    // No crash, no badge yet
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+
+    // SSE connects later
+    service.connect();
+    const es = getEventSource();
+    es.simulateOpen();
+    es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: '2026-07-01T10:00:00Z' });
+
+    // Now badge shows because displayed (10) < server (12)
+    expect(service.snapshot.newPromotionsCount).toBe(2);
+  });
+
+  it('should recalculate when setDisplayedFeedSnapshot is called with higher count', () => {
     service.connect();
     const es = getEventSource();
     es.simulateOpen();
 
     es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T10:00:00Z' });
-    es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: '2026-07-01T12:00:00Z' });
-    service.clearNewPromotions();
+    service.setDisplayedFeedSnapshot({ publishedCount: 8, latestPublishedAt: '2026-06-30T00:00:00Z' });
+    expect(service.snapshot.newPromotionsCount).toBe(2);
 
-    // Same event again (no change)
-    es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: '2026-07-01T12:00:00Z' });
+    // Feed refreshes and loads all 10
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T10:00:00Z' });
     expect(service.snapshot.newPromotionsCount).toBe(0);
   });
 
   // --- Reconnect preserves state ---
 
-  it('should preserve baseline and badge count across reconnect', () => {
+  it('should preserve badge count across reconnect', () => {
     service.connect();
     const es = getEventSource();
     es.simulateOpen();
 
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
     es.simulateMessage('promotions', { publishedCount: 13, latestPublishedAt: null });
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
     expect(service.snapshot.newPromotionsCount).toBe(3);
 
     // Reconnect
@@ -287,32 +348,12 @@ describe('PublicNotificationStreamService', () => {
     const es2 = getEventSource();
     es2.simulateOpen();
 
-    // Badge count should be preserved (newPromotionsCount stays in state)
+    // Stored badge count is maintained in state
     expect(service.snapshot.newPromotionsCount).toBe(3);
 
-    // New event after reconnect uses preserved baseline (10)
+    // New event uses preserved displayed snapshot (10)
     es2.simulateMessage('promotions', { publishedCount: 14, latestPublishedAt: null });
     expect(service.snapshot.newPromotionsCount).toBe(4);
-  });
-
-  it('should not reset baseline on reconnect when badge is pending', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 48, latestPublishedAt: '2026-07-01T10:00:00Z' });
-    es.simulateMessage('promotions', { publishedCount: 49, latestPublishedAt: '2026-07-01T12:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(1);
-
-    // Simulate permanent close + reconnect
-    es.simulatePermanentClose();
-    service.connect();
-    const es2 = getEventSource();
-    es2.simulateOpen();
-
-    // First event after reconnect should NOT reset baseline since it's already set
-    es2.simulateMessage('promotions', { publishedCount: 49, latestPublishedAt: '2026-07-01T12:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(1); // preserved, not reset to 0
   });
 
   // --- Format ---
@@ -334,7 +375,7 @@ describe('PublicNotificationStreamService', () => {
     es.simulateOpen();
 
     es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
-    es.simulateMessage('promotions', { publishedCount: 13, latestPublishedAt: null });
+    service.setDisplayedFeedSnapshot({ publishedCount: 7, latestPublishedAt: null });
 
     expect(titleService.getTitle()).toBe('(3) Promoções | DescontoVivo');
   }));
@@ -344,7 +385,7 @@ describe('PublicNotificationStreamService', () => {
     const es = getEventSource();
     es.simulateOpen();
 
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
     es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: null });
     es.simulateMessage('promotions', { publishedCount: 14, latestPublishedAt: null });
 
@@ -356,8 +397,8 @@ describe('PublicNotificationStreamService', () => {
     const es = getEventSource();
     es.simulateOpen();
 
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
     es.simulateMessage('promotions', { publishedCount: 13, latestPublishedAt: null });
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
     expect(titleService.getTitle()).toBe('(3) Promoções | DescontoVivo');
 
     service.clearNewPromotions();
@@ -369,7 +410,7 @@ describe('PublicNotificationStreamService', () => {
     const es = getEventSource();
     es.simulateOpen();
 
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
+    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
     es.simulateMessage('promotions', { publishedCount: 200, latestPublishedAt: null });
 
     expect(titleService.getTitle()).toBe('(99+) Promoções | DescontoVivo');
@@ -403,7 +444,6 @@ describe('PublicNotificationStreamService', () => {
     expect(MockEventSource.instances.length).toBe(1);
 
     // Simulate tab becoming visible
-    document.dispatchEvent(new Event('visibilitychange'));
     Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
     document.dispatchEvent(new Event('visibilitychange'));
 
@@ -427,19 +467,23 @@ describe('PublicNotificationStreamService', () => {
     expect(MockEventSource.instances.length).toBe(1);
   });
 
-  // --- publishedCount equal after disconnect does not reset badge ---
+  // --- Cache scenario: navigation does not clear badge ---
 
-  it('should preserve newPromotionsCount in state after disconnect', () => {
+  it('should not clear badge when navigating away and back with cache', () => {
     service.connect();
     const es = getEventSource();
     es.simulateOpen();
 
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
-    es.simulateMessage('promotions', { publishedCount: 13, latestPublishedAt: null });
+    // Server says 15
+    es.simulateMessage('promotions', { publishedCount: 15, latestPublishedAt: '2026-07-02T10:00:00Z' });
+
+    // Feed loaded from cache shows 12
+    service.setDisplayedFeedSnapshot({ publishedCount: 12, latestPublishedAt: '2026-07-01T08:00:00Z' });
     expect(service.snapshot.newPromotionsCount).toBe(3);
 
-    service.disconnect();
-    // newPromotionsCount should still be accessible in state (not reset)
-    expect(service.snapshot.newPromotionsCount).toBe(3);
+    // User navigates away (no action changes badge)
+    // User comes back — feed restores same cache
+    service.setDisplayedFeedSnapshot({ publishedCount: 12, latestPublishedAt: '2026-07-01T08:00:00Z' });
+    expect(service.snapshot.newPromotionsCount).toBe(3); // Still stale
   });
 });
