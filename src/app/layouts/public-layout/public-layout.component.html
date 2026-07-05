@@ -41,9 +41,9 @@
               type="button"
               (click)="toggleUserMenu()"
               [attr.aria-expanded]="isUserMenuOpen"
-              [attr.aria-label]="'Menu de ' + getUserDisplayName(user)"
+              [attr.aria-label]="hasUserMenuNotifications ? 'Menu de ' + getUserDisplayName(user) + ', ' + userMenuNotificationCount + ' notificações administrativas' : 'Menu de ' + getUserDisplayName(user)"
               [title]="getUserDisplayName(user)"
-            ><span class="public-layout__user-avatar" aria-hidden="true">{{ getUserInitial(user) }}</span> <span class="public-layout__user-name">{{ getUserDisplayName(user) }}</span><span class="public-layout__user-chevron" aria-hidden="true">▾</span></button>
+            ><span class="public-layout__user-avatar" aria-hidden="true">{{ getUserInitial(user) }}</span> <span class="public-layout__user-name">{{ getUserDisplayName(user) }}</span>@if (hasUserMenuNotifications) {<span class="public-layout__badge public-layout__badge--user-menu" aria-hidden="true">{{ userMenuNotificationBadgeText }}</span>}<span class="public-layout__user-chevron" aria-hidden="true">▾</span></button>
             @if (isUserMenuOpen) {
               <div class="public-layout__user-dropdown">
                 <a routerLink="/minha-conta" routerLinkActive="is-active" (click)="closeUserMenu()">Minha conta</a>
