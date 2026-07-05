@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { map, Subscription, switchMap } from 'rxjs';
+import { Subscription, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { CommentResponse } from '../../core/models/comment.model';
 import { Promotion } from '../../core/models/promotion.model';
@@ -9,6 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
 import { ImageProcessingService } from '../../core/services/image-processing.service';
 import { SeoService } from '../../core/services/seo.service';
+import { StructuredDataService } from '../../core/services/structured-data.service';
 import { ModerationDecisionRequest, ModerationService } from '../../core/services/moderation.service';
 import { PromotionService } from '../../core/services/promotion.service';
 import { UploadService } from '../../core/services/upload.service';
@@ -53,7 +55,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   private backButtonObserver?: IntersectionObserver;
   private floatingBackAnimationTimeout?: ReturnType<typeof setTimeout>;
-  private allPromotions: Promotion[] = [];
   private readonly relatedPageSize = 3;
   private readonly commentsPageSize = 5;
   private readonly route = inject(ActivatedRoute);
@@ -65,6 +66,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
   private readonly seo = inject(SeoService);
+  private readonly structuredData = inject(StructuredDataService);
 
   // Admin state
   isEditMode = false;
@@ -104,16 +106,26 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   commentError = '';
 
   private readonly routeSubscription: Subscription = this.route.paramMap.pipe(
-    switchMap((params) => {
-      const id = params.get('id') || '';
-      return this.promotionService.getApprovedPromotions().pipe(
-        map((promotions) => ({ promotions, id }))
-      );
-    })
-  ).subscribe(({ promotions, id }) => {
-    this.allPromotions = promotions;
-    this.setPromotion(id);
-    this.loadComments();
+    map(params => params.get('id') || ''),
+    switchMap((slug) =>
+      this.promotionService.getPromotionBySlug(slug).pipe(
+        catchError(() => of(null))
+      )
+    )
+  ).subscribe((promotion) => {
+    this.promotion = promotion ?? undefined;
+    this.comments = [];
+    this.relatedPromotions = [];
+    this.relatedPage = 0;
+    this.visibleCommentsCount = this.commentsPageSize;
+
+    this.updateSeoMeta();
+    this.updateStructuredData();
+
+    if (this.promotion) {
+      this.loadComments();
+      this.loadRelatedPromotions();
+    }
   });
 
   get isAuthenticated(): boolean { return this.authService.canComment(); }
@@ -158,6 +170,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   get externalOfferUrl() {
     return this.promotion?.url || this.promotion?.offerUrl || this.promotion?.storeUrl || '';
+  }
+
+  get externalOfferRel(): string {
+    const isSponsored = this.promotion?.sponsoredLink === true
+      || (this.promotion?.affiliateProgram != null && this.promotion?.affiliateProgram !== 'NONE');
+    return isSponsored ? 'sponsored noopener noreferrer' : 'noopener noreferrer';
   }
 
   get isAmazonFulfillment(): boolean {
@@ -295,12 +313,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.moderationService.decide(this.promotion!.id, req).subscribe({
       next: (updated) => {
         this.promotion = this.normalizeUpdated(updated);
-        const idx = this.allPromotions.findIndex((p) => p.id === updated.id);
-        if (idx >= 0) this.allPromotions[idx] = this.promotion;
         this.isEditMode = false;
         this.isAdminSaving = false;
         this.adminMessage = 'Promoção atualizada com sucesso.';
         this.resetAdminImage();
+        this.updateSeoMeta();
+        this.updateStructuredData();
       },
       error: () => {
         this.isAdminSaving = false;
@@ -405,17 +423,23 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.backButtonObserver?.disconnect();
     clearTimeout(this.floatingBackAnimationTimeout);
     this.routeSubscription.unsubscribe();
+    this.structuredData.clearPageStructuredData();
   }
 
-  private setPromotion(promotionId: string | null) {
-    this.promotion = this.allPromotions.find(
-      (promotion) => promotion.id === promotionId || promotion.slug === promotionId,
-    );
-    this.comments = [];
-    this.relatedPromotions = this.promotion ? this.findRelatedPromotions(this.promotion) : [];
-    this.relatedPage = 0;
-    this.visibleCommentsCount = this.commentsPageSize;
-    this.updateSeoMeta();
+  private loadRelatedPromotions(): void {
+    if (!this.promotion) {
+      this.relatedPromotions = [];
+      return;
+    }
+    this.promotionService.getRelatedPromotions(this.promotion, 6).subscribe({
+      next: (related) => {
+        this.relatedPromotions = related;
+        this.relatedPage = 0;
+      },
+      error: () => {
+        this.relatedPromotions = [];
+      }
+    });
   }
 
   private updateSeoMeta() {
@@ -428,15 +452,95 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     }
 
     const { title, currentPrice, storeName } = this.promotion;
-    const priceStr = currentPrice != null ? ` por R$${currentPrice.toFixed(2).replace('.', ',')}` : '';
+    const priceStr = currentPrice != null ? ` por R$\u00A0${currentPrice.toFixed(2).replace('.', ',')}` : '';
     const storeStr = storeName ? ` em ${storeName}` : '';
 
+    const seoTitle = currentPrice != null
+      ? `${title} por R$\u00A0${currentPrice.toFixed(2).replace('.', ',')} | DescontoVivo`
+      : `${title} | DescontoVivo`;
+
+    let seoDescription: string;
+    if (currentPrice != null && storeName && this.promotion.originalPrice) {
+      seoDescription = `Oferta de ${title} por R$\u00A0${currentPrice.toFixed(2).replace('.', ',')}${storeStr}. Antes era R$\u00A0${this.promotion.originalPrice.toFixed(2).replace('.', ',')}. Confira detalhes no DescontoVivo.`;
+    } else if (currentPrice != null && storeName) {
+      seoDescription = `Oferta de ${title} por R$\u00A0${currentPrice.toFixed(2).replace('.', ',')}${storeStr}. Confira detalhes no DescontoVivo.`;
+    } else {
+      seoDescription = `Veja a promoção ${title}${priceStr}${storeStr} no DescontoVivo.`;
+    }
+
     this.seo.setIndexable({
-      title: `${title} | DescontoVivo`,
-      description: `Veja a promoção ${title}${priceStr}${storeStr} no DescontoVivo.`,
+      title: seoTitle,
+      description: seoDescription,
       canonicalPath: `/promocoes/${this.promotion.slug || this.promotion.id}`,
       imageUrl: this.promotion.imageUrl || undefined
     });
+  }
+
+  private updateStructuredData(): void {
+    this.structuredData.clearPageStructuredData();
+
+    if (!this.promotion) return;
+
+    const { title, currentPrice, storeName, imageUrl, slug, id } = this.promotion;
+
+    // Only add Product JSON-LD if we have minimum required data (name + price)
+    if (title && currentPrice != null) {
+      const canonicalUrl = `https://descontovivo.com/promocoes/${slug || id}`;
+      const storeStr = storeName || '';
+
+      const descriptionParts = [`Oferta de ${title}`];
+      if (storeStr) descriptionParts[0] += ` em ${storeStr}`;
+      descriptionParts.push('Publicada no DescontoVivo.');
+
+      const offer: Record<string, unknown> = {
+        '@type': 'Offer',
+        'priceCurrency': 'BRL',
+        'price': currentPrice.toFixed(2),
+        'url': canonicalUrl
+      };
+
+      // Only include availability if we have reliable data from the model
+      const availability = this.resolveOfferAvailability();
+      if (availability) {
+        offer['availability'] = availability;
+      }
+
+      if (storeStr) {
+        offer['seller'] = {
+          '@type': 'Organization',
+          'name': storeStr
+        };
+      }
+
+      const productData: Record<string, unknown> = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        'name': title,
+        'description': descriptionParts.join(' '),
+        'offers': offer
+      };
+
+      if (imageUrl) {
+        productData['image'] = imageUrl;
+      }
+
+      this.structuredData.setStructuredData('sd-page-product', productData);
+    }
+  }
+
+  private resolveOfferAvailability(): string | null {
+    if (!this.promotion) return null;
+
+    // Use explicit availability field from the API if present
+    const avail = this.promotion.availability?.toLowerCase();
+    if (avail === 'in_stock' || avail === 'instock') return 'https://schema.org/InStock';
+    if (avail === 'out_of_stock' || avail === 'outofstock' || avail === 'expired') return 'https://schema.org/OutOfStock';
+
+    // Use status: rejected/pending implies not publicly available
+    if (this.promotion.status === 'rejected') return 'https://schema.org/Discontinued';
+
+    // If approved and no availability field, we cannot confidently determine stock status
+    return null;
   }
 
   private normalizeDestinationName(destinationName: string) {
@@ -444,48 +548,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     if (lower === 'loja não identificada' || lower === 'loja-nao-identificada') return '';
     if (lower === 'amazon.com.br') return 'Amazon';
     return destinationName;
-  }
-
-  private findRelatedPromotions(currentPromotion: Promotion) {
-    const currentTags = new Set(currentPromotion.tags.map((tag) => tag.toLowerCase()));
-    const currentTitleWords = this.getTitleWords(currentPromotion.title);
-    const scoredPromotions = this.allPromotions.filter((promotion) => promotion.id !== currentPromotion.id)
-      .map((promotion) => {
-        const sharedTags = promotion.tags.filter((tag) => currentTags.has(tag.toLowerCase())).length;
-        const titleWords = Array.from(this.getTitleWords(promotion.title));
-        const sharedTitleWords = titleWords.filter((word: string) => currentTitleWords.has(word)).length;
-        const score =
-          (promotion.category === currentPromotion.category ? 10 : 0) +
-          sharedTags * 5 +
-          sharedTitleWords * 2;
-
-        return { promotion, score };
-      })
-      .filter((item) => item.score > 0)
-      .sort((firstItem, secondItem) => {
-        const scoreDifference = secondItem.score - firstItem.score;
-
-        if (scoreDifference !== 0) {
-          return scoreDifference;
-        }
-
-        return this.getPromotionDateTime(secondItem.promotion) - this.getPromotionDateTime(firstItem.promotion);
-      });
-
-    const relatedPromotions = scoredPromotions.map((item) => item.promotion);
-
-    if (relatedPromotions.length >= this.relatedPageSize) {
-      return relatedPromotions;
-    }
-
-    const relatedIds = new Set(relatedPromotions.map((promotion) => promotion.id));
-    const fallbackPromotions = this.allPromotions.filter(
-      (promotion) => promotion.id !== currentPromotion.id && !relatedIds.has(promotion.id),
-    ).sort((firstPromotion, secondPromotion) => (
-      this.getPromotionDateTime(secondPromotion) - this.getPromotionDateTime(firstPromotion)
-    ));
-
-    return [...relatedPromotions, ...fallbackPromotions];
   }
 
   private normalizeUpdated(p: Partial<Promotion> & { id: string }): Promotion {
@@ -512,18 +574,5 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       couponCode: p.couponCode ?? base.couponCode,
       category: p.category || base.category || '',
     } as Promotion;
-  }
-
-  private getPromotionDateTime(promotion: Promotion) {
-    return new Date(promotion.publishedAt || promotion.createdAt).getTime();
-  }
-
-  private getTitleWords(title: string) {
-    return new Set(
-      title
-        .toLowerCase()
-        .split(/\W+/)
-        .filter((word) => word.length > 2),
-    );
   }
 }

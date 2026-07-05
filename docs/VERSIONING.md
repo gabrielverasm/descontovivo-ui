@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.1.0** (MVP)
+**0.2.0**
 
 ## Convenção
 
@@ -23,10 +23,11 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 1. Toda PR deve avaliar se precisa de bump de versão.
 2. O checklist do PR template inclui lembrete de atualização.
-3. O footer exibe `UI v0.1.0 · API v0.1.0` para facilitar validação de deploy.
+3. O footer exibe `UI v0.2.0 · API v0.1.0` para facilitar validação de deploy.
 
 ## Histórico
 
 | Versão | Data | Descrição |
 |--------|------|-----------|
 | 0.1.0 | 2026-07-05 | MVP inicial |
+| 0.2.0 | 2026-07-05 | SEO orgânico inicial: brand signals, JSON-LD, detail por slug e metadados melhores |

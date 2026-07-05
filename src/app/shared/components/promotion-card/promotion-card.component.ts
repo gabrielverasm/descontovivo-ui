@@ -132,6 +132,12 @@ export class PromotionCardComponent {
     return this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '';
   }
 
+  get externalOfferRel(): string {
+    const isSponsored = this.promotion.sponsoredLink === true
+      || (this.promotion.affiliateProgram != null && this.promotion.affiliateProgram !== 'NONE');
+    return isSponsored ? 'sponsored noopener noreferrer' : 'noopener noreferrer';
+  }
+
   get externalOfferLabel() {
     const destinationName = this.normalizeDestinationName(
       this.promotion.sellerName?.trim() ||

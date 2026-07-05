@@ -1,7 +1,7 @@
 @if (!imageUnavailable) {
   <img
     [src]="promotion.imageUrl"
-    [alt]="promotion.title"
+    [alt]="imageAlt"
     loading="lazy"
     (error)="markImageUnavailable()"
   />
