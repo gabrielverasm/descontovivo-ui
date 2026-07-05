@@ -1,7 +1,9 @@
 .auth-page {
   display: grid;
   gap: 1rem;
-  max-width: 520px;
+  width: 100%;
+  max-width: 560px;
+  margin-inline: auto;
   padding-block: 1.2rem;
 }
 
