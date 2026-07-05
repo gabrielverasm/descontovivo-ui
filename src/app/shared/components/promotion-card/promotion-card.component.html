@@ -62,7 +62,7 @@
               [href]="externalOfferUrl"
               target="_blank"
               [attr.rel]="externalOfferRel"
-              (click)="$event.stopPropagation()"
+              (click)="trackStoreClick($event)"
               >{{ externalOfferLabel }}</a
             >
           }

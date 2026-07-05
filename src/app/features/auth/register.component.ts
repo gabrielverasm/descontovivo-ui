@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
+import { AnalyticsService } from '../../core/analytics/analytics.service';
 
 @Component({
   selector: 'app-register',
@@ -12,6 +13,7 @@ import { SeoService } from '../../core/services/seo.service';
 })
 export class RegisterComponent implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly analytics = inject(AnalyticsService);
 
   constructor() {
     inject(SeoService).setNoIndex();
@@ -23,6 +25,7 @@ export class RegisterComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.analytics.trackSignUpStart();
     this.authService.register();
   }
 }

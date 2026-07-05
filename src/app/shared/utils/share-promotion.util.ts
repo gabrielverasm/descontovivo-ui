@@ -2,6 +2,8 @@
  * Helper para compartilhar promoção via Web Share API ou clipboard fallback.
  */
 
+import { appendUtmParams, buildShareUtm } from '../../core/analytics/utm.util';
+
 export interface SharePromotionData {
   title: string;
   currentPrice: number;
@@ -52,26 +54,34 @@ async function buildImageFile(imageUrl: string, promotion: SharePromotionData): 
 }
 
 /**
- * Compartilha a promoção. Retorna true se conseguiu compartilhar/copiar.
- * Tenta incluir imagem quando o navegador suportar.
+ * Detects the share method used based on Web Share API result.
+ * Falls back to 'native_share' since Web Share API doesn't expose the target app.
  */
-export async function sharePromotion(promotion: SharePromotionData): Promise<boolean> {
-  const url = buildShareUrl(promotion);
+type ShareMethod = 'whatsapp' | 'native_share' | 'copy_link';
+
+/**
+ * Compartilha a promoção. Retorna o método usado ou null se cancelado.
+ * Tenta incluir imagem quando o navegador suportar.
+ * Inclui UTM params no link compartilhado.
+ */
+export async function sharePromotion(promotion: SharePromotionData): Promise<ShareMethod | null> {
+  const baseUrl = buildShareUrl(promotion);
   const text = buildShareText(promotion);
 
   if (navigator.share) {
+    const utmUrl = appendUtmParams(baseUrl, buildShareUtm('native_share'));
     // Tentar compartilhar com imagem
     const imageFile = promotion.imageUrl ? await buildImageFile(promotion.imageUrl, promotion) : null;
 
     if (imageFile) {
-      const dataWithFile: ShareData = { title: promotion.title, text, url, files: [imageFile] };
+      const dataWithFile: ShareData = { title: promotion.title, text, url: utmUrl, files: [imageFile] };
 
       if (navigator.canShare?.(dataWithFile)) {
         try {
           await navigator.share(dataWithFile);
-          return true;
+          return 'native_share';
         } catch (e: unknown) {
-          if (e instanceof DOMException && e.name === 'AbortError') return false;
+          if (e instanceof DOMException && e.name === 'AbortError') return null;
           // Se falhar com imagem, tenta sem imagem abaixo
         }
       }
@@ -79,26 +89,27 @@ export async function sharePromotion(promotion: SharePromotionData): Promise<boo
 
     // Compartilhar sem imagem
     try {
-      await navigator.share({ title: promotion.title, text, url });
-      return true;
+      await navigator.share({ title: promotion.title, text, url: utmUrl });
+      return 'native_share';
     } catch (e: unknown) {
-      if (e instanceof DOMException && e.name === 'AbortError') return false;
+      if (e instanceof DOMException && e.name === 'AbortError') return null;
     }
   }
 
-  // Clipboard fallback
-  const clipboardText = buildClipboardText(promotion, url);
+  // Clipboard fallback com UTM
+  const utmUrl = appendUtmParams(baseUrl, buildShareUtm('copy_link'));
+  const clipboardText = buildClipboardText(promotion, utmUrl);
 
   if (navigator.clipboard?.writeText) {
     try {
       await navigator.clipboard.writeText(clipboardText);
-      return true;
+      return 'copy_link';
     } catch {
       // Clipboard falhou
     }
   }
 
   // Último fallback
-  window.prompt('Copie o link da promoção:', url);
-  return false;
+  window.prompt('Copie o link da promoção:', utmUrl);
+  return 'copy_link';
 }

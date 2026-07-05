@@ -8,6 +8,7 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
 import { FloatingFieldComponent } from '../../shared/components/floating-field/floating-field.component';
 import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
+import { AnalyticsService } from '../../core/analytics/analytics.service';
 
 type ImageStatus = 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error';
 
@@ -23,6 +24,7 @@ export class PublishPromotionComponent implements OnDestroy {
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
   private readonly promotionService = inject(PromotionService);
+  private readonly analytics = inject(AnalyticsService);
 
   title = '';
   url = '';
@@ -84,6 +86,8 @@ export class PublishPromotionComponent implements OnDestroy {
   async onSubmit(): Promise<void> {
     if (this.submitDisabled) return;
 
+    this.analytics.trackPromotionSubmitStart();
+
     const price = parseBRLInputToNumber(this.currentPrice);
     if (!price || price <= 0) {
       this.submitError = 'Preço inválido.';
@@ -128,6 +132,7 @@ export class PublishPromotionComponent implements OnDestroy {
       next: () => {
         this.submitting = false;
         this.submitMessage = 'Promoção enviada para moderação com sucesso.';
+        this.analytics.trackPromotionSubmit();
         this.resetForm();
       },
       error: () => {

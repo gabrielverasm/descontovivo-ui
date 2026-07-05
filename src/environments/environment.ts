@@ -8,4 +8,7 @@ export const environment = {
     redirectUri: 'https://descontovivo.com',
     postLogoutRedirectUri: 'https://descontovivo.com',
   },
+  analytics: {
+    ga4MeasurementId: '', // TODO: Preencher com o Measurement ID do GA4 (ex: G-XXXXXXXXXX)
+  },
 };

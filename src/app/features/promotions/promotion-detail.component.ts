@@ -27,6 +27,9 @@ import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../sh
 import { resolveStoreName } from '../../shared/utils/store-name.util';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../shared/utils/seller.util';
 import { sharePromotion } from '../../shared/utils/share-promotion.util';
+import { AnalyticsService } from '../../core/analytics/analytics.service';
+import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
+import { UI_VERSION } from '../../core/app-version';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -67,6 +70,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly uploadService = inject(UploadService);
   private readonly seo = inject(SeoService);
   private readonly structuredData = inject(StructuredDataService);
+  private readonly analytics = inject(AnalyticsService);
 
   // Admin state
   isEditMode = false;
@@ -123,6 +127,14 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.updateStructuredData();
 
     if (this.promotion) {
+      this.analytics.trackViewPromotion(
+        buildViewPromotionParams(
+          this.promotion.id,
+          this.promotion.slug || this.promotion.id,
+          this.promotion.storeName,
+          this.promotion.currentPrice,
+        ),
+      );
       this.loadComments();
       this.loadRelatedPromotions();
     }
@@ -159,6 +171,11 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
         this.comments = [created, ...this.comments];
         if (this.promotion) {
           this.promotion = { ...this.promotion, commentsCount: (this.promotion.commentsCount ?? 0) + 1 };
+          this.analytics.trackCommentSubmit({
+            promotion_id: this.promotion.id,
+            promotion_slug: this.promotion.slug || this.promotion.id,
+            ui_version: UI_VERSION,
+          });
         }
       },
       error: () => {
@@ -227,7 +244,25 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   sharePromotion() {
     if (!this.promotion) return;
-    void sharePromotion(this.promotion);
+    void sharePromotion(this.promotion).then((method) => {
+      if (method && this.promotion) {
+        this.analytics.trackSharePromotion(
+          buildShareParams(method, this.promotion.slug || this.promotion.id, this.promotion.storeName),
+        );
+      }
+    });
+  }
+
+  trackDetailStoreClick(): void {
+    if (!this.promotion) return;
+    this.analytics.trackClickStore(
+      buildClickStoreParams(
+        this.promotion.id,
+        this.promotion.slug || this.promotion.id,
+        this.promotion.storeName,
+        'detail',
+      ),
+    );
   }
 
   openEditMode() {

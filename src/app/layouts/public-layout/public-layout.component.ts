@@ -11,11 +11,12 @@ import { ModerationNotificationStreamService, ModerationNotificationState } from
 import { AdminNotificationStreamService, AdminNotificationState } from '../../core/services/admin-notification-stream.service';
 import { VersionService } from '../../core/services/version.service';
 import { UI_VERSION } from '../../core/app-version';
+import { AnalyticsConsentBannerComponent } from '../../core/analytics/analytics-consent-banner.component';
 
 @Component({
   selector: 'app-public-layout',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, AsyncPipe],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, AsyncPipe, AnalyticsConsentBannerComponent],
   templateUrl: './public-layout.component.html',
   styleUrl: './public-layout.component.scss'
 })

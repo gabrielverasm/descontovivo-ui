@@ -8,4 +8,7 @@ export const environment = {
     redirectUri: 'http://localhost:4200',
     postLogoutRedirectUri: 'http://localhost:4200',
   },
+  analytics: {
+    ga4MeasurementId: '',
+  },
 };
