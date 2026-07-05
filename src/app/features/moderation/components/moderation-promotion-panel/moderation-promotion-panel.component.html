@@ -116,6 +116,45 @@
           </label>
         </div>
 
+        <!-- Categorias cadastradas -->
+        <div class="mod-panel__categories">
+          <span class="mod-panel__categories-title">Categorias cadastradas</span>
+
+          @if (categoriesLoading) {
+            <span class="mod-panel__categories-status">Carregando...</span>
+          } @else if (categoriesError) {
+            <span class="mod-panel__categories-status mod-panel__categories-status--error">
+              Erro ao carregar. <button type="button" class="mod-panel__btn-micro" (click)="loadCategories()">Tentar novamente</button>
+            </span>
+          } @else if (categories.length === 0) {
+            <span class="mod-panel__categories-status">Nenhuma categoria cadastrada ainda.</span>
+          } @else {
+            <div class="mod-panel__categories-list">
+              @for (cat of categories; track cat.name) {
+                <div class="mod-panel__category-item">
+                  @if (editingCategory === cat.name) {
+                    <input
+                      type="text"
+                      class="mod-panel__category-edit-input"
+                      [(ngModel)]="editingCategoryName"
+                      (keydown)="onEditCategoryKeydown($event, cat.name)"
+                      maxlength="50"
+                    />
+                    <button type="button" class="mod-panel__btn-micro" (click)="saveEditCategory(cat.name)" aria-label="Salvar categoria">✓</button>
+                    <button type="button" class="mod-panel__btn-micro" (click)="cancelEditCategory()" aria-label="Cancelar edição">✕</button>
+                  } @else {
+                    <button type="button" class="mod-panel__category-name" (click)="selectCategory(cat.name)" [attr.aria-label]="'Usar categoria ' + cat.name">
+                      {{ cat.name }} <small>({{ cat.promotionCount }})</small>
+                    </button>
+                    <button type="button" class="mod-panel__btn-micro" (click)="startEditCategory(cat.name)" [attr.aria-label]="'Editar categoria ' + cat.name">✎</button>
+                    <button type="button" class="mod-panel__btn-micro mod-panel__btn-micro--danger" (click)="deleteCategory(cat)" [attr.aria-label]="'Excluir categoria ' + cat.name">✕</button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
         <div class="mod-panel__field">
           <span>Selo de preço</span>
           <select [(ngModel)]="editForm.priceSignal">
