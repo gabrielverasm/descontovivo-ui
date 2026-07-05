@@ -24,6 +24,9 @@ declare global {
   }
 }
 
+/** Maximum number of events buffered while GA4 is loading */
+const MAX_PENDING_EVENTS = 20;
+
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService implements OnDestroy {
   private readonly router = inject(Router);
@@ -34,8 +37,10 @@ export class AnalyticsService implements OnDestroy {
   private routerSub: Subscription | null = null;
   private consentSub: Subscription | null = null;
   private initialized = false;
-  private scriptLoaded = false;
+  private ga4Ready = false;
+  private ga4Loading = false;
   private lastTrackedPath = '';
+  private pendingEvents: Array<{ name: string; params: object }> = [];
 
   /**
    * Call once from AppComponent.ngOnInit() to wire up page view tracking
@@ -49,7 +54,6 @@ export class AnalyticsService implements OnDestroy {
     if (this.initialized) return;
     this.initialized = true;
 
-    // Log initialization state in debug mode
     if (analyticsConfig.debug) {
       console.log('[Analytics] Init', {
         ga4Enabled: analyticsConfig.ga4Enabled,
@@ -69,8 +73,6 @@ export class AnalyticsService implements OnDestroy {
     }
 
     // Track page views on route change — works in BOTH dev and prod
-    // In dev: logs to console for validation
-    // In prod: sends to GA4 (if consent granted and ID configured)
     this.routerSub = this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((event) => {
@@ -84,8 +86,7 @@ export class AnalyticsService implements OnDestroy {
         }, 0);
       });
 
-    // Safe initial page_view: if NavigationEnd already fired before subscription,
-    // track the current URL so the first page view is never lost.
+    // Safe initial page_view: if NavigationEnd already fired before subscription
     this.trackInitialPageViewIfMissed();
   }
 
@@ -161,6 +162,15 @@ export class AnalyticsService implements OnDestroy {
       return;
     }
 
+    // If GA4 is not ready yet, queue the event and ensure activation is in progress
+    if (!this.ga4Ready) {
+      if (this.pendingEvents.length < MAX_PENDING_EVENTS) {
+        this.pendingEvents.push({ name: eventName, params });
+      }
+      this.activateGa4();
+      return;
+    }
+
     if (typeof window.gtag === 'function') {
       window.gtag('event', eventName, params);
     }
@@ -168,33 +178,58 @@ export class AnalyticsService implements OnDestroy {
 
   /**
    * Activates GA4 when consent is granted.
-   * Only loads the script once. On subsequent calls (e.g. consent toggled), does nothing.
+   * Loads the script and waits for onload before configuring the measurement ID.
    *
-   * The correct initialization order for GA4 with consent mode:
+   * Initialization order (all AFTER script.onload):
    * 1. Initialize dataLayer and window.gtag function
    * 2. Set consent defaults (denied for all)
-   * 3. Update consent to granted (before config so GA4 knows it can collect)
+   * 3. Update consent to granted
    * 4. Call gtag('js', new Date())
    * 5. Call gtag('config', measurementId, { send_page_view: false })
-   * 6. Inject the gtag.js script tag
-   * 7. Fire an initial page_view for the current route
+   * 6. Flush pending events
+   * 7. Fire initial page_view
    */
   private activateGa4(): void {
-    if (this.scriptLoaded) return;
-    this.scriptLoaded = true;
+    if (this.ga4Ready || this.ga4Loading) return;
+    this.ga4Loading = true;
 
     const id = analyticsConfig.ga4MeasurementId;
-    if (!id) return;
+    if (!id) {
+      this.ga4Loading = false;
+      return;
+    }
 
+    // Step 1: Initialize dataLayer and gtag function BEFORE injecting script
+    // so that commands queued after load are processed correctly
     this.initDataLayer();
-    this.setConsentDefault();
-    this.setConsentGranted();
-    this.configureMeasurement(id);
-    this.injectScript(id);
-    this.fireInitialPageView();
+
+    // Step 2: Inject script and wait for onload
+    this.injectScript(id)
+      .then(() => {
+        // Script is loaded and processing — now configure GA4
+        this.setConsentDefault();
+        this.setConsentGranted();
+        this.configureMeasurement(id);
+
+        this.ga4Ready = true;
+        this.ga4Loading = false;
+
+        this.flushPendingEvents();
+        this.fireInitialPageView();
+
+        if (analyticsConfig.debug) {
+          console.log('[Analytics] GA4 ready after script load');
+        }
+      })
+      .catch((err) => {
+        this.ga4Loading = false;
+        if (analyticsConfig.debug) {
+          console.warn('[Analytics] Failed to load gtag.js script', err);
+        }
+      });
   }
 
-  /** Step 1: Initialize dataLayer and define window.gtag */
+  /** Initialize dataLayer and define window.gtag */
   private initDataLayer(): void {
     window.dataLayer = window.dataLayer || [];
     window.gtag = function (...args: unknown[]) {
@@ -202,7 +237,28 @@ export class AnalyticsService implements OnDestroy {
     };
   }
 
-  /** Step 2: Set consent defaults to denied (required by Google consent mode v2) */
+  /** Inject the gtag.js script tag and return a Promise that resolves on load */
+  private injectScript(id: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const doc = this.document;
+
+      // If script already exists in DOM, resolve immediately
+      const existing = doc.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${id}"]`);
+      if (existing) {
+        resolve();
+        return;
+      }
+
+      const script = doc.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error(`Failed to load gtag.js for ${id}`));
+      doc.head.appendChild(script);
+    });
+  }
+
+  /** Set consent defaults to denied (required by Google consent mode v2) */
   private setConsentDefault(): void {
     window.gtag('consent', 'default', {
       analytics_storage: 'denied',
@@ -212,36 +268,38 @@ export class AnalyticsService implements OnDestroy {
     });
   }
 
-  /** Step 3: Update consent to granted BEFORE config so GA4 dispatches events */
+  /** Update consent to granted BEFORE config so GA4 dispatches events */
   private setConsentGranted(): void {
     window.gtag('consent', 'update', {
       analytics_storage: 'granted',
     });
   }
 
-  /** Step 4-5: Register gtag timestamp and configure measurement ID */
+  /** Register gtag timestamp and configure measurement ID */
   private configureMeasurement(id: string): void {
     window.gtag('js', new Date());
     window.gtag('config', id, { send_page_view: false });
   }
 
-  /** Step 6: Inject the gtag.js script tag into the document head */
-  private injectScript(id: string): void {
-    const doc = this.document;
-    const script = doc.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
-    doc.head.appendChild(script);
+  /** Send all queued events that were buffered while GA4 was loading */
+  private flushPendingEvents(): void {
+    const events = this.pendingEvents.splice(0);
+    for (const { name, params } of events) {
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', name, params);
+      }
+    }
   }
 
   /**
-   * Step 7: Fire a page_view for the current route after GA4 is activated.
+   * Fire a page_view for the current route after GA4 is activated.
    * The initial NavigationEnd likely fired before GA4 was ready, so this
    * ensures the first page view is always collected.
    */
   private fireInitialPageView(): void {
     const currentPath = this.router.url || '/';
 
+    // Avoid duplicate if already tracked (from router subscription or pending queue)
     if (currentPath === this.lastTrackedPath) {
       return;
     }
