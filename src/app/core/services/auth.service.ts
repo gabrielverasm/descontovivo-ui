@@ -5,7 +5,6 @@ import { BehaviorSubject, catchError, map, Observable, of, switchMap, tap } from
 import { AccountMe } from '../models/account-me.model';
 import { AccountService } from './account.service';
 import { canComment, canModerate, canPublish, canVote, hasRole } from '../utils/permissions';
-import { environment } from '../../../environments/environment';
 
 const RETURN_URL_KEY = 'descontovivo_return_url';
 
@@ -29,13 +28,16 @@ export class AuthService {
 
   register(returnUrl?: string): void {
     this.storeReturnUrl(returnUrl);
-    const { issuer, clientId, scope, redirectUri } = environment.oidc;
-    const url = new URL(`${issuer}/protocol/openid-connect/registrations`);
-    url.searchParams.set('client_id', clientId);
-    url.searchParams.set('response_type', 'code');
-    url.searchParams.set('scope', scope);
-    url.searchParams.set('redirect_uri', redirectUri);
-    window.location.assign(url.toString());
+
+    this.oidc.authorize(undefined, {
+      urlHandler: (authUrl: string) => {
+        const registrationUrl = authUrl.replace(
+          '/protocol/openid-connect/auth?',
+          '/protocol/openid-connect/registrations?',
+        );
+        window.location.assign(registrationUrl);
+      },
+    });
   }
 
   logout(): void {
