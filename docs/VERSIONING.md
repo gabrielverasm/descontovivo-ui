@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.3.4**
+**0.4.0**
 
 ## Convenção
 
@@ -23,7 +23,7 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 1. Toda PR deve avaliar se precisa de bump de versão.
 2. O checklist do PR template inclui lembrete de atualização.
-3. O footer exibe `UI v0.3.4 · API v0.1.0` para facilitar validação de deploy.
+3. O footer exibe `UI v0.4.0 · API v0.1.0` para facilitar validação de deploy.
 
 ## Histórico
 
@@ -36,3 +36,4 @@ Usamos [SemVer](https://semver.org/) simplificado:
 | 0.3.2 | 2026-07-05 | Fix: dispatch GA4 events após consent granted (ordem de inicialização corrigida) |
 | 0.3.3 | 2026-07-05 | Fix: configura GA4 somente após carregamento do script gtag.js |
 | 0.3.4 | 2026-07-05 | Fix: usa snippet padrão do GA4 com consent default denied e eventos controlados pela UI |
+| 0.4.0 | 2026-07-07 | Security headers e CSP MVP: headers de segurança, Content-Security-Policy enforcing, HSTS, Permissions-Policy |
