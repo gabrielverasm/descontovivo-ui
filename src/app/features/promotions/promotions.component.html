@@ -1,5 +1,21 @@
 <main class="promotions-feed">
   <h1 class="sr-only">Promoções</h1>
+
+  <section class="promotions-feed__hero" aria-label="Busca de promoções">
+    <label class="promotions-feed__search" [class.promotions-feed__search--has-query]="query">
+      <img src="/brand/lupa.svg" alt="" aria-hidden="true" class="promotions-feed__search-icon" />
+      <input
+        type="search"
+        name="search"
+        [(ngModel)]="query"
+        (keydown.enter)="onSearch()"
+        (search)="onSearchClear()"
+        placeholder="Pesquise aqui: produto, loja ou categoria"
+        aria-label="Pesquisar produto, loja ou categoria"
+      />
+    </label>
+  </section>
+
   @if (newPromotionsCount > 0 && !loading) {
     <button
       type="button"
@@ -16,7 +32,12 @@
     <div class="promotions-feed__error" role="alert">{{ error }}</div>
   } @else if (promotions.length === 0) {
     <div class="promotions-feed__empty">
-      <p>Nenhuma promoção disponível no momento.</p>
+      @if (query) {
+        <p>Nenhuma promoção encontrada para "{{ query }}".</p>
+        <button type="button" class="promotions-feed__clear-search" (click)="clearSearch()">Limpar busca</button>
+      } @else {
+        <p>Nenhuma promoção disponível no momento.</p>
+      }
     </div>
   } @else {
     <div class="promotions-feed__list">

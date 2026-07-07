@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { PromotionCardComponent } from '../../shared/components/promotion-card/promotion-card.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PromotionService } from '../../core/services/promotion.service';
@@ -12,7 +13,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-promotions',
   standalone: true,
-  imports: [PromotionCardComponent, LoadingStateComponent],
+  imports: [FormsModule, PromotionCardComponent, LoadingStateComponent],
   templateUrl: './promotions.component.html',
   styleUrl: './promotions.component.scss',
 })
@@ -36,8 +37,11 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
   error = '';
   loadMoreError = '';
   newPromotionsCount = 0;
+  query = '';
+  private isSearchActive = false;
 
   get hasMore(): boolean {
+    if (this.isSearchActive) return false;
     return this.currentPage + 1 < this.totalPages;
   }
 
@@ -140,6 +144,44 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.loadingMore || !this.hasMore) return;
     this.loadMoreError = '';
     this.loadPage(this.currentPage + 1);
+  }
+
+  onSearch(): void {
+    const term = this.query.trim();
+    if (!term) {
+      this.clearSearch();
+      return;
+    }
+    this.isSearchActive = true;
+    this.loading = true;
+    this.error = '';
+    this.promotionService.searchPromotions(term).subscribe({
+      next: (results) => {
+        this.promotions = results;
+        this.currentPage = 0;
+        this.totalPages = 1;
+        this.loading = false;
+      },
+      error: () => {
+        this.error = 'Não foi possível realizar a busca. Tente novamente.';
+        this.loading = false;
+      },
+    });
+  }
+
+  onSearchClear(): void {
+    // Fired by the native "search" event when user clicks the X on type=search
+    if (!this.query) {
+      this.clearSearch();
+    }
+  }
+
+  clearSearch(): void {
+    this.query = '';
+    if (this.isSearchActive) {
+      this.isSearchActive = false;
+      this.loadPage(0);
+    }
   }
 
   private loadPage(page: number): void {
