@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { afterNextRender, Component, inject, Injector, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PromotionCardComponent } from '../../shared/components/promotion-card/promotion-card.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
@@ -17,12 +17,13 @@ import { Subscription } from 'rxjs';
   templateUrl: './promotions.component.html',
   styleUrl: './promotions.component.scss',
 })
-export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PromotionsComponent implements OnInit, OnDestroy {
   private readonly promotionService = inject(PromotionService);
   private readonly seo = inject(SeoService);
   private readonly structuredData = inject(StructuredDataService);
   private readonly feedState = inject(PromotionsFeedStateService);
   private readonly notificationStream = inject(PublicNotificationStreamService);
+  private readonly injector = inject(Injector);
 
   private readonly pageSize = 12;
   private currentPage = 0;
@@ -84,17 +85,16 @@ export class PromotionsComponent implements OnInit, AfterViewInit, OnDestroy {
       // Register the cached/displayed feed snapshot so the SSE service
       // can detect staleness even when using cached data
       this.registerDisplayedSnapshot(saved.promotions, saved.totalElements);
+
+      // Restore scroll position after the view renders the cached items
+      afterNextRender(() => {
+        if (this.pendingScrollY !== null) {
+          window.scrollTo(0, this.pendingScrollY);
+          this.pendingScrollY = null;
+        }
+      }, { injector: this.injector });
     } else {
       this.loadPage(0);
-    }
-  }
-
-  ngAfterViewInit(): void {
-    if (this.pendingScrollY !== null) {
-      const scrollY = this.pendingScrollY;
-      this.pendingScrollY = null;
-      // Wait for the view to render before restoring scroll
-      setTimeout(() => window.scrollTo(0, scrollY), 0);
     }
   }
 

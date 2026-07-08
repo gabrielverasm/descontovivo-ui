@@ -31,14 +31,13 @@ export class PromotionService {
     );
   }
 
-  getPromotionBySlug(slug: string): Observable<Promotion | undefined> {
+  getPromotionBySlug(slug: string): Observable<Promotion> {
     return this.http.get<Promotion>(`${this.baseUrl}/${slug}`).pipe(
       map((p) => this.normalize(p)),
-      catchError(() => of(undefined)),
     );
   }
 
-  getPromotionById(id: string): Observable<Promotion | undefined> {
+  getPromotionById(id: string): Observable<Promotion> {
     return this.getPromotionBySlug(id);
   }
 
