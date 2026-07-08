@@ -1,5 +1,6 @@
 import { afterNextRender, Component, inject, Injector, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { NavigationStart, Router } from '@angular/router';
 import { PromotionCardComponent } from '../../shared/components/promotion-card/promotion-card.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PromotionService } from '../../core/services/promotion.service';
@@ -8,7 +9,7 @@ import { StructuredDataService } from '../../core/services/structured-data.servi
 import { Promotion } from '../../core/models/promotion.model';
 import { PromotionsFeedStateService } from './promotions-feed-state.service';
 import { PublicNotificationStreamService } from '../../core/services/public-notification-stream.service';
-import { Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-promotions',
@@ -24,6 +25,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   private readonly feedState = inject(PromotionsFeedStateService);
   private readonly notificationStream = inject(PublicNotificationStreamService);
   private readonly injector = inject(Injector);
+  private readonly router = inject(Router);
 
   private readonly pageSize = 12;
   private currentPage = 0;
@@ -31,6 +33,8 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   private totalElements = 0;
   private pendingScrollY: number | null = null;
   private notificationSub: Subscription | null = null;
+  private navigationSub: Subscription | null = null;
+  private lastKnownScrollY = 0;
 
   promotions: Promotion[] = [];
   loading = true;
@@ -73,12 +77,21 @@ export class PromotionsComponent implements OnInit, OnDestroy {
       this.newPromotionsCount = state.newPromotionsCount;
     });
 
+    // Save scrollY when navigation starts (before AppComponent's scroll-to-top on NavigationEnd)
+    this.navigationSub = this.router.events
+      .pipe(filter((e): e is NavigationStart => e instanceof NavigationStart))
+      .subscribe(() => {
+        this.lastKnownScrollY = window.scrollY;
+      });
+
     const saved = this.feedState.restore();
     if (saved) {
       this.promotions = saved.promotions;
       this.currentPage = saved.currentPage;
       this.totalPages = saved.totalPages;
       this.totalElements = saved.totalElements ?? 0;
+      this.query = saved.query ?? '';
+      this.isSearchActive = !!saved.query;
       this.loading = false;
       this.pendingScrollY = saved.scrollY;
 
@@ -100,6 +113,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.notificationSub?.unsubscribe();
+    this.navigationSub?.unsubscribe();
     this.structuredData.removeStructuredData('sd-website');
     this.structuredData.removeStructuredData('sd-organization');
     this.feedState.save({
@@ -107,7 +121,8 @@ export class PromotionsComponent implements OnInit, OnDestroy {
       currentPage: this.currentPage,
       totalPages: this.totalPages,
       totalElements: this.totalElements,
-      scrollY: window.scrollY,
+      scrollY: this.lastKnownScrollY || window.scrollY,
+      query: this.query || undefined,
     });
   }
 

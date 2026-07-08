@@ -44,8 +44,17 @@ export class AuthService {
     this.oidc.logoff().subscribe();
   }
 
+  /**
+   * Checks authentication state. Uses checkAuthIncludingServer which:
+   * 1. First checks localStorage for existing valid tokens (shared across tabs)
+   * 2. If no local tokens found, performs a silent SSO check via iframe against
+   *    the Keycloak server to detect an active session (e.g., logged in another tab)
+   *
+   * This ensures that opening a new tab in the same browser recognizes the session
+   * even if localStorage tokens were cleared or not yet synced.
+   */
   checkAuth(): Observable<boolean> {
-    return this.oidc.checkAuth().pipe(
+    return this.oidc.checkAuthIncludingServer().pipe(
       switchMap((result) => {
         if (result.isAuthenticated) {
           return this.loadCurrentUser().pipe(
@@ -55,6 +64,26 @@ export class AuthService {
         }
         this.currentUserSubject.next(null);
         return of(false);
+      }),
+      catchError(() => {
+        // If server check fails (e.g., iframe blocked, network error),
+        // fall back to local-only check so the app doesn't break
+        return this.oidc.checkAuth().pipe(
+          switchMap((result) => {
+            if (result.isAuthenticated) {
+              return this.loadCurrentUser().pipe(
+                tap(() => this.navigateToReturnUrl()),
+                map(() => true),
+              );
+            }
+            this.currentUserSubject.next(null);
+            return of(false);
+          }),
+          catchError(() => {
+            this.currentUserSubject.next(null);
+            return of(false);
+          }),
+        );
       }),
     );
   }

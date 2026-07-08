@@ -8,6 +8,8 @@ export interface FeedState {
   totalPages: number;
   totalElements?: number;
   scrollY: number;
+  query?: string;
+  highlightId?: string;
 }
 
 /**

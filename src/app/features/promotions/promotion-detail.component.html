@@ -164,13 +164,14 @@
   }
 
   @if (isFloatingBackVisible) {
-    <a
+    <button
+      type="button"
       class="promotion-detail__floating-back"
       [class.is-animating]="isFloatingBackAnimating"
-      routerLink="/promocoes"
       aria-label="Voltar para a lista de promoções"
+      (click)="returnToPromotionsList()"
     >
       ← Promoções
-    </a>
+    </button>
   }
 </main>
