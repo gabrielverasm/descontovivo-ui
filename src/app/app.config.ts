@@ -12,20 +12,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'disabled', anchorScrolling: 'enabled' })),
     provideHttpClient(withInterceptors([authInterceptor])),
-    /**
-     * Store OIDC tokens in localStorage instead of the default sessionStorage.
-     * Trade-offs:
-     * - ✓ Resolves session sharing between tabs (new tab recognizes logged-in user)
-     * - ✓ Refresh token persists across tabs, enabling silent renew without iframes
-     * - ✗ Increases impact of XSS attacks (tokens accessible to any script on the page)
-     * - Mitigation: CSP headers in _headers file + no inline scripts
-     * - Note: users with existing sessionStorage tokens will need to log in once after deploy
-     * Logout sync: the library does NOT auto-sync logout across tabs via storage events.
-     * When logout is triggered in one tab, checkAuth() in the other tab will detect
-     * invalid/expired tokens on next navigation or refresh. Full cross-tab logout
-     * sync (via StorageEvent listener) can be added later if needed.
-     */
-    { provide: AbstractSecurityStorage, useClass: DefaultLocalStorageService },
     provideAuth({
       config: {
         authority: environment.oidc.issuer,
@@ -40,5 +26,21 @@ export const appConfig: ApplicationConfig = {
         logLevel: environment.production ? LogLevel.None : LogLevel.Debug,
       },
     }),
+    /**
+     * Override OIDC token storage to use localStorage instead of sessionStorage.
+     * MUST be registered AFTER provideAuth() so the library picks up the override.
+     *
+     * Benefits:
+     * - ✓ Session sharing between tabs (new tab recognizes logged-in user)
+     * - ✓ Refresh token persists across tabs, enabling silent renew
+     * Risk mitigation:
+     * - CSP headers in public/_headers + no inline scripts
+     * - Users with existing sessionStorage tokens will need to log in once after deploy
+     *
+     * Logout sync: the library does NOT auto-sync logout across tabs via storage events.
+     * When logout is triggered in one tab, checkAuth() in the other tab will detect
+     * invalid/expired tokens on next navigation or refresh.
+     */
+    { provide: AbstractSecurityStorage, useClass: DefaultLocalStorageService },
   ],
 };
