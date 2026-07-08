@@ -32,6 +32,7 @@ import { sharePromotion } from '../../shared/utils/share-promotion.util';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
 import { UI_VERSION } from '../../core/app-version';
+import { PromotionsFeedStateService } from './promotions-feed-state.service';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -74,6 +75,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly seo = inject(SeoService);
   private readonly structuredData = inject(StructuredDataService);
   private readonly analytics = inject(AnalyticsService);
+  private readonly feedState = inject(PromotionsFeedStateService);
 
   // Admin state
   isEditMode = false;
@@ -258,9 +260,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   returnToPromotionsList() {
-    void this.router.navigate(['/promocoes'], {
-      queryParams: this.promotion ? { highlight: this.promotion.id } : undefined,
-    });
+    // If the feed state service has saved state, the user visited the feed during this session.
+    // Navigate back to the feed. The PromotionsComponent will restore the saved items and scroll
+    // position from the PromotionsFeedStateService, bringing the user back to where they were.
+    // We don't use location.back() because the user might have navigated through related
+    // promotions (feed → A → B), and back() would go to A, not the feed.
+    void this.router.navigate(['/']);
   }
 
   sharePromotion() {

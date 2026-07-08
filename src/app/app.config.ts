@@ -36,6 +36,7 @@ export const appConfig: ApplicationConfig = {
         responseType: 'code',
         silentRenew: true,
         useRefreshToken: true,
+        silentRenewUrl: `${window.location.origin}/silent-renew.html`,
         logLevel: environment.production ? LogLevel.None : LogLevel.Debug,
       },
     }),
