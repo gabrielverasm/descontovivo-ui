@@ -12,6 +12,7 @@ import { AdminNotificationStreamService, AdminNotificationState } from '../../co
 import { VersionService } from '../../core/services/version.service';
 import { UI_VERSION } from '../../core/app-version';
 import { AnalyticsConsentBannerComponent } from '../../core/analytics/analytics-consent-banner.component';
+import { AnalyticsService } from '../../core/analytics/analytics.service';
 
 @Component({
   selector: 'app-public-layout',
@@ -28,6 +29,7 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
   private readonly titleService = inject(Title);
   private readonly router = inject(Router);
   private readonly versionService = inject(VersionService);
+  private readonly analyticsService = inject(AnalyticsService);
   readonly currentUser$ = this.authService.currentUser$;
   readonly uiVersion = UI_VERSION;
   readonly apiVersion$: Observable<string | null> = this.versionService.getApiVersion();
@@ -337,5 +339,9 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
 
   isModerator(user: AccountMe): boolean {
     return canModerate(user);
+  }
+
+  trackInstagramClick(): void {
+    this.analyticsService.trackSocialClick('instagram', 'https://www.instagram.com/descontovivo/');
   }
 }
