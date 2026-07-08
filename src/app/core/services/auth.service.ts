@@ -15,11 +15,19 @@ export class AuthService {
   private readonly router = inject(Router);
 
   private readonly currentUserSubject = new BehaviorSubject<AccountMe | null>(null);
+  private readonly authReadySubject = new BehaviorSubject<boolean>(false);
 
   readonly currentUser$ = this.currentUserSubject.asObservable();
   readonly isAuthenticated$: Observable<boolean> = this.oidc.isAuthenticated$.pipe(
     map((result) => result.isAuthenticated),
   );
+
+  /**
+   * Emits `true` once the initial auth check has completed.
+   * The header uses this to avoid flashing "Entrar" while
+   * the auth state is still being determined.
+   */
+  readonly authReady$ = this.authReadySubject.asObservable();
 
   login(returnUrl?: string): void {
     this.storeReturnUrl(returnUrl);
@@ -45,45 +53,67 @@ export class AuthService {
   }
 
   /**
-   * Checks authentication state. Uses checkAuthIncludingServer which:
-   * 1. First checks localStorage for existing valid tokens (shared across tabs)
-   * 2. If no local tokens found, performs a silent SSO check via iframe against
-   *    the Keycloak server to detect an active session (e.g., logged in another tab)
+   * Two-phase authentication check optimized for cross-tab session detection:
    *
-   * This ensures that opening a new tab in the same browser recognizes the session
-   * even if localStorage tokens were cleared or not yet synced.
+   * Phase 1 — Local check (fast):
+   *   Uses checkAuth() which reads tokens from localStorage. Since we use
+   *   localStorage (shared across tabs), this instantly finds tokens written
+   *   by any other tab. No network/iframe needed.
+   *
+   * Phase 2 — Server check (only if local fails):
+   *   If no local tokens exist, falls back to checkAuthIncludingServer() which
+   *   uses an iframe to ask Keycloak if an SSO session exists. This handles the
+   *   case where the user logged in through a different client/app but this
+   *   client has no tokens yet.
+   *
+   * This order ensures new tabs authenticate instantly via localStorage (phase 1)
+   * without waiting for the slower iframe-based server check.
    */
   checkAuth(): Observable<boolean> {
+    return this.oidc.checkAuth().pipe(
+      switchMap((result) => {
+        if (result.isAuthenticated) {
+          // Phase 1 success: local tokens found (shared via localStorage)
+          return this.loadCurrentUser().pipe(
+            tap(() => this.navigateToReturnUrl()),
+            tap(() => this.authReadySubject.next(true)),
+            map(() => true),
+          );
+        }
+        // Phase 1 failed: no local tokens. Try server SSO check.
+        return this.checkAuthViaServer();
+      }),
+      catchError(() => {
+        // Local check threw — try server check as fallback
+        return this.checkAuthViaServer();
+      }),
+    );
+  }
+
+  /**
+   * Phase 2: iframe-based SSO check against Keycloak.
+   * Used when no local tokens exist but an SSO session might.
+   */
+  private checkAuthViaServer(): Observable<boolean> {
     return this.oidc.checkAuthIncludingServer().pipe(
       switchMap((result) => {
         if (result.isAuthenticated) {
           return this.loadCurrentUser().pipe(
             tap(() => this.navigateToReturnUrl()),
+            tap(() => this.authReadySubject.next(true)),
             map(() => true),
           );
         }
         this.currentUserSubject.next(null);
+        this.authReadySubject.next(true);
         return of(false);
       }),
       catchError(() => {
-        // If server check fails (e.g., iframe blocked, network error),
-        // fall back to local-only check so the app doesn't break
-        return this.oidc.checkAuth().pipe(
-          switchMap((result) => {
-            if (result.isAuthenticated) {
-              return this.loadCurrentUser().pipe(
-                tap(() => this.navigateToReturnUrl()),
-                map(() => true),
-              );
-            }
-            this.currentUserSubject.next(null);
-            return of(false);
-          }),
-          catchError(() => {
-            this.currentUserSubject.next(null);
-            return of(false);
-          }),
-        );
+        // Server check failed (iframe blocked, timeout, network error).
+        // Mark as ready with no user — the app remains functional.
+        this.currentUserSubject.next(null);
+        this.authReadySubject.next(true);
+        return of(false);
       }),
     );
   }

@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.4.4**
+**0.4.5**
 
 ## Convenção
 
@@ -23,7 +23,7 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 1. Toda PR deve avaliar se precisa de bump de versão.
 2. O checklist do PR template inclui lembrete de atualização.
-3. O footer exibe `UI v0.4.4 · API v0.1.0` para facilitar validação de deploy.
+3. O footer exibe `UI v0.4.5 · API v0.1.0` para facilitar validação de deploy.
 
 ## Histórico
 
@@ -41,3 +41,4 @@ Usamos [SemVer](https://semver.org/) simplificado:
 | 0.4.2 | 2026-07-07 | Correções de navegação, detalhe e sessão |
 | 0.4.3 | 2026-07-08 | Link oficial do Instagram |
 | 0.4.4 | 2026-07-08 | Correções de sessão e retorno ao feed |
+| 0.4.5 | 2026-07-08 | Fix: reconhecimento automático de sessão em nova aba (auth ready gate + two-phase check) |

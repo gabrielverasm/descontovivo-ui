@@ -34,40 +34,42 @@
             </div>
           }
         </div>
-        @if (currentUser$ | async; as user) {
-          <div class="public-layout__user-menu" (mouseenter)="openUserMenu()" (mouseleave)="scheduleCloseUserMenu()">
-            <button
-              class="public-layout__user-toggle"
-              type="button"
-              (click)="toggleUserMenu()"
-              [attr.aria-expanded]="isUserMenuOpen"
-              [attr.aria-label]="hasUserMenuNotifications ? 'Menu de ' + getUserDisplayName(user) + ', ' + userMenuNotificationCount + ' notificações administrativas' : 'Menu de ' + getUserDisplayName(user)"
-              [title]="getUserDisplayName(user)"
-            ><span class="public-layout__user-avatar" aria-hidden="true">{{ getUserInitial(user) }}</span> <span class="public-layout__user-name">{{ getUserDisplayName(user) }}</span>@if (hasUserMenuNotifications) {<span class="public-layout__badge public-layout__badge--user-menu" aria-hidden="true">{{ userMenuNotificationBadgeText }}</span>}<span class="public-layout__user-chevron" aria-hidden="true">▾</span></button>
-            @if (isUserMenuOpen) {
-              <div class="public-layout__user-dropdown">
-                <a routerLink="/minha-conta" routerLinkActive="is-active" (click)="closeUserMenu()">Minha conta</a>
-                @if (isModerator(user)) {
-                  <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" (click)="closeUserMenu()" [attr.aria-label]="hasModerationPending ? 'Moderar promoções, ' + moderationState.moderationPendingCount + ' pendentes' : 'Moderar promoções'" class="public-layout__admin-link">Moderar promoções
-                    @if (hasModerationPending) {
-                      <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ moderationBadgeText }}</span>
-                    }
-                  </a>
-                }
-                @if (isAdmin(user)) {
-                  <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" (click)="closeUserMenu()">Importar promoções</a>
-                  <a routerLink="/admin/solicitacoes-de-dados" routerLinkActive="is-active" (click)="closeUserMenu()" [attr.aria-label]="hasDataRequestsOpen ? 'Solicitações de dados, ' + adminState.dataRequestsOpenCount + ' abertas' : 'Solicitações de dados'" class="public-layout__admin-link">Solicitações de dados
-                    @if (hasDataRequestsOpen) {
-                      <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ dataRequestsBadgeText }}</span>
-                    }
-                  </a>
-                }
-                <button type="button" (click)="logout(); closeUserMenu()">Sair</button>
-              </div>
-            }
-          </div>
-        } @else {
-          <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar/Cadastrar</a>
+        @if (authReady$ | async) {
+          @if (currentUser$ | async; as user) {
+            <div class="public-layout__user-menu" (mouseenter)="openUserMenu()" (mouseleave)="scheduleCloseUserMenu()">
+              <button
+                class="public-layout__user-toggle"
+                type="button"
+                (click)="toggleUserMenu()"
+                [attr.aria-expanded]="isUserMenuOpen"
+                [attr.aria-label]="hasUserMenuNotifications ? 'Menu de ' + getUserDisplayName(user) + ', ' + userMenuNotificationCount + ' notificações administrativas' : 'Menu de ' + getUserDisplayName(user)"
+                [title]="getUserDisplayName(user)"
+              ><span class="public-layout__user-avatar" aria-hidden="true">{{ getUserInitial(user) }}</span> <span class="public-layout__user-name">{{ getUserDisplayName(user) }}</span>@if (hasUserMenuNotifications) {<span class="public-layout__badge public-layout__badge--user-menu" aria-hidden="true">{{ userMenuNotificationBadgeText }}</span>}<span class="public-layout__user-chevron" aria-hidden="true">▾</span></button>
+              @if (isUserMenuOpen) {
+                <div class="public-layout__user-dropdown">
+                  <a routerLink="/minha-conta" routerLinkActive="is-active" (click)="closeUserMenu()">Minha conta</a>
+                  @if (isModerator(user)) {
+                    <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" (click)="closeUserMenu()" [attr.aria-label]="hasModerationPending ? 'Moderar promoções, ' + moderationState.moderationPendingCount + ' pendentes' : 'Moderar promoções'" class="public-layout__admin-link">Moderar promoções
+                      @if (hasModerationPending) {
+                        <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ moderationBadgeText }}</span>
+                      }
+                    </a>
+                  }
+                  @if (isAdmin(user)) {
+                    <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" (click)="closeUserMenu()">Importar promoções</a>
+                    <a routerLink="/admin/solicitacoes-de-dados" routerLinkActive="is-active" (click)="closeUserMenu()" [attr.aria-label]="hasDataRequestsOpen ? 'Solicitações de dados, ' + adminState.dataRequestsOpenCount + ' abertas' : 'Solicitações de dados'" class="public-layout__admin-link">Solicitações de dados
+                      @if (hasDataRequestsOpen) {
+                        <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ dataRequestsBadgeText }}</span>
+                      }
+                    </a>
+                  }
+                  <button type="button" (click)="logout(); closeUserMenu()">Sair</button>
+                </div>
+              }
+            </div>
+          } @else {
+            <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar/Cadastrar</a>
+          }
         }
       </nav>
 
@@ -106,28 +108,30 @@
         <a routerLink="/sobre" routerLinkActive="is-active" (click)="closeMenu()">Sobre</a>
         <a routerLink="/servicos" routerLinkActive="is-active" (click)="closeMenu()">Serviços</a>
         <a routerLink="/transparencia" routerLinkActive="is-active" (click)="closeMenu()">Transparência</a>
-        @if (currentUser$ | async; as user) {
-          <hr class="public-layout__menu-divider" />
-          <span class="public-layout__menu-user">{{ getUserDisplayName(user) }}</span>
-          <a routerLink="/minha-conta" routerLinkActive="is-active" (click)="closeMenu()">Minha conta</a>
-          @if (isModerator(user)) {
-            <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()" [attr.aria-label]="hasModerationPending ? 'Moderar promoções, ' + moderationState.moderationPendingCount + ' pendentes' : 'Moderar promoções'">Moderar promoções
-              @if (hasModerationPending) {
-                <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ moderationBadgeText }}</span>
-              }
-            </a>
+        @if (authReady$ | async) {
+          @if (currentUser$ | async; as user) {
+            <hr class="public-layout__menu-divider" />
+            <span class="public-layout__menu-user">{{ getUserDisplayName(user) }}</span>
+            <a routerLink="/minha-conta" routerLinkActive="is-active" (click)="closeMenu()">Minha conta</a>
+            @if (isModerator(user)) {
+              <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()" [attr.aria-label]="hasModerationPending ? 'Moderar promoções, ' + moderationState.moderationPendingCount + ' pendentes' : 'Moderar promoções'">Moderar promoções
+                @if (hasModerationPending) {
+                  <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ moderationBadgeText }}</span>
+                }
+              </a>
+            }
+            @if (isAdmin(user)) {
+              <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
+              <a routerLink="/admin/solicitacoes-de-dados" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()" [attr.aria-label]="hasDataRequestsOpen ? 'Solicitações de dados, ' + adminState.dataRequestsOpenCount + ' abertas' : 'Solicitações de dados'">Solicitações de dados
+                @if (hasDataRequestsOpen) {
+                  <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ dataRequestsBadgeText }}</span>
+                }
+              </a>
+            }
+            <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
+          } @else {
+            <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar/Cadastrar</a>
           }
-          @if (isAdmin(user)) {
-            <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
-            <a routerLink="/admin/solicitacoes-de-dados" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()" [attr.aria-label]="hasDataRequestsOpen ? 'Solicitações de dados, ' + adminState.dataRequestsOpenCount + ' abertas' : 'Solicitações de dados'">Solicitações de dados
-              @if (hasDataRequestsOpen) {
-                <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ dataRequestsBadgeText }}</span>
-              }
-            </a>
-          }
-          <button class="public-layout__logout" type="button" (click)="logout(); closeMenu()">Sair</button>
-        } @else {
-          <a routerLink="/login" routerLinkActive="is-active" (click)="closeMenu()">Entrar/Cadastrar</a>
         }
       </nav>
     </div>
