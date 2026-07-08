@@ -144,6 +144,10 @@ export class AnalyticsService implements OnDestroy {
     this.sendEvent('exception', { description, fatal, ui_version: UI_VERSION });
   }
 
+  trackSocialClick(network: string, linkUrl: string): void {
+    this.sendEvent('click_social', { network, link_url: linkUrl, ui_version: UI_VERSION });
+  }
+
   // --- Private ---
 
   private sendEvent(eventName: string, params: object): void {

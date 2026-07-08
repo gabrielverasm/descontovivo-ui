@@ -236,6 +236,18 @@
   color: #cbd5e1;
 }
 
+.public-layout__footer-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.public-layout__footer-social-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
 .public-layout__footer-disclosure {
   width: 100%;
   margin: 0.25rem 0 0;

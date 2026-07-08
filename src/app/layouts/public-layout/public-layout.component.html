@@ -149,6 +149,22 @@
     <a routerLink="/termos">Termos</a>
     <span class="public-layout__footer-sep" aria-hidden="true">·</span>
     <a routerLink="/publicar">Publicar promoção</a>
+    <span class="public-layout__footer-sep" aria-hidden="true">·</span>
+    <a
+      class="public-layout__footer-social"
+      href="https://www.instagram.com/descontovivo/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Instagram do DescontoVivo"
+      (click)="trackInstagramClick()"
+    >
+      <img
+        class="public-layout__footer-social-icon"
+        src="/brand/instagram-glyph.png"
+        alt=""
+        aria-hidden="true"
+      />Instagram
+    </a>
     <p class="public-layout__footer-disclosure">
       Algumas ofertas podem conter links de afiliado quando indicado, sem custo adicional para você.
       <a routerLink="/transparencia" aria-label="Saiba mais sobre links de afiliado e transparência">Saiba mais</a>
