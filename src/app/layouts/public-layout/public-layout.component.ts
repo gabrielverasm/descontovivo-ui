@@ -31,6 +31,7 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
   private readonly versionService = inject(VersionService);
   private readonly analyticsService = inject(AnalyticsService);
   readonly currentUser$ = this.authService.currentUser$;
+  readonly authReady$ = this.authService.authReady$;
   readonly uiVersion = UI_VERSION;
   readonly apiVersion$: Observable<string | null> = this.versionService.getApiVersion();
 
