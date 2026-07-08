@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 
@@ -15,6 +16,7 @@ import { ModerationDecisionRequest, ModerationService } from '../../core/service
 import { PromotionService } from '../../core/services/promotion.service';
 import { UploadService } from '../../core/services/upload.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
 import { PromotionPriceComponent } from '../../shared/components/promotion-price/promotion-price.component';
@@ -37,6 +39,7 @@ import { UI_VERSION } from '../../core/app-version';
   imports: [
     DatePipe,
     EmptyStateComponent,
+    LoadingStateComponent,
     RouterLink,
     PromotionContextComponent,
     PromotionImageComponent,
@@ -100,6 +103,9 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   get canModerate(): boolean { return this.authService.canModerate(); }
   get isAdmin(): boolean { return this.authService.hasRole('admin'); }
   promotion?: Promotion;
+  loading = true;
+  notFound = false;
+  loadError = false;
   comments: CommentResponse[] = [];
   relatedPage = 0;
   relatedExpanded = false;
@@ -111,13 +117,28 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   private readonly routeSubscription: Subscription = this.route.paramMap.pipe(
     map(params => params.get('id') || ''),
-    switchMap((slug) =>
-      this.promotionService.getPromotionBySlug(slug).pipe(
-        catchError(() => of(null))
-      )
-    )
+    switchMap((slug) => {
+      this.loading = true;
+      this.notFound = false;
+      this.loadError = false;
+      this.promotion = undefined;
+      return this.promotionService.getPromotionBySlug(slug).pipe(
+        catchError((err: unknown) => {
+          if (err instanceof HttpErrorResponse && err.status === 404) {
+            this.notFound = true;
+          } else {
+            this.loadError = true;
+          }
+          return of(undefined);
+        })
+      );
+    })
   ).subscribe((promotion) => {
-    this.promotion = promotion ?? undefined;
+    this.loading = false;
+    if (promotion) {
+      this.promotion = promotion;
+    }
+
     this.comments = [];
     this.relatedPromotions = [];
     this.relatedPage = 0;

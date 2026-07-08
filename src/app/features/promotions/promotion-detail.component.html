@@ -1,5 +1,7 @@
 <main class="promotion-detail">
-  @if (promotion) {
+  @if (loading) {
+    <app-loading-state />
+  } @else if (promotion) {
     <article class="promotion-detail__content">
       <app-promotion-image [promotion]="promotion" variant="detail" />
 
@@ -149,10 +151,15 @@
         (loadMore)="loadMoreComments()"
       />
     </div>
-  } @else {
+  } @else if (notFound) {
     <app-empty-state
       title="Promoção não encontrada"
       description="Ela pode estar pendente, reprovada ou indisponível publicamente."
+    />
+  } @else if (loadError) {
+    <app-empty-state
+      title="Erro ao carregar promoção"
+      description="Não foi possível carregar a promoção. Tente novamente mais tarde."
     />
   }
 
