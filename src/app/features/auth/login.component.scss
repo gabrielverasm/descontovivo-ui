@@ -82,7 +82,9 @@
   transition:
     background var(--dv-transition),
     border-color var(--dv-transition),
-    color var(--dv-transition);
+    color var(--dv-transition),
+    transform var(--dv-transition),
+    box-shadow var(--dv-transition);
 }
 
 .auth-page__btn--primary {
@@ -98,12 +100,33 @@
   border: 2px solid #172033;
   background: transparent;
   color: #172033;
+  font-weight: 900;
 }
 
 .auth-page__btn--secondary:hover {
   border-color: #2563eb;
   background: #2563eb;
   color: #fff;
+}
+
+/* Make both buttons have good visual weight */
+.auth-page__btn--primary {
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(23, 32, 51, 0.2);
+}
+
+.auth-page__btn--secondary {
+  box-shadow: 0 2px 6px rgba(23, 32, 51, 0.1);
+}
+
+.auth-page__btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+}
+
+.auth-page__btn--secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .auth-page__microcopy {

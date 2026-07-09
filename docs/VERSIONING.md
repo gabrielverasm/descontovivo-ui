@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.4.8**
+**0.4.9**
 
 ## Convenção
 
@@ -45,3 +45,4 @@ Usamos [SemVer](https://semver.org/) simplificado:
 | 0.4.6 | 2026-07-08 | Fix: storage OIDC, silent renew e upload de imagem |
 | 0.4.7 | 2026-07-08 | Ajusta formulário manual da moderação e normalização de títulos |
 | 0.4.8 | 2026-07-09 | Fix: envia imageKey no formulário manual da moderação |
+| 0.4.9 | 2026-07-09 | melhora fluxo de autenticação, tema Keycloak e destaque do botão "Criar conta grátis" |
