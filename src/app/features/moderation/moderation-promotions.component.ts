@@ -11,6 +11,7 @@ import { PromotionImageComponent } from '../../shared/components/promotion-image
 import { ModerationPromotionPanelComponent } from './components/moderation-promotion-panel/moderation-promotion-panel.component';
 import { ModerationCreatePromotionComponent } from './components/moderation-create-promotion/moderation-create-promotion.component';
 import { resolveStoreName } from '../../shared/utils/store-name.util';
+import { normalizePromotionTitle } from '../../shared/utils/normalize-title.util';
 
 @Component({
   selector: 'app-moderation-promotions',
@@ -355,7 +356,7 @@ export class ModerationPromotionsComponent implements OnInit, OnDestroy {
       action: 'EDIT',
       reason: 'Ajustes de validação manual',
     };
-    if (f.title) req.title = f.title;
+    if (f.title) req.title = normalizePromotionTitle(f.title);
     if (f.url) req.url = f.url;
     if (f.currentPrice != null) req.currentPrice = f.currentPrice;
     if (f.originalPrice != null && !isNaN(Number(f.originalPrice))) req.originalPrice = Number(f.originalPrice);
