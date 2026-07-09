@@ -8,6 +8,7 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
 import { FileFieldComponent } from '../../shared/components/file-field/file-field.component';
 import { FloatingFieldComponent } from '../../shared/components/floating-field/floating-field.component';
 import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
+import { normalizePromotionTitle } from '../../shared/utils/normalize-title.util';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
 
 type ImageStatus = 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error';
@@ -121,7 +122,7 @@ export class PublishPromotionComponent implements OnDestroy {
     }
 
     const payload: PromotionCreateRequest = {
-      title: this.title.trim(),
+      title: normalizePromotionTitle(this.title),
       url: this.url.trim(),
       currentPrice: price,
       imageUrl: this.imageUrl!,

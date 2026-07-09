@@ -1,40 +1,18 @@
-<div class="create-promo">
-  <h2 class="create-promo__title">Adicionar promoção manual</h2>
+<div class="mod-panel">
+  <header class="mod-panel__header">
+    <h2 class="mod-panel__title">Adicionar promoção manual</h2>
+    <button type="button" class="mod-panel__btn mod-panel__btn--ghost" (click)="cancel.emit()">✕ Fechar</button>
+  </header>
 
   @if (error) {
-    <p class="create-promo__error" role="alert">{{ error }}</p>
+    <p class="mod-panel__error" role="alert">{{ error }}</p>
   }
 
-  <form class="create-promo__form" (ngSubmit)="submit()">
-    <div class="create-promo__row">
-      <app-floating-field label="Link da oferta *" name="create-url" [(ngModel)]="form.url" />
-    </div>
-
-    <div class="create-promo__row">
-      <app-floating-field label="Título da promoção *" name="create-title" [(ngModel)]="form.title" />
-    </div>
-
-    <div class="create-promo__row create-promo__row--half">
-      <app-floating-field label="Preço atual *" name="create-currentPrice" inputmode="numeric" [(ngModel)]="form.currentPrice" (valueChange)="onPriceInput('currentPrice', $event)" />
-      <app-floating-field label="Preço original" name="create-originalPrice" inputmode="numeric" [(ngModel)]="form.originalPrice" (valueChange)="onPriceInput('originalPrice', $event)" />
-    </div>
-
-    <div class="create-promo__row create-promo__row--half">
-      <app-floating-field label="Cupom" name="create-coupon" [(ngModel)]="form.couponCode" />
-      <app-floating-field label="Nome da loja" name="create-storeName" [(ngModel)]="form.storeName" />
-    </div>
-
-    <div class="create-promo__row create-promo__row--half">
-      <app-floating-field label="Vendido por" name="create-soldBy" [(ngModel)]="form.soldBy" placeholder="Ex.: Amazon.com.br" />
-      <app-floating-field label="Entregue por" name="create-deliveredBy" [(ngModel)]="form.deliveredBy" placeholder="Ex.: Amazon.com.br" />
-    </div>
-
-    <div class="create-promo__row">
-      <app-floating-field label="Categoria" name="create-category" [(ngModel)]="form.category" placeholder="Ex.: Eletrônicos" />
-    </div>
-
-    <div class="create-promo__image">
+  <form class="mod-panel__body" (ngSubmit)="submit()">
+    <!-- Image -->
+    <div class="mod-panel__image">
       <app-promotion-image-upload
+        previewSize="moderation"
         [previewUrl]="imagePreviewUrl"
         [sizeKB]="imageSizeKB"
         [statusText]="imageStatusText"
@@ -47,11 +25,129 @@
       />
     </div>
 
-    <div class="create-promo__actions">
-      <button type="button" class="create-promo__btn create-promo__btn--cancel" [disabled]="saving" (click)="cancel.emit()">Cancelar</button>
-      <button type="submit" class="create-promo__btn create-promo__btn--submit" [disabled]="saving">
+    <!-- Form columns -->
+    <div class="mod-panel__fields">
+      <!-- Col 1: Dados principais -->
+      <div class="mod-panel__form-col">
+        <h3 class="mod-panel__form-title">Dados principais</h3>
+
+        <label class="mod-panel__field">
+          <span>Título *</span>
+          <input type="text" [(ngModel)]="form.title" name="create-title" placeholder="Título do produto em oferta" />
+        </label>
+
+        <label class="mod-panel__field">
+          <span>Link da oferta *</span>
+          <input type="url" [(ngModel)]="form.url" name="create-url" placeholder="https://..." />
+        </label>
+
+        <label class="mod-panel__field">
+          <span>Cupom</span>
+          <input type="text" [(ngModel)]="form.couponCode" name="create-coupon" />
+        </label>
+
+        <div class="mod-panel__field-row">
+          <label class="mod-panel__field">
+            <span>Preço atual *</span>
+            <input type="text" inputmode="numeric" [value]="form.currentPrice" (input)="onPriceInput('currentPrice', $any($event.target).value)" name="create-currentPrice" />
+          </label>
+          <label class="mod-panel__field">
+            <span>Preço original</span>
+            <input type="text" inputmode="numeric" [value]="form.originalPrice" (input)="onPriceInput('originalPrice', $any($event.target).value)" name="create-originalPrice" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Col 2: Loja, venda e entrega -->
+      <div class="mod-panel__form-col">
+        <h3 class="mod-panel__form-title">Loja, venda e entrega</h3>
+
+        <label class="mod-panel__field">
+          <span>Nome da loja *</span>
+          <input type="text" [(ngModel)]="form.storeName" name="create-storeName" placeholder="Ex: Amazon, Magalu" />
+        </label>
+
+        <label class="mod-panel__field-check" [class.mod-panel__field-check--disabled]="!hasValidStoreName()">
+          <input type="checkbox" [checked]="soldAndDeliveredByStore" [disabled]="!hasValidStoreName()" (change)="toggleSoldDelivered($any($event.target).checked)" />
+          <span>Vendido e entregue pela loja</span>
+        </label>
+
+        <div class="mod-panel__field">
+          <span class="mod-panel__field-label-row">
+            Vendido por
+            <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForSoldBy()">Usar loja</button>
+          </span>
+          <input type="text" [(ngModel)]="form.soldBy" name="create-soldBy" placeholder="Ex: Amazon.com.br" [disabled]="soldAndDeliveredByStore" />
+        </div>
+
+        <div class="mod-panel__field">
+          <span class="mod-panel__field-label-row">
+            Entregue por
+            <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForDeliveredBy()">Usar loja</button>
+            <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore" (click)="copySoldByToDeliveredBy()">Copiar vendido</button>
+          </span>
+          <input type="text" [(ngModel)]="form.deliveredBy" name="create-deliveredBy" placeholder="Ex: Amazon.com.br" [disabled]="soldAndDeliveredByStore" />
+        </div>
+
+        <div class="mod-panel__field-row">
+          <label class="mod-panel__field">
+            <span>Categoria</span>
+            <input type="text" [(ngModel)]="form.category" name="create-category" placeholder="Ex: Eletrônicos" />
+          </label>
+          <label class="mod-panel__field">
+            <span>Disponibilidade</span>
+            <select [(ngModel)]="form.availability" name="create-availability">
+              <option value="">Selecione</option>
+              <option value="AVAILABLE">Disponível</option>
+              <option value="EXPIRED">Expirada</option>
+              <option value="UNAVAILABLE">Indisponível</option>
+              <option value="UNKNOWN">Desconhecida</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="mod-panel__field-row">
+          <label class="mod-panel__field">
+            <span>Selo de preço</span>
+            <select [(ngModel)]="form.priceSignal" name="create-priceSignal">
+              <option value="">Sem selo</option>
+              <option value="GOOD_PRICE">Preço bom</option>
+              <option value="GREAT_PRICE">Preço excelente</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Categorias cadastradas -->
+        <div class="mod-panel__categories">
+          <span class="mod-panel__categories-title">Categorias cadastradas</span>
+
+          @if (categoriesLoading) {
+            <span class="mod-panel__categories-status">Carregando...</span>
+          } @else if (categoriesError) {
+            <span class="mod-panel__categories-status mod-panel__categories-status--error">
+              Erro ao carregar. <button type="button" class="mod-panel__btn-micro" (click)="loadCategories()">Tentar novamente</button>
+            </span>
+          } @else if (categories.length === 0) {
+            <span class="mod-panel__categories-status">Nenhuma categoria cadastrada ainda.</span>
+          } @else {
+            <div class="mod-panel__categories-list">
+              @for (cat of categories; track cat.name) {
+                <button type="button" class="mod-panel__category-name" (click)="selectCategory(cat.name)" [attr.aria-label]="'Usar categoria ' + cat.name">
+                  {{ cat.name }} <small>({{ cat.promotionCount }})</small>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <footer class="mod-panel__footer">
+      <button type="submit" class="mod-panel__btn mod-panel__btn--primary" [disabled]="saving">
         @if (saving) { Adicionando… } @else { Adicionar promoção }
       </button>
-    </div>
+      <button type="button" class="mod-panel__btn mod-panel__btn--ghost" [disabled]="saving" (click)="cancel.emit()">Cancelar</button>
+    </footer>
   </form>
 </div>
