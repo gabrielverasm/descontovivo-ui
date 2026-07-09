@@ -1,4 +1,4 @@
-/* DescontoVivo – Auth UI Enhancements */
+/* DescontoVivo – Auth UI Enhancements v3 */
 (function () {
   'use strict';
 
@@ -8,6 +8,8 @@
     setupPasswordToggles();
     fixRequiredAsterisks();
     setupFieldErrorCleanup();
+    setupLivePasswordValidation();
+    normalizeFieldErrorsLayout();
   });
 
   /* === Topbar Injection === */
@@ -382,4 +384,336 @@
     // Also hide the global required field message
     hideRequiredGlobalMessage();
   }
+
+  /* === Live Password Validation v3 === */
+  function setupLivePasswordValidation() {
+    // Only apply to registration pages
+    if (!isRegisterPage()) return;
+    
+    var passwordInput = document.getElementById('password');
+    var confirmInput = document.getElementById('password-confirm');
+    var usernameInput = document.getElementById('username') || document.querySelector('input[name="username"]');
+    var emailInput = document.getElementById('email') || document.querySelector('input[name="email"]');
+    
+    if (!passwordInput) return;
+    
+    // Create password rules container if it doesn't exist
+    var passwordContainer = passwordInput.closest('.pf-c-form__group') || passwordInput.parentElement;
+    if (!passwordContainer) return;
+    
+    // Remove existing rules if already exists (prevent duplication)
+    var existingRules = passwordContainer.querySelector('.dv-password-rules');
+    if (existingRules) {
+      existingRules.remove();
+    }
+    
+    // Create rules list
+    var rulesList = document.createElement('ul');
+    rulesList.className = 'dv-password-rules';
+    rulesList.setAttribute('aria-live', 'polite');
+    rulesList.setAttribute('aria-atomic', 'false');
+    
+    // Define the rules based on Keycloak realm policy
+    var rules = [
+      { id: 'length', label: 'Pelo menos 10 caracteres', check: function(value) { return value.length >= 10; } },
+      { id: 'lowercase', label: 'Pelo menos 1 letra minúscula', check: function(value) { return /[a-z]/.test(value); } },
+      { id: 'uppercase', label: 'Pelo menos 1 letra maiúscula', check: function(value) { return /[A-Z]/.test(value); } },
+      { id: 'digit', label: 'Pelo menos 1 número', check: function(value) { return /\d/.test(value); } },
+      { id: 'special', label: 'Pelo menos 1 caractere especial', check: function(value) { return /[^A-Za-z0-9]/.test(value); } },
+      { id: 'not-username', label: 'Não pode conter seu nome de usuário', check: function(value) { 
+        if (!usernameInput || !usernameInput.value.trim()) return true;
+        var username = usernameInput.value.trim().toLowerCase();
+        return !value.toLowerCase().includes(username);
+      } },
+      { id: 'not-email', label: 'Não pode conter seu e-mail', check: function(value) { 
+        if (!emailInput || !emailInput.value.trim()) return true;
+        var email = emailInput.value.trim().toLowerCase();
+        var usernamePart = email.split('@')[0];
+        return !value.toLowerCase().includes(email) && !value.toLowerCase().includes(usernamePart);
+      } },
+      { id: 'not-recently-used', label: 'Não pode ser uma das 3 últimas senhas (validado no envio)', check: function(value) { return true; } }
+    ];
+    
+    // Create rule elements
+    var ruleElements = [];
+    for (var i = 0; i < rules.length; i++) {
+      var rule = rules[i];
+      var li = document.createElement('li');
+      li.className = 'dv-password-rule';
+      li.id = 'dv-password-rule-' + rule.id;
+      li.textContent = rule.label;
+      li.setAttribute('data-rule', rule.id);
+      
+      // Special styling for the last rule (server-side only)
+      if (rule.id === 'not-recently-used') {
+        li.style.color = '#6b7280';
+        li.style.fontStyle = 'italic';
+        li.style.opacity = '0.8';
+      }
+      
+      rulesList.appendChild(li);
+      ruleElements.push({ element: li, check: rule.check });
+    }
+    
+    // Insert rules after the password input group
+    var inputGroup = passwordInput.closest('.pf-c-input-group');
+    if (inputGroup && inputGroup.parentNode) {
+      inputGroup.parentNode.insertBefore(rulesList, inputGroup.nextSibling);
+    } else {
+      passwordContainer.appendChild(rulesList);
+    }
+    
+    // Create confirmation error message if needed
+    if (confirmInput) {
+      var confirmContainer = confirmInput.closest('.pf-c-form__group') || confirmInput.parentElement;
+      if (confirmContainer) {
+        // Remove existing error if already exists
+        var existingConfirmError = confirmContainer.querySelector('.dv-live-field-error');
+        if (existingConfirmError) {
+          existingConfirmError.remove();
+        }
+        
+        // Create confirmation error element
+        var confirmError = document.createElement('div');
+        confirmError.className = 'dv-live-field-error';
+        confirmError.id = 'dv-confirm-error';
+        confirmError.textContent = 'A senha de confirmação não coincide.';
+        confirmError.hidden = true;
+        
+        var confirmGroup = confirmInput.closest('.pf-c-input-group');
+        if (confirmGroup && confirmGroup.parentNode) {
+          confirmGroup.parentNode.insertBefore(confirmError, confirmGroup.nextSibling);
+        } else {
+          confirmContainer.appendChild(confirmError);
+        }
+      }
+    }
+    
+    // Update rules function
+    function updatePasswordRules() {
+      var passwordValue = passwordInput.value;
+      
+      // Show rules if password has focus or has any value
+      var shouldShow = passwordValue.length > 0 || document.activeElement === passwordInput;
+      rulesList.hidden = !shouldShow;
+      
+      // Update each rule
+      for (var j = 0; j < ruleElements.length; j++) {
+        var rule = ruleElements[j];
+        var isValid = rule.check(passwordValue);
+        
+        rule.element.classList.remove('dv-password-rule--valid', 'dv-password-rule--invalid');
+        
+        if (ruleElements[j].element.id === 'dv-password-rule-not-recently-used') {
+          // Server-side only rule - always neutral
+          rule.element.classList.add('dv-password-rule--valid');
+        } else if (passwordValue.length === 0) {
+          // Empty password - neutral state
+          rule.element.classList.remove('dv-password-rule--valid', 'dv-password-rule--invalid');
+        } else {
+          rule.element.classList.add(isValid ? 'dv-password-rule--valid' : 'dv-password-rule--invalid');
+        }
+      }
+      
+      // Update aria-invalid on password input
+      if (passwordValue.length > 0) {
+        var hasInvalidRules = ruleElements.some(function(rule, index) {
+          if (ruleElements[index].element.id === 'dv-password-rule-not-recently-used') return false;
+          return !rule.check(passwordValue);
+        });
+        
+        if (hasInvalidRules) {
+          passwordInput.setAttribute('aria-invalid', 'true');
+        } else {
+          // Only remove aria-invalid if there are no server-side errors
+          var hasServerError = document.querySelector('.dv-field-error-below[data-field="password"], .pf-c-form__helper-text.pf-m-error[data-field="password"]');
+          if (!hasServerError) {
+            passwordInput.removeAttribute('aria-invalid');
+          }
+        }
+      } else {
+        passwordInput.removeAttribute('aria-invalid');
+      }
+      
+      // Update confirmation
+      updateConfirmation();
+    }
+    
+    // Update confirmation function
+    function updateConfirmation() {
+      if (!confirmInput) return;
+      
+      var passwordValue = passwordInput.value;
+      var confirmValue = confirmInput.value;
+      var confirmError = document.getElementById('dv-confirm-error');
+      
+      if (!confirmError) return;
+      
+      // Only show error if both fields have values and they don't match
+      if (passwordValue.length > 0 && confirmValue.length > 0 && passwordValue !== confirmValue) {
+        confirmError.hidden = false;
+        confirmInput.setAttribute('aria-invalid', 'true');
+      } else {
+        confirmError.hidden = true;
+        confirmInput.removeAttribute('aria-invalid');
+      }
+    }
+    
+    // Set up event listeners
+    passwordInput.addEventListener('input', updatePasswordRules);
+    passwordInput.addEventListener('focus', function() {
+      rulesList.hidden = false;
+      updatePasswordRules();
+    });
+    
+    passwordInput.addEventListener('blur', function() {
+      // Keep showing if there's content
+      if (passwordInput.value.length === 0) {
+        rulesList.hidden = true;
+      }
+    });
+    
+    if (usernameInput) {
+      usernameInput.addEventListener('input', updatePasswordRules);
+      usernameInput.addEventListener('change', updatePasswordRules);
+    }
+    
+    if (emailInput) {
+      emailInput.addEventListener('input', updatePasswordRules);
+      emailInput.addEventListener('change', updatePasswordRules);
+    }
+    
+    if (confirmInput) {
+      confirmInput.addEventListener('input', updateConfirmation);
+      confirmInput.addEventListener('change', updateConfirmation);
+    }
+    
+    // Initial update
+    updatePasswordRules();
+  }
+
+  /* === Normalize Field Errors Layout === */
+  function normalizeFieldErrorsLayout() {
+    // Find all error elements that might be in wrong positions
+    var errorElements = document.querySelectorAll(
+      '.pf-c-form__helper-text.pf-m-error, ' +
+      '.kc-feedback-text, ' +
+      '[id*="input-error"], ' +
+      '[id*="error"][role="alert"]'
+    );
+    
+    for (var i = 0; i < errorElements.length; i++) {
+      var error = errorElements[i];
+      
+      // Skip if already processed
+      if (error.classList.contains('dv-field-error-below')) continue;
+      
+      // Find associated input
+      var inputId = error.id.replace('-error', '');
+      var input = document.getElementById(inputId);
+      
+      if (!input) {
+        // Try to find input by aria-describedby relationship
+        var inputs = document.querySelectorAll('[aria-describedby*="' + error.id + '"]');
+        if (inputs.length > 0) {
+          input = inputs[0];
+        }
+      }
+      
+      if (!input) continue;
+      
+      // Find the input group or form group
+      var inputGroup = input.closest('.pf-c-input-group');
+      var formGroup = input.closest('.pf-c-form__group');
+      
+      if (!inputGroup && !formGroup) continue;
+      
+      // Check if error is already in a good position
+      var parent = error.parentElement;
+      var isInGoodPosition = false;
+      
+      if (parent) {
+        // Check if error is already after the input group
+        if (inputGroup && parent === inputGroup.parentElement) {
+          var inputGroupIndex = Array.from(parent.children).indexOf(inputGroup);
+          var errorIndex = Array.from(parent.children).indexOf(error);
+          isInGoodPosition = errorIndex > inputGroupIndex;
+        }
+        
+        // Check if error is already after the input within the group
+        if (!isInGoodPosition && inputGroup && parent === inputGroup) {
+          var inputIndex = Array.from(parent.children).indexOf(input);
+          var errorIndex = Array.from(parent.children).indexOf(error);
+          isInGoodPosition = errorIndex > inputIndex;
+        }
+      }
+      
+      if (isInGoodPosition) {
+        // Already in good position, just add the class
+        error.classList.add('dv-field-error-below');
+        continue;
+      }
+      
+      // Determine where to move the error
+      var targetParent = inputGroup || formGroup;
+      var targetInsertAfter = inputGroup || input;
+      
+      if (!targetParent || !targetInsertAfter) continue;
+      
+      // Create a clone to preserve the original (Keycloak might need it)
+      var errorClone = error.cloneNode(true);
+      errorClone.classList.add('dv-field-error-below');
+      
+      // Hide the original but keep it in DOM
+      error.classList.add('dv-error-cleared');
+      error.hidden = true;
+      error.setAttribute('aria-hidden', 'true');
+      
+      // Insert the clone after the target
+      if (targetInsertAfter.parentNode) {
+        targetInsertAfter.parentNode.insertBefore(errorClone, targetInsertAfter.nextSibling);
+      }
+    }
+    
+    // Also process any error messages that are inside labels
+    var labelsWithErrors = document.querySelectorAll('label .pf-c-form__helper-text.pf-m-error, label .kc-feedback-text');
+    for (var j = 0; j < labelsWithErrors.length; j++) {
+      var labelError = labelsWithErrors[j];
+      var label = labelError.closest('label');
+      
+      if (!label) continue;
+      
+      // Find associated input
+      var inputId = label.getAttribute('for');
+      var input = inputId ? document.getElementById(inputId) : null;
+      
+      if (!input) {
+        // Try to find input within the same form group
+        var formGroup = label.closest('.pf-c-form__group');
+        if (formGroup) {
+          input = formGroup.querySelector('input, textarea, select');
+        }
+      }
+      
+      if (!input) continue;
+      
+      // Clone and move error
+      var errorClone = labelError.cloneNode(true);
+      errorClone.classList.add('dv-field-error-below');
+      
+      // Hide original
+      labelError.classList.add('dv-error-cleared');
+      labelError.hidden = true;
+      labelError.setAttribute('aria-hidden', 'true');
+      
+      // Insert after input or input group
+      var inputGroup = input.closest('.pf-c-input-group');
+      var insertAfter = inputGroup || input;
+      
+      if (insertAfter.parentNode) {
+        insertAfter.parentNode.insertBefore(errorClone, insertAfter.nextSibling);
+      }
+    }
+  }
+
 })();

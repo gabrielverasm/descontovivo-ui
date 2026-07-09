@@ -603,3 +603,116 @@ input.is-invalid:focus {
 .dv-page-register .pf-c-form__group {
   margin-bottom: 1.5rem;
 }
+
+/* ======================== */
+/* === V3 - NOVAS REGRAS === */
+/* ======================== */
+
+/* === Error messages below inputs === */
+.dv-field-error-below,
+.dv-live-field-error {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.dv-live-field-error[hidden] {
+  display: none !important;
+}
+
+/* === Password rules checklist === */
+.dv-password-rules {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.dv-password-rule {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.35rem;
+  color: #6b7280;
+  transition: color 150ms ease;
+}
+
+.dv-password-rule::before {
+  content: "○";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.6rem;
+  line-height: 1.2;
+  color: #9ca3af;
+  transition: color 150ms ease, content 150ms ease;
+}
+
+.dv-password-rule--valid {
+  color: #059669;
+}
+
+.dv-password-rule--valid::before {
+  content: "✓";
+  color: #059669;
+}
+
+.dv-password-rule--invalid {
+  color: #dc2626;
+}
+
+.dv-password-rule--invalid::before {
+  content: "✕";
+  color: #dc2626;
+}
+
+.dv-password-rule--info {
+  color: #6b7280;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* === Input alignment fix === */
+.login-pf-page input[type="text"],
+.login-pf-page input[type="email"],
+.login-pf-page input[type="password"],
+.login-pf-page .pf-c-form-control {
+  box-sizing: border-box !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  line-height: normal !important;
+}
+
+.pf-c-input-group.dv-password-group {
+  min-height: 42px !important;
+  height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.pf-c-input-group.dv-password-group .dv-password-input,
+.pf-c-input-group.dv-password-group .pf-c-form-control {
+  height: 42px !important;
+  min-height: 42px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: normal !important;
+  align-self: stretch !important;
+}
+
+.pf-c-input-group.dv-password-group .dv-password-toggle-native,
+.pf-c-input-group.dv-password-group .pf-c-button.pf-m-control.dv-password-toggle-native {
+  height: 42px !important;
+  min-height: 42px !important;
+  align-self: stretch !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
