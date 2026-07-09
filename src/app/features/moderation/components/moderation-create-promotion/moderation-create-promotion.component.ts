@@ -168,10 +168,12 @@ export class ModerationCreatePromotionComponent implements OnInit {
 
     this.saving = true;
     let imageUrl: string;
+    let imageKey: string;
     try {
       this.imageStatus = 'uploading';
       const result = await this.uploadService.uploadPromotionImage(this.imageBlob);
       imageUrl = result.imageUrl;
+      imageKey = result.imageKey;
       this.imageStatus = 'done';
     } catch {
       this.imageStatus = 'error';
@@ -198,6 +200,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
       deliveredBy: this.form.deliveredBy.trim() || null,
       productUrl: this.form.url.trim(),
       imageUrl,
+      imageKey,
       currentPrice: price,
       originalPrice: originalPrice && originalPrice > 0 ? originalPrice : null,
       coupon: this.form.couponCode.trim() || null,

@@ -8,6 +8,7 @@ export interface AdminImportItem {
   deliveredBy?: string | null;
   productUrl: string;
   imageUrl: string;
+  imageKey?: string | null;
   currentPrice: number;
   originalPrice?: number | null;
   coupon?: string | null;
