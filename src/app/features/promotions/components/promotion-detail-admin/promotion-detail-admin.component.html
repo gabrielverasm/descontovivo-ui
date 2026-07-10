@@ -50,6 +50,62 @@
         </select>
       </label>
 
+      <!-- Sinais de confiança -->
+      <div class="detail-admin__trust-signals">
+        <h3 class="detail-admin__trust-signals-title">Sinais de confiança</h3>
+        
+        <div class="detail-admin__trust-fields">
+          <app-floating-field 
+            label="Quantidade de vendas" 
+            name="edit-salesCount" 
+            [(ngModel)]="editForm.salesCount" 
+            inputmode="numeric"
+            placeholder="Ex: 2500" 
+          />
+          <app-floating-field 
+            label="Nota do produto" 
+            name="edit-productRating" 
+            [(ngModel)]="editForm.productRating" 
+            inputmode="decimal"
+            placeholder="Ex: 4.8" 
+            (blur)="normalizeRatingField('productRating')"
+          />
+          <app-floating-field 
+            label="Nota do vendedor" 
+            name="edit-sellerRating" 
+            [(ngModel)]="editForm.sellerRating" 
+            inputmode="decimal"
+            placeholder="Ex: 4.9" 
+            (blur)="normalizeRatingField('sellerRating')"
+          />
+        </div>
+
+        <label class="detail-admin__checkbox">
+          <input type="checkbox" [(ngModel)]="editForm.officialStore" name="edit-officialStore" (ngModelChange)="onOfficialStoreChange($event)" />
+          <span>Loja oficial da plataforma</span>
+        </label>
+
+        <!-- Selos disponíveis -->
+        <div class="detail-admin__trust-chips">
+          <span class="detail-admin__trust-chips-title">Selos disponíveis</span>
+          <div class="detail-admin__trust-chips-list">
+            @for (signal of availableTrustSignals; track signal) {
+              <button
+                type="button"
+                class="detail-admin__trust-chip"
+                [class.detail-admin__trust-chip--selected]="isTrustSignalSelected(signal)"
+                (click)="toggleTrustSignal(signal)"
+                [title]="getTrustSignalTooltip(signal)"
+                [attr.aria-label]="getTrustSignalLabel(signal)"
+              >
+                {{ getTrustSignalLabel(signal) }}
+              </button>
+            }
+          </div>
+          <small class="detail-admin__field-hint">Clique para selecionar/remover selos</small>
+        </div>
+      </div>
+
       <div class="detail-admin__image">
         @if (!adminImagePreviewUrl) {
           <p class="detail-admin__image-label">Imagem atual</p>

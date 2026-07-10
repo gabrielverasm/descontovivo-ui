@@ -29,7 +29,7 @@ import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../sh
 import { resolveStoreName } from '../../shared/utils/store-name.util';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../shared/utils/seller.util';
 import { sharePromotion } from '../../shared/utils/share-promotion.util';
-import { deriveTrustSignals, getMultipleTrustSignalsMetadata } from '../../shared/utils/trust-signals.util';
+import { deriveTrustSignals, getMultipleTrustSignalsMetadata, getMarketplaceTrustSignals } from '../../shared/utils/trust-signals.util';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
 import { UI_VERSION } from '../../core/app-version';
@@ -84,7 +84,24 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   isRemoveConfirm = false;
   adminMessage = '';
   adminError = '';
-  editForm = { title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '', soldBy: '', deliveredBy: '', category: '', availability: '' };
+  editForm = { 
+    title: '', 
+    url: '', 
+    currentPrice: '', 
+    originalPrice: '', 
+    couponCode: '', 
+    storeName: '', 
+    soldBy: '', 
+    deliveredBy: '', 
+    category: '', 
+    availability: '',
+    // New trust signals fields
+    salesCount: '',
+    productRating: '',
+    sellerRating: '',
+    officialStore: false,
+    trustSignals: [] as string[]
+  };
 
   // Admin image upload
   adminImageBlob: Blob | null = null;
@@ -140,6 +157,37 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       label: `✓ ${meta.label}`,
       description: meta.detailDescription || meta.tooltip
     }));
+  }
+
+  // Trust signals for admin edit form
+  get availableTrustSignals(): string[] {
+    if (!this.promotion) return [];
+    const marketplace = this.promotion.marketplace || '';
+    const trustSignals = getMarketplaceTrustSignals(marketplace);
+    return trustSignals.map((signal: any) => signal.toString());
+  }
+
+  getTrustSignalLabel(signal: string): string {
+    const metadata = getMultipleTrustSignalsMetadata([signal as any])[0];
+    return metadata?.label || signal;
+  }
+
+  getTrustSignalTooltip(signal: string): string {
+    const metadata = getMultipleTrustSignalsMetadata([signal as any])[0];
+    return metadata?.tooltip || '';
+  }
+
+  toggleTrustSignal(signal: string): void {
+    const index = this.editForm.trustSignals.indexOf(signal);
+    if (index === -1) {
+      this.editForm.trustSignals.push(signal);
+    } else {
+      this.editForm.trustSignals.splice(index, 1);
+    }
+  }
+
+  isTrustSignalSelected(signal: string): boolean {
+    return this.editForm.trustSignals.includes(signal);
   }
 
   get canModerate(): boolean { return this.authService.canModerate(); }
@@ -344,6 +392,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       deliveredBy: this.promotion.deliveredBy ?? '',
       category: this.promotion.category ?? '',
       availability: this.promotion.availability ?? '',
+      // New trust signals fields
+      salesCount: this.promotion.salesCount?.toString() ?? '',
+      productRating: this.promotion.productRating?.toString().replace('.', ',') ?? '',
+      sellerRating: this.promotion.sellerRating?.toString().replace('.', ',') ?? '',
+      officialStore: this.promotion.officialStore ?? false,
+      trustSignals: this.promotion.trustSignals ?? [],
     };
     this.isEditMode = true;
     this.adminMessage = '';
@@ -373,6 +427,67 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.adminError = '';
 
     this.doSubmitEdit(price).then();
+  }
+
+  private parseOptionalIntegerInput(value: string | number | null | undefined): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    
+    // If it's already a number, validate range
+    if (typeof value === 'number') {
+      return value >= 0 && Number.isInteger(value) ? value : null;
+    }
+    
+    // If it's a string, normalize it
+    const str = String(value).trim();
+    if (!str) return null;
+    
+    // Parse to integer
+    const parsed = parseInt(str, 10);
+    
+    // Validate result
+    if (isNaN(parsed) || parsed < 0) {
+      return null;
+    }
+    
+    return parsed;
+  }
+
+  private normalizeRatingInput(value: string | number | null | undefined): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    
+    // If it's already a number, validate range
+    if (typeof value === 'number') {
+      return value >= 0 && value <= 5 ? value : null;
+    }
+    
+    // If it's a string, normalize it
+    const str = String(value).trim();
+    if (!str) return null;
+    
+    // Replace comma with dot
+    let normalized = str.replace(',', '.');
+    
+    // Handle cases like "48" → "4.8", "49" → "4.9", "50" → "5.0"
+    if (/^\d{2}$/.test(normalized)) {
+      const num = parseInt(normalized, 10);
+      if (num >= 0 && num <= 50) {
+        normalized = (num / 10).toString();
+      }
+    }
+    
+    // Parse to float
+    const parsed = parseFloat(normalized);
+    
+    // Validate range
+    if (isNaN(parsed) || parsed < 0 || parsed > 5) {
+      return null;
+    }
+    
+    return parsed;
   }
 
   private async doSubmitEdit(price: number): Promise<void> {
@@ -410,6 +525,17 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     req.deliveredBy = f.deliveredBy.trim() || null;
     req.category = f.category.trim() || null;
     if (f.availability.trim()) req.availability = f.availability.trim();
+    
+    // Add new trust signals fields
+    const salesCount = this.parseOptionalIntegerInput(f.salesCount);
+    const productRating = this.normalizeRatingInput(f.productRating);
+    const sellerRating = this.normalizeRatingInput(f.sellerRating);
+    
+    req.salesCount = salesCount && salesCount > 0 ? salesCount : null;
+    req.productRating = productRating;
+    req.sellerRating = sellerRating;
+    req.officialStore = f.officialStore;
+    req.trustSignals = f.trustSignals;
 
     this.moderationService.decide(this.promotion!.id, req).subscribe({
       next: (updated) => {
