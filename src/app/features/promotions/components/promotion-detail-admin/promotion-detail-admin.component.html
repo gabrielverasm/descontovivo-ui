@@ -97,6 +97,7 @@
                 (click)="toggleTrustSignal(signal)"
                 [title]="getTrustSignalTooltip(signal)"
                 [attr.aria-label]="getTrustSignalLabel(signal)"
+                [attr.aria-pressed]="isTrustSignalSelected(signal)"
               >
                 {{ getTrustSignalLabel(signal) }}
               </button>

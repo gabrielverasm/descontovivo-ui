@@ -29,6 +29,7 @@ import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../sh
 import { resolveStoreName } from '../../shared/utils/store-name.util';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../shared/utils/seller.util';
 import { sharePromotion } from '../../shared/utils/share-promotion.util';
+import { normalizeRatingInput } from '../../shared/utils/rating-input.util';
 import { deriveTrustSignals, getMultipleTrustSignalsMetadata, getMarketplaceTrustSignals } from '../../shared/utils/trust-signals.util';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
@@ -454,41 +455,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     return parsed;
   }
 
-  private normalizeRatingInput(value: string | number | null | undefined): number | null {
-    if (value === null || value === undefined || value === '') {
-      return null;
-    }
-    
-    // If it's already a number, validate range
-    if (typeof value === 'number') {
-      return value >= 0 && value <= 5 ? value : null;
-    }
-    
-    // If it's a string, normalize it
-    const str = String(value).trim();
-    if (!str) return null;
-    
-    // Replace comma with dot
-    let normalized = str.replace(',', '.');
-    
-    // Handle cases like "48" → "4.8", "49" → "4.9", "50" → "5.0"
-    if (/^\d{2}$/.test(normalized)) {
-      const num = parseInt(normalized, 10);
-      if (num >= 0 && num <= 50) {
-        normalized = (num / 10).toString();
-      }
-    }
-    
-    // Parse to float
-    const parsed = parseFloat(normalized);
-    
-    // Validate range
-    if (isNaN(parsed) || parsed < 0 || parsed > 5) {
-      return null;
-    }
-    
-    return parsed;
-  }
+
 
   private async doSubmitEdit(price: number): Promise<void> {
     const f = this.editForm;
@@ -528,8 +495,8 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     
     // Add new trust signals fields
     const salesCount = this.parseOptionalIntegerInput(f.salesCount);
-    const productRating = this.normalizeRatingInput(f.productRating);
-    const sellerRating = this.normalizeRatingInput(f.sellerRating);
+    const productRating = normalizeRatingInput(f.productRating);
+    const sellerRating = normalizeRatingInput(f.sellerRating);
     
     req.salesCount = salesCount && salesCount > 0 ? salesCount : null;
     req.productRating = productRating;

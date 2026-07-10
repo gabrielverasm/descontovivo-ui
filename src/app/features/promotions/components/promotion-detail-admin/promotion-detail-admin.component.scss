@@ -121,3 +121,118 @@
     outline-offset: 1px;
   }
 }
+
+/* Trust signals section */
+.detail-admin__trust-signals {
+  display: grid;
+  gap: 0.8rem;
+  padding: 0.8rem 0;
+}
+
+.detail-admin__trust-signals-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #172033;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.detail-admin__trust-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.detail-admin__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 650;
+  color: #172033;
+
+  input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.25rem;
+    background: #fff;
+    cursor: pointer;
+    margin: 0;
+
+    &:checked {
+      background-color: #2563eb;
+      border-color: #2563eb;
+    }
+
+    &:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.28);
+      outline-offset: 1px;
+    }
+  }
+}
+
+.detail-admin__trust-chips {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.detail-admin__trust-chips-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.detail-admin__trust-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.detail-admin__trust-chip {
+  min-height: 2rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  padding: 0 0.75rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  &--selected {
+    border-color: #2563eb !important;
+    background: #dbeafe !important;
+    color: #1e40af !important;
+    font-weight: 700;
+  }
+
+  &[aria-pressed="true"] {
+    border-color: #2563eb !important;
+    background: #dbeafe !important;
+    color: #1e40af !important;
+  }
+
+  &:focus {
+    outline: 2px solid rgba(37, 99, 235, 0.28);
+    outline-offset: 1px;
+  }
+}
+
+.detail-admin__field-hint {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin: 0;
+}

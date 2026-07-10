@@ -32,6 +32,7 @@ export class FloatingFieldComponent implements ControlValueAccessor {
   private onTouched: () => void = () => {};
 
   @Output() valueChange = new EventEmitter<string>();
+  @Output() blur = new EventEmitter<void>();
 
   onInput(event: Event) {
     const val = (event.target as HTMLInputElement | HTMLTextAreaElement).value;
@@ -42,6 +43,7 @@ export class FloatingFieldComponent implements ControlValueAccessor {
 
   onBlur() {
     this.onTouched();
+    this.blur.emit();
   }
 
   writeValue(val: string) {

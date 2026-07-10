@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.2**
+**0.5.3**
 
 ## Convenção
 
@@ -29,6 +29,7 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.5.3  | 2026-07-10 | Corrige auto-load prematuro da home, evitando carregar novas promoções antes do usuário chegar perto do fim da lista, corrige exibição do selo de curadoria para depender do sinal explícito vindo da API.
 | 0.5.2  | 2026-07-10 | Corrige travamento ao adicionar promoção manual, adiciona edição administrativa de quantidade de vendas, notas, loja oficial e sinais de confiança. 
 | 0.5.1  | 2026-07-10 | Os selos de confiança “Oficial” e “Curadoria” agora usam badges visuais WebP em vez de texto puro.
 | 0.5.0  | 2026-07-10 | Trust Signals: novos campos (salesCount, productRating, sellerRating, officialStore, trustSignals); auto-load no feed com contador e pause; seção "Por que essa promoção passou na curadoria?" e CTA "Ir para..." |

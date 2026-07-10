@@ -10,6 +10,7 @@ import { deriveMarketplace } from '../../../../shared/utils/marketplace.util';
 import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../../shared/utils/money-input.util';
 import { normalizePromotionTitle } from '../../../../shared/utils/normalize-title.util';
 import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata, TrustSignal } from '../../../../shared/utils/trust-signals.util';
+import { normalizeRatingInput, formatRatingForInput } from '../../../../shared/utils/rating-input.util';
 
 @Component({
   selector: 'app-moderation-create-promotion',
@@ -233,55 +234,12 @@ export class ModerationCreatePromotionComponent implements OnInit {
     return parsed;
   }
 
-  private normalizeRatingInput(value: string | number | null | undefined): number | null {
-    if (value === null || value === undefined || value === '') {
-      return null;
-    }
-    
-    // If it's already a number, validate range
-    if (typeof value === 'number') {
-      return value >= 0 && value <= 5 ? value : null;
-    }
-    
-    // If it's a string, normalize it
-    const str = String(value).trim();
-    if (!str) return null;
-    
-    // Replace comma with dot
-    let normalized = str.replace(',', '.');
-    
-    // Handle cases like "48" → "4.8", "49" → "4.9", "50" → "5.0"
-    if (/^\d{2}$/.test(normalized)) {
-      const num = parseInt(normalized, 10);
-      if (num >= 0 && num <= 50) {
-        normalized = (num / 10).toString();
-      }
-    }
-    
-    // Parse to float
-    const parsed = parseFloat(normalized);
-    
-    // Validate range
-    if (isNaN(parsed) || parsed < 0 || parsed > 5) {
-      return null;
-    }
-    
-    return parsed;
-  }
-
-  private formatRatingForInput(value: number | null): string {
-    if (value === null || value === undefined) {
-      return '';
-    }
-    return value.toString().replace('.', ',');
-  }
-
   normalizeRatingField(field: 'productRating' | 'sellerRating'): void {
     const value = this.form[field];
-    const normalized = this.normalizeRatingInput(value);
+    const normalized = normalizeRatingInput(value);
     
     if (normalized !== null && normalized !== undefined) {
-      this.form[field] = this.formatRatingForInput(normalized);
+      this.form[field] = formatRatingForInput(normalized);
     } else if (value && String(value).trim()) {
       // If normalization failed but there's a value, clear it
       this.form[field] = '';
@@ -362,8 +320,8 @@ export class ModerationCreatePromotionComponent implements OnInit {
 
       // Parse trust signals fields
       const salesCount = this.parseOptionalIntegerInput(this.form.salesCount);
-      const productRating = this.normalizeRatingInput(this.form.productRating);
-      const sellerRating = this.normalizeRatingInput(this.form.sellerRating);
+      const productRating = normalizeRatingInput(this.form.productRating);
+      const sellerRating = normalizeRatingInput(this.form.sellerRating);
 
       const item = {
         sourceId,
