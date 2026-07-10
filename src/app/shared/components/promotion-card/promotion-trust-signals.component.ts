@@ -71,22 +71,33 @@ export class PromotionTrustSignalsComponent {
     return 'Vendido e entregue pela Amazon. Pode ter benefícios Prime quando elegível.';
   }
 
+  // Badge image sources and titles
+  readonly officialBadgeSrc = '/brand/loja-oficial.webp';
+  readonly curationBadgeSrc = '/brand/curadoria.webp';
+  readonly officialBadgeTitle = 'Loja oficial da plataforma';
+  readonly curationBadgeTitle = 'Revisada pela curadoria do DescontoVivo';
+
   // New trust signals methods
   
   get hasTrustSignals(): boolean {
-    if (!this.promotion.marketplace) {
-      return false;
-    }
-    
     return this.hasOfficialStore ||
            this.hasHighSales ||
            this.hasGoodProductRating ||
            this.hasGoodSellerRating ||
-           this.hasAnyPlatformTrustSignal;
+           this.hasAnyPlatformTrustSignal ||
+           this.hasCuratedByDescontovivo;
   }
 
   get hasOfficialStore(): boolean {
     return !!this.promotion.officialStore;
+  }
+
+  get hasCuratedByDescontovivo(): boolean {
+    if (!this.promotion.trustSignals) {
+      return false;
+    }
+    
+    return this.promotion.trustSignals.includes('CURATED_BY_DESCONTOVIVO');
   }
 
   get hasAnyPlatformTrustSignal(): boolean {
@@ -139,6 +150,32 @@ export class PromotionTrustSignalsComponent {
 
   get compactTrustDisplay(): string {
     return getCompactTrustDisplay(this.promotion);
+  }
+
+  get compactTextWithoutImageBadges(): string {
+    // Get the compact display text
+    const fullText = getCompactTrustDisplay(this.promotion);
+    
+    // If we have image badges, remove "Oficial" and "Revisada pela curadoria" from text
+    const imageBadgeSignals: string[] = [];
+    if (this.hasOfficialStore) {
+      imageBadgeSignals.push('Oficial');
+    }
+    if (this.hasCuratedByDescontovivo) {
+      imageBadgeSignals.push('Revisada pela curadoria');
+    }
+    
+    if (imageBadgeSignals.length === 0) {
+      return fullText;
+    }
+    
+    // Filter out the image badge signals from the text parts
+    const parts = fullText.split(' · ');
+    const filteredParts = parts.filter(part => 
+      !imageBadgeSignals.some(signal => part.startsWith(signal))
+    );
+    
+    return filteredParts.join(' · ');
   }
 
   get trustSignals(): TrustSignal[] {
