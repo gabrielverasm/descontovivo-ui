@@ -51,6 +51,10 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   autoLoadStoppedByUser = false;
   private autoLoadIntervalId: ReturnType<typeof setInterval> | null = null;
 
+  // User scroll tracking
+  hasUserScrolled = false;
+  private scrollListener: (() => void) | null = null;
+
   get hasMore(): boolean {
     if (this.isSearchActive) return false;
     return this.currentPage + 1 < this.totalPages;
@@ -78,6 +82,9 @@ export class PromotionsComponent implements OnInit, OnDestroy {
       'url': 'https://descontovivo.com/',
       'logo': 'https://descontovivo.com/brand/logo-og-image.jpg'
     });
+
+    // Set up scroll listener to detect user scroll
+    this.setupScrollListener();
 
     this.notificationSub = this.notificationStream.state$.subscribe((state) => {
       this.newPromotionsCount = state.newPromotionsCount;
@@ -119,6 +126,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopAutoLoad();
+    this.removeScrollListener();
     this.notificationSub?.unsubscribe();
     this.navigationSub?.unsubscribe();
     this.structuredData.removeStructuredData('sd-website');
@@ -176,6 +184,11 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   onLoadMoreButtonClick(): void {
     if (this.loadingMore || !this.hasMore) return;
 
+    // Mark that user has interacted (scrolled or clicked)
+    if (!this.hasUserScrolled) {
+      this.hasUserScrolled = true;
+    }
+
     // If auto-load is enabled, stop it (mark as stopped by user)
     if (this.autoLoadEnabled) {
       this.stopAutoLoad(true);
@@ -202,7 +215,8 @@ export class PromotionsComponent implements OnInit, OnDestroy {
    * Start auto-load timer
    */
   startAutoLoad(): void {
-    if (!this.hasMore || this.loadingMore) return;
+    // Only start auto-load if user has scrolled at least once AND is near the end of the feed
+    if (!this.hasMore || this.loadingMore || this.loading || this.isSearchActive || !this.hasUserScrolled || !this.isNearFeedEnd()) return;
 
     // Clear any existing interval before creating a new one
     if (this.autoLoadIntervalId) {
@@ -241,10 +255,20 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Check if user is near the end of the feed (close to "Carregar mais" button)
+   */
+  private isNearFeedEnd(): boolean {
+    const thresholdPx = 500;
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    return scrollPosition >= documentHeight - thresholdPx;
+  }
+
+  /**
    * Execute auto-load when timer reaches zero
    */
   private executeAutoLoad(): void {
-    if (!this.hasMore || this.loadingMore) {
+    if (!this.hasMore || this.loadingMore || !this.hasUserScrolled || !this.isNearFeedEnd()) {
       this.stopAutoLoad();
       return;
     }
@@ -315,15 +339,16 @@ export class PromotionsComponent implements OnInit, OnDestroy {
         this.loadingMore = false;
         this.loadMoreError = '';
 
-        // After manual load, restart auto-load if there are more pages
-        // But only if auto-load was not manually stopped
-        if (!isFirst && !this.autoLoadEnabled && this.hasMore && !this.autoLoadStoppedByUser && !this.isSearchActive) {
+        // After manual load, restart auto-load if there are more pages AND user is near the end
+        // But only if auto-load was not manually stopped and user has scrolled
+        if (!isFirst && !this.autoLoadEnabled && this.hasMore && !this.autoLoadStoppedByUser && !this.isSearchActive && this.hasUserScrolled && this.isNearFeedEnd()) {
           // User manually loaded, restart auto-load immediately with appropriate conditions
           this.startAutoLoad();
         }
 
-        // After first page load, start auto-load if there are more pages
-        if (isFirst && !this.autoLoadEnabled && this.hasMore && !this.isSearchActive && !this.autoLoadStoppedByUser) {
+        // After first page load, start auto-load if there are more pages AND user is near the end
+        // Only start auto-load if user has scrolled at least once AND is near the end
+        if (isFirst && !this.autoLoadEnabled && this.hasMore && !this.isSearchActive && !this.autoLoadStoppedByUser && this.hasUserScrolled && this.isNearFeedEnd()) {
           this.startAutoLoad();
         }
 
@@ -357,5 +382,46 @@ export class PromotionsComponent implements OnInit, OnDestroy {
       publishedCount: totalElements ?? promotions.length,
       latestPublishedAt,
     });
+  }
+
+  /**
+   * Set up scroll listener to detect when user scrolls for the first time
+   * and check if user is near the end of the feed to start auto-load
+   */
+  private setupScrollListener(): void {
+    // Remove any existing listener
+    this.removeScrollListener();
+
+    this.scrollListener = () => {
+      // Mark that user has scrolled (for first scroll detection)
+      if (!this.hasUserScrolled && window.scrollY > 10) {
+        this.hasUserScrolled = true;
+      }
+
+      // If user is near the end, has scrolled, has more pages, and auto-load is not already running,
+      // then start auto-load timer
+      if (this.hasUserScrolled && 
+          this.isNearFeedEnd() && 
+          this.hasMore && 
+          !this.loadingMore && 
+          !this.loading && 
+          !this.isSearchActive && 
+          !this.autoLoadEnabled && 
+          !this.autoLoadStoppedByUser) {
+        this.startAutoLoad();
+      }
+    };
+
+    window.addEventListener('scroll', this.scrollListener);
+  }
+
+  /**
+   * Remove scroll listener
+   */
+  private removeScrollListener(): void {
+    if (this.scrollListener) {
+      window.removeEventListener('scroll', this.scrollListener);
+      this.scrollListener = null;
+    }
   }
 }

@@ -172,7 +172,7 @@ export class PromotionTrustSignalsComponent {
     // Filter out the image badge signals from the text parts
     const parts = fullText.split(' · ');
     const filteredParts = parts.filter(part => 
-      !imageBadgeSignals.some(signal => part.startsWith(signal))
+      !imageBadgeSignals.some(signal => part.includes(signal))
     );
     
     return filteredParts.join(' · ');

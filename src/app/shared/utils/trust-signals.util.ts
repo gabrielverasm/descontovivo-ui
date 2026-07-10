@@ -336,8 +336,10 @@ export function deriveTrustSignals(promotion: {
     }
   }
   
-  // Always add curated signal for published promotions
-  signals.add(TrustSignal.CURATED_BY_DESCONTOVIVO);
+  // Only add curated signal when explicitly provided by the API.
+  if (promotion.trustSignals?.includes('CURATED_BY_DESCONTOVIVO')) {
+    signals.add(TrustSignal.CURATED_BY_DESCONTOVIVO);
+  }
   
   return Array.from(signals);
 }
