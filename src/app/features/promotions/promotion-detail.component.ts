@@ -29,6 +29,7 @@ import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../sh
 import { resolveStoreName } from '../../shared/utils/store-name.util';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../shared/utils/seller.util';
 import { sharePromotion } from '../../shared/utils/share-promotion.util';
+import { deriveTrustSignals, getMultipleTrustSignalsMetadata } from '../../shared/utils/trust-signals.util';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
 import { UI_VERSION } from '../../core/app-version';
@@ -100,6 +101,45 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       case 'done': return 'Upload concluído';
       default: return null;
     }
+  }
+
+  // Trust signals methods
+  get hasTrustSignals(): boolean {
+    if (!this.promotion) return false;
+    return !!(
+      this.promotion.officialStore ||
+      (this.promotion.salesCount && this.promotion.salesCount >= 1000) ||
+      (this.promotion.productRating && this.promotion.productRating >= 4.7) ||
+      (this.promotion.sellerRating && this.promotion.sellerRating >= 4.7) ||
+      (this.promotion.trustSignals && this.promotion.trustSignals.length > 0)
+    );
+  }
+
+  get trustSignalsList(): { label: string; description: string }[] {
+    if (!this.promotion) return [];
+    
+    const signals: { label: string; description: string }[] = [];
+    
+    // Derive trust signals from promotion fields
+    const derivedSignals = deriveTrustSignals({
+      officialStore: this.promotion.officialStore,
+      salesCount: this.promotion.salesCount,
+      productRating: this.promotion.productRating,
+      sellerRating: this.promotion.sellerRating,
+      marketplace: this.promotion.marketplace,
+      trustSignals: this.promotion.trustSignals,
+      soldBy: this.promotion.soldBy,
+      deliveredBy: this.promotion.deliveredBy,
+    });
+    
+    // Get metadata for all derived signals
+    const metadata = getMultipleTrustSignalsMetadata(derivedSignals);
+    
+    // Convert to display format with checkmark prefix
+    return metadata.map(meta => ({
+      label: `✓ ${meta.label}`,
+      description: meta.detailDescription || meta.tooltip
+    }));
   }
 
   get canModerate(): boolean { return this.authService.canModerate(); }
@@ -234,7 +274,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
         '',
     );
 
-    return destinationName ? `Acessar oferta na ${destinationName}` : 'Acessar oferta';
+    return destinationName ? `Ir para ${destinationName}` : 'Ir para oferta';
   }
 
   loadMoreComments() {

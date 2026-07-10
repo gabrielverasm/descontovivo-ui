@@ -331,6 +331,58 @@
   }
 }
 
+/* Trust signals section */
+.promotion-detail__trust-section {
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.promotion-detail__trust-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.promotion-detail__trust-list {
+  margin: 0 0 0.75rem 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.promotion-detail__trust-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.promotion-detail__trust-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.promotion-detail__trust-desc {
+  font-size: 0.75rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.promotion-detail__trust-disclaimer {
+  margin: 0;
+  font-size: 0.7rem;
+  color: #64748b;
+  font-style: italic;
+  line-height: 1.4;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 0.5rem;
+}
+
 @media (max-width: 760px) {
   :is(.promotion-detail__content, .promotion-detail__signals, .promotion-detail__below) {
     grid-template-columns: 1fr;
@@ -349,5 +401,15 @@
     bottom: 0.85rem;
     padding: 0.7rem 0.9rem;
     font-size: 0.9rem;
+  }
+  
+  .promotion-detail__trust-section {
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  
+  .promotion-detail__trust-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
   }
 }

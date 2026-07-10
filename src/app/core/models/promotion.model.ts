@@ -49,6 +49,13 @@ export interface Promotion {
   createdBy: string;
   authorUsername?: string;
   store?: PromotionStore;
+  // New trust signals fields
+  marketplace?: string;
+  salesCount?: number;
+  productRating?: number;
+  sellerRating?: number;
+  officialStore?: boolean;
+  trustSignals?: string[];
 }
 
 export interface PagedResponse<T> {

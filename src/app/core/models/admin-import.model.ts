@@ -15,6 +15,12 @@ export interface AdminImportItem {
   category: string;
   publishAt?: string | null;
   verifiedAt?: string | null;
+  // New trust signals fields
+  salesCount?: number | null;
+  productRating?: number | null;
+  sellerRating?: number | null;
+  officialStore?: boolean | null;
+  trustSignals?: string[] | null;
 }
 
 export interface AdminImportRequest {

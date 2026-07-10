@@ -56,10 +56,12 @@
             type="button"
             class="promotions-feed__load-more-btn"
             [disabled]="loadingMore"
-            (click)="loadMore()"
+            (click)="onLoadMoreButtonClick()"
           >
             @if (loadingMore) {
               Carregando…
+            } @else if (autoLoadEnabled) {
+              Parar carregamento automático · {{ autoLoadCountdown }}s
             } @else {
               Carregar mais promoções
             }

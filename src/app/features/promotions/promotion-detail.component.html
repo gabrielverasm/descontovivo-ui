@@ -51,6 +51,23 @@
           }
         </div>
 
+        @if (hasTrustSignals) {
+          <div class="promotion-detail__trust-section">
+            <h2 class="promotion-detail__trust-title">Por que essa promoção passou na curadoria?</h2>
+            <ul class="promotion-detail__trust-list">
+              @for (signal of trustSignalsList; track signal.label) {
+                <li class="promotion-detail__trust-item">
+                  <span class="promotion-detail__trust-label">{{ signal.label }}</span>
+                  <span class="promotion-detail__trust-desc" aria-hidden="true">{{ signal.description }}</span>
+                </li>
+              }
+            </ul>
+            <p class="promotion-detail__trust-disclaimer">
+              O DescontoVivo não processa pagamento, entrega, devolução ou reembolso. A compra é feita diretamente na loja.
+            </p>
+          </div>
+        }
+
         <dl>
           <div>
             <dt>Preço</dt>

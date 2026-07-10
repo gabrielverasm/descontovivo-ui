@@ -9,6 +9,7 @@ import { PromotionImageUploadComponent } from '../../../../shared/components/pro
 import { deriveMarketplace } from '../../../../shared/utils/marketplace.util';
 import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../../shared/utils/money-input.util';
 import { normalizePromotionTitle } from '../../../../shared/utils/normalize-title.util';
+import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata } from '../../../../shared/utils/trust-signals.util';
 
 @Component({
   selector: 'app-moderation-create-promotion',
@@ -38,7 +39,15 @@ export class ModerationCreatePromotionComponent implements OnInit {
     category: '',
     availability: '',
     priceSignal: '',
+    // New trust signals fields
+    salesCount: '',
+    productRating: '',
+    sellerRating: '',
+    officialStore: false,
   };
+
+  // Trust signals chips
+  trustSignals: string[] = [];
 
   saving = false;
   error = '';
@@ -64,6 +73,12 @@ export class ModerationCreatePromotionComponent implements OnInit {
       case 'done': return 'Upload concluído';
       default: return null;
     }
+  }
+
+  // Getter puro para availableTrustSignals
+  get availableTrustSignals(): string[] {
+    const marketplace = deriveMarketplace(this.form.storeName || '');
+    return getMarketplaceTrustSignals(marketplace).map(signal => signal.toString());
   }
 
   ngOnInit(): void {
@@ -105,6 +120,33 @@ export class ModerationCreatePromotionComponent implements OnInit {
 
   copySoldByToDeliveredBy(): void {
     this.form.deliveredBy = this.form.soldBy;
+  }
+
+  // --- Trust signals helpers ---
+
+  toggleTrustSignal(signal: string): void {
+    const index = this.trustSignals.indexOf(signal);
+    if (index === -1) {
+      this.trustSignals.push(signal);
+    } else {
+      this.trustSignals.splice(index, 1);
+    }
+  }
+
+  isTrustSignalSelected(signal: string): boolean {
+    return this.trustSignals.includes(signal);
+  }
+
+  getTrustSignalLabel(signal: string): string {
+    // Use the metadata from trust-signals.util.ts
+    const metadata = getMultipleTrustSignalsMetadata([signal as any])[0];
+    return metadata?.label || signal;
+  }
+
+  getTrustSignalTooltip(signal: string): string {
+    // Use the metadata from trust-signals.util.ts
+    const metadata = getMultipleTrustSignalsMetadata([signal as any])[0];
+    return metadata?.tooltip || '';
   }
 
   // --- Categories ---
@@ -190,6 +232,11 @@ export class ModerationCreatePromotionComponent implements OnInit {
     const marketplace = deriveMarketplace(storeName);
     const title = normalizePromotionTitle(this.form.title);
 
+    // Parse trust signals fields
+    const salesCount = this.form.salesCount.trim() ? parseInt(this.form.salesCount.trim(), 10) : null;
+    const productRating = this.form.productRating.trim() ? parseFloat(this.form.productRating.trim()) : null;
+    const sellerRating = this.form.sellerRating.trim() ? parseFloat(this.form.sellerRating.trim()) : null;
+
     const item = {
       sourceId,
       title,
@@ -209,6 +256,12 @@ export class ModerationCreatePromotionComponent implements OnInit {
       priceSignal: this.form.priceSignal || null,
       publishAt: now,
       verifiedAt: now,
+      // New trust signals fields
+      salesCount: salesCount && salesCount > 0 ? salesCount : null,
+      productRating: productRating && productRating >= 0 && productRating <= 5 ? productRating : null,
+      sellerRating: sellerRating && sellerRating >= 0 && sellerRating <= 5 ? sellerRating : null,
+      officialStore: this.form.officialStore,
+      trustSignals: this.trustSignals.length > 0 ? this.trustSignals : null,
     };
 
     this.adminImportService.import({ batchId: `manual-${Date.now()}`, items: [item] }, false).pipe(
@@ -233,7 +286,24 @@ export class ModerationCreatePromotionComponent implements OnInit {
   // --- Reset ---
 
   private resetForm(): void {
-    this.form = { url: '', title: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '', soldBy: '', deliveredBy: '', category: '', availability: '', priceSignal: '' };
+    this.form = { 
+      url: '', 
+      title: '', 
+      currentPrice: '', 
+      originalPrice: '', 
+      couponCode: '', 
+      storeName: '', 
+      soldBy: '', 
+      deliveredBy: '', 
+      category: '', 
+      availability: '', 
+      priceSignal: '',
+      salesCount: '',
+      productRating: '',
+      sellerRating: '',
+      officialStore: false
+    };
+    this.trustSignals = [];
     this.soldAndDeliveredByStore = false;
     this.resetImage();
   }
