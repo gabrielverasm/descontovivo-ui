@@ -62,9 +62,39 @@
   height: 1.1rem;
 }
 
+.promotion-badge__text {
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1.1;
+  padding: 0.24rem 0.56rem;
+  color: #1d4ed8;
+  white-space: nowrap;
+}
+
+.promotion-trust-text {
+  font-size: 0.75rem;
+  color: #374151;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  cursor: help;
+}
+
 @media (max-width: 520px) {
   .promotion-badge__icon {
     width: 1.25rem;
     height: 1.25rem;
+  }
+  
+  .promotion-badge__text {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.48rem;
+  }
+  
+  .promotion-trust-text {
+    font-size: 0.7rem;
   }
 }

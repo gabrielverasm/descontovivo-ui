@@ -6,6 +6,15 @@ import {
   isSoldAndDeliveredByAmazon,
   isSoldAndDeliveredByStore,
 } from '../../utils/seller.util';
+import {
+  TrustSignal,
+  getCompactTrustDisplay,
+  getTrustSignalLabel,
+  getTrustSignalTooltip,
+  formatSalesCount,
+  formatRating,
+  deriveTrustSignals,
+} from '../../utils/trust-signals.util';
 
 @Component({
   selector: 'app-promotion-trust-signals',
@@ -60,5 +69,139 @@ export class PromotionTrustSignalsComponent {
 
   get primeTitle(): string {
     return 'Vendido e entregue pela Amazon. Pode ter benefícios Prime quando elegível.';
+  }
+
+  // New trust signals methods
+  
+  get hasTrustSignals(): boolean {
+    if (!this.promotion.marketplace) {
+      return false;
+    }
+    
+    return this.hasOfficialStore ||
+           this.hasHighSales ||
+           this.hasGoodProductRating ||
+           this.hasGoodSellerRating ||
+           this.hasAnyPlatformTrustSignal;
+  }
+
+  get hasOfficialStore(): boolean {
+    return !!this.promotion.officialStore;
+  }
+
+  get hasAnyPlatformTrustSignal(): boolean {
+    if (!this.promotion.trustSignals || !this.promotion.marketplace) {
+      return false;
+    }
+    
+    const marketplaceUpper = this.promotion.marketplace.toUpperCase();
+    const platformSignals = this.promotion.trustSignals.filter(signal => {
+      if (marketplaceUpper === 'AMAZON') {
+        return signal.includes('AMAZON_');
+      } else if (marketplaceUpper === 'MERCADO_LIVRE') {
+        return signal.includes('MERCADO_LIVRE_');
+      } else if (marketplaceUpper === 'MAGALU') {
+        return signal.includes('MAGALU_');
+      } else if (marketplaceUpper === 'SHOPEE') {
+        return signal.includes('SHOPEE_');
+      } else if (marketplaceUpper === 'ALIEXPRESS') {
+        return signal.includes('ALIEXPRESS_');
+      }
+      return false;
+    });
+    
+    return platformSignals.length > 0;
+  }
+
+  get hasHighSales(): boolean {
+    return !!(this.promotion.salesCount && this.promotion.salesCount >= 1000);
+  }
+
+  get hasGoodProductRating(): boolean {
+    return !!(this.promotion.productRating && this.promotion.productRating >= 4.7);
+  }
+
+  get hasGoodSellerRating(): boolean {
+    return !!(this.promotion.sellerRating && this.promotion.sellerRating >= 4.7);
+  }
+
+  get salesCountFormatted(): string | undefined {
+    return formatSalesCount(this.promotion.salesCount);
+  }
+
+  get productRatingFormatted(): string | undefined {
+    return formatRating(this.promotion.productRating);
+  }
+
+  get sellerRatingFormatted(): string | undefined {
+    return formatRating(this.promotion.sellerRating);
+  }
+
+  get compactTrustDisplay(): string {
+    return getCompactTrustDisplay(this.promotion);
+  }
+
+  get trustSignals(): TrustSignal[] {
+    return deriveTrustSignals(this.promotion);
+  }
+
+  getTrustSignalLabel(signal: TrustSignal): string {
+    return getTrustSignalLabel(signal);
+  }
+
+  getTrustSignalTooltip(signal: TrustSignal): string {
+    return getTrustSignalTooltip(signal);
+  }
+
+  get officialStoreTitle(): string {
+    return 'Loja oficial do vendedor na plataforma.';
+  }
+
+  get platformGuaranteeTitle(): string {
+    if (!this.promotion.marketplace) {
+      return 'Garantia da plataforma.';
+    }
+    
+    const marketplace = this.promotion.marketplace.toUpperCase();
+    switch (marketplace) {
+      case 'AMAZON':
+        return 'Protegido pela Garantia de A a Z da Amazon.';
+      case 'MERCADO_LIVRE':
+        return 'Compra protegida pela Garantia do Mercado Livre.';
+      case 'MAGALU':
+        return 'Compra protegida pela Garantia Magalu.';
+      case 'SHOPEE':
+        return 'Compra finalizada na Shopee e sujeita às regras da Garantia Shopee.';
+      case 'ALIEXPRESS':
+        return 'Protegido pela Política de Proteção ao Comprador do AliExpress.';
+      default:
+        return 'Garantia da plataforma.';
+    }
+  }
+
+  get highSalesTitle(): string {
+    const formatted = this.salesCountFormatted;
+    const marketplace = this.promotion.marketplace?.toUpperCase();
+    const platformName = marketplace === 'AMAZON' ? 'Amazon' :
+                        marketplace === 'MERCADO_LIVRE' ? 'Mercado Livre' :
+                        marketplace === 'MAGALU' ? 'Magalu' :
+                        marketplace === 'SHOPEE' ? 'Shopee' :
+                        marketplace === 'ALIEXPRESS' ? 'AliExpress' : 'plataforma';
+    
+    return formatted
+      ? `Mais de ${formatted.replace(' mil+ vendas', ' mil')} vendas informadas na ${platformName}.`
+      : 'Milhares de vendas realizadas para este produto.';
+  }
+
+  get productRatingTitle(): string {
+    return this.productRatingFormatted
+      ? `Produto bem avaliado: nota ${this.promotion.productRating?.toFixed(1)}.`
+      : 'Produto com boa avaliação dos compradores.';
+  }
+
+  get sellerRatingTitle(): string {
+    return this.sellerRatingFormatted
+      ? `Vendedor bem avaliado: nota ${this.promotion.sellerRating?.toFixed(1)}.`
+      : 'Vendedor com boa avaliação dos compradores.';
   }
 }

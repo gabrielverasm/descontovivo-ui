@@ -45,6 +45,12 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   query = '';
   private isSearchActive = false;
 
+  // Auto-load timer properties
+  autoLoadEnabled = false;
+  autoLoadCountdown = 5;
+  autoLoadStoppedByUser = false;
+  private autoLoadIntervalId: ReturnType<typeof setInterval> | null = null;
+
   get hasMore(): boolean {
     if (this.isSearchActive) return false;
     return this.currentPage + 1 < this.totalPages;
@@ -112,6 +118,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.stopAutoLoad();
     this.notificationSub?.unsubscribe();
     this.navigationSub?.unsubscribe();
     this.structuredData.removeStructuredData('sd-website');
@@ -129,6 +136,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   refreshFeed(): void {
     this.loading = true;
     this.error = '';
+    this.autoLoadStoppedByUser = false; // Reset user stopped flag
 
     this.promotionService.getPromotions(0, this.pageSize).subscribe({
       next: (res) => {
@@ -158,6 +166,91 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   loadMore(): void {
     if (this.loadingMore || !this.hasMore) return;
     this.loadMoreError = '';
+    this.stopAutoLoad(); // Stop auto-load without marking as stopped by user
+    this.loadPage(this.currentPage + 1);
+  }
+
+  /**
+   * Handle button click for load more
+   */
+  onLoadMoreButtonClick(): void {
+    if (this.loadingMore || !this.hasMore) return;
+
+    // If auto-load is enabled, stop it (mark as stopped by user)
+    if (this.autoLoadEnabled) {
+      this.stopAutoLoad(true);
+      return;
+    }
+
+    // If auto-load was stopped by user, reset the flag before loading
+    this.autoLoadStoppedByUser = false;
+    this.loadMore();
+  }
+
+  /**
+   * Toggle auto-load timer (legacy, kept for reference)
+   */
+  toggleAutoLoad(): void {
+    if (this.autoLoadEnabled) {
+      this.stopAutoLoad(true); // User stopped it
+    } else {
+      this.startAutoLoad();
+    }
+  }
+
+  /**
+   * Start auto-load timer
+   */
+  startAutoLoad(): void {
+    if (!this.hasMore || this.loadingMore) return;
+
+    // Clear any existing interval before creating a new one
+    if (this.autoLoadIntervalId) {
+      clearInterval(this.autoLoadIntervalId);
+      this.autoLoadIntervalId = null;
+    }
+
+    this.autoLoadEnabled = true;
+    this.autoLoadCountdown = 5;
+
+    this.autoLoadIntervalId = setInterval(() => {
+      this.autoLoadCountdown--;
+
+      if (this.autoLoadCountdown <= 0) {
+        this.executeAutoLoad();
+      }
+    }, 1000);
+  }
+
+  /**
+   * Stop auto-load timer
+   * @param byUser - true if user manually stopped the auto-load
+   */
+  stopAutoLoad(byUser = false): void {
+    this.autoLoadEnabled = false;
+    this.autoLoadCountdown = 5;
+
+    if (this.autoLoadIntervalId) {
+      clearInterval(this.autoLoadIntervalId);
+      this.autoLoadIntervalId = null;
+    }
+
+    if (byUser) {
+      this.autoLoadStoppedByUser = true;
+    }
+  }
+
+  /**
+   * Execute auto-load when timer reaches zero
+   */
+  private executeAutoLoad(): void {
+    if (!this.hasMore || this.loadingMore) {
+      this.stopAutoLoad();
+      return;
+    }
+    
+    // Reset countdown and load next page
+    this.autoLoadCountdown = 5;
     this.loadPage(this.currentPage + 1);
   }
 
@@ -167,6 +260,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
       this.clearSearch();
       return;
     }
+    this.autoLoadStoppedByUser = false; // Reset user stopped flag
     this.isSearchActive = true;
     this.loading = true;
     this.error = '';
@@ -220,6 +314,18 @@ export class PromotionsComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.loadingMore = false;
         this.loadMoreError = '';
+
+        // After manual load, restart auto-load if there are more pages
+        // But only if auto-load was not manually stopped
+        if (!isFirst && !this.autoLoadEnabled && this.hasMore && !this.autoLoadStoppedByUser && !this.isSearchActive) {
+          // User manually loaded, restart auto-load immediately with appropriate conditions
+          this.startAutoLoad();
+        }
+
+        // After first page load, start auto-load if there are more pages
+        if (isFirst && !this.autoLoadEnabled && this.hasMore && !this.isSearchActive && !this.autoLoadStoppedByUser) {
+          this.startAutoLoad();
+        }
 
         // Register displayed snapshot on first page load (initial load or page 0)
         if (isFirst) {

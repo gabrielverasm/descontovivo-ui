@@ -76,3 +76,98 @@
     Cupom: {{ promotion.couponCode }}
   </span>
 }
+
+<!-- Trust signals for all marketplaces -->
+@if (hasTrustSignals) {
+  @if (compact) {
+    <!-- Compact mode: show text display -->
+    <span class="promotion-trust-text" [attr.title]="compactTrustDisplay">
+      {{ compactTrustDisplay }}
+    </span>
+  } @else {
+    <!-- Full mode: show individual badges -->
+    
+    <!-- Official store badge -->
+    @if (hasOfficialStore) {
+      @if (clickable) {
+        <a
+          class="promotion-badge"
+          routerLink="/transparencia"
+          fragment="selo-oficial"
+          [attr.aria-label]="officialStoreTitle"
+          [attr.title]="officialStoreTitle"
+          (click)="$event.stopPropagation()"
+        >
+          <span class="promotion-badge__text">Oficial</span>
+        </a>
+      } @else {
+        <span
+          class="promotion-badge promotion-badge--static"
+          [attr.aria-label]="officialStoreTitle"
+          [attr.title]="officialStoreTitle"
+        >
+          <span class="promotion-badge__text">Oficial</span>
+        </span>
+      }
+    }
+    
+    <!-- Platform-specific trust signals from trustSignals array -->
+    @for (signal of trustSignals; track signal) {
+      @if (signal !== 'OFFICIAL_STORE' && signal !== 'HIGH_SALES' && signal !== 'GOOD_PRODUCT_RATING' && signal !== 'GOOD_SELLER_RATING' && signal !== 'CURATED_BY_DESCONTOVIVO') {
+        @if (clickable) {
+          <a
+            class="promotion-badge"
+            routerLink="/transparencia"
+            fragment="selo-garantia-plataforma"
+            [attr.aria-label]="getTrustSignalTooltip(signal)"
+            [attr.title]="getTrustSignalTooltip(signal)"
+            (click)="$event.stopPropagation()"
+          >
+            <span class="promotion-badge__text">{{ getTrustSignalLabel(signal) }}</span>
+          </a>
+        } @else {
+          <span
+            class="promotion-badge promotion-badge--static"
+            [attr.aria-label]="getTrustSignalTooltip(signal)"
+            [attr.title]="getTrustSignalTooltip(signal)"
+          >
+            <span class="promotion-badge__text">{{ getTrustSignalLabel(signal) }}</span>
+          </span>
+        }
+      }
+    }
+    
+    <!-- Sales count badge (if high sales) -->
+    @if (salesCountFormatted) {
+      <span
+        class="promotion-badge promotion-badge--static"
+        [attr.aria-label]="highSalesTitle"
+        [attr.title]="highSalesTitle"
+      >
+        <span class="promotion-badge__text">{{ salesCountFormatted }}</span>
+      </span>
+    }
+
+    <!-- Product rating badge -->
+    @if (productRatingFormatted) {
+      <span
+        class="promotion-badge promotion-badge--static"
+        [attr.aria-label]="productRatingTitle"
+        [attr.title]="productRatingTitle"
+      >
+        <span class="promotion-badge__text">{{ productRatingFormatted }}</span>
+      </span>
+    }
+
+    <!-- Seller rating badge (only if no product rating) -->
+    @if (sellerRatingFormatted && !productRatingFormatted) {
+      <span
+        class="promotion-badge promotion-badge--static"
+        [attr.aria-label]="sellerRatingTitle"
+        [attr.title]="sellerRatingTitle"
+      >
+        <span class="promotion-badge__text">{{ sellerRatingFormatted }}</span>
+      </span>
+    }
+  }
+}

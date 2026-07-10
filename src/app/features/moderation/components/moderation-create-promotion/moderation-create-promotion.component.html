@@ -117,6 +117,55 @@
           </label>
         </div>
 
+        <!-- Selos de confiança -->
+        <div class="mod-panel__trust-signals">
+          <h3 class="mod-panel__form-title">Selos de confiança</h3>
+
+          <div class="mod-panel__field-row">
+            <label class="mod-panel__field">
+              <span>Quantidade de vendas</span>
+              <input type="number" [(ngModel)]="form.salesCount" name="create-salesCount" placeholder="Ex: 5334" min="0" step="1" />
+              <small class="mod-panel__field-hint">≥ 1000 mostra "X mil+ vendas"</small>
+            </label>
+            <label class="mod-panel__field">
+              <span>Nota do produto</span>
+              <input type="number" [(ngModel)]="form.productRating" name="create-productRating" placeholder="Ex: 4.8" min="0" max="5" step="0.1" />
+              <small class="mod-panel__field-hint">0-5 estrelas</small>
+            </label>
+            <label class="mod-panel__field">
+              <span>Nota do vendedor</span>
+              <input type="number" [(ngModel)]="form.sellerRating" name="create-sellerRating" placeholder="Ex: 4.9" min="0" max="5" step="0.1" />
+              <small class="mod-panel__field-hint">0-5 estrelas</small>
+            </label>
+          </div>
+
+          <div class="mod-panel__field-row">
+            <label class="mod-panel__field-check">
+              <input type="checkbox" [(ngModel)]="form.officialStore" name="create-officialStore" />
+              <span>Loja oficial da plataforma</span>
+            </label>
+          </div>
+
+          <div class="mod-panel__trust-chips">
+            <span class="mod-panel__trust-chips-title">Selos disponíveis</span>
+            <div class="mod-panel__trust-chips-list">
+              @for (signal of availableTrustSignals; track signal) {
+                <button
+                  type="button"
+                  class="mod-panel__trust-chip"
+                  [class.mod-panel__trust-chip--selected]="isTrustSignalSelected(signal)"
+                  (click)="toggleTrustSignal(signal)"
+                  [title]="getTrustSignalTooltip(signal)"
+                  [attr.aria-label]="getTrustSignalLabel(signal)"
+                >
+                  {{ getTrustSignalLabel(signal) }}
+                </button>
+              }
+            </div>
+            <small class="mod-panel__field-hint">Clique para selecionar/remover selos</small>
+          </div>
+        </div>
+
         <!-- Categorias cadastradas -->
         <div class="mod-panel__categories">
           <span class="mod-panel__categories-title">Categorias cadastradas</span>
