@@ -9,7 +9,7 @@ import { PromotionImageUploadComponent } from '../../../../shared/components/pro
 import { deriveMarketplace } from '../../../../shared/utils/marketplace.util';
 import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../../shared/utils/money-input.util';
 import { normalizePromotionTitle } from '../../../../shared/utils/normalize-title.util';
-import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata } from '../../../../shared/utils/trust-signals.util';
+import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata, TrustSignal } from '../../../../shared/utils/trust-signals.util';
 
 @Component({
   selector: 'app-moderation-create-promotion',
@@ -131,6 +131,11 @@ export class ModerationCreatePromotionComponent implements OnInit {
     } else {
       this.trustSignals.splice(index, 1);
     }
+    
+    // Sync OFFICIAL_STORE chip with officialStore checkbox
+    if (signal === TrustSignal.OFFICIAL_STORE.toString()) {
+      this.form.officialStore = index === -1; // true when added, false when removed
+    }
   }
 
   isTrustSignalSelected(signal: string): boolean {
@@ -170,6 +175,10 @@ export class ModerationCreatePromotionComponent implements OnInit {
     this.form.category = name;
   }
 
+  isCategorySelected(name: string): boolean {
+    return this.form.category === name;
+  }
+
   // --- Image ---
 
   async onImageSelected(file: File): Promise<void> {
@@ -197,90 +206,215 @@ export class ModerationCreatePromotionComponent implements OnInit {
     this.resetImage();
   }
 
+  // --- Helper functions ---
+
+  private parseOptionalIntegerInput(value: string | number | null | undefined): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    
+    // If it's already a number, validate range
+    if (typeof value === 'number') {
+      return value >= 0 && Number.isInteger(value) ? value : null;
+    }
+    
+    // If it's a string, normalize it
+    const str = String(value).trim();
+    if (!str) return null;
+    
+    // Parse to integer
+    const parsed = parseInt(str, 10);
+    
+    // Validate result
+    if (isNaN(parsed) || parsed < 0) {
+      return null;
+    }
+    
+    return parsed;
+  }
+
+  private normalizeRatingInput(value: string | number | null | undefined): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+    
+    // If it's already a number, validate range
+    if (typeof value === 'number') {
+      return value >= 0 && value <= 5 ? value : null;
+    }
+    
+    // If it's a string, normalize it
+    const str = String(value).trim();
+    if (!str) return null;
+    
+    // Replace comma with dot
+    let normalized = str.replace(',', '.');
+    
+    // Handle cases like "48" → "4.8", "49" → "4.9", "50" → "5.0"
+    if (/^\d{2}$/.test(normalized)) {
+      const num = parseInt(normalized, 10);
+      if (num >= 0 && num <= 50) {
+        normalized = (num / 10).toString();
+      }
+    }
+    
+    // Parse to float
+    const parsed = parseFloat(normalized);
+    
+    // Validate range
+    if (isNaN(parsed) || parsed < 0 || parsed > 5) {
+      return null;
+    }
+    
+    return parsed;
+  }
+
+  private formatRatingForInput(value: number | null): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return value.toString().replace('.', ',');
+  }
+
+  normalizeRatingField(field: 'productRating' | 'sellerRating'): void {
+    const value = this.form[field];
+    const normalized = this.normalizeRatingInput(value);
+    
+    if (normalized !== null && normalized !== undefined) {
+      this.form[field] = this.formatRatingForInput(normalized);
+    } else if (value && String(value).trim()) {
+      // If normalization failed but there's a value, clear it
+      this.form[field] = '';
+    }
+  }
+
+  onOfficialStoreChange(checked: boolean): void {
+    this.form.officialStore = checked;
+    
+    // Sync with OFFICIAL_STORE chip
+    const officialStoreSignal = TrustSignal.OFFICIAL_STORE.toString();
+    const index = this.trustSignals.indexOf(officialStoreSignal);
+    
+    if (checked && index === -1) {
+      // Add OFFICIAL_STORE chip
+      this.trustSignals.push(officialStoreSignal);
+    } else if (!checked && index !== -1) {
+      // Remove OFFICIAL_STORE chip
+      this.trustSignals.splice(index, 1);
+    }
+  }
+
   // --- Submit ---
 
   async submit(): Promise<void> {
-    this.error = '';
-    if (!this.form.url.trim()) { this.error = 'Link da oferta é obrigatório.'; return; }
-    if (!this.form.title.trim()) { this.error = 'Título é obrigatório.'; return; }
-    if (!this.form.storeName.trim()) { this.error = 'Nome da loja é obrigatório.'; return; }
-    const price = parseBRLInputToNumber(this.form.currentPrice);
-    if (!price || price <= 0) { this.error = 'Preço atual é obrigatório e deve ser maior que zero.'; return; }
-    if (!this.imageBlob || this.imageStatus !== 'ready') { this.error = 'Imagem do produto é obrigatória.'; return; }
-
-    this.saving = true;
-    let imageUrl: string;
-    let imageKey: string;
     try {
-      this.imageStatus = 'uploading';
-      const result = await this.uploadService.uploadPromotionImage(this.imageBlob);
-      imageUrl = result.imageUrl;
-      imageKey = result.imageKey;
-      this.imageStatus = 'done';
-    } catch {
-      this.imageStatus = 'error';
-      this.imageError = 'Não foi possível enviar a imagem.';
-      this.error = 'Não foi possível enviar a imagem.';
+      this.error = '';
+      
+      // Validação inicial
+      if (!this.form.url.trim()) { 
+        this.error = 'Link da oferta é obrigatório.';
+        return; 
+      }
+      if (!this.form.title.trim()) { 
+        this.error = 'Título é obrigatório.';
+        return; 
+      }
+      if (!this.form.storeName.trim()) { 
+        this.error = 'Nome da loja é obrigatório.';
+        return; 
+      }
+      const price = parseBRLInputToNumber(this.form.currentPrice);
+      if (!price || price <= 0) { 
+        this.error = 'Preço atual é obrigatório e deve ser maior que zero.';
+        return; 
+      }
+      if (!this.imageBlob || this.imageStatus !== 'ready') { 
+        this.error = 'Imagem do produto é obrigatória.';
+        return; 
+      }
+
+      this.saving = true;
+      
+      // Upload da imagem
+      let imageUrl: string;
+      let imageKey: string;
+      try {
+        this.imageStatus = 'uploading';
+        const result = await this.uploadService.uploadPromotionImage(this.imageBlob);
+        imageUrl = result.imageUrl;
+        imageKey = result.imageKey;
+        this.imageStatus = 'done';
+      } catch (error) {
+        this.imageStatus = 'error';
+        this.imageError = 'Não foi possível enviar a imagem.';
+        this.error = 'Não foi possível enviar a imagem.';
+        this.saving = false;
+        console.error('Image upload error:', error);
+        return;
+      }
+
+      const originalPrice = parseBRLInputToNumber(this.form.originalPrice);
+      const now = new Date().toISOString();
+      const sourceId = `manual-mod-${Date.now()}`;
+      const storeName = this.form.storeName.trim();
+      const marketplace = deriveMarketplace(storeName);
+      const title = normalizePromotionTitle(this.form.title);
+
+      // Parse trust signals fields
+      const salesCount = this.parseOptionalIntegerInput(this.form.salesCount);
+      const productRating = this.normalizeRatingInput(this.form.productRating);
+      const sellerRating = this.normalizeRatingInput(this.form.sellerRating);
+
+      const item = {
+        sourceId,
+        title,
+        marketplace,
+        storeName,
+        sellerName: this.form.soldBy.trim() || null,
+        soldBy: this.form.soldBy.trim() || null,
+        deliveredBy: this.form.deliveredBy.trim() || null,
+        productUrl: this.form.url.trim(),
+        imageUrl,
+        imageKey,
+        currentPrice: price,
+        originalPrice: originalPrice && originalPrice > 0 ? originalPrice : null,
+        coupon: this.form.couponCode.trim() || null,
+        category: this.form.category.trim() || 'GERAL',
+        availability: this.form.availability || null,
+        priceSignal: this.form.priceSignal || null,
+        publishAt: now,
+        verifiedAt: now,
+        // New trust signals fields
+        salesCount: salesCount && salesCount > 0 ? salesCount : null,
+        productRating,
+        sellerRating,
+        officialStore: this.form.officialStore,
+        trustSignals: this.trustSignals,
+      };
+
+      this.adminImportService.import({ batchId: `manual-${Date.now()}`, items: [item] }, false).pipe(
+        finalize(() => (this.saving = false)),
+      ).subscribe({
+        next: (res) => {
+          if (res.created > 0) {
+            this.resetForm();
+            this.created.emit();
+          } else if (res.errors?.length > 0) {
+            this.error = `Erro: ${res.errors[0].message}`;
+          } else {
+            this.error = 'Promoção não foi criada. Pode já existir com o mesmo link.';
+          }
+        },
+        error: (error) => {
+          console.error('Submit error:', error);
+          this.error = 'Não foi possível criar a promoção. Tente novamente.';
+        },
+      });
+    } catch (error) {
+      console.error('Unexpected error in submit:', error);
       this.saving = false;
-      return;
+      this.error = 'Ocorreu um erro inesperado. Tente novamente.';
     }
-
-    const originalPrice = parseBRLInputToNumber(this.form.originalPrice);
-    const now = new Date().toISOString();
-    const sourceId = `manual-mod-${Date.now()}`;
-    const storeName = this.form.storeName.trim();
-    const marketplace = deriveMarketplace(storeName);
-    const title = normalizePromotionTitle(this.form.title);
-
-    // Parse trust signals fields
-    const salesCount = this.form.salesCount.trim() ? parseInt(this.form.salesCount.trim(), 10) : null;
-    const productRating = this.form.productRating.trim() ? parseFloat(this.form.productRating.trim()) : null;
-    const sellerRating = this.form.sellerRating.trim() ? parseFloat(this.form.sellerRating.trim()) : null;
-
-    const item = {
-      sourceId,
-      title,
-      marketplace,
-      storeName,
-      sellerName: this.form.soldBy.trim() || null,
-      soldBy: this.form.soldBy.trim() || null,
-      deliveredBy: this.form.deliveredBy.trim() || null,
-      productUrl: this.form.url.trim(),
-      imageUrl,
-      imageKey,
-      currentPrice: price,
-      originalPrice: originalPrice && originalPrice > 0 ? originalPrice : null,
-      coupon: this.form.couponCode.trim() || null,
-      category: this.form.category.trim() || 'GERAL',
-      availability: this.form.availability || null,
-      priceSignal: this.form.priceSignal || null,
-      publishAt: now,
-      verifiedAt: now,
-      // New trust signals fields
-      salesCount: salesCount && salesCount > 0 ? salesCount : null,
-      productRating: productRating && productRating >= 0 && productRating <= 5 ? productRating : null,
-      sellerRating: sellerRating && sellerRating >= 0 && sellerRating <= 5 ? sellerRating : null,
-      officialStore: this.form.officialStore,
-      trustSignals: this.trustSignals.length > 0 ? this.trustSignals : null,
-    };
-
-    this.adminImportService.import({ batchId: `manual-${Date.now()}`, items: [item] }, false).pipe(
-      finalize(() => (this.saving = false)),
-    ).subscribe({
-      next: (res) => {
-        if (res.created > 0) {
-          this.resetForm();
-          this.created.emit();
-        } else if (res.errors?.length > 0) {
-          this.error = `Erro: ${res.errors[0].message}`;
-        } else {
-          this.error = 'Promoção não foi criada. Pode já existir com o mesmo link.';
-        }
-      },
-      error: () => {
-        this.error = 'Não foi possível criar a promoção. Tente novamente.';
-      },
-    });
   }
 
   // --- Reset ---

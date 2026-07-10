@@ -23,6 +23,12 @@ export interface ModerationDecisionRequest {
   deliveredBy?: string | null;
   category?: string | null;
   priceSignal?: string;
+  // New trust signals fields
+  salesCount?: number | null;
+  productRating?: number | null;
+  sellerRating?: number | null;
+  officialStore?: boolean | null;
+  trustSignals?: string[] | null;
 }
 
 @Injectable({ providedIn: 'root' })

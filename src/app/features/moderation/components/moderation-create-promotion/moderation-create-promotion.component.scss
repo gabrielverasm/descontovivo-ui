@@ -192,6 +192,20 @@
   }
 }
 
+.mod-panel__category-name--selected {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #3b82f6;
+  
+  small {
+    color: #60a5fa;
+  }
+  
+  &:hover {
+    background: #bfdbfe;
+  }
+}
+
 .mod-panel__trust-signals {
   display: grid;
   gap: 0.5rem;
