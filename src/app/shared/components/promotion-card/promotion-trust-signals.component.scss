@@ -41,6 +41,33 @@
   display: block;
 }
 
+// Image badge styles - full mode
+.promotion-badge__image {
+  height: 22px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.promotion-badge:hover .promotion-badge__image {
+  opacity: 0.75;
+}
+
+.promotion-badge--static .promotion-badge__image {
+  opacity: 1;
+}
+
+// Image badge styles - compact mode
+.promotion-trust-compact .promotion-badge__image {
+  height: 18px;
+}
+
+@media (max-width: 520px) {
+  .promotion-trust-compact .promotion-badge__image {
+    height: 16px;
+  }
+}
+
 .promotion-coupon {
   display: inline-flex;
   align-items: center;
@@ -53,11 +80,14 @@
   color: #1d4ed8;
 }
 
-:host(.promotion-trust-signals--compact) {
-  gap: 0.2rem;
+.promotion-trust-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
 }
 
-:host(.promotion-trust-signals--compact) .promotion-badge__icon {
+.promotion-trust-compact .promotion-badge__icon {
   width: 1.1rem;
   height: 1.1rem;
 }
@@ -96,5 +126,13 @@
   
   .promotion-trust-text {
     font-size: 0.7rem;
+  }
+  
+  .promotion-badge__image {
+    height: 20px;
+  }
+  
+  .promotion-trust-compact .promotion-badge__image {
+    height: 16px;
   }
 }

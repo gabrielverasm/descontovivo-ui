@@ -80,9 +80,36 @@
 <!-- Trust signals for all marketplaces -->
 @if (hasTrustSignals) {
   @if (compact) {
-    <!-- Compact mode: show text display -->
-    <span class="promotion-trust-text" [attr.title]="compactTrustDisplay">
-      {{ compactTrustDisplay }}
+    <!-- Compact mode: show images + remaining text -->
+    <span class="promotion-trust-compact" [attr.title]="compactTrustDisplay">
+      <!-- Official store badge -->
+      @if (hasOfficialStore) {
+        <img
+          [src]="officialBadgeSrc"
+          alt="Loja oficial"
+          [title]="officialBadgeTitle"
+          loading="lazy"
+          decoding="async"
+          class="promotion-badge__image"
+        />
+      }
+      
+      <!-- Curated by DescontoVivo badge -->
+      @if (hasCuratedByDescontovivo) {
+        <img
+          [src]="curationBadgeSrc"
+          alt="Revisada pela curadoria"
+          [title]="curationBadgeTitle"
+          loading="lazy"
+          decoding="async"
+          class="promotion-badge__image"
+        />
+      }
+      
+      <!-- Remaining text (excluding image badge labels) -->
+      @if (compactTextWithoutImageBadges) {
+        <span class="promotion-trust-text">{{ compactTextWithoutImageBadges }}</span>
+      }
     </span>
   } @else {
     <!-- Full mode: show individual badges -->
@@ -94,21 +121,53 @@
           class="promotion-badge"
           routerLink="/transparencia"
           fragment="selo-oficial"
-          [attr.aria-label]="officialStoreTitle"
-          [attr.title]="officialStoreTitle"
+          [attr.aria-label]="officialBadgeTitle"
+          [attr.title]="officialBadgeTitle"
           (click)="$event.stopPropagation()"
         >
-          <span class="promotion-badge__text">Oficial</span>
+          <img
+            [src]="officialBadgeSrc"
+            alt="Loja oficial"
+            [title]="officialBadgeTitle"
+            loading="lazy"
+            decoding="async"
+            class="promotion-badge__image"
+          />
         </a>
       } @else {
         <span
           class="promotion-badge promotion-badge--static"
-          [attr.aria-label]="officialStoreTitle"
-          [attr.title]="officialStoreTitle"
+          [attr.aria-label]="officialBadgeTitle"
+          [attr.title]="officialBadgeTitle"
         >
-          <span class="promotion-badge__text">Oficial</span>
+          <img
+            [src]="officialBadgeSrc"
+            alt="Loja oficial"
+            [title]="officialBadgeTitle"
+            loading="lazy"
+            decoding="async"
+            class="promotion-badge__image"
+          />
         </span>
       }
+    }
+    
+    <!-- Curated by DescontoVivo badge -->
+    @if (hasCuratedByDescontovivo) {
+      <span
+        class="promotion-badge promotion-badge--static"
+        [attr.aria-label]="curationBadgeTitle"
+        [attr.title]="curationBadgeTitle"
+      >
+        <img
+          [src]="curationBadgeSrc"
+          alt="Revisada pela curadoria"
+          [title]="curationBadgeTitle"
+          loading="lazy"
+          decoding="async"
+          class="promotion-badge__image"
+        />
+      </span>
     }
     
     <!-- Platform-specific trust signals from trustSignals array -->
