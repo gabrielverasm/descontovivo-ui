@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, ViewChild } from '@angular/core';
 import { Promotion } from '../../../../core/models/promotion.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-promotion-story-generator',
@@ -68,9 +69,10 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
 
     const sequence = ++this.renderSequence;
     this.isRendering = true;
+    const productImageUrl = this.resolveProductImageUrl(this.promotion.imageUrl);
     const [logo, product] = await Promise.all([
-      this.loadImage('/brand/Logo-full-dark.svg'),
-      this.promotion.imageUrl ? this.loadImage(this.promotion.imageUrl) : Promise.resolve(null),
+      this.loadImage('/brand/Logo-full.svg', 'logo'),
+      productImageUrl ? this.loadImage(productImageUrl, productImageUrl.startsWith('/story-image') ? 'produto via proxy' : 'produto direto') : Promise.resolve(null),
     ]);
     if (sequence !== this.renderSequence) return;
 
@@ -178,12 +180,29 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
     this.isRendering = false;
   }
 
-  private loadImage(src: string): Promise<HTMLImageElement | null> {
+  private resolveProductImageUrl(rawUrl?: string | null): string | null {
+    if (!rawUrl) return null;
+    try {
+      const imageUrl = new URL(rawUrl, window.location.origin);
+      if (imageUrl.protocol === 'https:' && imageUrl.hostname === 'img.descontovivo.com.br') {
+        return `/story-image?url=${encodeURIComponent(imageUrl.toString())}`;
+      }
+      return imageUrl.toString();
+    } catch {
+      if (!environment.production) console.warn('[StoryGenerator] URL inválida da imagem do produto.');
+      return null;
+    }
+  }
+
+  private loadImage(src: string, label: string): Promise<HTMLImageElement | null> {
     return new Promise((resolve) => {
       const image = new Image();
       image.crossOrigin = 'anonymous';
       image.onload = () => resolve(image);
-      image.onerror = () => resolve(null);
+      image.onerror = () => {
+        if (!environment.production) console.warn(`[StoryGenerator] Falha ao carregar ${label}: ${src}`);
+        resolve(null);
+      };
       image.src = src;
     });
   }

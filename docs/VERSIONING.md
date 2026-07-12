@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.5**
+**0.5.6**
 
 ## Convenção
 
@@ -23,12 +23,13 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 1. Toda PR deve avaliar se precisa de bump de versão.
 2. O checklist do PR template inclui lembrete de atualização.
-3. O footer exibe `UI v0.5.5 · API v0.2.1` para facilitar validação de deploy.
+3. O footer exibe `UI v0.5.6 · API v0.2.1` para facilitar validação de deploy.
 
 ## Histórico
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.5.6  | 2026-07-12 | Fix: carrega logo e imagem do produto no gerador de story |
 | 0.5.5  | 2026-07-12 | Adiciona gerador admin de story para promoções |
 | 0.5.4  | 2026-07-12 | Fix: preview social da promoção e botão de compartilhar |
 | 0.5.3  | 2026-07-10 | Corrige auto-load prematuro da home, evitando carregar novas promoções antes do usuário chegar perto do fim da lista, corrige exibição do selo de curadoria para depender do sinal explícito vindo da API.
