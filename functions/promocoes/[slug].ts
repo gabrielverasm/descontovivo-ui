@@ -43,6 +43,7 @@ interface PromotionMeta {
 
 const SITE_NAME = 'DescontoVivo';
 const DEFAULT_OG_IMAGE_PATH = '/brand/logo-og-image.jpg';
+const API_BASE_URL = 'https://api.descontovivo.com/api/v1';
 
 function escapeHtml(value: unknown): string {
   const str = String(value ?? '');
@@ -60,15 +61,14 @@ function formatBRL(value?: number | null): string {
 }
 
 function buildDescription(promotion: PromotionOgData): string {
-  const title = promotion.title || 'Promoção';
   const price = formatBRL(promotion.currentPrice);
   const store = promotion.store?.name || promotion.storeName || '';
 
   if (price && store) {
-    return `${title} por ${price} em ${store}. Oferta compartilhada no ${SITE_NAME}.`;
+    return `Oferta no ${SITE_NAME} em ${store} por ${price}. Confira antes de comprar.`;
   }
   if (price) {
-    return `${title} por ${price}. Oferta compartilhada no ${SITE_NAME}.`;
+    return `Oferta no ${SITE_NAME} por ${price}. Confira antes de comprar.`;
   }
   return `Veja esta promoção no ${SITE_NAME}.`;
 }
@@ -76,13 +76,16 @@ function buildDescription(promotion: PromotionOgData): string {
 function buildMeta(promotion: PromotionOgData, requestUrl: URL): PromotionMeta {
   const slug = promotion.slug || promotion.id || '';
   const canonicalUrl = `${requestUrl.origin}/promocoes/${slug}`;
-  const title = `${promotion.title || 'Promoção'} | ${SITE_NAME}`;
+  const price = formatBRL(promotion.currentPrice);
+  const title = `${promotion.title || 'Promoção'}${price ? ` por ${price}` : ''} | ${SITE_NAME}`;
   const description = buildDescription(promotion);
 
   let imageUrl: string;
   if (promotion.imageUrl) {
     try {
-      imageUrl = new URL(promotion.imageUrl, requestUrl.origin).toString();
+      const candidate = new URL(promotion.imageUrl, requestUrl.origin);
+      if (candidate.protocol !== 'https:') throw new Error('OG image must use HTTPS');
+      imageUrl = candidate.toString();
     } catch {
       imageUrl = `${requestUrl.origin}${DEFAULT_OG_IMAGE_PATH}`;
     }
@@ -111,6 +114,8 @@ function injectPromotionMeta(html: string, meta: PromotionMeta): string {
     `<meta property="og:title" content="${escapeHtml(meta.title)}">`,
     `<meta property="og:description" content="${escapeHtml(meta.description)}">`,
     `<meta property="og:image" content="${escapeHtml(meta.imageUrl)}">`,
+    `<meta property="og:image:secure_url" content="${escapeHtml(meta.imageUrl)}">`,
+    `<meta property="og:image:alt" content="${escapeHtml(meta.title)}">`,
     `<meta property="og:url" content="${escapeHtml(meta.canonicalUrl)}">`,
     `<meta name="twitter:card" content="summary_large_image">`,
     `<meta name="twitter:title" content="${escapeHtml(meta.title)}">`,
@@ -125,9 +130,9 @@ function injectPromotionMeta(html: string, meta: PromotionMeta): string {
   return html;
 }
 
-async function fetchPromotion(slug: string, requestUrl: URL): Promise<PromotionOgData | null> {
+async function fetchPromotion(slug: string): Promise<PromotionOgData | null> {
   try {
-    const apiUrl = new URL(`/api/v1/promotions/${encodeURIComponent(slug)}`, requestUrl.origin);
+    const apiUrl = new URL(`${API_BASE_URL}/promotions/${encodeURIComponent(slug)}`);
     const response = await fetch(apiUrl.toString(), {
       headers: { 'Accept': 'application/json' },
     });
@@ -175,13 +180,15 @@ export async function onRequest(context: PagesFunctionContext): Promise<Response
 
   // Fetch promotion data from API
   const requestUrl = new URL(context.request.url);
-  const promotion = await fetchPromotion(slug, requestUrl);
+  const promotion = await fetchPromotion(slug);
 
-  // If we got promotion data, inject meta tags
-  if (promotion?.title) {
-    const meta = buildMeta(promotion, requestUrl);
-    html = injectPromotionMeta(html, meta);
-  }
+  // Always inject route-specific metadata. If the API fails, keep the
+  // institutional image and a clean canonical URL for this promotion route.
+  const meta = buildMeta(
+    promotion?.title ? promotion : { slug, title: 'Promoção' },
+    requestUrl,
+  );
+  html = injectPromotionMeta(html, meta);
 
   return new Response(html, {
     status: assetResponse.status,
