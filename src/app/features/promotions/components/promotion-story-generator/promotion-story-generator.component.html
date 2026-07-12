@@ -1,0 +1,39 @@
+<div class="story-modal" role="presentation" (click)="closed.emit()">
+  <section
+    class="story-modal__dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="story-modal-title"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="story-modal__header">
+      <div>
+        <span class="story-modal__eyebrow">Ferramenta administrativa</span>
+        <h2 id="story-modal-title">Gerar story</h2>
+      </div>
+      <button type="button" class="story-modal__close" aria-label="Fechar gerador de story" (click)="closed.emit()">×</button>
+    </header>
+
+    <div class="story-modal__body">
+      <div class="story-modal__preview" [attr.aria-busy]="isRendering">
+        <canvas #storyCanvas width="1080" height="1920" aria-label="Preview da arte da promoção"></canvas>
+        @if (isRendering) {
+          <span class="story-modal__loading">Gerando preview…</span>
+        }
+      </div>
+
+      <aside class="story-modal__panel">
+        <p>A arte tem 1080 × 1920 px e está pronta para publicação manual no Instagram Story.</p>
+        <div class="story-modal__actions">
+          <button type="button" class="story-modal__primary" [disabled]="isRendering" (click)="downloadPng()">Baixar PNG</button>
+          <button type="button" (click)="copyLink()">Copiar link da promoção</button>
+          <button type="button" (click)="copyCaption()">Copiar legenda</button>
+          <button type="button" (click)="closed.emit()">Fechar</button>
+        </div>
+        @if (feedback) {
+          <p class="story-modal__feedback" role="status" aria-live="polite">{{ feedback }}</p>
+        }
+      </aside>
+    </div>
+  </section>
+</div>

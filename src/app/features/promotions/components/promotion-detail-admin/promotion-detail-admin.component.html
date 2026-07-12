@@ -11,6 +11,7 @@
   @if (!isEditMode && !isRemoveConfirm) {
     <div class="detail-admin__buttons">
       <button type="button" (click)="openEdit.emit()" [disabled]="isAdminSaving">Editar promoção</button>
+      <button type="button" aria-label="Gerar story da promoção" (click)="generateStory.emit()" [disabled]="isAdminSaving">Gerar story</button>
       @if (isAdmin) {
         <button type="button" class="detail-admin__remove" (click)="confirmRemove.emit()" [disabled]="isAdminSaving">Remover promoção</button>
       }

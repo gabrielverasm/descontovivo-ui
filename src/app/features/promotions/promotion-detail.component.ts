@@ -25,6 +25,7 @@ import { PromotionVoteButtonsComponent } from '../../shared/components/promotion
 import { PromotionDetailAdminComponent } from './components/promotion-detail-admin/promotion-detail-admin.component';
 import { PromotionDetailCommentsComponent } from './components/promotion-detail-comments/promotion-detail-comments.component';
 import { PromotionDetailRelatedComponent } from './components/promotion-detail-related/promotion-detail-related.component';
+import { PromotionStoryGeneratorComponent } from './components/promotion-story-generator/promotion-story-generator.component';
 import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
 import { resolveStoreName } from '../../shared/utils/store-name.util';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../shared/utils/seller.util';
@@ -52,6 +53,7 @@ import { PromotionsFeedStateService } from './promotions-feed-state.service';
     PromotionDetailAdminComponent,
     PromotionDetailCommentsComponent,
     PromotionDetailRelatedComponent,
+    PromotionStoryGeneratorComponent,
   ],
   templateUrl: './promotion-detail.component.html',
   styleUrl: './promotion-detail.component.scss'
@@ -83,6 +85,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   isEditMode = false;
   isAdminSaving = false;
   isRemoveConfirm = false;
+  isStoryGeneratorOpen = false;
   adminMessage = '';
   adminError = '';
   editForm = { 
@@ -193,6 +196,11 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   get canModerate(): boolean { return this.authService.canModerate(); }
   get isAdmin(): boolean { return this.authService.hasRole('admin'); }
+  get canonicalPromotionUrl(): string {
+    return this.promotion
+      ? `https://descontovivo.com/promocoes/${this.promotion.slug || this.promotion.id}`
+      : 'https://descontovivo.com/';
+  }
   promotion?: Promotion;
   loading = true;
   notFound = false;
