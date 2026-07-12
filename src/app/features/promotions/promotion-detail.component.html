@@ -135,6 +135,7 @@
             [adminImageStatusText]="adminImageStatusText"
             [adminImageError]="adminImageError"
             (openEdit)="openEditMode()"
+            (generateStory)="isStoryGeneratorOpen = true"
             (cancelEdit)="cancelEdit()"
             (submitEdit)="submitEdit()"
             (confirmRemove)="confirmRemove()"
@@ -178,6 +179,14 @@
     <app-empty-state
       title="Erro ao carregar promoção"
       description="Não foi possível carregar a promoção. Tente novamente mais tarde."
+    />
+  }
+
+  @if (isStoryGeneratorOpen && promotion && canModerate) {
+    <app-promotion-story-generator
+      [promotion]="promotion"
+      [canonicalUrl]="canonicalPromotionUrl"
+      (closed)="isStoryGeneratorOpen = false"
     />
   }
 

@@ -45,6 +45,7 @@ export class PromotionDetailAdminComponent {
   @Input() adminImageError: string | null = null;
 
   @Output() openEdit = new EventEmitter<void>();
+  @Output() generateStory = new EventEmitter<void>();
   @Output() cancelEdit = new EventEmitter<void>();
   @Output() submitEdit = new EventEmitter<void>();
   @Output() confirmRemove = new EventEmitter<void>();
