@@ -18,6 +18,7 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
   feedback = '';
   private viewReady = false;
   private renderSequence = 0;
+  private renderedPngBlob: Blob | null = null;
 
   ngAfterViewInit(): void {
     this.viewReady = true;
@@ -38,28 +39,72 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
   }
 
   async copyCaption(): Promise<void> {
-    const store = this.promotion.storeName ? ` em ${this.promotion.storeName}` : '';
-    const caption = `Olha essa promoção no DescontoVivo: ${this.promotion.title} por ${this.formatBRL(this.promotion.currentPrice)}${store}. Confira pelo link do story.`;
-    await this.copyText(caption, 'Legenda copiada.');
+    await this.copyText(this.buildCaption(), 'Legenda copiada.');
   }
 
-  downloadPng(): void {
-    const canvas = this.canvasRef?.nativeElement;
-    if (!canvas || this.isRendering) return;
+  async shareImage(): Promise<void> {
+    if (this.isRendering) return;
+    this.feedback = '';
+    const blob = await this.canvasToPngBlob();
+    if (!blob) return;
+    const file = this.buildStoryFile(blob);
 
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        this.feedback = 'Não foi possível gerar o PNG.';
-        return;
-      }
-      const objectUrl = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = objectUrl;
-      anchor.download = `descontovivo-story-${this.safeSlug()}.png`;
-      anchor.click();
-      URL.revokeObjectURL(objectUrl);
-      this.feedback = 'PNG gerado.';
-    }, 'image/png');
+    let supportsFileShare = false;
+    try {
+      supportsFileShare = !!navigator.share && !!navigator.canShare?.({ files: [file] });
+    } catch {
+      supportsFileShare = false;
+    }
+    if (!supportsFileShare) {
+      this.feedback = 'Compartilhamento de imagem não suportado neste navegador. Use baixar PNG.';
+      return;
+    }
+
+    try {
+      await navigator.share({
+        files: [file],
+        title: 'Story DescontoVivo',
+        text: this.buildCaption(),
+      });
+      this.feedback = 'Imagem compartilhada.';
+    } catch (error: unknown) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      this.feedback = 'Não foi possível compartilhar a imagem. Use baixar PNG.';
+    }
+  }
+
+  async copyImage(): Promise<void> {
+    if (this.isRendering) return;
+    this.feedback = '';
+    const blob = await this.canvasToPngBlob();
+    if (!blob) return;
+
+    if (typeof ClipboardItem === 'undefined' || !navigator.clipboard?.write) {
+      this.feedback = 'Copiar imagem não é suportado neste navegador. Use compartilhar ou baixar PNG.';
+      return;
+    }
+
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      this.feedback = 'Imagem copiada.';
+    } catch {
+      this.feedback = 'Não foi possível copiar a imagem. Use compartilhar ou baixar PNG.';
+    }
+  }
+
+  async downloadPng(): Promise<void> {
+    if (this.isRendering) return;
+    this.feedback = '';
+    const blob = await this.canvasToPngBlob();
+    if (!blob) return;
+
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = objectUrl;
+    anchor.download = this.storyFileName();
+    anchor.click();
+    URL.revokeObjectURL(objectUrl);
+    this.feedback = 'PNG gerado.';
   }
 
   private async renderStory(): Promise<void> {
@@ -69,6 +114,7 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
 
     const sequence = ++this.renderSequence;
     this.isRendering = true;
+    this.renderedPngBlob = null;
     const productImageUrl = this.resolveProductImageUrl(this.promotion.imageUrl);
     const [logo, product] = await Promise.all([
       this.loadImage('/brand/Logo-full.svg', 'logo'),
@@ -164,12 +210,7 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
       this.drawWrappedText(context, sellerLine, 76, 1695, 900, 38, 1);
     }
 
-    this.roundedRect(context, 72, 1770, 936, 96, 48, '#172033');
-    context.fillStyle = '#ffffff';
-    context.textAlign = 'center';
-    context.font = '700 35px Arial, sans-serif';
-    context.fillText('Confira pelo link do story', 540, 1830);
-    context.textAlign = 'left';
+    // Keep this region clear for Instagram's link sticker.
     context.fillStyle = '#334155';
     context.font = '650 28px Arial, sans-serif';
     context.fillText('descontovivo.com', 72, 1902);
@@ -265,6 +306,41 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
 
   private formatBRL(value: number): string {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  private buildCaption(): string {
+    const store = this.promotion.storeName ? ` em ${this.promotion.storeName}` : '';
+    return `Olha essa promoção no DescontoVivo: ${this.promotion.title} por ${this.formatBRL(this.promotion.currentPrice)}${store}. Confira pelo link do story.`;
+  }
+
+  private async canvasToPngBlob(): Promise<Blob | null> {
+    if (this.renderedPngBlob) return this.renderedPngBlob;
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas || this.isRendering) {
+      this.feedback = 'A imagem ainda não está pronta.';
+      return null;
+    }
+
+    try {
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) {
+        this.feedback = 'Não foi possível gerar a imagem.';
+        return null;
+      }
+      this.renderedPngBlob = blob;
+      return blob;
+    } catch {
+      this.feedback = 'Não foi possível gerar a imagem.';
+      return null;
+    }
+  }
+
+  private storyFileName(): string {
+    return `descontovivo-story-${this.safeSlug()}.png`;
+  }
+
+  private buildStoryFile(blob: Blob): File {
+    return new File([blob], this.storyFileName(), { type: 'image/png' });
   }
 
   private safeSlug(): string {

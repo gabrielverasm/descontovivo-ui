@@ -25,9 +25,11 @@
       <aside class="story-modal__panel">
         <p>A arte tem 1080 × 1920 px e está pronta para publicação manual no Instagram Story.</p>
         <div class="story-modal__actions">
-          <button type="button" class="story-modal__primary" [disabled]="isRendering" (click)="downloadPng()">Baixar PNG</button>
-          <button type="button" (click)="copyLink()">Copiar link da promoção</button>
-          <button type="button" (click)="copyCaption()">Copiar legenda</button>
+          <button type="button" class="story-modal__primary" [disabled]="isRendering" (click)="shareImage()">Compartilhar imagem</button>
+          <button type="button" [disabled]="isRendering" (click)="copyImage()">Copiar imagem</button>
+          <button type="button" [disabled]="isRendering" (click)="downloadPng()">Baixar PNG</button>
+          <button type="button" [disabled]="isRendering" (click)="copyLink()">Copiar link da promoção</button>
+          <button type="button" [disabled]="isRendering" (click)="copyCaption()">Copiar legenda</button>
           <button type="button" (click)="closed.emit()">Fechar</button>
         </div>
         @if (feedback) {
