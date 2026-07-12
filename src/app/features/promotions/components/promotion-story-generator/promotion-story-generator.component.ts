@@ -151,11 +151,6 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
     context.font = '500 25px Arial, sans-serif';
     context.fillText('Ofertas que valem muito mais', 76, 435);
 
-    this.roundedRect(context, 714, 344, 294, 64, 32, '#1d4ed8');
-    context.fillStyle = '#dbeafe';
-    context.font = '700 25px Arial, sans-serif';
-    context.fillText('OFERTA ENCONTRADA', 747, 385);
-
     context.save();
     context.shadowColor = 'rgba(0, 0, 0, .38)';
     context.shadowBlur = 40;
