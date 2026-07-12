@@ -117,106 +117,120 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
     this.renderedPngBlob = null;
     const productImageUrl = this.resolveProductImageUrl(this.promotion.imageUrl);
     const [logo, product] = await Promise.all([
-      this.loadImage('/brand/Logo-full.svg', 'logo'),
+      this.loadImage('/brand/Logo-full-dark.svg', 'logo'),
       productImageUrl ? this.loadImage(productImageUrl, productImageUrl.startsWith('/story-image') ? 'produto via proxy' : 'produto direto') : Promise.resolve(null),
     ]);
     if (sequence !== this.renderSequence) return;
 
     const gradient = context.createLinearGradient(0, 0, 1080, 1920);
-    gradient.addColorStop(0, '#f8fbff');
-    gradient.addColorStop(0.55, '#eef5ff');
-    gradient.addColorStop(1, '#e8f8f1');
+    gradient.addColorStop(0, '#061224');
+    gradient.addColorStop(0.5, '#0b1b34');
+    gradient.addColorStop(1, '#101d2d');
     context.fillStyle = gradient;
     context.fillRect(0, 0, 1080, 1920);
 
-    context.fillStyle = '#2563eb';
+    // Decorative shapes only: the first 300 px remain free of critical content
+    // for Instagram's account header and a manually positioned link sticker.
+    context.fillStyle = 'rgba(37, 99, 235, .18)';
     context.beginPath();
-    context.arc(1010, 40, 250, 0, Math.PI * 2);
+    context.arc(1020, 30, 280, 0, Math.PI * 2);
     context.fill();
-    context.fillStyle = 'rgba(16, 185, 129, .13)';
+    context.fillStyle = 'rgba(0, 205, 230, .08)';
     context.beginPath();
-    context.arc(30, 1780, 300, 0, Math.PI * 2);
+    context.arc(80, 120, 190, 0, Math.PI * 2);
     context.fill();
 
     if (logo) {
-      this.drawContainedImage(context, logo, 72, 70, 470, 100);
+      this.drawContainedImage(context, logo, 72, 330, 420, 78);
     } else {
-      context.fillStyle = '#172033';
-      context.font = '800 56px Arial, sans-serif';
-      context.fillText('DescontoVivo', 72, 140);
+      context.fillStyle = '#ffffff';
+      context.font = '800 52px Arial, sans-serif';
+      context.fillText('DescontoVivo', 72, 390);
     }
-    context.fillStyle = '#526076';
-    context.font = '500 27px Arial, sans-serif';
-    context.fillText('Ofertas que valem muito mais', 76, 194);
+    context.fillStyle = '#94a3b8';
+    context.font = '500 25px Arial, sans-serif';
+    context.fillText('Ofertas que valem muito mais', 76, 435);
 
-    this.roundedRect(context, 72, 255, 435, 76, 38, '#172033');
-    context.fillStyle = '#ffffff';
-    context.font = '700 31px Arial, sans-serif';
-    context.fillText('OFERTA ENCONTRADA', 112, 305);
+    this.roundedRect(context, 714, 344, 294, 64, 32, '#1d4ed8');
+    context.fillStyle = '#dbeafe';
+    context.font = '700 25px Arial, sans-serif';
+    context.fillText('OFERTA ENCONTRADA', 747, 385);
 
-    this.roundedRect(context, 72, 380, 936, 720, 54, '#ffffff');
+    context.save();
+    context.shadowColor = 'rgba(0, 0, 0, .38)';
+    context.shadowBlur = 40;
+    context.shadowOffsetY = 18;
+    this.roundedRect(context, 72, 485, 936, 610, 48, '#ffffff');
+    context.restore();
     if (product) {
-      this.drawContainedImage(context, product, 132, 435, 816, 610);
+      this.drawContainedImage(context, product, 132, 525, 816, 530);
     } else {
-      this.roundedRect(context, 170, 505, 740, 500, 40, '#f1f5f9');
+      this.roundedRect(context, 170, 555, 740, 470, 40, '#f1f5f9');
       context.fillStyle = '#94a3b8';
       context.textAlign = 'center';
       context.font = '600 38px Arial, sans-serif';
-      context.fillText('Imagem do produto', 540, 770);
+      context.fillText('Imagem do produto', 540, 805);
       context.textAlign = 'left';
     }
 
-    context.fillStyle = '#172033';
-    context.font = '750 52px Arial, sans-serif';
-    this.drawWrappedText(context, this.promotion.title, 72, 1190, 936, 65, 3);
+    context.fillStyle = '#f8fafc';
+    context.font = '750 47px Arial, sans-serif';
+    this.drawWrappedText(context, this.promotion.title, 72, 1180, 936, 58, 3);
 
-    let priceY = 1435;
+    const priceY = 1435;
     if (this.promotion.originalPrice) {
-      context.fillStyle = '#64748b';
-      context.font = '500 32px Arial, sans-serif';
+      context.fillStyle = '#94a3b8';
+      context.font = '500 30px Arial, sans-serif';
       const original = `De ${this.formatBRL(this.promotion.originalPrice)}`;
-      context.fillText(original, 74, priceY - 45);
+      context.fillText(original, 74, priceY - 40);
       const width = context.measureText(original).width;
-      context.strokeStyle = '#64748b';
+      context.strokeStyle = '#94a3b8';
       context.lineWidth = 3;
       context.beginPath();
-      context.moveTo(72, priceY - 57);
-      context.lineTo(72 + width, priceY - 57);
+      context.moveTo(72, priceY - 51);
+      context.lineTo(72 + width, priceY - 51);
       context.stroke();
     }
-    context.fillStyle = '#059669';
-    context.font = '800 92px Arial, sans-serif';
+    context.fillStyle = '#34d399';
+    context.font = '800 88px Arial, sans-serif';
     context.fillText(this.formatBRL(this.promotion.currentPrice), 70, priceY + 50);
 
-    if (this.promotion.storeName) {
-      context.fillStyle = '#334155';
-      context.font = '650 38px Arial, sans-serif';
-      context.fillText(`Em ${this.promotion.storeName}`, 76, priceY + 112);
+    const contextParts = [this.promotion.storeName ? `Em ${this.promotion.storeName}` : '', this.promotion.category || ''].filter(Boolean);
+    if (contextParts.length) {
+      context.fillStyle = '#cbd5e1';
+      context.font = '650 34px Arial, sans-serif';
+      context.fillText(contextParts.join('  ·  '), 76, priceY + 108);
     }
 
     let badgeX = 72;
-    const badgeY = 1600;
+    const badgeY = 1605;
     if (this.promotion.trustSignals?.includes('CURATED_BY_DESCONTOVIVO')) {
-      badgeX += this.drawBadge(context, '✓ Curadoria DescontoVivo', badgeX, badgeY, '#e8f8f1', '#047857') + 18;
+      badgeX += this.drawBadge(context, '✓ Curadoria DescontoVivo', badgeX, badgeY, '#123b35', '#6ee7b7') + 18;
     }
     if (this.promotion.officialStore || this.promotion.trustSignals?.includes('OFFICIAL_STORE')) {
-      this.drawBadge(context, 'Loja oficial', badgeX, badgeY, '#eaf2ff', '#1d4ed8');
+      this.drawBadge(context, 'Loja oficial', badgeX, badgeY, '#172f56', '#93c5fd');
     }
 
     const sellerLine = this.sellerLine();
     if (sellerLine) {
-      context.fillStyle = '#526076';
-      context.font = '500 29px Arial, sans-serif';
-      this.drawWrappedText(context, sellerLine, 76, 1695, 900, 38, 1);
+      context.fillStyle = '#94a3b8';
+      context.font = '500 27px Arial, sans-serif';
+      this.drawWrappedText(context, sellerLine, 76, 1705, 900, 36, 1);
     }
 
-    // Keep this region clear for Instagram's link sticker.
-    context.fillStyle = '#334155';
-    context.font = '650 28px Arial, sans-serif';
-    context.fillText('descontovivo.com', 72, 1902);
+    context.strokeStyle = 'rgba(148, 163, 184, .22)';
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(72, 1845);
+    context.lineTo(1008, 1845);
+    context.stroke();
+    context.fillStyle = '#cbd5e1';
+    context.font = '650 26px Arial, sans-serif';
+    context.fillText('descontovivo.com', 72, 1895);
     context.textAlign = 'right';
-    context.font = '400 23px Arial, sans-serif';
-    context.fillText('A compra é feita diretamente na loja.', 1008, 1902);
+    context.fillStyle = '#64748b';
+    context.font = '400 21px Arial, sans-serif';
+    context.fillText('A compra é feita diretamente na loja.', 1008, 1895);
     context.textAlign = 'left';
     this.isRendering = false;
   }
