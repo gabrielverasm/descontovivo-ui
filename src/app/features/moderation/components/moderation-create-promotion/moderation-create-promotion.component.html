@@ -7,6 +7,9 @@
   @if (error) {
     <p class="mod-panel__error" role="alert">{{ error }}</p>
   }
+  @if (inspectionMessage) {
+    <p role="status">{{ inspectionMessage }}</p>
+  }
 
   <form class="mod-panel__body" (ngSubmit)="submit()">
     <!-- Image -->
@@ -40,6 +43,11 @@
           <span>Link da oferta *</span>
           <input type="url" [(ngModel)]="form.url" name="create-url" placeholder="https://..." />
         </label>
+        <app-marketplace-inspection-button
+          [url]="form.url"
+          (loaded)="applyInspection($event)"
+          (failed)="inspectionFailed()"
+        />
 
         <label class="mod-panel__field">
           <span>Cupom</span>
@@ -65,6 +73,10 @@
         <label class="mod-panel__field">
           <span>Nome da loja *</span>
           <input type="text" [(ngModel)]="form.storeName" name="create-storeName" placeholder="Ex: Amazon, Magalu" />
+        </label>
+        <label class="mod-panel__field">
+          <span>Nome do vendedor</span>
+          <input type="text" [(ngModel)]="form.sellerName" name="create-sellerName" />
         </label>
 
         <label class="mod-panel__field-check" [class.mod-panel__field-check--disabled]="!hasValidStoreName()">

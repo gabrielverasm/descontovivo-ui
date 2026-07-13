@@ -12,13 +12,15 @@ export interface ModerationDecisionRequest {
   title?: string;
   url?: string;
   currentPrice?: number;
-  originalPrice?: number;
+  originalPrice?: number | null;
   couponCode?: string;
   imageUrl?: string;
   imageKey?: string | null;
   availability?: string;
   storeSlug?: string;
   storeName?: string;
+  marketplace?: string | null;
+  sellerName?: string | null;
   soldBy?: string | null;
   deliveredBy?: string | null;
   category?: string | null;
@@ -29,6 +31,7 @@ export interface ModerationDecisionRequest {
   sellerRating?: number | null;
   officialStore?: boolean | null;
   trustSignals?: string[] | null;
+  replaceInspectionFields?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

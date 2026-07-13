@@ -36,6 +36,8 @@ import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
 import { UI_VERSION } from '../../core/app-version';
 import { PromotionsFeedStateService } from './promotions-feed-state.service';
+import { PromotionInspectionResponse } from '../../core/models/marketplace-inspection.model';
+import { detectMarketplace } from '../../shared/utils/marketplace-detection.util';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -89,12 +91,14 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   adminMessage = '';
   adminError = '';
   editForm = { 
+    marketplace: null as import('../../core/models/marketplace-inspection.model').MarketplaceCode | null,
     title: '', 
     url: '', 
     currentPrice: '', 
     originalPrice: '', 
     couponCode: '', 
     storeName: '', 
+    sellerName: '',
     soldBy: '', 
     deliveredBy: '', 
     category: '', 
@@ -113,6 +117,29 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   adminImageSizeKB: number | null = null;
   adminImageError: string | null = null;
   adminImageStatus: 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error' = 'idle';
+  inspectionImageKey: string | null = null;
+  inspectionApplied = false;
+  inspectionRequiresImage = false;
+  private inspectedFormUrl: string | null = null;
+
+  onInspectionLoaded(data: PromotionInspectionResponse): void {
+    this.clearAdminImage();
+    this.inspectionImageKey = data.imageKey;
+    this.inspectionApplied = true;
+    this.inspectionRequiresImage = !data.imageKey;
+    this.inspectedFormUrl = this.editForm.url;
+    this.adminImagePreviewUrl = data.imageUrl;
+    this.adminImageBlob = null;
+    this.adminImageStatus = data.imageKey ? 'done' : 'idle';
+    this.adminMessage = 'Dados da Shopee carregados';
+    this.adminError = !data.imageKey
+      ? 'A imagem não foi encontrada. Selecione uma imagem manualmente.'
+      : data.missingFields.length
+        ? 'Alguns campos não foram encontrados e precisam ser preenchidos manualmente'
+        : '';
+  }
+
+  onInspectionFailed(): void { this.adminError = 'Não foi possível carregar os dados da Shopee.'; }
 
   get adminImageStatusText(): string | null {
     switch (this.adminImageStatus) {
@@ -391,12 +418,14 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   openEditMode() {
     if (!this.promotion) return;
     this.editForm = {
+      marketplace: (this.promotion.marketplace as import('../../core/models/marketplace-inspection.model').MarketplaceCode) ?? null,
       title: this.promotion.title,
       url: this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '',
       currentPrice: formatCentsToBRL(numberToCents(this.promotion.currentPrice)),
       originalPrice: this.promotion.originalPrice ? formatCentsToBRL(numberToCents(this.promotion.originalPrice)) : '',
       couponCode: this.promotion.couponCode ?? '',
       storeName: resolveStoreName(this.promotion.store?.name),
+      sellerName: this.promotion.sellerName ?? '',
       soldBy: this.promotion.soldBy ?? '',
       deliveredBy: this.promotion.deliveredBy ?? '',
       category: this.promotion.category ?? '',
@@ -411,12 +440,13 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     this.isEditMode = true;
     this.adminMessage = '';
     this.adminError = '';
+    this.resetInspectionState();
   }
 
   cancelEdit() {
     this.isEditMode = false;
     this.adminError = '';
-    this.resetAdminImage();
+    this.resetInspectionState();
   }
 
   submitEdit() {
@@ -429,6 +459,11 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     const price = parseBRLInputToNumber(f.currentPrice);
     if (!price || price <= 0) {
       this.adminError = 'Preço atual inválido.';
+      return;
+    }
+    if (this.inspectionRequiresImage && !this.inspectionImageKey
+        && (!this.adminImageBlob || this.adminImageStatus !== 'ready')) {
+      this.adminError = 'A imagem não foi encontrada. Selecione uma imagem manualmente.';
       return;
     }
 
@@ -467,7 +502,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   private async doSubmitEdit(price: number): Promise<void> {
     const f = this.editForm;
-    let imageKey: string | undefined;
+    let imageKey: string | undefined = this.inspectionImageKey || undefined;
 
     if (this.adminImageBlob && this.adminImageStatus === 'ready') {
       try {
@@ -491,10 +526,15 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       url: f.url.trim(),
       currentPrice: price
     };
+    req.marketplace = detectMarketplace(f.url)?.marketplace
+      || (f.url === this.inspectedFormUrl ? f.marketplace : null);
+    req.replaceInspectionFields = this.inspectionApplied;
     const origPrice = parseBRLInputToNumber(f.originalPrice);
     if (origPrice && origPrice > 0) req.originalPrice = origPrice;
-    if (f.couponCode.trim()) req.couponCode = f.couponCode.trim();
+    else if (this.inspectionApplied) req.originalPrice = null;
+    req.couponCode = f.couponCode.trim();
     if (f.storeName.trim()) req.storeName = f.storeName.trim();
+    req.sellerName = f.sellerName.trim() || null;
     if (imageKey) req.imageKey = imageKey;
     req.soldBy = f.soldBy.trim() || null;
     req.deliveredBy = f.deliveredBy.trim() || null;
@@ -518,7 +558,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
         this.isEditMode = false;
         this.isAdminSaving = false;
         this.adminMessage = 'Promoção atualizada com sucesso.';
-        this.resetAdminImage();
+        this.resetInspectionState();
         this.updateSeoMeta();
         this.updateStructuredData();
       },
@@ -530,7 +570,8 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   async onAdminImageSelected(file: File): Promise<void> {
-    this.resetAdminImage();
+    this.clearAdminImage();
+    if (this.inspectionApplied) this.inspectionRequiresImage = true;
     const validationError = this.imageProcessing.validate(file);
     if (validationError) {
       this.adminImageError = validationError;
@@ -544,6 +585,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       this.adminImagePreviewUrl = processed.previewUrl;
       this.adminImageSizeKB = processed.sizeKB;
       this.adminImageStatus = 'ready';
+      this.inspectionRequiresImage = false;
     } catch {
       this.adminImageError = 'Falha ao processar imagem. Tente novamente.';
       this.adminImageStatus = 'error';
@@ -551,16 +593,25 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   removeAdminImage(): void {
-    this.resetAdminImage();
+    this.clearAdminImage();
+    if (this.inspectionApplied) this.inspectionRequiresImage = true;
   }
 
-  private resetAdminImage(): void {
+  private clearAdminImage(): void {
     if (this.adminImagePreviewUrl) URL.revokeObjectURL(this.adminImagePreviewUrl);
     this.adminImageBlob = null;
     this.adminImagePreviewUrl = null;
     this.adminImageSizeKB = null;
     this.adminImageError = null;
     this.adminImageStatus = 'idle';
+    this.inspectionImageKey = null;
+  }
+
+  private resetInspectionState(): void {
+    this.clearAdminImage();
+    this.inspectionApplied = false;
+    this.inspectionRequiresImage = false;
+    this.inspectedFormUrl = null;
   }
 
   confirmRemove() {
@@ -621,7 +672,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.resetAdminImage();
+    this.resetInspectionState();
     this.backButtonObserver?.disconnect();
     clearTimeout(this.floatingBackAnimationTimeout);
     this.routeSubscription.unsubscribe();
