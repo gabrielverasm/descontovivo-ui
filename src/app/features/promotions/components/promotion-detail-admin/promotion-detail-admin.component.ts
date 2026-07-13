@@ -2,6 +2,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FloatingFieldComponent } from '../../../../shared/components/floating-field/floating-field.component';
 import { PromotionImageUploadComponent } from '../../../../shared/components/promotion-image-upload/promotion-image-upload.component';
+import { MarketplaceInspectionButtonComponent } from '../../../../shared/components/marketplace-inspection-button/marketplace-inspection-button.component';
+import { PromotionInspectionResponse } from '../../../../core/models/marketplace-inspection.model';
+import { applyInspectionToForm } from '../../../../shared/utils/promotion-inspection-form.util';
 import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../../shared/utils/money-input.util';
 import { deriveMarketplace } from '../../../../shared/utils/marketplace.util';
 import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata, TrustSignal } from '../../../../shared/utils/trust-signals.util';
@@ -10,7 +13,7 @@ import { normalizeRatingInput, formatRatingForInput } from '../../../../shared/u
 @Component({
   selector: 'app-promotion-detail-admin',
   standalone: true,
-  imports: [FormsModule, FloatingFieldComponent, PromotionImageUploadComponent],
+  imports: [FormsModule, FloatingFieldComponent, PromotionImageUploadComponent, MarketplaceInspectionButtonComponent],
   templateUrl: './promotion-detail-admin.component.html',
   styleUrl: './promotion-detail-admin.component.scss',
 })
@@ -22,12 +25,14 @@ export class PromotionDetailAdminComponent {
   @Input() adminMessage = '';
   @Input() adminError = '';
   @Input() editForm = { 
+    marketplace: null as import('../../../../core/models/marketplace-inspection.model').MarketplaceCode | null,
     title: '', 
     url: '', 
     currentPrice: '', 
     originalPrice: '', 
     couponCode: '', 
     storeName: '', 
+    sellerName: '',
     soldBy: '', 
     deliveredBy: '', 
     category: '', 
@@ -53,6 +58,13 @@ export class PromotionDetailAdminComponent {
   @Output() executeRemove = new EventEmitter<void>();
   @Output() imageSelected = new EventEmitter<File>();
   @Output() removeImage = new EventEmitter<void>();
+  @Output() inspectionLoaded = new EventEmitter<PromotionInspectionResponse>();
+  @Output() inspectionFailed = new EventEmitter<void>();
+
+  applyInspection(data: PromotionInspectionResponse): void {
+    applyInspectionToForm(this.editForm, data);
+    this.inspectionLoaded.emit(data);
+  }
 
   onPriceInput(field: 'currentPrice' | 'originalPrice', value: string): void {
     const digits = onlyDigits(value);

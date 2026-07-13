@@ -6,7 +6,11 @@ import { ImageProcessingService } from '../../../../core/services/image-processi
 import { ModerationCategoryService, ModerationCategory } from '../../../../core/services/moderation-category.service';
 import { UploadService } from '../../../../core/services/upload.service';
 import { PromotionImageUploadComponent } from '../../../../shared/components/promotion-image-upload/promotion-image-upload.component';
+import { MarketplaceInspectionButtonComponent } from '../../../../shared/components/marketplace-inspection-button/marketplace-inspection-button.component';
+import { PromotionInspectionResponse } from '../../../../core/models/marketplace-inspection.model';
+import { applyInspectionToForm } from '../../../../shared/utils/promotion-inspection-form.util';
 import { deriveMarketplace } from '../../../../shared/utils/marketplace.util';
+import { detectMarketplace } from '../../../../shared/utils/marketplace-detection.util';
 import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../../shared/utils/money-input.util';
 import { normalizePromotionTitle } from '../../../../shared/utils/normalize-title.util';
 import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata, TrustSignal } from '../../../../shared/utils/trust-signals.util';
@@ -15,7 +19,7 @@ import { normalizeRatingInput, formatRatingForInput } from '../../../../shared/u
 @Component({
   selector: 'app-moderation-create-promotion',
   standalone: true,
-  imports: [FormsModule, PromotionImageUploadComponent],
+  imports: [FormsModule, PromotionImageUploadComponent, MarketplaceInspectionButtonComponent],
   templateUrl: './moderation-create-promotion.component.html',
   styleUrl: './moderation-create-promotion.component.scss',
 })
@@ -29,12 +33,14 @@ export class ModerationCreatePromotionComponent implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   form = {
+    marketplace: null as import('../../../../core/models/marketplace-inspection.model').MarketplaceCode | null,
     url: '',
     title: '',
     currentPrice: '',
     originalPrice: '',
     couponCode: '',
     storeName: '',
+    sellerName: '',
     soldBy: '',
     deliveredBy: '',
     category: '',
@@ -45,6 +51,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
     productRating: '',
     sellerRating: '',
     officialStore: false,
+    trustSignals: [] as string[],
   };
 
   // Trust signals chips
@@ -52,6 +59,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
 
   saving = false;
   error = '';
+  inspectionMessage = '';
   soldAndDeliveredByStore = false;
 
   // Categories
@@ -65,6 +73,29 @@ export class ModerationCreatePromotionComponent implements OnInit {
   imageSizeKB: number | null = null;
   imageError: string | null = null;
   imageStatus: 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error' = 'idle';
+  inspectionImageKey: string | null = null;
+  private inspectedFormUrl: string | null = null;
+
+  applyInspection(data: PromotionInspectionResponse): void {
+    this.resetImage();
+    applyInspectionToForm(this.form, data);
+    this.inspectionImageKey = data.imageKey;
+    this.inspectedFormUrl = this.form.url;
+    this.trustSignals = [...data.trustSignals];
+    this.form.trustSignals = [...data.trustSignals];
+    this.imagePreviewUrl = data.imageUrl;
+    this.imageBlob = null;
+    this.imageStatus = data.imageKey ? 'done' : 'idle';
+    this.inspectionMessage = 'Dados da Shopee carregados';
+    this.error = data.missingFields.length
+      ? 'Alguns campos não foram encontrados e precisam ser preenchidos manualmente'
+      : '';
+  }
+
+  inspectionFailed(): void {
+    this.inspectionMessage = '';
+    this.error = 'Não foi possível carregar os dados da Shopee.';
+  }
 
   get imageStatusText(): string | null {
     switch (this.imageStatus) {
@@ -78,7 +109,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
 
   // Getter puro para availableTrustSignals
   get availableTrustSignals(): string[] {
-    const marketplace = deriveMarketplace(this.form.storeName || '');
+    const marketplace = this.form.marketplace || deriveMarketplace(this.form.storeName || '');
     return getMarketplaceTrustSignals(marketplace).map(signal => signal.toString());
   }
 
@@ -286,7 +317,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
         this.error = 'Preço atual é obrigatório e deve ser maior que zero.';
         return; 
       }
-      if (!this.imageBlob || this.imageStatus !== 'ready') { 
+      if ((!this.imageBlob || this.imageStatus !== 'ready') && !this.inspectionImageKey) {
         this.error = 'Imagem do produto é obrigatória.';
         return; 
       }
@@ -294,11 +325,11 @@ export class ModerationCreatePromotionComponent implements OnInit {
       this.saving = true;
       
       // Upload da imagem
-      let imageUrl: string;
-      let imageKey: string;
-      try {
+      let imageUrl = this.imagePreviewUrl || '';
+      let imageKey = this.inspectionImageKey || '';
+      if (!imageKey) try {
         this.imageStatus = 'uploading';
-        const result = await this.uploadService.uploadPromotionImage(this.imageBlob);
+        const result = await this.uploadService.uploadPromotionImage(this.imageBlob!);
         imageUrl = result.imageUrl;
         imageKey = result.imageKey;
         this.imageStatus = 'done';
@@ -315,7 +346,11 @@ export class ModerationCreatePromotionComponent implements OnInit {
       const now = new Date().toISOString();
       const sourceId = `manual-mod-${Date.now()}`;
       const storeName = this.form.storeName.trim();
-      const marketplace = deriveMarketplace(storeName);
+      const detectedMarketplace = detectMarketplace(this.form.url)?.marketplace;
+      const inspectedMarketplace = this.form.url === this.inspectedFormUrl
+        ? this.form.marketplace
+        : null;
+      const marketplace = detectedMarketplace || inspectedMarketplace || deriveMarketplace(storeName);
       const title = normalizePromotionTitle(this.form.title);
 
       // Parse trust signals fields
@@ -328,7 +363,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
         title,
         marketplace,
         storeName,
-        sellerName: this.form.soldBy.trim() || null,
+        sellerName: this.form.sellerName.trim() || null,
         soldBy: this.form.soldBy.trim() || null,
         deliveredBy: this.form.deliveredBy.trim() || null,
         productUrl: this.form.url.trim(),
@@ -385,6 +420,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
       originalPrice: '', 
       couponCode: '', 
       storeName: '', 
+      sellerName: '',
       soldBy: '', 
       deliveredBy: '', 
       category: '', 
@@ -393,9 +429,12 @@ export class ModerationCreatePromotionComponent implements OnInit {
       salesCount: '',
       productRating: '',
       sellerRating: '',
-      officialStore: false
+      officialStore: false,
+      marketplace: null,
+      trustSignals: [] as string[]
     };
     this.trustSignals = [];
+    this.inspectedFormUrl = null;
     this.soldAndDeliveredByStore = false;
     this.resetImage();
   }
@@ -407,5 +446,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
     this.imageSizeKB = null;
     this.imageError = null;
     this.imageStatus = 'idle';
+    this.inspectionImageKey = null;
+    this.inspectionMessage = '';
   }
 }

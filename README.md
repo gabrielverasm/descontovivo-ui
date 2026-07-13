@@ -127,3 +127,10 @@ Detalhes em [`docs/SEO.md`](docs/SEO.md).
 - [Produção / Deploy](docs/PRODUCTION_FRONTEND.md)
 - [Resumo para portfólio](docs/PORTFOLIO_SUMMARY.md)
 - [Keycloak Theme](docs/KEYCLOAK_THEME.md)
+# Preenchimento por marketplace
+
+Os formulários administrativos de criação e edição exibem um único botão dinâmico
+de acordo com o host da URL. Shopee está habilitada; Amazon, Mercado Livre, Magalu
+e AliExpress são reconhecidos como integrações futuras. Um carregamento bem-sucedido
+substitui todos os campos comerciais (inclusive com valores vazios), mas nunca salva,
+aprova ou publica automaticamente.
