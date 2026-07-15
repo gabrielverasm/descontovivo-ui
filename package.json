@@ -5,6 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "prebuild": "npm run generate:sitemap",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

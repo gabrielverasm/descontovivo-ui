@@ -25,6 +25,7 @@ interface PromotionOgData {
   currentPrice?: number;
   originalPrice?: number | null;
   imageUrl?: string | null;
+  availability?: string | null;
   store?: {
     name?: string | null;
   } | null;
@@ -32,6 +33,11 @@ interface PromotionOgData {
   soldBy?: string | null;
   deliveredBy?: string | null;
 }
+
+type PromotionFetchResult =
+  | { kind: 'ok'; promotion: PromotionOgData }
+  | { kind: 'not-found' }
+  | { kind: 'unavailable' };
 
 interface PromotionMeta {
   title: string;
@@ -41,9 +47,17 @@ interface PromotionMeta {
   ogType: string;
 }
 
+interface StructuredDataBlock {
+  id: string;
+  data: object;
+}
+
 const SITE_NAME = 'DescontoVivo';
+const SITE_BASE_URL = 'https://descontovivo.com';
 const DEFAULT_OG_IMAGE_PATH = '/brand/logo-og-image.jpg';
 const API_BASE_URL = 'https://api.descontovivo.com/api/v1';
+const MAX_TITLE_LENGTH = 70;
+const MAX_DESCRIPTION_LENGTH = 160;
 
 function escapeHtml(value: unknown): string {
   const str = String(value ?? '');
@@ -56,58 +70,142 @@ function escapeHtml(value: unknown): string {
 }
 
 function formatBRL(value?: number | null): string {
-  if (value == null || isNaN(value)) return '';
+  if (value == null || !Number.isFinite(value)) return '';
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }
 
-function buildDescription(promotion: PromotionOgData): string {
-  const price = formatBRL(promotion.currentPrice);
-  const store = promotion.store?.name || promotion.storeName || '';
-
-  if (price && store) {
-    return `Oferta no ${SITE_NAME} em ${store} por ${price}. Confira antes de comprar.`;
-  }
-  if (price) {
-    return `Oferta no ${SITE_NAME} por ${price}. Confira antes de comprar.`;
-  }
-  return `Veja esta promoção no ${SITE_NAME}.`;
+function normalizeWhitespace(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
 }
 
-function buildMeta(promotion: PromotionOgData, requestUrl: URL): PromotionMeta {
-  const slug = promotion.slug || promotion.id || '';
-  const canonicalUrl = `${requestUrl.origin}/promocoes/${slug}`;
+function truncateAtWord(value: string, maxLength: number): string {
+  if (value.length <= maxLength) return value;
+
+  const candidate = value.slice(0, Math.max(1, maxLength - 1)).trimEnd();
+  const lastSpace = candidate.lastIndexOf(' ');
+  const cutAt = lastSpace >= Math.floor(maxLength * 0.6) ? lastSpace : candidate.length;
+  return `${candidate.slice(0, cutAt).trimEnd()}…`;
+}
+
+function buildDescription(promotion: PromotionOgData): string {
+  const productName = normalizeWhitespace(promotion.title || 'Promoção');
   const price = formatBRL(promotion.currentPrice);
-  const title = `${promotion.title || 'Promoção'}${price ? ` por ${price}` : ''} | ${SITE_NAME}`;
+  const store = normalizeWhitespace(promotion.store?.name || promotion.storeName || '');
+
+  let description = `Veja a promoção ${productName}${price ? ` por ${price}` : ''}`;
+  if (store) description += ` em ${store}`;
+  description += ` no ${SITE_NAME}. Confira os detalhes antes de comprar.`;
+  return truncateAtWord(description, MAX_DESCRIPTION_LENGTH);
+}
+
+function buildMeta(promotion: PromotionOgData): PromotionMeta {
+  const slug = promotion.slug || promotion.id || '';
+  const canonicalUrl = `${SITE_BASE_URL}/promocoes/${slug}`;
+  const price = formatBRL(promotion.currentPrice);
+  const suffix = `${price ? ` por ${price}` : ''} | ${SITE_NAME}`;
+  const productName = normalizeWhitespace(promotion.title || 'Promoção');
+  const title = `${truncateAtWord(productName, MAX_TITLE_LENGTH - suffix.length)}${suffix}`;
   const description = buildDescription(promotion);
 
   let imageUrl: string;
   if (promotion.imageUrl) {
     try {
-      const candidate = new URL(promotion.imageUrl, requestUrl.origin);
+      const candidate = new URL(promotion.imageUrl, SITE_BASE_URL);
       if (candidate.protocol !== 'https:') throw new Error('OG image must use HTTPS');
       imageUrl = candidate.toString();
     } catch {
-      imageUrl = `${requestUrl.origin}${DEFAULT_OG_IMAGE_PATH}`;
+      imageUrl = `${SITE_BASE_URL}${DEFAULT_OG_IMAGE_PATH}`;
     }
   } else {
-    imageUrl = `${requestUrl.origin}${DEFAULT_OG_IMAGE_PATH}`;
+    imageUrl = `${SITE_BASE_URL}${DEFAULT_OG_IMAGE_PATH}`;
   }
 
   return { title, description, imageUrl, canonicalUrl, ogType: 'product' };
 }
 
-function injectPromotionMeta(html: string, meta: PromotionMeta): string {
+function resolveSchemaAvailability(value?: string | null): string | null {
+  const normalized = value?.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  if (normalized === 'available' || normalized === 'in_stock' || normalized === 'instock') {
+    return 'https://schema.org/InStock';
+  }
+  if (
+    normalized === 'expired'
+    || normalized === 'unavailable'
+    || normalized === 'out_of_stock'
+    || normalized === 'outofstock'
+  ) {
+    return 'https://schema.org/OutOfStock';
+  }
+  return null;
+}
+
+function buildStructuredData(promotion: PromotionOgData, meta: PromotionMeta): StructuredDataBlock[] {
+  const blocks: StructuredDataBlock[] = [];
+  const storeName = promotion.store?.name || promotion.storeName || '';
+
+  if (promotion.title && promotion.currentPrice != null && Number.isFinite(promotion.currentPrice)) {
+    const offer: Record<string, unknown> = {
+      '@type': 'Offer',
+      price: promotion.currentPrice.toFixed(2),
+      priceCurrency: 'BRL',
+      url: meta.canonicalUrl,
+    };
+    const availability = resolveSchemaAvailability(promotion.availability);
+    if (availability) offer['availability'] = availability;
+    if (storeName) offer['seller'] = { '@type': 'Organization', name: storeName };
+
+    const product: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: promotion.title,
+      description: meta.description,
+      url: meta.canonicalUrl,
+      offers: offer,
+    };
+    if (promotion.imageUrl) product['image'] = meta.imageUrl;
+    blocks.push({ id: 'sd-page-product', data: product });
+  }
+
+  blocks.push({
+    id: 'sd-page-breadcrumb',
+    data: {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: `${SITE_BASE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: promotion.title || 'Promoção', item: meta.canonicalUrl },
+      ],
+    },
+  });
+
+  return blocks;
+}
+
+function serializeJsonLd(value: object): string {
+  return JSON.stringify(value)
+    .replace(/&/g, '\\u0026')
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e');
+}
+
+function injectPromotionMeta(
+  html: string,
+  meta: PromotionMeta,
+  structuredData: StructuredDataBlock[],
+): string {
   // Remove existing OG/Twitter/canonical tags
   html = html.replace(/<meta\s+property="og:[^"]*"\s+content="[^"]*"\s*\/?>/gi, '');
   html = html.replace(/<meta\s+name="twitter:[^"]*"\s+content="[^"]*"\s*\/?>/gi, '');
   html = html.replace(/<link[^>]*rel="canonical"[^>]*\/?>/gi, '');
   html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/gi, '');
+  html = html.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/gi, '');
 
   // Replace <title>
   html = html.replace(/<title>[^<]*<\/title>/i, `<title>${escapeHtml(meta.title)}</title>`);
 
   // Build meta block
   const metaBlock = [
+    `<meta name="robots" content="index, follow">`,
     `<meta name="description" content="${escapeHtml(meta.description)}">`,
     `<meta property="og:type" content="${escapeHtml(meta.ogType)}">`,
     `<meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">`,
@@ -122,6 +220,9 @@ function injectPromotionMeta(html: string, meta: PromotionMeta): string {
     `<meta name="twitter:description" content="${escapeHtml(meta.description)}">`,
     `<meta name="twitter:image" content="${escapeHtml(meta.imageUrl)}">`,
     `<link rel="canonical" href="${escapeHtml(meta.canonicalUrl)}">`,
+    ...structuredData.map((block) =>
+      `<script id="${block.id}" type="application/ld+json">${serializeJsonLd(block.data)}</script>`
+    ),
   ].join('\n    ');
 
   // Insert before </head>
@@ -130,17 +231,58 @@ function injectPromotionMeta(html: string, meta: PromotionMeta): string {
   return html;
 }
 
-async function fetchPromotion(slug: string): Promise<PromotionOgData | null> {
+async function fetchPromotion(slug: string): Promise<PromotionFetchResult> {
   try {
     const apiUrl = new URL(`${API_BASE_URL}/promotions/${encodeURIComponent(slug)}`);
     const response = await fetch(apiUrl.toString(), {
       headers: { 'Accept': 'application/json' },
     });
-    if (!response.ok) return null;
-    return await response.json() as PromotionOgData;
+    if (response.status === 404) return { kind: 'not-found' };
+    if (!response.ok) return { kind: 'unavailable' };
+    return { kind: 'ok', promotion: await response.json() as PromotionOgData };
   } catch {
-    return null;
+    return { kind: 'unavailable' };
   }
+}
+
+function buildStatusHtml(title: string, description: string, noIndex: boolean): string {
+  const robotsMeta = noIndex ? '\n    <meta name="robots" content="noindex, nofollow">' : '';
+  return `<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">${robotsMeta}
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(description)}">
+  </head>
+  <body>
+    <main>
+      <h1>${escapeHtml(title.replace(` | ${SITE_NAME}`, ''))}</h1>
+      <p>${escapeHtml(description)}</p>
+      <a href="${SITE_BASE_URL}/">Ver promoções no ${SITE_NAME}</a>
+    </main>
+  </body>
+</html>`;
+}
+
+function buildStatusResponse(status: 404 | 503): Response {
+  const notFound = status === 404;
+  const title = notFound
+    ? `Promoção não encontrada | ${SITE_NAME}`
+    : `Promoção temporariamente indisponível | ${SITE_NAME}`;
+  const description = notFound
+    ? 'Esta promoção não foi encontrada. Confira outras ofertas no DescontoVivo.'
+    : 'Não foi possível consultar esta promoção agora. Tente novamente em alguns minutos.';
+  const headers = new Headers({
+    'content-type': 'text/html; charset=utf-8',
+    'cache-control': 'no-store',
+  });
+  if (notFound) {
+    headers.set('x-robots-tag', 'noindex, nofollow');
+  } else {
+    headers.set('retry-after', '300');
+  }
+  return new Response(buildStatusHtml(title, description, notFound), { status, headers });
 }
 
 async function fetchAssetHtml(context: PagesFunctionContext): Promise<Response> {
@@ -158,6 +300,14 @@ export async function onRequest(context: PagesFunctionContext): Promise<Response
     ? context.params.slug[0]
     : context.params.slug;
 
+  if (slug) {
+    const promotionResult = await fetchPromotion(slug);
+    if (promotionResult.kind === 'not-found') return buildStatusResponse(404);
+    if (promotionResult.kind === 'unavailable') return buildStatusResponse(503);
+
+    return renderPromotionPage(context, promotionResult.promotion);
+  }
+
   // Fetch the base HTML asset
   let assetResponse: Response;
   try {
@@ -168,33 +318,29 @@ export async function onRequest(context: PagesFunctionContext): Promise<Response
     return new Response('Internal Server Error', { status: 500 });
   }
 
-  let html = await assetResponse.text();
+  const html = await assetResponse.text();
+  const headers = new Headers(assetResponse.headers);
+  headers.set('content-type', 'text/html; charset=utf-8');
+  return new Response(html, { status: assetResponse.status, headers });
+}
 
-  // If no slug, return unmodified HTML
-  if (!slug) {
-    return new Response(html, {
-      status: assetResponse.status,
-      headers: { 'content-type': 'text/html; charset=utf-8' },
-    });
+async function renderPromotionPage(
+  context: PagesFunctionContext,
+  promotion: PromotionOgData,
+): Promise<Response> {
+  let assetResponse: Response;
+  try {
+    assetResponse = await fetchAssetHtml(context);
+  } catch {
+    if (context.next) return context.next();
+    return buildStatusResponse(503);
   }
 
-  // Fetch promotion data from API
-  const requestUrl = new URL(context.request.url);
-  const promotion = await fetchPromotion(slug);
-
-  // Always inject route-specific metadata. If the API fails, keep the
-  // institutional image and a clean canonical URL for this promotion route.
-  const meta = buildMeta(
-    promotion?.title ? promotion : { slug, title: 'Promoção' },
-    requestUrl,
-  );
-  html = injectPromotionMeta(html, meta);
-
-  return new Response(html, {
-    status: assetResponse.status,
-    headers: {
-      'content-type': 'text/html; charset=utf-8',
-      'cache-control': 'public, max-age=300',
-    },
-  });
+  const meta = buildMeta(promotion);
+  const structuredData = buildStructuredData(promotion, meta);
+  const html = injectPromotionMeta(await assetResponse.text(), meta, structuredData);
+  const headers = new Headers(assetResponse.headers);
+  headers.set('content-type', 'text/html; charset=utf-8');
+  headers.set('cache-control', 'public, max-age=300');
+  return new Response(html, { status: assetResponse.status, headers });
 }

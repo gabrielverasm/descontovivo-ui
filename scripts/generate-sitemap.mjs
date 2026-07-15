@@ -13,7 +13,7 @@
  *   SITEMAP_MAX_PROMOTIONS - Máximo de promoções a incluir (default: 5000)
  */
 
-import { writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -23,6 +23,7 @@ const API_BASE_URL = process.env.SITEMAP_API_BASE_URL || 'https://api.descontovi
 const SITE_BASE_URL = process.env.SITEMAP_BASE_URL || 'https://descontovivo.com';
 const MAX_PROMOTIONS = parseInt(process.env.SITEMAP_MAX_PROMOTIONS || '5000', 10);
 const PAGE_SIZE = 100;
+const OUTPUT_PATH = resolve(__dirname, '..', 'public', 'sitemap.xml');
 
 const STATIC_PAGES = [
   { path: '/', priority: '1.0', changefreq: 'daily' },
@@ -74,7 +75,7 @@ async function fetchPromotions() {
       if (!item.slug) continue;
       promotions.push({
         slug: item.slug,
-        publishedAt: item.publishedAt,
+        lastModifiedAt: item.updatedAt || item.publishedAt || item.createdAt,
       });
       if (promotions.length >= MAX_PROMOTIONS) break;
     }
@@ -100,7 +101,7 @@ function buildSitemap(promotions) {
   // Promotion pages
   for (const promo of promotions) {
     const loc = `${SITE_BASE_URL}/promocoes/${encodeURIComponent(promo.slug)}`;
-    const lastmod = toISODate(promo.publishedAt);
+    const lastmod = toISODate(promo.lastModifiedAt);
     let entry = `  <url>\n    <loc>${escapeXml(loc)}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>`;
     if (lastmod) {
       entry += `\n    <lastmod>${lastmod}</lastmod>`;
@@ -122,23 +123,41 @@ async function main() {
   try {
     promotions = await fetchPromotions();
   } catch (err) {
-    console.error(`  ❌ Erro ao buscar promoções: ${err.message}`);
-    console.error('  Erro ao buscar promoções. Sitemap não foi gerado.');
-    process.exit(1);
+    console.warn(`  ⚠️  Erro ao buscar promoções: ${err.message}`);
+    if (hasUsableExistingSitemap()) {
+      console.warn(`  ⚠️  Sitemap existente preservado em: ${OUTPUT_PATH}`);
+      return;
+    }
+    throw new Error('A API falhou e não há sitemap existente utilizável para preservar.');
   }
 
   if (promotions.length === 0) {
-    console.error('  ❌ Nenhuma promoção encontrada. Sitemap não foi gerado.');
-    process.exit(1);
+    if (hasUsableExistingSitemap()) {
+      console.warn(`  ⚠️  A API não retornou promoções. Sitemap existente preservado em: ${OUTPUT_PATH}`);
+      return;
+    }
+    throw new Error('A API não retornou promoções e não há sitemap existente utilizável.');
   }
 
   console.log(`  ✅ ${promotions.length} promoções encontradas`);
 
   const xml = buildSitemap(promotions);
-  const outputPath = resolve(__dirname, '..', 'public', 'sitemap.xml');
-  writeFileSync(outputPath, xml, 'utf-8');
-  console.log(`  ✅ Sitemap salvo em: ${outputPath}`);
+  writeFileSync(OUTPUT_PATH, xml, 'utf-8');
+  console.log(`  ✅ Sitemap salvo em: ${OUTPUT_PATH}`);
   console.log(`  Total de URLs: ${STATIC_PAGES.length + promotions.length}`);
+}
+
+function hasUsableExistingSitemap() {
+  if (!existsSync(OUTPUT_PATH)) return false;
+
+  try {
+    const current = readFileSync(OUTPUT_PATH, 'utf-8');
+    return current.includes('<urlset')
+      && current.includes(`${SITE_BASE_URL}/`)
+      && current.includes('/promocoes/');
+  } catch {
+    return false;
+  }
 }
 
 main().catch((err) => {
