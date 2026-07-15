@@ -137,6 +137,31 @@ describe('PromotionDetailComponent inspection image state', () => {
     expect(component.inspectionRequiresImage).toBeFalse();
   });
 
+  it('describes store, seller and delivery without repeating the promotion title', () => {
+    component.promotion = {
+      title: 'Produto com um título longo',
+      storeName: 'MercadoLivre',
+      soldBy: 'Corsair',
+      deliveredBy: 'MercadoLivre',
+    } as never;
+
+    expect(component.promotionContextText).toBe(
+      'Oferta publicada no DescontoVivo em MercadoLivre. Vendido por Corsair e entregue por MercadoLivre. ' +
+      'Confira preço, sinais de confiança e comentários antes de comprar.',
+    );
+    expect(component.promotionContextText).not.toContain('Produto com um título longo');
+  });
+
+  it('handles optional seller and delivery fields in the promotion context', () => {
+    component.promotion = { soldBy: 'Loja oficial' } as never;
+    expect(component.promotionContextText).toContain('Vendido por Loja oficial.');
+    expect(component.promotionContextText).not.toContain('Entregue por');
+
+    component.promotion = { deliveredBy: 'Marketplace' } as never;
+    expect(component.promotionContextText).toContain('Entregue por Marketplace.');
+    expect(component.promotionContextText).not.toContain('Vendido por');
+  });
+
   it('sends a filled coupon in an edit request', () => {
     prepareValidEdit('  CUPOM10  ');
 
