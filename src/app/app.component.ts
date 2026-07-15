@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, take } from 'rxjs';
 import { AuthService } from './core/services/auth.service';
@@ -15,8 +16,11 @@ export class AppComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly analytics = inject(AnalyticsService);
   private readonly router = inject(Router);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   ngOnInit(): void {
+    if (!this.isBrowser) return;
+
     this.authService.checkAuth().pipe(take(1)).subscribe();
     this.analytics.init();
 
