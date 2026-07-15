@@ -11,3 +11,25 @@
   ! Content-Security-Policy
   X-Frame-Options: SAMEORIGIN
   Content-Security-Policy: default-src 'none'; script-src 'self'; frame-ancestors 'self'
+  X-Robots-Tag: noindex, nofollow
+
+/login
+  X-Robots-Tag: noindex, nofollow
+
+/cadastro
+  X-Robots-Tag: noindex, nofollow
+
+/publicar
+  X-Robots-Tag: noindex, nofollow
+
+/minha-conta
+  X-Robots-Tag: noindex, nofollow
+
+/admin/*
+  X-Robots-Tag: noindex, nofollow
+
+/moderacao/*
+  X-Robots-Tag: noindex, nofollow
+
+/erro
+  X-Robots-Tag: noindex, nofollow

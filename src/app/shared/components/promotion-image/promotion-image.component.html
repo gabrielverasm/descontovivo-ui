@@ -2,7 +2,11 @@
   <img
     [src]="promotion.imageUrl"
     [alt]="imageAlt"
-    loading="lazy"
+    width="320"
+    height="320"
+    [attr.loading]="isDetailVariant ? 'eager' : 'lazy'"
+    [attr.fetchpriority]="isDetailVariant ? 'high' : null"
+    decoding="async"
     (error)="markImageUnavailable()"
   />
 } @else {

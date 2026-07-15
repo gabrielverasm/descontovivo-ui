@@ -12,6 +12,7 @@ import { CommentService } from '../../core/services/comment.service';
 import { ImageProcessingService } from '../../core/services/image-processing.service';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
+import { buildPromotionSeo, resolveSchemaAvailability } from '../../core/seo/promotion-seo.util';
 import { ModerationDecisionRequest, ModerationService } from '../../core/services/moderation.service';
 import { PromotionService } from '../../core/services/promotion.service';
 import { UploadService } from '../../core/services/upload.service';
@@ -704,26 +705,11 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const { title, currentPrice, storeName } = this.promotion;
-    const priceStr = currentPrice != null ? ` por R$\u00A0${currentPrice.toFixed(2).replace('.', ',')}` : '';
-    const storeStr = storeName ? ` em ${storeName}` : '';
-
-    const seoTitle = currentPrice != null
-      ? `${title} por R$\u00A0${currentPrice.toFixed(2).replace('.', ',')} | DescontoVivo`
-      : `${title} | DescontoVivo`;
-
-    let seoDescription: string;
-    if (currentPrice != null && storeName && this.promotion.originalPrice) {
-      seoDescription = `Oferta de ${title} por R$\u00A0${currentPrice.toFixed(2).replace('.', ',')}${storeStr}. Antes era R$\u00A0${this.promotion.originalPrice.toFixed(2).replace('.', ',')}. Confira detalhes no DescontoVivo.`;
-    } else if (currentPrice != null && storeName) {
-      seoDescription = `Oferta de ${title} por R$\u00A0${currentPrice.toFixed(2).replace('.', ',')}${storeStr}. Confira detalhes no DescontoVivo.`;
-    } else {
-      seoDescription = `Veja a promoção ${title}${priceStr}${storeStr} no DescontoVivo.`;
-    }
+    const seoData = buildPromotionSeo(this.promotion);
 
     this.seo.setIndexable({
-      title: seoTitle,
-      description: seoDescription,
+      title: seoData.title,
+      description: seoData.description,
       canonicalPath: `/promocoes/${this.promotion.slug || this.promotion.id}`,
       imageUrl: this.promotion.imageUrl || undefined
     });
@@ -735,10 +721,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     if (!this.promotion) return;
 
     const { title, currentPrice, storeName, imageUrl, slug, id } = this.promotion;
+    const canonicalUrl = `https://descontovivo.com/promocoes/${slug || id}`;
 
     // Only add Product JSON-LD if we have minimum required data (name + price)
     if (title && currentPrice != null) {
-      const canonicalUrl = `https://descontovivo.com/promocoes/${slug || id}`;
       const storeStr = storeName || '';
 
       const descriptionParts = [`Oferta de ${title}`];
@@ -779,15 +765,23 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
       this.structuredData.setStructuredData('sd-page-product', productData);
     }
+
+    this.structuredData.setStructuredData('sd-page-breadcrumb', {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': [
+        { '@type': 'ListItem', 'position': 1, 'name': 'DescontoVivo', 'item': 'https://descontovivo.com/' },
+        { '@type': 'ListItem', 'position': 2, 'name': title, 'item': canonicalUrl },
+      ],
+    });
   }
 
   private resolveOfferAvailability(): string | null {
     if (!this.promotion) return null;
 
     // Use explicit availability field from the API if present
-    const avail = this.promotion.availability?.toLowerCase();
-    if (avail === 'in_stock' || avail === 'instock') return 'https://schema.org/InStock';
-    if (avail === 'out_of_stock' || avail === 'outofstock' || avail === 'expired') return 'https://schema.org/OutOfStock';
+    const availability = resolveSchemaAvailability(this.promotion.availability);
+    if (availability) return availability;
 
     // Use status: rejected/pending implies not publicly available
     if (this.promotion.status === 'rejected') return 'https://schema.org/Discontinued';
