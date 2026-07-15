@@ -273,6 +273,23 @@
   padding-top: 0.8rem;
 }
 
+.mod-panel__feedback {
+  flex: 1 0 100%;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.mod-panel__feedback:empty {
+  display: none;
+}
+
+.mod-panel__inspection-message {
+  color: #166534;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0;
+}
+
 .mod-panel__btn {
   border: 1px solid #e2e8f0;
   border-radius: 6px;

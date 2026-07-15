@@ -74,6 +74,8 @@ export class ModerationCreatePromotionComponent implements OnInit {
   imageError: string | null = null;
   imageStatus: 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error' = 'idle';
   inspectionImageKey: string | null = null;
+  private uploadedImageKey: string | null = null;
+  private uploadedImageUrl: string | null = null;
   private inspectedFormUrl: string | null = null;
 
   applyInspection(data: PromotionInspectionResponse): void {
@@ -105,6 +107,16 @@ export class ModerationCreatePromotionComponent implements OnInit {
       case 'done': return 'Upload concluído';
       default: return null;
     }
+  }
+
+  get hasSubmittableImage(): boolean {
+    return !!this.inspectionImageKey
+      || !!this.uploadedImageKey
+      || (!!this.imageBlob && this.imageStatus === 'ready');
+  }
+
+  get isImageBusy(): boolean {
+    return this.imageStatus === 'processing' || this.imageStatus === 'uploading';
   }
 
   // Getter puro para availableTrustSignals
@@ -215,6 +227,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
 
   async onImageSelected(file: File): Promise<void> {
     this.resetImage();
+    this.clearImageValidationFeedback();
     const validationError = this.imageProcessing.validate(file);
     if (validationError) {
       this.imageError = validationError;
@@ -227,6 +240,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
       this.imageBlob = processed.blob;
       this.imagePreviewUrl = processed.previewUrl;
       this.imageSizeKB = processed.sizeKB;
+      this.clearImageValidationFeedback();
       this.imageStatus = 'ready';
     } catch {
       this.imageError = 'Falha ao processar imagem. Tente novamente.';
@@ -236,6 +250,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
 
   removeImage(): void {
     this.resetImage();
+    this.clearImageValidationFeedback();
   }
 
   // --- Helper functions ---
@@ -297,6 +312,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
 
   async submit(): Promise<void> {
     try {
+      if (this.saving) return;
       this.error = '';
       
       // Validação inicial
@@ -317,7 +333,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
         this.error = 'Preço atual é obrigatório e deve ser maior que zero.';
         return; 
       }
-      if ((!this.imageBlob || this.imageStatus !== 'ready') && !this.inspectionImageKey) {
+      if (!this.hasSubmittableImage) {
         this.error = 'Imagem do produto é obrigatória.';
         return; 
       }
@@ -325,18 +341,20 @@ export class ModerationCreatePromotionComponent implements OnInit {
       this.saving = true;
       
       // Upload da imagem
-      let imageUrl = this.imagePreviewUrl || '';
-      let imageKey = this.inspectionImageKey || '';
+      let imageUrl = this.uploadedImageUrl || this.imagePreviewUrl || '';
+      let imageKey = this.inspectionImageKey || this.uploadedImageKey || '';
       if (!imageKey) try {
         this.imageStatus = 'uploading';
+        this.clearImageValidationFeedback();
         const result = await this.uploadService.uploadPromotionImage(this.imageBlob!);
         imageUrl = result.imageUrl;
         imageKey = result.imageKey;
+        this.uploadedImageUrl = result.imageUrl;
+        this.uploadedImageKey = result.imageKey;
         this.imageStatus = 'done';
       } catch (error) {
-        this.imageStatus = 'error';
-        this.imageError = 'Não foi possível enviar a imagem.';
-        this.error = 'Não foi possível enviar a imagem.';
+        this.imageStatus = 'ready';
+        this.imageError = 'Não foi possível enviar a imagem. Tente novamente.';
         this.saving = false;
         console.error('Image upload error:', error);
         return;
@@ -449,6 +467,15 @@ export class ModerationCreatePromotionComponent implements OnInit {
     this.imageError = null;
     this.imageStatus = 'idle';
     this.inspectionImageKey = null;
+    this.uploadedImageKey = null;
+    this.uploadedImageUrl = null;
     this.inspectionMessage = '';
+  }
+
+  private clearImageValidationFeedback(): void {
+    this.imageError = null;
+    if (this.error === 'Imagem do produto é obrigatória.') {
+      this.error = '';
+    }
   }
 }
