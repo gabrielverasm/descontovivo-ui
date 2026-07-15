@@ -164,6 +164,27 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     );
   }
 
+  get promotionContextText(): string {
+    if (!this.promotion) return '';
+
+    const parts = [
+      this.promotion.storeName
+        ? `Oferta publicada no DescontoVivo em ${this.promotion.storeName}.`
+        : 'Oferta publicada no DescontoVivo.',
+    ];
+
+    if (this.promotion.soldBy && this.promotion.deliveredBy) {
+      parts.push(`Vendido por ${this.promotion.soldBy} e entregue por ${this.promotion.deliveredBy}.`);
+    } else if (this.promotion.soldBy) {
+      parts.push(`Vendido por ${this.promotion.soldBy}.`);
+    } else if (this.promotion.deliveredBy) {
+      parts.push(`Entregue por ${this.promotion.deliveredBy}.`);
+    }
+
+    parts.push('Confira preço, sinais de confiança e comentários antes de comprar.');
+    return parts.join(' ');
+  }
+
   get trustSignalsList(): { label: string; description: string }[] {
     if (!this.promotion) return [];
     

@@ -42,7 +42,7 @@
         <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
 
         <p class="promotion-detail__context-text">
-          Oferta publicada no DescontoVivo para {{ promotion.title }}@if (promotion.storeName) { em {{ promotion.storeName }}}@if (promotion.soldBy) {, vendido por {{ promotion.soldBy }}}@if (promotion.deliveredBy) { e entregue por {{ promotion.deliveredBy }}}. Confira os detalhes antes de comprar.
+          {{ promotionContextText }}
         </p>
 
         <div class="promotion-detail__tags" aria-label="Tags da promoção">
