@@ -74,11 +74,6 @@
           <span>Nome da loja *</span>
           <input type="text" [(ngModel)]="form.storeName" name="create-storeName" placeholder="Ex: Amazon, Magalu" />
         </label>
-        <label class="mod-panel__field">
-          <span>Nome do vendedor</span>
-          <input type="text" [(ngModel)]="form.sellerName" name="create-sellerName" />
-        </label>
-
         <label class="mod-panel__field-check" [class.mod-panel__field-check--disabled]="!hasValidStoreName()">
           <input type="checkbox" [checked]="soldAndDeliveredByStore" [disabled]="!hasValidStoreName()" (change)="toggleSoldDelivered($any($event.target).checked)" />
           <span>Vendido e entregue pela loja</span>
