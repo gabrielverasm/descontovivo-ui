@@ -86,19 +86,6 @@ p {
   line-height: 1.6;
 }
 
-.services-affiliate-tag {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid rgba(37, 99, 235, 0.22);
-  border-radius: 999px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 0.1rem 0.45rem;
-  vertical-align: middle;
-}
-
 /* List wrapper */
 .services-list {
   display: grid;
@@ -137,41 +124,24 @@ p {
   text-align: right;
 }
 
-/* Badge */
-.service-detail__badge {
-  display: inline-grid;
+/* Store logo */
+.service-detail__logo {
+  display: grid;
   place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 8.75rem;
+  height: 3.25rem;
+  padding: 0.2rem;
+  border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: var(--dv-radius-sm);
-  font-size: 0.75rem;
-  font-weight: 900;
+  background: #fff;
   flex-shrink: 0;
 }
 
-.service-detail__badge--prime {
-  background: #061a3d;
-  color: #20d3f3;
-}
-
-.service-detail__badge--meli {
-  background: #ffe600;
-  color: #333;
-}
-
-.service-detail__badge--magalu {
-  background: #e6002b;
-  color: #fff;
-}
-
-.service-detail__badge--shopee {
-  background: #ee4d2d;
-  color: #fff;
-}
-
-.service-detail__badge--aliexpress {
-  background: #e43225;
-  color: #fff;
+.service-detail__logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .service-detail__eyebrow {
@@ -257,12 +227,44 @@ p {
   background: #f8fbff;
 }
 
-/* Action */
-.service-detail__action {
+.service-related__heading {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
   align-items: center;
+}
+
+.service-related__heading img {
+  display: block;
+  width: 10rem;
+  height: 3rem;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.service-related__action {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: start;
+  margin-top: 0.25rem;
+}
+
+.service-related__action small {
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.service-detail__affiliate {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: end;
+}
+
+.service-detail__affiliate small {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 /* Coming section */
@@ -309,7 +311,7 @@ p {
   align-items: center;
   justify-content: center;
   width: fit-content;
-  min-height: 2.4rem;
+  min-height: 2.75rem;
   border-radius: 999px;
   font-weight: 800;
   font-size: 0.88rem;
@@ -330,6 +332,17 @@ p {
   background: #2563eb;
 }
 
+.services-button--secondary {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #1d4ed8;
+}
+
+.services-button--secondary:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
 .services-button--outline {
   border: 1.5px solid rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.75);
@@ -346,11 +359,47 @@ p {
 }
 
 @media (max-width: 720px) {
+  .service-detail__header {
+    display: grid;
+    grid-template-columns: minmax(0, 7.5rem) 1fr;
+  }
+
+  .service-detail__logo {
+    width: 7.5rem;
+  }
+
   .service-detail__grid {
     grid-template-columns: 1fr;
   }
 
   .service-detail__header-price {
+    grid-column: 1 / -1;
     text-align: left;
+  }
+
+  .service-detail__affiliate {
+    grid-column: 1 / -1;
+    justify-items: stretch;
+    width: 100%;
+  }
+
+  .service-detail__affiliate small {
+    text-align: center;
+  }
+
+  .service-detail__affiliate .services-button {
+    width: 100%;
+  }
+
+  .service-related__action {
+    justify-items: stretch;
+  }
+
+  .service-related__action .services-button {
+    width: 100%;
+  }
+
+  .service-related__action small {
+    text-align: center;
   }
 }

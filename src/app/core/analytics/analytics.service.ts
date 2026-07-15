@@ -6,11 +6,14 @@ import { filter, Subscription } from 'rxjs';
 import { analyticsConfig } from './analytics-config';
 import { AnalyticsConsentService } from './analytics-consent.service';
 import {
+  AffiliateServiceClickParams,
+  AffiliateStoreClickParams,
   buildPageViewParams,
   ClickStoreParams,
   CommentSubmitParams,
   PageViewParams,
   PromotionVoteParams,
+  ServiceClickParams,
   ShareParams,
   ViewPromotionParams,
 } from './analytics-events';
@@ -110,6 +113,18 @@ export class AnalyticsService implements OnDestroy {
 
   trackClickStore(params: ClickStoreParams): void {
     this.sendEvent('click_store', params);
+  }
+
+  trackAffiliateStoreClick(params: AffiliateStoreClickParams): void {
+    this.sendEvent('click_affiliate_store', params);
+  }
+
+  trackAffiliateServiceClick(params: AffiliateServiceClickParams): void {
+    this.sendEvent('click_affiliate_service', params);
+  }
+
+  trackServiceClick(params: ServiceClickParams): void {
+    this.sendEvent('click_service', params);
   }
 
   trackSharePromotion(params: ShareParams): void {
