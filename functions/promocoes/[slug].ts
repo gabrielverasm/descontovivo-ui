@@ -91,10 +91,14 @@ function buildDescription(promotion: PromotionOgData): string {
   const productName = normalizeWhitespace(promotion.title || 'Promoção');
   const price = formatBRL(promotion.currentPrice);
   const store = normalizeWhitespace(promotion.store?.name || promotion.storeName || '');
-
-  let description = `Veja a promoção ${productName}${price ? ` por ${price}` : ''}`;
-  if (store) description += ` em ${store}`;
-  description += ` no ${SITE_NAME}. Confira os detalhes antes de comprar.`;
+  const description = normalizeWhitespace([
+    'Veja a promoção',
+    productName,
+    price ? `por ${price}` : '',
+    store ? `em ${store}` : '',
+    `no ${SITE_NAME}.`,
+    'Confira os detalhes antes de comprar.',
+  ].filter(Boolean).join(' '));
   return truncateAtWord(description, MAX_DESCRIPTION_LENGTH);
 }
 
@@ -102,9 +106,15 @@ function buildMeta(promotion: PromotionOgData): PromotionMeta {
   const slug = promotion.slug || promotion.id || '';
   const canonicalUrl = `${SITE_BASE_URL}/promocoes/${slug}`;
   const price = formatBRL(promotion.currentPrice);
-  const suffix = `${price ? ` por ${price}` : ''} | ${SITE_NAME}`;
+  const suffix = normalizeWhitespace([
+    price ? `por ${price}` : '',
+    `| ${SITE_NAME}`,
+  ].filter(Boolean).join(' '));
   const productName = normalizeWhitespace(promotion.title || 'Promoção');
-  const title = `${truncateAtWord(productName, MAX_TITLE_LENGTH - suffix.length)}${suffix}`;
+  const productMaxLength = Math.max(1, MAX_TITLE_LENGTH - suffix.length - 1);
+  const title = normalizeWhitespace(
+    `${truncateAtWord(productName, productMaxLength)} ${suffix}`,
+  );
   const description = buildDescription(promotion);
 
   let imageUrl: string;
@@ -345,5 +355,6 @@ async function renderPromotionPage(
   const headers = new Headers(assetResponse.headers);
   headers.set('content-type', 'text/html; charset=utf-8');
   headers.set('cache-control', 'public, max-age=300');
+  headers.delete('x-robots-tag');
   return new Response(html, { status: assetResponse.status, headers });
 }

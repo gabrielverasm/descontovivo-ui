@@ -15,7 +15,10 @@ if (!outDir) {
 }
 
 const source = join(outDir, 'index.csr.html');
-const target = join(outDir, '__app-shell/index.html');
+const targets = [
+  join(outDir, '__app-shell/index.html'),
+  join(outDir, '404.html'),
+];
 const shell = readFileSync(source, 'utf8');
 
 if (!shell.includes('<app-root></app-root>')) {
@@ -23,7 +26,8 @@ if (!shell.includes('<app-root></app-root>')) {
   process.exit(1);
 }
 
-mkdirSync(dirname(target), { recursive: true });
-copyFileSync(source, target);
-
-console.log(`CSR shell copiado: ${source} -> ${target}`);
+for (const target of targets) {
+  mkdirSync(dirname(target), { recursive: true });
+  copyFileSync(source, target);
+  console.log(`CSR shell copiado: ${source} -> ${target}`);
+}

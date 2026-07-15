@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.12**
+**0.5.13**
 
 ## Convenção
 
@@ -23,12 +23,13 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 1. Toda PR deve avaliar se precisa de bump de versão.
 2. O checklist do PR template inclui lembrete de atualização.
-3. O footer exibe `UI v0.5.12 · API v0.2.1` para facilitar validação de deploy.
+3. O footer exibe `UI v0.5.13 · API v0.2.1` para facilitar validação de deploy.
 
 ## Histórico
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.5.13 | 2026-07-15 | Estabiliza carregamento client-side após SSG e corrige metadados de promoções |
 | 0.5.12 | 2026-07-15 | Corrige SSG das páginas públicas com shell CSR seguro para Cloudflare Pages |
 | 0.5.11 | 2026-07-15 | Adiciona SSG às páginas públicas e mantém promoções dinâmicas com shell CSR seguro |
 | 0.5.10 | 2026-07-14 | Melhorias de SEO e indexação |
