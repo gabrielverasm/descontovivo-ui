@@ -4,13 +4,6 @@
     <button type="button" class="mod-panel__btn mod-panel__btn--ghost" (click)="cancel.emit()">✕ Fechar</button>
   </header>
 
-  @if (error) {
-    <p class="mod-panel__error" role="alert">{{ error }}</p>
-  }
-  @if (inspectionMessage) {
-    <p role="status">{{ inspectionMessage }}</p>
-  }
-
   <form class="mod-panel__body" (ngSubmit)="submit()">
     <!-- Image -->
     <div class="mod-panel__image">
@@ -22,7 +15,7 @@
         [error]="imageError"
         label="Imagem do produto *"
         name="create-image"
-        [disabled]="saving"
+        [disabled]="saving || isImageBusy"
         (fileSelected)="onImageSelected($event)"
         (removed)="removeImage()"
       />
@@ -201,7 +194,15 @@
 
     <!-- Actions -->
     <footer class="mod-panel__footer">
-      <button type="submit" class="mod-panel__btn mod-panel__btn--primary" [disabled]="saving">
+      <div class="mod-panel__feedback" aria-live="polite">
+        @if (error) {
+          <p class="mod-panel__error" role="alert">{{ error }}</p>
+        }
+        @if (inspectionMessage) {
+          <p class="mod-panel__inspection-message" role="status">{{ inspectionMessage }}</p>
+        }
+      </div>
+      <button type="submit" class="mod-panel__btn mod-panel__btn--primary" [disabled]="saving || isImageBusy">
         @if (saving) { Adicionando… } @else { Adicionar promoção }
       </button>
       <button type="button" class="mod-panel__btn mod-panel__btn--ghost" [disabled]="saving" (click)="cancel.emit()">Cancelar</button>

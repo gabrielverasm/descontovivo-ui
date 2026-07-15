@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.16**
+**0.5.17**
 
 ## Convenção
 
@@ -23,12 +23,13 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 1. Toda PR deve avaliar se precisa de bump de versão.
 2. O checklist do PR template inclui lembrete de atualização.
-3. O footer exibe `UI v0.5.16 · API v0.2.1` para facilitar validação de deploy.
+3. O footer exibe `UI v0.5.17 · API v0.2.1` para facilitar validação de deploy.
 
 ## Histórico
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.5.17 | 2026-07-15 | Corrige validação e feedback de imagem no cadastro manual da moderação |
 | 0.5.16 | 2026-07-15 | Refina busca da home, formulário manual e consentimento de métricas |
 | 0.5.15 | 2026-07-15 | Refina home e detalhe após SSG e revisa SEO técnico |
 | 0.5.14 | 2026-07-15 | Refina textos da home e detalhe após SSG e revisa sinais SEO |
