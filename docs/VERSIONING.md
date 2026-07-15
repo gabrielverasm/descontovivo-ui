@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.11**
+**0.5.10**
 
 ## Convenção
 
@@ -23,13 +23,12 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 1. Toda PR deve avaliar se precisa de bump de versão.
 2. O checklist do PR template inclui lembrete de atualização.
-3. O footer exibe `UI v0.5.11 · API v0.2.1` para facilitar validação de deploy.
+3. O footer exibe `UI v0.5.10 · API v0.2.1` para facilitar validação de deploy.
 
 ## Histórico
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
-| 0.5.11 | 2026-07-15 | Adiciona SSG às páginas públicas e mantém promoções dinâmicas com shell CSR seguro |
 | 0.5.10 | 2026-07-14 | Melhorias de SEO e indexação |
 | 0.5.9  | 2026-07-12 | Remove selo “Oferta encontrada” do gerador de story |
 | 0.5.8  | 2026-07-12 | Atualiza gerador de story com tema escuro e safe zone superior |

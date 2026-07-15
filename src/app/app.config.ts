@@ -1,14 +1,11 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { AbstractSecurityStorage, DefaultLocalStorageService, LogLevel, provideAuth } from 'angular-auth-oidc-client';
 
 import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
-
-const oidcOrigin = new URL(environment.oidc.redirectUri).origin;
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -25,7 +22,7 @@ export const appConfig: ApplicationConfig = {
         responseType: 'code',
         silentRenew: true,
         useRefreshToken: true,
-        silentRenewUrl: `${oidcOrigin}/silent-renew.html`,
+        silentRenewUrl: `${window.location.origin}/silent-renew.html`,
         logLevel: environment.production ? LogLevel.None : LogLevel.Debug,
       },
     }),
@@ -45,6 +42,5 @@ export const appConfig: ApplicationConfig = {
      * invalid/expired tokens on next navigation or refresh.
      */
     { provide: AbstractSecurityStorage, useClass: DefaultLocalStorageService },
-    provideClientHydration(withEventReplay()),
   ],
 };
