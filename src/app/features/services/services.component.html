@@ -14,10 +14,9 @@
     <div>
       <strong>Transparência</strong>
       <p>
-        Algumas ofertas podem conter links de afiliado, sem custo adicional para você.
-        Links patrocinados são sempre sinalizados com
-        <span class="services-affiliate-tag">link patrocinado</span>.
-        Sempre confira preço, frete, vendedor e prazo diretamente na loja antes de comprar.
+        Alguns links desta página são patrocinados. Compras qualificadas podem gerar comissão para
+        o DescontoVivo, sem custo adicional para você. Preços, disponibilidade e condições são
+        definidos pelas lojas.
       </p>
     </div>
   </section>
@@ -27,14 +26,22 @@
     <!-- Amazon -->
     <section id="amazon-prime" class="service-detail" aria-labelledby="amazon-title">
       <div class="service-detail__header">
-        <span class="service-detail__badge service-detail__badge--prime" aria-hidden="true">A</span>
+        <div class="service-detail__logo">
+          <img [src]="stores.amazon.logoPath" [alt]="stores.amazon.logoAlt" width="140" height="48" loading="lazy" />
+        </div>
         <div class="service-detail__header-info">
           <p class="service-detail__eyebrow">Loja monitorada</p>
-          <h2 id="amazon-title">Amazon</h2>
+          <h2 id="amazon-title">{{ stores.amazon.name }}</h2>
         </div>
         <div class="service-detail__header-price">
           <span class="service-detail__price">Prime</span>
           <span class="service-detail__price-alt">assinatura opcional</span>
+        </div>
+        <div class="service-detail__affiliate">
+          <a class="services-button services-button--dark" [href]="stores.amazon.affiliateUrl" target="_blank"
+            rel="sponsored noopener noreferrer" [attr.aria-label]="stores.amazon.affiliateAriaLabel"
+            (click)="trackAffiliateClick(stores.amazon.id)">{{ stores.amazon.affiliateLabel }}</a>
+          <small>Link patrocinado</small>
         </div>
       </div>
 
@@ -53,12 +60,24 @@
             entrega mais rápida e atendimento direto. No marketplace, verifique reputação do seller.
           </p>
         </article>
-        <article>
-          <h3>Amazon Prime</h3>
+        <article class="service-related">
+          <div class="service-related__heading">
+            <img [src]="relatedServices.amazonPrime.logoPath" [alt]="relatedServices.amazonPrime.logoAlt"
+              width="160" height="48" loading="lazy" />
+            <h3>Amazon Prime</h3>
+          </div>
           <p>
             Assinatura opcional com frete grátis em produtos elegíveis, streaming e ofertas
-            exclusivas. Novos clientes ganham 30 dias grátis. Pode ser cancelada a qualquer momento.
+            exclusivas. A disponibilidade de período grátis depende das condições exibidas pela
+            Amazon. Pode ser cancelada a qualquer momento.
           </p>
+          <div class="service-related__action">
+            <a class="services-button services-button--secondary" [href]="relatedServices.amazonPrime.url"
+              target="_blank" rel="sponsored noopener noreferrer"
+              [attr.aria-label]="relatedServices.amazonPrime.ariaLabel"
+              (click)="trackAffiliateServiceClick()">{{ relatedServices.amazonPrime.label }}</a>
+            <small>Link patrocinado</small>
+          </div>
         </article>
         <article>
           <h3>Marketplace</h3>
@@ -76,30 +95,27 @@
         </article>
       </div>
 
-      <div class="service-detail__action">
-        <a
-          class="services-button services-button--dark"
-          href="https://www.amazon.com.br"
-          target="_blank"
-          rel="nofollow noopener noreferrer"
-          aria-label="Visitar a Amazon"
-        >
-          Visitar loja
-        </a>
-      </div>
     </section>
 
     <!-- Mercado Livre -->
     <section id="mercado-livre" class="service-detail" aria-labelledby="meli-title">
       <div class="service-detail__header">
-        <span class="service-detail__badge service-detail__badge--meli" aria-hidden="true">ML</span>
+        <div class="service-detail__logo">
+          <img [src]="stores.mercadoLivre.logoPath" [alt]="stores.mercadoLivre.logoAlt" width="140" height="48" loading="lazy" />
+        </div>
         <div class="service-detail__header-info">
           <p class="service-detail__eyebrow">Loja monitorada</p>
-          <h2 id="meli-title">Mercado Livre</h2>
+          <h2 id="meli-title">{{ stores.mercadoLivre.name }}</h2>
         </div>
         <div class="service-detail__header-price">
           <span class="service-detail__price">Meli+</span>
           <span class="service-detail__price-alt">assinatura opcional</span>
+        </div>
+        <div class="service-detail__affiliate">
+          <a class="services-button services-button--dark" [href]="stores.mercadoLivre.affiliateUrl" target="_blank"
+            rel="sponsored noopener noreferrer" [attr.aria-label]="stores.mercadoLivre.affiliateAriaLabel"
+            (click)="trackAffiliateClick(stores.mercadoLivre.id)">{{ stores.mercadoLivre.affiliateLabel }}</a>
+          <small>Link patrocinado</small>
         </div>
       </div>
 
@@ -132,39 +148,46 @@
             o prazo estimado antes de finalizar — pode variar bastante entre vendedores.
           </p>
         </article>
-        <article>
-          <h3>Meli+ (assinatura)</h3>
+        <article class="service-related">
+          <div class="service-related__heading">
+            <img [src]="relatedServices.meliPlus.logoPath" [alt]="relatedServices.meliPlus.logoAlt"
+              width="160" height="48" loading="lazy" />
+            <h3>Meli+ (assinatura)</h3>
+          </div>
           <p>
             Assinatura opcional com frete grátis, Disney+ (com anúncios) e cashback. Vale a pena
             para quem já compra no ML com frequência. Cancelável a qualquer momento.
           </p>
+          <div class="service-related__action">
+            <a class="services-button services-button--secondary" [href]="relatedServices.meliPlus.url"
+              target="_blank" rel="noopener noreferrer" [attr.aria-label]="relatedServices.meliPlus.ariaLabel"
+              (click)="trackServiceClick()">{{ relatedServices.meliPlus.label }}</a>
+            <small>Link informativo</small>
+          </div>
         </article>
       </div>
 
-      <div class="service-detail__action">
-        <a
-          class="services-button services-button--dark"
-          href="https://www.mercadolivre.com.br"
-          target="_blank"
-          rel="nofollow noopener noreferrer"
-          aria-label="Visitar o Mercado Livre"
-        >
-          Visitar loja
-        </a>
-      </div>
     </section>
 
     <!-- Magalu -->
     <section id="magalu" class="service-detail" aria-labelledby="magalu-title">
       <div class="service-detail__header">
-        <span class="service-detail__badge service-detail__badge--magalu" aria-hidden="true">Mag</span>
+        <div class="service-detail__logo">
+          <img [src]="stores.magalu.logoPath" [alt]="stores.magalu.logoAlt" width="140" height="48" loading="lazy" />
+        </div>
         <div class="service-detail__header-info">
           <p class="service-detail__eyebrow">Loja monitorada</p>
-          <h2 id="magalu-title">Magalu</h2>
+          <h2 id="magalu-title">{{ stores.magalu.name }}</h2>
         </div>
         <div class="service-detail__header-price">
           <span class="service-detail__price service-detail__price--free">Frete grátis</span>
           <span class="service-detail__price-alt">em itens selecionados</span>
+        </div>
+        <div class="service-detail__affiliate">
+          <a class="services-button services-button--dark" [href]="stores.magalu.affiliateUrl" target="_blank"
+            rel="sponsored noopener noreferrer" [attr.aria-label]="stores.magalu.affiliateAriaLabel"
+            (click)="trackAffiliateClick(stores.magalu.id)">{{ stores.magalu.affiliateLabel }}</a>
+          <small>Link patrocinado</small>
         </div>
       </div>
 
@@ -206,29 +229,26 @@
         </article>
       </div>
 
-      <div class="service-detail__action">
-        <a
-          class="services-button services-button--dark"
-          href="https://www.magazineluiza.com.br"
-          target="_blank"
-          rel="nofollow noopener noreferrer"
-          aria-label="Visitar a Magalu"
-        >
-          Visitar loja
-        </a>
-      </div>
     </section>
 
     <!-- Shopee -->
     <section id="shopee" class="service-detail" aria-labelledby="shopee-title">
       <div class="service-detail__header">
-        <span class="service-detail__badge service-detail__badge--shopee" aria-hidden="true">S</span>
+        <div class="service-detail__logo">
+          <img [src]="stores.shopee.logoPath" [alt]="stores.shopee.logoAlt" width="140" height="48" loading="lazy" />
+        </div>
         <div class="service-detail__header-info">
           <p class="service-detail__eyebrow">Loja monitorada</p>
-          <h2 id="shopee-title">Shopee</h2>
+          <h2 id="shopee-title">{{ stores.shopee.name }}</h2>
         </div>
         <div class="service-detail__header-price">
           <span class="service-detail__price">Frete grátis<span> c/ cupom</span></span>
+        </div>
+        <div class="service-detail__affiliate">
+          <a class="services-button services-button--dark" [href]="stores.shopee.affiliateUrl" target="_blank"
+            rel="sponsored noopener noreferrer" [attr.aria-label]="stores.shopee.affiliateAriaLabel"
+            (click)="trackAffiliateClick(stores.shopee.id)">{{ stores.shopee.affiliateLabel }}</a>
+          <small>Link patrocinado</small>
         </div>
       </div>
 
@@ -270,30 +290,27 @@
         </article>
       </div>
 
-      <div class="service-detail__action">
-        <a
-          class="services-button services-button--dark"
-          href="https://shopee.com.br"
-          target="_blank"
-          rel="nofollow noopener noreferrer"
-          aria-label="Visitar a Shopee"
-        >
-          Visitar loja
-        </a>
-      </div>
     </section>
 
     <!-- AliExpress -->
     <section id="aliexpress" class="service-detail" aria-labelledby="aliexpress-title">
       <div class="service-detail__header">
-        <span class="service-detail__badge service-detail__badge--aliexpress" aria-hidden="true">Ali</span>
+        <div class="service-detail__logo">
+          <img [src]="stores.aliexpress.logoPath" [alt]="stores.aliexpress.logoAlt" width="140" height="48" loading="lazy" />
+        </div>
         <div class="service-detail__header-info">
           <p class="service-detail__eyebrow">Loja monitorada</p>
-          <h2 id="aliexpress-title">AliExpress</h2>
+          <h2 id="aliexpress-title">{{ stores.aliexpress.name }}</h2>
         </div>
         <div class="service-detail__header-price">
           <span class="service-detail__price">Importação</span>
           <span class="service-detail__price-alt">com taxas quando aplicável</span>
+        </div>
+        <div class="service-detail__affiliate">
+          <a class="services-button services-button--dark" [href]="stores.aliexpress.affiliateUrl" target="_blank"
+            rel="sponsored noopener noreferrer" [attr.aria-label]="stores.aliexpress.affiliateAriaLabel"
+            (click)="trackAffiliateClick(stores.aliexpress.id)">{{ stores.aliexpress.affiliateLabel }}</a>
+          <small>Link patrocinado</small>
         </div>
       </div>
 
@@ -336,17 +353,6 @@
         </article>
       </div>
 
-      <div class="service-detail__action">
-        <a
-          class="services-button services-button--dark"
-          href="https://www.aliexpress.com"
-          target="_blank"
-          rel="nofollow noopener noreferrer"
-          aria-label="Visitar o AliExpress"
-        >
-          Visitar loja
-        </a>
-      </div>
     </section>
 
   </div>

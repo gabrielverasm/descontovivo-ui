@@ -23,6 +23,26 @@ export interface ClickStoreParams {
   ui_version: string;
 }
 
+export type AffiliateStoreId = 'amazon' | 'mercado_livre' | 'magalu' | 'shopee' | 'aliexpress';
+
+export interface AffiliateStoreClickParams {
+  store: AffiliateStoreId;
+  placement: 'services';
+  ui_version: string;
+}
+
+export interface AffiliateServiceClickParams {
+  service: 'amazon_prime';
+  placement: 'services';
+  ui_version: string;
+}
+
+export interface ServiceClickParams {
+  service: 'meli_plus';
+  placement: 'services';
+  ui_version: string;
+}
+
 export interface ShareParams {
   method: 'whatsapp' | 'native_share' | 'copy_link' | 'instagram';
   content_type: 'promotion';
