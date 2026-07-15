@@ -41,10 +41,6 @@
 
         <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
 
-        <p class="promotion-detail__context-text">
-          {{ promotionContextText }}
-        </p>
-
         <div class="promotion-detail__tags" aria-label="Tags da promoção">
           @for (tag of promotion.tags; track tag) {
             <span>#{{ tag }}</span>
