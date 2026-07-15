@@ -6,7 +6,7 @@
 
 .promotions-feed__hero {
   margin-bottom: 1rem;
-  padding: clamp(0.65rem, 1.4vw, 0.85rem);
+  padding: clamp(0.55rem, 1.2vw, 0.75rem);
   border: 1px solid rgba(203, 213, 225, 0.64);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.72);
@@ -15,17 +15,16 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-.promotions-feed__intro {
-  max-width: 52rem;
-  margin-bottom: 0.45rem;
-}
-
-.promotions-feed__intro h1 {
-  margin: 0;
-  color: #172033;
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  line-height: 1.2;
-  letter-spacing: -0.018em;
+.promotions-feed__title-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .promotions-feed__search {

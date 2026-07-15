@@ -7,7 +7,7 @@ import { AnalyticsConsentService } from './analytics-consent.service';
   standalone: true,
   imports: [RouterLink],
   template: `
-    @if (!consentService.hasDecided) {
+    @if (consentService.status() === 'pending') {
       <aside class="consent-banner" role="dialog" aria-label="Consentimento de métricas" aria-live="polite">
         <p class="consent-banner__text">
           Usamos métricas para entender acessos e melhorar o DescontoVivo.

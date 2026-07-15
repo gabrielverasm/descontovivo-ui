@@ -170,6 +170,18 @@ describe('PromotionDetailComponent inspection image state', () => {
     expect(request.action).toBe('EDIT');
   });
 
+  it('uses Vendido por for both canonical and legacy seller edit fields', () => {
+    prepareValidEdit('');
+    component.editForm.sellerName = 'Valor antigo da inspeção';
+    component.editForm.soldBy = 'Corsair';
+
+    component.submitEdit();
+
+    const request = moderation.decide.calls.mostRecent().args[1];
+    expect(request.sellerName).toBe('Corsair');
+    expect(request.soldBy).toBe('Corsair');
+  });
+
   function prepareValidEdit(couponCode: string): void {
     component.promotion = { id: 'id' } as never;
     Object.assign(component.editForm, {

@@ -363,7 +363,9 @@ export class ModerationCreatePromotionComponent implements OnInit {
         title,
         marketplace,
         storeName,
-        sellerName: this.form.sellerName.trim() || null,
+        // Keep the legacy import field aligned with the canonical seller field
+        // without exposing two inputs for the same information.
+        sellerName: this.form.soldBy.trim() || null,
         soldBy: this.form.soldBy.trim() || null,
         deliveredBy: this.form.deliveredBy.trim() || null,
         productUrl: this.form.url.trim(),

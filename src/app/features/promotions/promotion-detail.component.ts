@@ -535,7 +535,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     else if (this.inspectionApplied) req.originalPrice = null;
     req.couponCode = f.couponCode.trim();
     if (f.storeName.trim()) req.storeName = f.storeName.trim();
-    req.sellerName = f.sellerName.trim() || null;
+    req.sellerName = f.soldBy.trim() || null;
     if (imageKey) req.imageKey = imageKey;
     req.soldBy = f.soldBy.trim() || null;
     req.deliveredBy = f.deliveredBy.trim() || null;
