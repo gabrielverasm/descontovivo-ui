@@ -1,4 +1,5 @@
-import { afterNextRender, Component, inject, Injector, OnDestroy, OnInit } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { afterNextRender, Component, inject, Injector, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationStart, Router } from '@angular/router';
 import { PromotionCardComponent } from '../../shared/components/promotion-card/promotion-card.component';
@@ -26,6 +27,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   private readonly notificationStream = inject(PublicNotificationStreamService);
   private readonly injector = inject(Injector);
   private readonly router = inject(Router);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly pageSize = 12;
   private currentPage = 0;
@@ -83,19 +85,23 @@ export class PromotionsComponent implements OnInit, OnDestroy {
       'logo': 'https://descontovivo.com/brand/logo-og-image.jpg'
     });
 
-    // Set up scroll listener to detect user scroll
-    this.setupScrollListener();
+    if (this.isBrowser) {
+      // Set up scroll listener to detect user scroll
+      this.setupScrollListener();
+    }
 
     this.notificationSub = this.notificationStream.state$.subscribe((state) => {
       this.newPromotionsCount = state.newPromotionsCount;
     });
 
     // Save scrollY when navigation starts (before AppComponent's scroll-to-top on NavigationEnd)
-    this.navigationSub = this.router.events
-      .pipe(filter((e): e is NavigationStart => e instanceof NavigationStart))
-      .subscribe(() => {
-        this.lastKnownScrollY = window.scrollY;
-      });
+    if (this.isBrowser) {
+      this.navigationSub = this.router.events
+        .pipe(filter((e): e is NavigationStart => e instanceof NavigationStart))
+        .subscribe(() => {
+          this.lastKnownScrollY = window.scrollY;
+        });
+    }
 
     const saved = this.feedState.restore();
     if (saved) {
@@ -131,14 +137,16 @@ export class PromotionsComponent implements OnInit, OnDestroy {
     this.navigationSub?.unsubscribe();
     this.structuredData.removeStructuredData('sd-website');
     this.structuredData.removeStructuredData('sd-organization');
-    this.feedState.save({
-      promotions: this.promotions,
-      currentPage: this.currentPage,
-      totalPages: this.totalPages,
-      totalElements: this.totalElements,
-      scrollY: this.lastKnownScrollY || window.scrollY,
-      query: this.query || undefined,
-    });
+    if (this.isBrowser) {
+      this.feedState.save({
+        promotions: this.promotions,
+        currentPage: this.currentPage,
+        totalPages: this.totalPages,
+        totalElements: this.totalElements,
+        scrollY: this.lastKnownScrollY || window.scrollY,
+        query: this.query || undefined,
+      });
+    }
   }
 
   refreshFeed(): void {
@@ -258,6 +266,8 @@ export class PromotionsComponent implements OnInit, OnDestroy {
    * Check if user is near the end of the feed (close to "Carregar mais" button)
    */
   private isNearFeedEnd(): boolean {
+    if (!this.isBrowser) return false;
+
     const thresholdPx = 500;
     const scrollPosition = window.scrollY + window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
@@ -389,6 +399,8 @@ export class PromotionsComponent implements OnInit, OnDestroy {
    * and check if user is near the end of the feed to start auto-load
    */
   private setupScrollListener(): void {
+    if (!this.isBrowser) return;
+
     // Remove any existing listener
     this.removeScrollListener();
 
@@ -419,6 +431,8 @@ export class PromotionsComponent implements OnInit, OnDestroy {
    * Remove scroll listener
    */
   private removeScrollListener(): void {
+    if (!this.isBrowser) return;
+
     if (this.scrollListener) {
       window.removeEventListener('scroll', this.scrollListener);
       this.scrollListener = null;

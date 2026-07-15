@@ -287,12 +287,16 @@ function buildStatusResponse(status: 404 | 503): Response {
 
 async function fetchAssetHtml(context: PagesFunctionContext): Promise<Response> {
   const url = new URL(context.request.url);
-  const assetUrl = new URL('/', url.origin);
+  const assetUrl = new URL('/index.csr.html', url.origin);
   const assetRequest = new Request(assetUrl.toString(), {
     method: 'GET',
     headers: context.request.headers,
   });
-  return context.env.ASSETS.fetch(assetRequest);
+  const response = await context.env.ASSETS.fetch(assetRequest);
+  if (!response.ok) {
+    throw new Error(`Unable to load CSR shell: ${response.status}`);
+  }
+  return response;
 }
 
 export async function onRequest(context: PagesFunctionContext): Promise<Response> {
@@ -332,7 +336,6 @@ async function renderPromotionPage(
   try {
     assetResponse = await fetchAssetHtml(context);
   } catch {
-    if (context.next) return context.next();
     return buildStatusResponse(503);
   }
 
