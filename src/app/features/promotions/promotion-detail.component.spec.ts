@@ -1,4 +1,6 @@
-import { TestBed } from '@angular/core/testing';
+import { DatePipe } from '@angular/common';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { EMPTY, of } from 'rxjs';
 
@@ -191,4 +193,97 @@ describe('PromotionDetailComponent inspection image state', () => {
       couponCode,
     });
   }
+});
+
+describe('PromotionDetailComponent primary actions', () => {
+  let fixture: ComponentFixture<PromotionDetailComponent>;
+  let component: PromotionDetailComponent;
+  let router: jasmine.SpyObj<Router>;
+  let analytics: jasmine.SpyObj<AnalyticsService>;
+
+  const promotion = {
+    id: 'promo-1',
+    slug: 'produto-em-oferta',
+    title: 'Produto com título longo para validar a primeira área útil do detalhe em celulares',
+    currentPrice: 99.9,
+    storeName: 'Shopee',
+    storeUrl: '',
+    url: 'https://shopee.com.br/produto',
+    imageUrl: '/produto.webp',
+    category: 'Tecnologia',
+    tags: ['oferta', 'frete-gratis'],
+    likesCount: 4,
+    dislikesCount: 0,
+    commentsCount: 2,
+    status: 'approved',
+    createdAt: '2026-07-22T10:00:00Z',
+    publishedAt: '2026-07-22T10:00:00Z',
+    createdBy: 'tester',
+    officialStore: true,
+    sponsoredLink: true,
+  } as const;
+
+  beforeEach(() => {
+    router = jasmine.createSpyObj('Router', ['navigate']);
+    analytics = jasmine.createSpyObj('AnalyticsService', [
+      'trackViewPromotion', 'trackClickStore', 'trackSharePromotion',
+    ]);
+
+    TestBed.configureTestingModule({
+      imports: [PromotionDetailComponent],
+      providers: [
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: promotion.slug })) } },
+        { provide: Router, useValue: router },
+        { provide: PromotionService, useValue: {
+          getPromotionBySlug: () => of(promotion), getRelatedPromotions: () => of([]),
+        } },
+        { provide: CommentService, useValue: { listByPromotion: () => of([]) } },
+        { provide: AuthService, useValue: { canModerate: () => false, hasRole: () => false, canComment: () => false } },
+        { provide: ModerationService, useValue: jasmine.createSpyObj('ModerationService', ['decide']) },
+        { provide: ImageProcessingService, useValue: jasmine.createSpyObj('ImageProcessingService', ['validate', 'process']) },
+        { provide: UploadService, useValue: jasmine.createSpyObj('UploadService', ['uploadPromotionImage']) },
+        { provide: SeoService, useValue: jasmine.createSpyObj('SeoService', ['setNonIndexable', 'setIndexable']) },
+        { provide: StructuredDataService, useValue: jasmine.createSpyObj('StructuredDataService', ['clearPageStructuredData', 'setStructuredData']) },
+        { provide: AnalyticsService, useValue: analytics },
+        { provide: PromotionsFeedStateService, useValue: {} },
+      ],
+    });
+    TestBed.overrideComponent(PromotionDetailComponent, {
+      set: { imports: [DatePipe], schemas: [NO_ERRORS_SCHEMA] },
+    });
+    fixture = TestBed.createComponent(PromotionDetailComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  afterEach(() => fixture.destroy());
+
+  it('renders one external CTA before curation with the preserved link contract', () => {
+    const host = fixture.nativeElement as HTMLElement;
+    const ctas = host.querySelectorAll<HTMLAnchorElement>('.promotion-detail__cta');
+    const trustSection = host.querySelector('.promotion-detail__trust-section')!;
+
+    expect(ctas.length).toBe(1);
+    expect(ctas[0].compareDocumentPosition(trustSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(ctas[0].href).toBe(promotion.url);
+    expect(ctas[0].rel).toBe('sponsored noopener noreferrer');
+    expect(ctas[0].target).toBe('_blank');
+    expect(ctas[0].getAttribute('aria-label')).toBe('Ir para Shopee');
+  });
+
+  it('keeps store-click analytics, back navigation and share bindings working', () => {
+    const host = fixture.nativeElement as HTMLElement;
+    const cta = host.querySelector<HTMLAnchorElement>('.promotion-detail__cta')!;
+    cta.addEventListener('click', (event) => event.preventDefault());
+
+    cta.click();
+    expect(analytics.trackClickStore).toHaveBeenCalledTimes(1);
+
+    host.querySelector<HTMLButtonElement>('.promotion-detail__back')!.click();
+    expect(router.navigate).toHaveBeenCalledWith(['/']);
+
+    const share = spyOn(component, 'sharePromotion');
+    host.querySelector<HTMLButtonElement>('.promotion-detail__share-btn')!.click();
+    expect(share).toHaveBeenCalledTimes(1);
+  });
 });

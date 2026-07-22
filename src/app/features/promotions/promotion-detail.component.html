@@ -47,6 +47,36 @@
           }
         </div>
 
+        <div class="promotion-detail__actions">
+          @if (externalOfferUrl) {
+            <a
+              class="promotion-detail__cta"
+              [href]="externalOfferUrl"
+              target="_blank"
+              [attr.rel]="externalOfferRel"
+              [attr.aria-label]="externalOfferLabel"
+              (click)="trackDetailStoreClick()"
+            >
+              {{ externalOfferLabel }}
+            </a>
+          }
+
+          <button #backButtonAnchor class="promotion-detail__back" type="button" (click)="returnToPromotionsList()">
+            ← Promoções
+          </button>
+
+          <button
+            type="button"
+            class="promotion-detail__share-btn"
+            aria-label="Compartilhar promoção"
+            title="Compartilhar promoção"
+            (click)="sharePromotion()"
+          >
+            <span class="promotion-detail__share-icon" aria-hidden="true"></span>
+            <span class="promotion-detail__share-label">Compartilhar</span>
+          </button>
+        </div>
+
         @if (hasTrustSignals) {
           <div class="promotion-detail__trust-section">
             <h2 class="promotion-detail__trust-title">Por que essa promoção passou na curadoria?</h2>
@@ -86,36 +116,6 @@
             >{{ publisherName }} · {{ publishedAgo }}</dd>
           </div>
         </dl>
-
-        <div class="promotion-detail__actions">
-          <button #backButtonAnchor class="promotion-detail__back" type="button" (click)="returnToPromotionsList()">
-            ← Promoções
-          </button>
-
-          <button
-            type="button"
-            class="promotion-detail__share-btn"
-            aria-label="Compartilhar promoção"
-            title="Compartilhar promoção"
-            (click)="sharePromotion()"
-          >
-            <span class="promotion-detail__share-icon" aria-hidden="true"></span>
-            <span class="promotion-detail__share-label">Compartilhar</span>
-          </button>
-
-          @if (externalOfferUrl) {
-            <a
-              class="promotion-detail__cta"
-              [href]="externalOfferUrl"
-              target="_blank"
-              [attr.rel]="externalOfferRel"
-              [attr.aria-label]="externalOfferLabel"
-              (click)="trackDetailStoreClick()"
-            >
-              {{ externalOfferLabel }}
-            </a>
-          }
-        </div>
 
         @if (canModerate) {
           <app-promotion-detail-admin

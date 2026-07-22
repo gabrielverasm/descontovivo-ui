@@ -24,11 +24,25 @@ export class PromotionService {
   getPromotions(page = 0, size = 20): Observable<PagedResponse<Promotion>> {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<PagedResponse<Promotion>>(this.baseUrl, { params }).pipe(
-      map((res) => ({
-        ...res,
-        content: res.content.map((p) => this.normalize(p)),
-      })),
+      map((res) => this.normalizePage(res)),
     );
+  }
+
+  getPromotionsFresh(page = 0, size = 20): Observable<PagedResponse<Promotion>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<PagedResponse<Promotion>>(this.baseUrl, {
+      params,
+      transferCache: false,
+    }).pipe(
+      map((res) => this.normalizePage(res)),
+    );
+  }
+
+  private normalizePage(res: PagedResponse<Promotion>): PagedResponse<Promotion> {
+    return {
+      ...res,
+      content: res.content.map((p) => this.normalize(p)),
+    };
   }
 
   getPromotionBySlug(slug: string): Observable<Promotion> {

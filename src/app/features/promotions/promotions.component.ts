@@ -36,7 +36,10 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   private pendingScrollY: number | null = null;
   private notificationSub: Subscription | null = null;
   private navigationSub: Subscription | null = null;
+  private automaticRevalidationSub: Subscription | null = null;
   private lastKnownScrollY = 0;
+  private automaticRevalidationStarted = false;
+  private automaticRevalidationRenderReady = false;
 
   promotions: Promotion[] = [];
   loading = true;
@@ -119,14 +122,23 @@ export class PromotionsComponent implements OnInit, OnDestroy {
       this.registerDisplayedSnapshot(saved.promotions, saved.totalElements);
 
       // Restore scroll position after the view renders the cached items
-      afterNextRender(() => {
-        if (this.pendingScrollY !== null) {
-          window.scrollTo(0, this.pendingScrollY);
-          this.pendingScrollY = null;
-        }
-      }, { injector: this.injector });
+      if (this.isBrowser) {
+        afterNextRender(() => {
+          if (this.pendingScrollY !== null) {
+            window.scrollTo(0, this.pendingScrollY);
+            this.pendingScrollY = null;
+          }
+        }, { injector: this.injector });
+      }
     } else {
       this.loadPage(0);
+    }
+
+    if (this.isBrowser) {
+      afterNextRender(() => {
+        this.automaticRevalidationRenderReady = true;
+        this.revalidateFirstPage();
+      }, { injector: this.injector });
     }
   }
 
@@ -135,6 +147,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
     this.removeScrollListener();
     this.notificationSub?.unsubscribe();
     this.navigationSub?.unsubscribe();
+    this.automaticRevalidationSub?.unsubscribe();
     this.structuredData.removeStructuredData('sd-website');
     this.structuredData.removeStructuredData('sd-organization');
     if (this.isBrowser) {
@@ -166,11 +179,46 @@ export class PromotionsComponent implements OnInit, OnDestroy {
         // Register the new displayed snapshot, then clear badge
         this.registerDisplayedSnapshot(res.content, res.totalElements);
         this.notificationStream.clearNewPromotions();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (this.isBrowser) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       },
       error: () => {
         this.error = 'Não foi possível carregar as promoções. Tente novamente mais tarde.';
         this.loading = false;
+      },
+    });
+  }
+
+  private revalidateFirstPage(): void {
+    if (!this.automaticRevalidationRenderReady || this.loading || this.automaticRevalidationStarted
+        || this.isSearchActive || this.currentPage > 0) {
+      return;
+    }
+
+    this.automaticRevalidationStarted = true;
+    this.automaticRevalidationSub = this.promotionService.getPromotionsFresh(0, this.pageSize).subscribe({
+      next: (res) => {
+        // The user may have searched or loaded more while the fresh request was in flight.
+        if (this.isSearchActive || this.currentPage > 0) {
+          return;
+        }
+
+        const sameFeed = this.totalElements === res.totalElements
+          && this.promotions.length === res.content.length
+          && this.promotions.every((promotion, index) => promotion.id === res.content[index]?.id);
+
+        if (!sameFeed) {
+          this.promotions = res.content;
+        }
+        this.currentPage = res.page;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+        this.registerDisplayedSnapshot(res.content, res.totalElements);
+        this.notificationStream.clearNewPromotions();
+      },
+      error: () => {
+        // Keep the prerendered/transferred feed visible when silent revalidation fails.
       },
     });
   }
@@ -181,6 +229,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
 
   loadMore(): void {
     if (this.loadingMore || !this.hasMore) return;
+    this.automaticRevalidationSub?.unsubscribe();
     this.loadMoreError = '';
     this.stopAutoLoad(); // Stop auto-load without marking as stopped by user
     this.loadPage(this.currentPage + 1);
@@ -295,6 +344,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
       return;
     }
     this.autoLoadStoppedByUser = false; // Reset user stopped flag
+    this.automaticRevalidationSub?.unsubscribe();
     this.isSearchActive = true;
     this.loading = true;
     this.error = '';
@@ -365,6 +415,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
         // Register displayed snapshot on first page load (initial load or page 0)
         if (isFirst) {
           this.registerDisplayedSnapshot(res.content, res.totalElements);
+          this.revalidateFirstPage();
         }
       },
       error: () => {
