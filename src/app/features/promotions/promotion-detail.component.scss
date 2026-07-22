@@ -54,6 +54,7 @@
 .promotion-detail__cta {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   text-decoration: none;
 }
 
@@ -411,6 +412,29 @@
 
   app-promotion-detail-comments {
     order: 0;
+  }
+
+  .promotion-detail__actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+  }
+
+  .promotion-detail__actions .promotion-detail__cta {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 3rem;
+    padding-inline: 1rem;
+    text-align: center;
+  }
+
+  .promotion-detail__back {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .promotion-detail__share-btn {
+    grid-column: 2;
   }
 
   .promotion-detail__floating-back {
