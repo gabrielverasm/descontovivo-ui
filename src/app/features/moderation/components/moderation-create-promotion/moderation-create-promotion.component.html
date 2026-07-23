@@ -19,6 +19,37 @@
         (fileSelected)="onImageSelected($event)"
         (removed)="removeImage()"
       />
+
+      <div class="mod-panel__categories">
+        <span class="mod-panel__categories-title">Categorias cadastradas</span>
+
+        @if (categoriesLoading) {
+          <span class="mod-panel__categories-status">Carregando...</span>
+        } @else if (categoriesError) {
+          <span class="mod-panel__categories-status mod-panel__categories-status--error">
+            Erro ao carregar. <button type="button" class="mod-panel__btn-micro" (click)="loadCategories()">Tentar novamente</button>
+          </span>
+        } @else if (categories.length === 0) {
+          <span class="mod-panel__categories-status">Nenhuma categoria cadastrada ainda.</span>
+        } @else {
+          <div class="mod-panel__categories-list">
+            @for (cat of categories; track cat.name) {
+              <button type="button" class="mod-panel__category-name" (click)="selectCategory(cat.name)" [attr.aria-label]="'Usar categoria ' + cat.name" [attr.aria-pressed]="isCategorySelected(cat.name)" [class.mod-panel__category-name--selected]="isCategorySelected(cat.name)">
+                {{ cat.name }} <small>({{ cat.promotionCount }})</small>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <label class="mod-panel__field">
+        <span>Selo de preço</span>
+        <select [(ngModel)]="form.priceSignal" name="create-priceSignal">
+          <option value="">Sem selo</option>
+          <option value="GOOD_PRICE">Preço bom</option>
+          <option value="GREAT_PRICE">Preço excelente</option>
+        </select>
+      </label>
     </div>
 
     <!-- Form columns -->
@@ -106,45 +137,15 @@
           </label>
         </div>
 
-        <!-- Categorias cadastradas -->
-        <div class="mod-panel__categories">
-          <span class="mod-panel__categories-title">Categorias cadastradas</span>
+      </div>
 
-          @if (categoriesLoading) {
-            <span class="mod-panel__categories-status">Carregando...</span>
-          } @else if (categoriesError) {
-            <span class="mod-panel__categories-status mod-panel__categories-status--error">
-              Erro ao carregar. <button type="button" class="mod-panel__btn-micro" (click)="loadCategories()">Tentar novamente</button>
-            </span>
-          } @else if (categories.length === 0) {
-            <span class="mod-panel__categories-status">Nenhuma categoria cadastrada ainda.</span>
-          } @else {
-            <div class="mod-panel__categories-list">
-              @for (cat of categories; track cat.name) {
-                <button type="button" class="mod-panel__category-name" (click)="selectCategory(cat.name)" [attr.aria-label]="'Usar categoria ' + cat.name" [attr.aria-pressed]="isCategorySelected(cat.name)" [class.mod-panel__category-name--selected]="isCategorySelected(cat.name)">
-                  {{ cat.name }} <small>({{ cat.promotionCount }})</small>
-                </button>
-              }
-            </div>
-          }
-        </div>
+    </div>
+
+      <!-- Selos de confiança -->
+      <div class="mod-panel__trust-signals">
+        <h3 class="mod-panel__form-title">Selos de confiança</h3>
 
         <div class="mod-panel__field-row">
-          <label class="mod-panel__field">
-            <span>Selo de preço</span>
-            <select [(ngModel)]="form.priceSignal" name="create-priceSignal">
-              <option value="">Sem selo</option>
-              <option value="GOOD_PRICE">Preço bom</option>
-              <option value="GREAT_PRICE">Preço excelente</option>
-            </select>
-          </label>
-        </div>
-
-        <!-- Selos de confiança -->
-        <div class="mod-panel__trust-signals">
-          <h3 class="mod-panel__form-title">Selos de confiança</h3>
-
-          <div class="mod-panel__field-row">
             <label class="mod-panel__field">
               <span>Quantidade de vendas</span>
               <input type="text" inputmode="numeric" [(ngModel)]="form.salesCount" name="create-salesCount" placeholder="Ex: 5334" />
@@ -160,16 +161,16 @@
               <input type="text" [(ngModel)]="form.sellerRating" name="create-sellerRating" placeholder="Ex: 4.9" (blur)="normalizeRatingField('sellerRating')" inputmode="decimal" />
               <small class="mod-panel__field-hint">0-5 estrelas. Digite "49" para 4.9</small>
             </label>
-          </div>
+        </div>
 
-          <div class="mod-panel__field-row">
+        <div class="mod-panel__field-row">
             <label class="mod-panel__field-check">
               <input type="checkbox" [(ngModel)]="form.officialStore" name="create-officialStore" (ngModelChange)="onOfficialStoreChange($event)" />
               <span>Loja oficial da plataforma</span>
             </label>
-          </div>
+        </div>
 
-          <div class="mod-panel__trust-chips">
+        <div class="mod-panel__trust-chips">
             <span class="mod-panel__trust-chips-title">Selos disponíveis</span>
             <div class="mod-panel__trust-chips-list">
               @for (signal of availableTrustSignals; track signal) {
@@ -186,11 +187,8 @@
               }
             </div>
             <small class="mod-panel__field-hint">Clique para selecionar/remover selos</small>
-          </div>
         </div>
-
       </div>
-    </div>
 
     <!-- Actions -->
     <footer class="mod-panel__footer">
