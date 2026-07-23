@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FloatingFieldComponent } from '../../../../shared/components/floating-field/floating-field.component';
 import { PromotionImageUploadComponent } from '../../../../shared/components/promotion-image-upload/promotion-image-upload.component';
@@ -9,6 +9,7 @@ import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../..
 import { deriveMarketplace } from '../../../../shared/utils/marketplace.util';
 import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata, TrustSignal } from '../../../../shared/utils/trust-signals.util';
 import { normalizeRatingInput, formatRatingForInput } from '../../../../shared/utils/rating-input.util';
+import { ModerationCategory, ModerationCategoryService } from '../../../../core/services/moderation-category.service';
 
 @Component({
   selector: 'app-promotion-detail-admin',
@@ -17,7 +18,8 @@ import { normalizeRatingInput, formatRatingForInput } from '../../../../shared/u
   templateUrl: './promotion-detail-admin.component.html',
   styleUrl: './promotion-detail-admin.component.scss',
 })
-export class PromotionDetailAdminComponent {
+export class PromotionDetailAdminComponent implements OnInit, OnChanges {
+  private readonly categoryService = inject(ModerationCategoryService);
   @Input() isAdmin = false;
   @Input() isEditMode = false;
   @Input() isRemoveConfirm = false;
@@ -37,6 +39,7 @@ export class PromotionDetailAdminComponent {
     deliveredBy: '', 
     category: '', 
     availability: '',
+    priceSignal: '',
     // New trust signals fields
     salesCount: '',
     productRating: '',
@@ -48,6 +51,11 @@ export class PromotionDetailAdminComponent {
   @Input() adminImageSizeKB: number | null = null;
   @Input() adminImageStatusText: string | null = null;
   @Input() adminImageError: string | null = null;
+
+  categories: ModerationCategory[] = [];
+  categoriesLoading = false;
+  categoriesError = false;
+  soldAndDeliveredByStore = false;
 
   @Output() openEdit = new EventEmitter<void>();
   @Output() generateStory = new EventEmitter<void>();
@@ -61,6 +69,16 @@ export class PromotionDetailAdminComponent {
   @Output() inspectionLoaded = new EventEmitter<PromotionInspectionResponse>();
   @Output() inspectionFailed = new EventEmitter<void>();
 
+  ngOnInit(): void {
+    this.loadCategories();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['editForm']?.currentValue) {
+      this.soldAndDeliveredByStore = this.areStorePartiesEqual();
+    }
+  }
+
   applyInspection(data: PromotionInspectionResponse): void {
     applyInspectionToForm(this.editForm, data);
     this.inspectionLoaded.emit(data);
@@ -73,8 +91,62 @@ export class PromotionDetailAdminComponent {
 
   // Trust signals methods
   get availableTrustSignals(): string[] {
-    const marketplace = deriveMarketplace(this.editForm.storeName || '');
+    const marketplace = this.editForm.marketplace || deriveMarketplace(this.editForm.storeName || '');
     return getMarketplaceTrustSignals(marketplace).map(signal => signal.toString());
+  }
+
+  hasValidStoreName(): boolean {
+    return !!this.editForm.storeName.trim();
+  }
+
+  toggleSoldDelivered(checked: boolean): void {
+    this.soldAndDeliveredByStore = checked;
+    if (checked && this.hasValidStoreName()) {
+      const storeName = this.editForm.storeName.trim();
+      this.editForm.soldBy = storeName;
+      this.editForm.deliveredBy = storeName;
+    }
+  }
+
+  useStoreForSoldBy(): void {
+    if (this.hasValidStoreName()) this.editForm.soldBy = this.editForm.storeName.trim();
+  }
+
+  useStoreForDeliveredBy(): void {
+    if (this.hasValidStoreName()) this.editForm.deliveredBy = this.editForm.storeName.trim();
+  }
+
+  copySoldByToDeliveredBy(): void {
+    this.editForm.deliveredBy = this.editForm.soldBy;
+  }
+
+  loadCategories(): void {
+    this.categoriesLoading = true;
+    this.categoriesError = false;
+    this.categoryService.list().subscribe({
+      next: categories => {
+        this.categories = categories;
+        this.categoriesLoading = false;
+      },
+      error: () => {
+        this.categoriesError = true;
+        this.categoriesLoading = false;
+      },
+    });
+  }
+
+  selectCategory(name: string): void {
+    this.editForm.category = name;
+  }
+
+  isCategorySelected(name: string): boolean {
+    return this.editForm.category === name;
+  }
+
+  private areStorePartiesEqual(): boolean {
+    const normalize = (value: string | null | undefined) => (value ?? '').trim().toLocaleLowerCase();
+    const store = normalize(this.editForm.storeName);
+    return !!store && normalize(this.editForm.soldBy) === store && normalize(this.editForm.deliveredBy) === store;
   }
 
   getTrustSignalLabel(signal: string): string {

@@ -104,6 +104,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     deliveredBy: '', 
     category: '', 
     availability: '',
+    priceSignal: '',
     // New trust signals fields
     salesCount: '',
     productRating: '',
@@ -431,6 +432,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       deliveredBy: this.promotion.deliveredBy ?? '',
       category: this.promotion.category ?? '',
       availability: this.promotion.availability ?? '',
+      priceSignal: this.promotion.priceSignal === 'NONE' ? '' : this.promotion.priceSignal ?? '',
       // New trust signals fields
       salesCount: this.promotion.salesCount?.toString() ?? '',
       productRating: this.promotion.productRating?.toString().replace('.', ',') ?? '',
@@ -534,6 +536,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     if (origPrice && origPrice > 0) req.originalPrice = origPrice;
     else if (this.inspectionApplied) req.originalPrice = null;
     req.couponCode = f.couponCode.trim();
+    req.priceSignal = f.priceSignal.trim();
     if (f.storeName.trim()) req.storeName = f.storeName.trim();
     req.sellerName = f.soldBy.trim() || null;
     if (imageKey) req.imageKey = imageKey;

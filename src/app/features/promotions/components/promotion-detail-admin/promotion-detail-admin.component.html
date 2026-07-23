@@ -41,8 +41,18 @@
       <app-floating-field label="Preço original" name="edit-originalPrice" inputmode="numeric" [(ngModel)]="editForm.originalPrice" (valueChange)="onPriceInput('originalPrice', $event)" />
       <app-floating-field label="Cupom" name="edit-couponCode" [(ngModel)]="editForm.couponCode" />
       <app-floating-field label="Nome da loja" name="edit-storeName" [(ngModel)]="editForm.storeName" />
-      <app-floating-field label="Vendido por" name="edit-soldBy" [(ngModel)]="editForm.soldBy" placeholder="Ex.: Amazon.com.br" />
-      <app-floating-field label="Entregue por" name="edit-deliveredBy" [(ngModel)]="editForm.deliveredBy" placeholder="Ex.: Amazon.com.br" />
+      <label class="detail-admin__checkbox" [class.detail-admin__checkbox--disabled]="!hasValidStoreName()">
+        <input type="checkbox" [checked]="soldAndDeliveredByStore" [disabled]="!hasValidStoreName()" (change)="toggleSoldDelivered($any($event.target).checked)" />
+        <span>Vendido e entregue pela loja</span>
+      </label>
+      <div class="detail-admin__seller-field">
+        <span class="detail-admin__field-label-row">Vendido por <button type="button" (click)="useStoreForSoldBy()" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()">Usar loja</button></span>
+        <app-floating-field label="Vendido por" name="edit-soldBy" [(ngModel)]="editForm.soldBy" placeholder="Ex.: Amazon.com.br" [disabled]="soldAndDeliveredByStore" />
+      </div>
+      <div class="detail-admin__seller-field">
+        <span class="detail-admin__field-label-row">Entregue por <button type="button" (click)="useStoreForDeliveredBy()" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()">Usar loja</button><button type="button" (click)="copySoldByToDeliveredBy()" [disabled]="soldAndDeliveredByStore">Copiar vendido</button></span>
+        <app-floating-field label="Entregue por" name="edit-deliveredBy" [(ngModel)]="editForm.deliveredBy" placeholder="Ex.: Amazon.com.br" [disabled]="soldAndDeliveredByStore" />
+      </div>
       <app-floating-field label="Categoria" name="edit-category" [(ngModel)]="editForm.category" placeholder="Ex.: Eletrônicos" />
 
       <label class="detail-admin__field">
@@ -55,6 +65,32 @@
           <option value="UNKNOWN">Desconhecida</option>
         </select>
       </label>
+
+      <label class="detail-admin__field">
+        <span class="detail-admin__field-label">Selo de preço</span>
+        <select name="edit-priceSignal" [(ngModel)]="editForm.priceSignal">
+          <option value="">Sem selo</option>
+          <option value="GOOD_PRICE">Preço bom</option>
+          <option value="GREAT_PRICE">Preço excelente</option>
+        </select>
+      </label>
+
+      <div class="detail-admin__categories">
+        <span class="detail-admin__field-label">Categorias cadastradas</span>
+        @if (categoriesLoading) {
+          <span>Carregando...</span>
+        } @else if (categoriesError) {
+          <span class="detail-admin__categories-error">Erro ao carregar. <button type="button" (click)="loadCategories()">Tentar novamente</button></span>
+        } @else if (categories.length === 0) {
+          <span>Nenhuma categoria cadastrada ainda.</span>
+        } @else {
+          <div class="detail-admin__categories-list">
+            @for (category of categories; track category.name) {
+              <button type="button" [class.detail-admin__category--selected]="isCategorySelected(category.name)" [attr.aria-pressed]="isCategorySelected(category.name)" (click)="selectCategory(category.name)">{{ category.name }} <small>({{ category.promotionCount }})</small></button>
+            }
+          </div>
+        }
+      </div>
 
       <!-- Sinais de confiança -->
       <div class="detail-admin__trust-signals">

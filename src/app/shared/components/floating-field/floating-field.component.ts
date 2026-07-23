@@ -26,6 +26,7 @@ export class FloatingFieldComponent implements ControlValueAccessor {
   @Input() textarea = false;
   @Input() ariaLabel: string | null = null;
   @Input() rows = 3;
+  @Input() disabled = false;
 
   value = '';
   private onChange: (v: string) => void = () => {};

@@ -172,6 +172,25 @@ describe('PromotionDetailComponent inspection image state', () => {
     expect(request.action).toBe('EDIT');
   });
 
+  it('loads and submits the editable price signal, including clearing it', () => {
+    component.promotion = {
+      id: 'id', title: 'Produto', currentPrice: 100, storeName: 'Amazon', storeUrl: '',
+      imageUrl: '/image.webp', category: 'Tecnologia', tags: [], likesCount: 0,
+      commentsCount: 0, status: 'approved', createdAt: '', createdBy: '',
+      priceSignal: 'GOOD_PRICE',
+    } as never;
+    component.openEditMode();
+    expect(component.editForm.priceSignal).toBe('GOOD_PRICE');
+
+    component.editForm.title = 'Produto';
+    component.editForm.url = 'https://amazon.com.br/produto';
+    component.editForm.currentPrice = '100,00';
+    component.editForm.priceSignal = '   ';
+    component.submitEdit();
+
+    expect(moderation.decide.calls.mostRecent().args[1].priceSignal).toBe('');
+  });
+
   it('uses Vendido por for both canonical and legacy seller edit fields', () => {
     prepareValidEdit('');
     component.editForm.sellerName = 'Valor antigo da inspeção';
