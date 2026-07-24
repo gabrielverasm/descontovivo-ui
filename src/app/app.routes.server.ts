@@ -27,7 +27,7 @@ export const serverRoutes: ServerRoute[] = [
   },
   {
     path: 'promocoes/:slug',
-    renderMode: RenderMode.Client,
+    renderMode: RenderMode.Server,
   },
   {
     path: '**',

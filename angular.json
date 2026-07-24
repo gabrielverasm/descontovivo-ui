@@ -32,7 +32,11 @@
             "styles": ["src/styles.scss"],
             "scripts": [],
             "server": "src/main.server.ts",
-            "outputMode": "static"
+            "ssr": {
+              "entry": "src/cloudflare-worker.ts",
+              "experimentalPlatform": "neutral"
+            },
+            "outputMode": "server"
           },
           "configurations": {
             "production": {

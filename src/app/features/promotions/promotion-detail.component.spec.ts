@@ -1,8 +1,9 @@
 import { DatePipe } from '@angular/common';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, RESPONSE_INIT } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { EMPTY, of } from 'rxjs';
+import { EMPTY, of, throwError } from 'rxjs';
 
 import { PromotionInspectionResponse } from '../../core/models/marketplace-inspection.model';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
@@ -304,5 +305,41 @@ describe('PromotionDetailComponent primary actions', () => {
     const share = spyOn(component, 'sharePromotion');
     host.querySelector<HTMLButtonElement>('.promotion-detail__share-btn')!.click();
     expect(share).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('PromotionDetailComponent SSR response status', () => {
+  it('returns 503 with Retry-After when the promotion API is unavailable', () => {
+    const responseInit: ResponseInit = { status: 200, headers: {} };
+
+    TestBed.configureTestingModule({
+      imports: [PromotionDetailComponent],
+      providers: [
+        { provide: RESPONSE_INIT, useValue: responseInit },
+        { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'unavailable' })) } },
+        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        { provide: PromotionService, useValue: {
+          getPromotionBySlug: () => throwError(() => new HttpErrorResponse({ status: 503 })),
+          getRelatedPromotions: () => of([]),
+        } },
+        { provide: CommentService, useValue: jasmine.createSpyObj('CommentService', ['listByPromotion']) },
+        { provide: AuthService, useValue: jasmine.createSpyObj('AuthService', ['canModerate', 'hasRole', 'canComment']) },
+        { provide: ModerationService, useValue: jasmine.createSpyObj('ModerationService', ['decide']) },
+        { provide: ImageProcessingService, useValue: jasmine.createSpyObj('ImageProcessingService', ['validate', 'process']) },
+        { provide: UploadService, useValue: jasmine.createSpyObj('UploadService', ['uploadPromotionImage']) },
+        { provide: SeoService, useValue: jasmine.createSpyObj('SeoService', ['setNonIndexable', 'setIndexable']) },
+        { provide: StructuredDataService, useValue: jasmine.createSpyObj('StructuredDataService', ['clearPageStructuredData', 'setStructuredData']) },
+        { provide: AnalyticsService, useValue: jasmine.createSpyObj('AnalyticsService', ['trackViewPromotion']) },
+        { provide: PromotionsFeedStateService, useValue: {} },
+      ],
+    });
+    TestBed.overrideComponent(PromotionDetailComponent, { set: { template: '' } });
+
+    const fixture = TestBed.createComponent(PromotionDetailComponent);
+    fixture.detectChanges();
+
+    expect(responseInit.status).toBe(503);
+    expect((responseInit.headers as Record<string, string>)['Retry-After']).toBe('60');
+    fixture.destroy();
   });
 });

@@ -18,4 +18,6 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
+      - run: npm test -- --no-watch --no-progress
       - run: npm run build
+      - run: npx wrangler deploy --dry-run --outdir /tmp/worker-dry-run

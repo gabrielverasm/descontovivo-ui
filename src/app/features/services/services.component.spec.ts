@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { AnalyticsService } from '../../core/analytics/analytics.service';
+import { UI_VERSION } from '../../core/app-version';
 import { SeoService } from '../../core/services/seo.service';
 import { ServicesComponent } from './services.component';
 
@@ -143,7 +144,7 @@ describe('ServicesComponent', () => {
     expect(analytics.trackAffiliateStoreClick).toHaveBeenCalledWith({
       store: 'amazon',
       placement: 'services',
-      ui_version: '0.5.22',
+      ui_version: UI_VERSION,
     });
   });
 
@@ -156,12 +157,12 @@ describe('ServicesComponent', () => {
     expect(analytics.trackAffiliateServiceClick).toHaveBeenCalledWith({
       service: 'amazon_prime',
       placement: 'services',
-      ui_version: '0.5.22',
+      ui_version: UI_VERSION,
     });
     expect(analytics.trackServiceClick).toHaveBeenCalledWith({
       service: 'meli_plus',
       placement: 'services',
-      ui_version: '0.5.22',
+      ui_version: UI_VERSION,
     });
     expect(analytics.trackAffiliateStoreClick).not.toHaveBeenCalled();
   });

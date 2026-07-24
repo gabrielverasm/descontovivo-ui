@@ -1,14 +1,17 @@
-# Produção — Frontend (Cloudflare Pages)
+# Produção — Frontend (Cloudflare Pages / Workers)
 
 ## Hospedagem
 
 | Item | Valor |
 |------|-------|
-| Plataforma | Cloudflare Pages |
-| Projeto | `descontovivo-ui` |
-| Branch de produção | `master` |
+| Plataforma atual | Cloudflare Pages + Pages Functions |
+| Arquitetura alvo/preview | Cloudflare Workers + Static Assets |
+| Worker de preview | `descontovivo-ui-ssr-preview` |
+| Branch de produção | Deploy automático da `master` no Pages |
 | Build command | `npm run build` |
 | Output directory | `dist/descontovivo-ui/browser` |
+| Worker assets alvo | `dist/descontovivo-ui/worker-assets` |
+| Worker entrypoint alvo | `dist/descontovivo-ui/server/server.mjs` |
 | Node version | 24.16.0 |
 
 ## Domínios
@@ -44,9 +47,38 @@
 - `https://descontovivo.com.br`
 - `https://www.descontovivo.com.br`
 
-## Deploy
+## Runtime atual e arquitetura alvo
 
-O deploy é automático via Cloudflare Pages ao fazer merge na branch `master`. Não há CI/CD de deploy no GitHub Actions — o GitHub Actions valida apenas build em PRs/pushes.
+Atualmente, o domínio continua no Cloudflare Pages. As Pages Functions
+`functions/promocoes/[slug].ts` e `functions/story-image.ts`, além do shell
+gerado em `/__app-shell/`, foram preservados para esse ambiente.
+
+Na arquitetura alvo, o Worker atende `/promocoes/*` com Angular SSR e
+`/story-image*` com o proxy de imagem. Os demais arquivos são servidos pelo
+binding `ASSETS`, conforme `wrangler.jsonc`. Nenhum domínio está associado ao
+Worker neste momento.
+
+## Migração em duas fases
+
+### Fase 1 — preview
+
+- Publicar o Worker em `workers.dev` usando o `wrangler.jsonc`.
+- Configurar `SSR_PREVIEW_HOSTNAME` com o hostname exato do preview, quando conhecido.
+- Validar SSR, rotas CSR, 404, headers e proxy de imagem.
+- Manter o Cloudflare Pages, as Pages Functions e os domínios atuais ativos.
+
+### Fase 2 — cutover
+
+- Criar Cloudflare Redirect Rules ou Bulk Redirects para `www.descontovivo.com`,
+  `descontovivo.com.br` e `www.descontovivo.com.br`, redirecionando para
+  `descontovivo.com` com caminho e query string preservados.
+- Associar os domínios ao Worker.
+- Validar o tráfego de produção.
+- Desativar o deploy automático do Pages.
+- Remover as Pages Functions e o shell legado em PR separada.
+
+O `redirectLegacyHost` do Worker protege requests que alcancem o código do
+Worker, mas não substitui Redirect Rules para todos os assets estáticos.
 
 ## Checklist pós-deploy
 
@@ -55,5 +87,5 @@ O deploy é automático via Cloudflare Pages ao fazer merge na branch `master`. 
 3. Verificar `robots.txt` e `sitemap.xml` acessíveis.
 4. Testar login OIDC (redirect + callback).
 5. Verificar chamadas à API (`/api/v1/promotions` ou endpoint público equivalente).
-6. Confirmar fallback SPA (rota inexistente deve carregar `index.html`).
+6. Confirmar as rotas CSR explícitas e que uma rota desconhecida continua 404.
 7. Validar meta tags e Open Graph em ferramenta de preview (ex: metatags.io).
