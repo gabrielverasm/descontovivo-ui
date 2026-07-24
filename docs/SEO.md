@@ -33,14 +33,10 @@ Sitemap: https://descontovivo.com/sitemap.xml
 
 Localização: `public/sitemap.xml`
 
-Sitemap estático com páginas principais:
+O sitemap contém:
 - `/` (home/feed)
-- `/sobre`
-- `/servicos`
-- `/transparencia`
-- `/publicar`
-
-> **Limitação atual:** o sitemap não inclui URLs dinâmicas de promoções individuais (`/promocao/:slug`). Isso requer geração server-side ou build-time.
+- `/sobre/`, `/servicos/`, `/transparencia/`, `/privacidade/` e `/termos/` (páginas institucionais finais, com barra)
+- URLs públicas de promoções no formato `/promocoes/:slug`, geradas automaticamente pelo script `scripts/generate-sitemap.mjs`.
 
 ## SeoService
 
@@ -57,10 +53,10 @@ Cada rota define seus metadados via `data` no router.
 | Rota | meta robots | Motivo |
 |------|-------------|--------|
 | `/` (home) | `index, follow` | Página pública principal |
-| `/promocao/:slug` | `index, follow` | Conteúdo público |
-| `/sobre` | `index, follow` | Página institucional |
-| `/servicos` | `index, follow` | Página institucional |
-| `/transparencia` | `index, follow` | Página institucional |
+| `/promocoes/:slug` | `index, follow` | Conteúdo público |
+| `/sobre/` | `index, follow` | Página institucional |
+| `/servicos/` | `index, follow` | Página institucional |
+| `/transparencia/` | `index, follow` | Página institucional |
 | `/publicar` | `index, follow` | Formulário público |
 | `/login` | `noindex, nofollow` | Redirect OIDC, sem conteúdo útil |
 | `/cadastro` | `noindex, nofollow` | Redirect OIDC, sem conteúdo útil |
@@ -86,8 +82,8 @@ Cada rota define seus metadados via `data` no router.
 ## Próximos passos
 
 - [ ] Submeter sitemap ao Google Search Console.
-- [ ] Implementar sitemap dinâmico com URLs de promoções (gerado pela API ou em build-time).
+- [ ] Manter a geração automática do sitemap com as URLs públicas de promoções.
 - [ ] Avaliar SSR via Angular Universal ou prerender de rotas estáticas.
-- [ ] Adicionar JSON-LD (structured data) para promoções.
+- [ ] Validar JSON-LD (structured data) das promoções.
 - [ ] Validar rendering com Google Search Console URL Inspector.
 - [ ] Avaliar prerender para Open Graph/Twitter Cards em rotas de detalhe.

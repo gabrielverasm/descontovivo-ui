@@ -27,7 +27,7 @@ export class TransparencyComponent implements AfterViewInit, OnDestroy {
     inject(SeoService).setIndexable({
       title: 'Transparência | DescontoVivo',
       description: 'Saiba como o DescontoVivo lida com links, comissões e curadoria de ofertas.',
-      canonicalPath: '/transparencia'
+      canonicalPath: '/transparencia/'
     });
   }
 

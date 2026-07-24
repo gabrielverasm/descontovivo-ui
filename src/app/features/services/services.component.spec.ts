@@ -143,7 +143,7 @@ describe('ServicesComponent', () => {
     expect(analytics.trackAffiliateStoreClick).toHaveBeenCalledWith({
       store: 'amazon',
       placement: 'services',
-      ui_version: '0.5.21',
+      ui_version: '0.5.22',
     });
   });
 
@@ -156,12 +156,12 @@ describe('ServicesComponent', () => {
     expect(analytics.trackAffiliateServiceClick).toHaveBeenCalledWith({
       service: 'amazon_prime',
       placement: 'services',
-      ui_version: '0.5.21',
+      ui_version: '0.5.22',
     });
     expect(analytics.trackServiceClick).toHaveBeenCalledWith({
       service: 'meli_plus',
       placement: 'services',
-      ui_version: '0.5.21',
+      ui_version: '0.5.22',
     });
     expect(analytics.trackAffiliateStoreClick).not.toHaveBeenCalled();
   });

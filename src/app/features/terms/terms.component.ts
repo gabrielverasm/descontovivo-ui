@@ -15,7 +15,7 @@ export class TermsComponent {
     inject(SeoService).setIndexable({
       title: 'Termos de Uso | DescontoVivo',
       description: 'Termos de uso do DescontoVivo: regras de publicação, moderação, responsabilidades e condições de uso.',
-      canonicalPath: '/termos',
+      canonicalPath: '/termos/',
     });
   }
 }

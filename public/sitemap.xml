@@ -6,29 +6,311 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://descontovivo.com/sobre</loc>
+    <loc>https://descontovivo.com/sobre/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://descontovivo.com/servicos</loc>
+    <loc>https://descontovivo.com/servicos/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://descontovivo.com/transparencia</loc>
+    <loc>https://descontovivo.com/transparencia/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://descontovivo.com/privacidade</loc>
+    <loc>https://descontovivo.com/privacidade/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://descontovivo.com/termos</loc>
+    <loc>https://descontovivo.com/termos/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/kit-20-seringa-de-insulina-1ml-com-agulha-fixa-8x30mm-venper</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-24</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/18-em-1-alicate-dobravel-decapador-crimpador-eletricista-descacador-fios-decapador-fio-automatico</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-24</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/percarbonato-de-sodio-calisul-2kg-puro-granulado-removedor-de-manchas-para-roupas-brancas-e-coloridas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-24</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/tanquinhomaquina-de-lavar-roupas-semi-auto-205kg-newmaq-cor-branco</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/sanduicheiragrill-britania-press-bgr27i-2-em-1-prata-850w</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/sanduicheira-mondial-fast-grill-sandwich-s-12-preta-750w</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/sanduicheira-eletrica-cadence-click-750w</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/jogo-4-potes-de-vidro-hermetico-marmita-tampa-4-travas-640ml</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/jogo-de-facas-tramontina-plenus-4-pecas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/cosco-kids-cadeirinha-progress-0-a-36kg-preto</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/placa-de-video-nvidia-geforce-gtx-1660-super-gddr6-6gb-192bits-pcyes</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/carregador-de-pilhas-e-baterias-usb-com-2-pilhas-aa-1500mah-recarregaveis</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/trocador-americano-bebe-comoda-fralda-com-abas-impermeavel-anatomico-com-capa-plastica-algodao-macio-palha-com-caqui-65x40</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/buba-lixeira-antiodor-para-fraldas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/cadeirinha-safety-1st-multifix-0-a-36kg-com-isofix-grey-urban</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-23</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/lamina-liquidificador-oster-de-6-facas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-22</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/desempenadeira-de-aco-inox30cm</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-22</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/espatula-pedreiro-pintor-aco-inox-profissional-cabo-em-borrachado</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-22</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/anel-vedacao-lamina-liquidificador-oster-classico</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-22</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/massa-corrida-branco-57kg-coral</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/chaleira-eletrica-inox-18l-110v220v-ferve-rapido-desligamento-automatico-unitermi-atacama</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/descascador-eletrico-de-alho-e-uva-em-aco-inox-automatico-pratico</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/marmita-eletrica-veicular-bivolt-p-carro-casa-taxi-uber-caminhao-12v-24v-110v-220v-c</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/bosch-trena-laser-glm-40-alcance-40m-com-bolsa-protetora</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/mesa-dobravel-para-churrasco-maxchief-180-mts-calca-preto</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/oral-b-escova-de-dente-eletrica-io2-1-cabo-1-refil-carregador</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/loreal-professionnel-oleo-10-em-1-absolut-repair-multi-beneficios-para-cabelos-secos-e-danificados-repara-e-promove-brilho-com-gold-quinoa-e-proteinas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/downy-verao-tropical-amaciante-liquido-concentrado-3l-rende-12l</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/panificadora-automatica-master-bread-mondial-preto-700w-220v-npf-53</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/downy-amaciante-concentrado-frescor-da-primavera-3l-rende-12l</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/bebedouro-britania-bbe12p-10l-ou-20l-sistema-perfurador-bivolt-2</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-20</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/kapazi-deck-para-box-banheiro-40x73cm-plus-bege</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-19</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/bebedouro-britania-bbe12p-10l-ou-20l-sistema-perfurador-bivolt</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/inalador-e-neb-g-tech-nebmesh2-adulto-e-infantil-bivolt-branco</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/panela-de-pressao-brinox-pressure-42l-vanilla-baunilha</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/copo-termico-stanley-quencher-quartzo-rosa-887ml</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/mesa-dobravel-multiuso-180m-otello</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/repelente-para-bebe-sbp-baby-com-icaridina-100ml</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/forno-eletrico-britania-bfe55p-dupla-resistencia-52l-220v</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/mustela-hydra-bebe-300ml-hidratante-infantil-corpo-e-rosto-feito-com-97-de-ingredientes-de-origem-natural-e-hipoalergenico</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/limpador-desinfectante-peroxil-im-2-litros</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/jogo-de-tacas-de-vidro-diamond-cristal-325ml-6-pecas</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-17</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/limpa-vidro-pano-magico-akora-poliester-e-poliamida-microfibra-limpeza-original</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-15</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/suporte-tv-parede-tri-articulado-10-a-60-led-oled-qled-reforcado-30kg</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-15</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/creatina-monohidratada-dark-lab-1kg-sem-sabor</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-15</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/jameson-whiskey-irlandes-750-ml</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-15</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/sanduicheira-mondial-fast-grill-sandwich-s-12-preta-750w-antiaderente</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-07-15</lastmod>
   </url>
   <url>
     <loc>https://descontovivo.com/promocoes/escorredor-de-louca-aco-inox-preto-3-andares-escova-brinde-brielli-home</loc>
@@ -739,37 +1021,7 @@
     <lastmod>2026-06-30</lastmod>
   </url>
   <url>
-    <loc>https://descontovivo.com/promocoes/kindle-16-gb-geracao-mais-recente-preto</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <lastmod>2026-06-30</lastmod>
-  </url>
-  <url>
-    <loc>https://descontovivo.com/promocoes/mouse-pad-logitech-studio-series-grafite</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <lastmod>2026-06-30</lastmod>
-  </url>
-  <url>
-    <loc>https://descontovivo.com/promocoes/mouse-logitech-pebble-2-m350s-grafite</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <lastmod>2026-06-30</lastmod>
-  </url>
-  <url>
-    <loc>https://descontovivo.com/promocoes/mouse-sem-fio-logitech-m240-bluetooth-preto</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <lastmod>2026-06-30</lastmod>
-  </url>
-  <url>
-    <loc>https://descontovivo.com/promocoes/mouse-sem-fio-logitech-m190-cinza</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <lastmod>2026-06-30</lastmod>
-  </url>
-  <url>
-    <loc>https://descontovivo.com/promocoes/mouse-logitech-signature-m550-l-grafite</loc>
+    <loc>https://descontovivo.com/promocoes/mouse-sem-fio-logitech-m170-preto</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <lastmod>2026-06-30</lastmod>
@@ -781,7 +1033,37 @@
     <lastmod>2026-06-30</lastmod>
   </url>
   <url>
-    <loc>https://descontovivo.com/promocoes/mouse-sem-fio-logitech-m170-preto</loc>
+    <loc>https://descontovivo.com/promocoes/mouse-logitech-signature-m550-l-grafite</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-06-30</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/mouse-sem-fio-logitech-m190-cinza</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-06-30</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/mouse-sem-fio-logitech-m240-bluetooth-preto</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-06-30</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/mouse-logitech-pebble-2-m350s-grafite</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-06-30</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/mouse-pad-logitech-studio-series-grafite</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2026-06-30</lastmod>
+  </url>
+  <url>
+    <loc>https://descontovivo.com/promocoes/kindle-16-gb-geracao-mais-recente-preto</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <lastmod>2026-06-30</lastmod>

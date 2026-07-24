@@ -15,7 +15,7 @@ export class PrivacyComponent {
     inject(SeoService).setIndexable({
       title: 'Política de Privacidade | DescontoVivo',
       description: 'Saiba como o DescontoVivo trata dados pessoais, quais informações coletamos e seus direitos como usuário.',
-      canonicalPath: '/privacidade',
+      canonicalPath: '/privacidade/',
     });
   }
 }

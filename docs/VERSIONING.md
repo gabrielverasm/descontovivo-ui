@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.21**
+**0.5.22**
 
 ## Convenção
 
@@ -23,12 +23,13 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 1. Toda PR deve avaliar se precisa de bump de versão.
 2. O checklist do PR template inclui lembrete de atualização.
-3. O footer exibe `UI v0.5.21 · API v0.3.3` para facilitar validação de deploy.
+3. O footer exibe `UI v0.5.22 · API v0.3.3` para facilitar validação de deploy.
 
 ## Histórico
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.5.22 | 2026-07-23 | Alinha URLs canônicas institucionais e sitemap às URLs finais com barra |
 | 0.5.21 | 2026-07-23 | Atualiza dependências Angular e corrige vulnerabilidades do npm audit |
 | 0.5.20 | 2026-07-23 | Redistribui o cadastro manual e alinha os campos da edição de promoções |
 | 0.5.19 | 2026-07-22 | Corrige atualização automática do feed prerenderizado e antecipa o CTA no detalhe mobile |
