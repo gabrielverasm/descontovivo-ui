@@ -15,7 +15,7 @@ export class AboutComponent {
     inject(SeoService).setIndexable({
       title: 'Sobre o DescontoVivo | Promoções com contexto, comunidade e segurança',
       description: 'Conheça o DescontoVivo, uma comunidade de promoções com comentários, curadoria, sinais de confiança e informações para ajudar você a comprar melhor e com mais segurança.',
-      canonicalPath: '/sobre'
+      canonicalPath: '/sobre/'
     });
   }
 }

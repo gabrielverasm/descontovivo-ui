@@ -27,11 +27,11 @@ const OUTPUT_PATH = resolve(__dirname, '..', 'public', 'sitemap.xml');
 
 const STATIC_PAGES = [
   { path: '/', priority: '1.0', changefreq: 'daily' },
-  { path: '/sobre', priority: '0.5', changefreq: 'monthly' },
-  { path: '/servicos', priority: '0.5', changefreq: 'monthly' },
-  { path: '/transparencia', priority: '0.5', changefreq: 'monthly' },
-  { path: '/privacidade', priority: '0.4', changefreq: 'monthly' },
-  { path: '/termos', priority: '0.4', changefreq: 'monthly' },
+  { path: '/sobre/', priority: '0.5', changefreq: 'monthly' },
+  { path: '/servicos/', priority: '0.5', changefreq: 'monthly' },
+  { path: '/transparencia/', priority: '0.5', changefreq: 'monthly' },
+  { path: '/privacidade/', priority: '0.4', changefreq: 'monthly' },
+  { path: '/termos/', priority: '0.4', changefreq: 'monthly' },
 ];
 
 function escapeXml(str) {

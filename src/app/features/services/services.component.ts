@@ -117,7 +117,7 @@ export class ServicesComponent {
     inject(SeoService).setIndexable({
       title: 'Lojas e Serviços | DescontoVivo',
       description: 'Informações sobre as lojas monitoradas pelo DescontoVivo: Amazon, Mercado Livre, Magalu, Shopee e AliExpress. Dicas de frete, assinaturas e o que observar antes de comprar.',
-      canonicalPath: '/servicos'
+      canonicalPath: '/servicos/'
     });
   }
 
