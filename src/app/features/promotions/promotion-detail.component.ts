@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, RESPONSE_INIT, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription, of } from 'rxjs';
@@ -83,6 +83,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly structuredData = inject(StructuredDataService);
   private readonly analytics = inject(AnalyticsService);
   private readonly feedState = inject(PromotionsFeedStateService);
+  private readonly responseInit = inject(RESPONSE_INIT, { optional: true });
 
   // Admin state
   isEditMode = false;
@@ -254,8 +255,10 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
         catchError((err: unknown) => {
           if (err instanceof HttpErrorResponse && err.status === 404) {
             this.notFound = true;
+            this.setServerResponse(404);
           } else {
             this.loadError = true;
+            this.setServerResponse(503);
           }
           return of(undefined);
         })
@@ -716,6 +719,18 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       canonicalPath: `/promocoes/${this.promotion.slug || this.promotion.id}`,
       imageUrl: this.promotion.imageUrl || undefined
     });
+  }
+
+  private setServerResponse(status: 404 | 503): void {
+    if (!this.responseInit) return;
+
+    this.responseInit.status = status;
+    if (status === 503) {
+      this.responseInit.headers = {
+        ...(this.responseInit.headers as Record<string, string> | undefined),
+        'Retry-After': '60',
+      };
+    }
   }
 
   private updateStructuredData(): void {

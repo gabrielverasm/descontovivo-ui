@@ -43,13 +43,18 @@ Aplicação SPA para os domínios `descontovivo.com` e `descontovivo.com.br`, co
 - Guards de autenticação, e-mail verificado, moderador e admin.
 - Interceptor de token Bearer automático.
 
+## Renderização e deploy
+
+- Angular SSR sob demanda para `/promocoes/:slug` na arquitetura alvo de Cloudflare Workers.
+- Páginas institucionais prerenderizadas e rotas CSR servidas por Static Assets.
+
 ## O que NÃO está implementado
 
-- SSR / prerender (SPA puro por enquanto).
-- Sitemap dinâmico com URLs de promoções individuais.
 - Worker/crawler automático de ofertas.
 - Integração de afiliados finalizada.
-- Testes unitários (setup de karma-jasmine pendente).
+
+As URLs públicas de promoções são incluídas automaticamente no sitemap durante
+o build por `scripts/generate-sitemap.mjs`.
 
 ## Desenvolvimento local
 
@@ -88,27 +93,36 @@ export const environment = {
 
 ```bash
 npm run build
-# Output: dist/descontovivo-ui/browser
+# Output de assets: dist/descontovivo-ui/browser
+# Output de assets do Worker: dist/descontovivo-ui/worker-assets
+# Bundle do Worker: dist/descontovivo-ui/server/server.mjs
 ```
 
 ### Testes
 
 ```bash
 npm run build          # validação principal de build
-npm test -- --watch=false  # ⚠️ pode falhar se karma-jasmine não estiver configurado
+npm test -- --watch=false
 ```
-
-> **Nota:** o setup de testes unitários com karma-jasmine é um problema preexistente. A validação principal do projeto é feita via `npm run build`.
 
 ## Deploy
 
-Hospedado no Cloudflare Pages (deploy automático na branch `master`).
+Atualmente hospedado no Cloudflare Pages com Pages Functions. A arquitetura
+Worker é preparada para preview/cutover e usa:
+
+```bash
+npm run build
+npx wrangler dev
+```
+
+O deploy, o preview remoto e a associação de domínio não fazem parte deste
+fluxo local. O domínio atual permanece no Pages até o cutover.
 
 Arquivos estáticos em `public/`:
 - `robots.txt` — regras de crawling.
 - `sitemap.xml` — sitemap estático (páginas principais).
 - `_headers` — headers de segurança/cache.
-- `_redirects` — fallback SPA.
+- `_redirects` — redirects de domínio e rewrites explícitos das rotas CSR.
 
 ## SEO
 

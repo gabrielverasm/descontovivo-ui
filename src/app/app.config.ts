@@ -1,4 +1,4 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
@@ -14,7 +14,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'disabled', anchorScrolling: 'enabled' })),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    // Fetch is required by Angular SSR and the hydration provider transfers the
+    // server GET result to the browser, avoiding an immediate duplicate request.
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideAuth({
       config: {
         authority: environment.oidc.issuer,

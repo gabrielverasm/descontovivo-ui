@@ -5,6 +5,11 @@
 /bazel-out
 /.angular/cache
 
+# Cloudflare Wrangler
+.wrangler/
+.dev.vars*
+!.dev.vars.example
+
 # Node
 /node_modules
 npm-debug.log*
