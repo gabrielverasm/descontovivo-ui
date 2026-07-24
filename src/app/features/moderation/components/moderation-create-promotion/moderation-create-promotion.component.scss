@@ -25,7 +25,7 @@
   gap: 1rem;
   grid-template-areas:
     "image fields"
-    "trust trust"
+    "image trust"
     "footer footer";
   grid-template-columns: minmax(220px, 0.72fr) minmax(0, 2fr);
   align-items: start;
@@ -347,7 +347,7 @@
   .mod-panel__body {
     grid-template-areas:
       "image fields"
-      "trust trust"
+      "image trust"
       "footer footer";
     grid-template-columns: minmax(190px, 0.55fr) minmax(0, 1.45fr);
   }
