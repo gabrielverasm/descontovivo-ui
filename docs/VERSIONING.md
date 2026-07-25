@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.24**
+**0.5.25**
 
 ## Convenção
 
@@ -23,12 +23,13 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 1. Toda PR deve avaliar se precisa de bump de versão.
 2. O checklist do PR template inclui lembrete de atualização.
-3. O footer exibe `UI v0.5.24 · API v0.3.3` para facilitar validação de deploy.
+3. O footer exibe `UI v0.5.25 · API v0.3.3` para facilitar validação de deploy.
 
 ## Histórico
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.5.25 | 2026-07-25 | Remove handlers SSR legados do Pages após ativação das rotas no Worker |
 | 0.5.24 | 2026-07-24 | Canonicaliza rotas institucionais sem barra com redirect 301 |
 | 0.5.23 | 2026-07-24 | Prepara Worker Cloudflare com SSR sob demanda, Static Assets e fluxo de preview |
 | 0.5.22 | 2026-07-23 | Alinha URLs canônicas institucionais e sitemap às URLs finais com barra |

@@ -4,8 +4,7 @@
 
 | Item | Valor |
 |------|-------|
-| Plataforma atual | Cloudflare Pages + Pages Functions |
-| Arquitetura alvo/preview | Cloudflare Workers + Static Assets |
+| Plataforma | Cloudflare Pages + Cloudflare Worker + Static Assets |
 | Worker de preview | `descontovivo-ui-ssr-preview` |
 | Branch de produção | Deploy automático da `master` no Pages |
 | Build command | `npm run build` |
@@ -13,6 +12,17 @@
 | Worker assets alvo | `dist/descontovivo-ui/worker-assets` |
 | Worker entrypoint alvo | `dist/descontovivo-ui/server/server.mjs` |
 | Node version | 24.16.0 |
+
+## Processo de deploy
+
+O deploy automático da branch `master` atualiza somente o Cloudflare Pages. O
+Worker não é atualizado automaticamente. Alterações em
+`src/cloudflare-worker.ts`, Angular SSR, Static Assets, dependências ou em
+arquivos servidos pelo Worker exigem build, upload de uma nova versão,
+validação do preview e deploy manual dessa versão.
+
+Enquanto esse processo manual não ocorrer, Pages e Worker podem exibir versões
+diferentes. Nenhuma automação de deploy do Worker está configurada atualmente.
 
 ## Domínios
 
@@ -49,33 +59,36 @@
 
 ## Runtime atual e arquitetura alvo
 
-Atualmente, o domínio continua no Cloudflare Pages. As Pages Functions
-`functions/promocoes/[slug].ts` e `functions/story-image.ts`, além do shell
-gerado em `/__app-shell/`, foram preservados para esse ambiente.
+O domínio continua disponível no Cloudflare Pages para a home, páginas
+institucionais, assets estáticos e demais rotas. Em produção, o Worker atende
+`/promocoes/*` com Angular SSR e `/story-image*` com o proxy de imagem. Os
+demais arquivos são servidos pelo binding `ASSETS`, conforme `wrangler.jsonc`.
 
-Na arquitetura alvo, o Worker atende `/promocoes/*` com Angular SSR e
-`/story-image*` com o proxy de imagem. Os demais arquivos são servidos pelo
-binding `ASSETS`, conforme `wrangler.jsonc`. Nenhum domínio está associado ao
-Worker neste momento.
+As Pages Functions `functions/promocoes/[slug].ts` e `functions/story-image.ts`
+foram removidas após a ativação controlada das rotas correspondentes no Worker.
+O shell legado `/__app-shell/` também foi removido; as rotas CSR conhecidas do
+Pages usam diretamente `/index.csr.html`. A migração total do domínio para o
+Worker continua fora do escopo.
 
 ## Migração em duas fases
 
-### Fase 1 — preview
+### Histórico do cutover controlado
 
 - Publicar o Worker em `workers.dev` usando o `wrangler.jsonc`.
 - Configurar `SSR_PREVIEW_HOSTNAME` com o hostname exato do preview, quando conhecido.
 - Validar SSR, rotas CSR, 404, headers e proxy de imagem.
-- Manter o Cloudflare Pages, as Pages Functions e os domínios atuais ativos.
+- O Worker foi validado para `/promocoes/*` e `/story-image*` em produção.
+- O Cloudflare Pages permanece ativo para as demais rotas.
+- As Pages Functions substituídas e o shell legado foram removidos.
 
-### Fase 2 — cutover
+### Migração total — fora do escopo
 
 - Criar Cloudflare Redirect Rules ou Bulk Redirects para `www.descontovivo.com`,
   `descontovivo.com.br` e `www.descontovivo.com.br`, redirecionando para
   `descontovivo.com` com caminho e query string preservados.
-- Associar os domínios ao Worker.
-- Validar o tráfego de produção.
+- Associar todas as rotas do domínio ao Worker.
 - Desativar o deploy automático do Pages.
-- Remover as Pages Functions e o shell legado em PR separada.
+- Migrar home, páginas institucionais e demais rotas ainda servidas pelo Pages.
 
 O `redirectLegacyHost` do Worker protege requests que alcancem o código do
 Worker, mas não substitui Redirect Rules para todos os assets estáticos.

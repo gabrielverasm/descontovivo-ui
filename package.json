@@ -7,7 +7,7 @@
     "start": "ng serve",
     "prebuild": "npm run generate:sitemap",
     "build": "ng build",
-    "postbuild": "node scripts/copy-csr-shell.mjs && node scripts/prepare-worker-assets.mjs",
+    "postbuild": "node scripts/prepare-worker-assets.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "generate:sitemap": "node scripts/generate-sitemap.mjs"
