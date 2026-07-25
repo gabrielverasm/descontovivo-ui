@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = process.cwd();
@@ -10,15 +10,14 @@ if (!existsSync(browserDir)) {
   process.exit(1);
 }
 
+rmSync(workerDir, { recursive: true, force: true });
 mkdirSync(workerDir, { recursive: true });
 cpSync(browserDir, workerDir, {
   recursive: true,
   filter: (source) => {
     const relativePath = source.slice(browserDir.length + 1);
     return relativePath !== '_redirects' &&
-      relativePath !== '.assetsignore' &&
-      relativePath !== '__app-shell' &&
-      !relativePath.startsWith('__app-shell/');
+      relativePath !== '.assetsignore';
   },
 });
 

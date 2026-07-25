@@ -45,8 +45,10 @@ Aplicação SPA para os domínios `descontovivo.com` e `descontovivo.com.br`, co
 
 ## Renderização e deploy
 
-- Angular SSR sob demanda para `/promocoes/:slug` na arquitetura alvo de Cloudflare Workers.
-- Páginas institucionais prerenderizadas e rotas CSR servidas por Static Assets.
+- `/promocoes/:slug` usa Angular SSR no Cloudflare Worker em produção.
+- `/story-image` usa o proxy seguro do Worker.
+- Home, páginas institucionais e demais rotas continuam sendo servidas pelo Cloudflare Pages.
+- O Pages usa diretamente `/index.csr.html` nas rotas CSR conhecidas; o shell legado `/__app-shell/` foi removido.
 
 ## O que NÃO está implementado
 
@@ -107,16 +109,21 @@ npm test -- --watch=false
 
 ## Deploy
 
-Atualmente hospedado no Cloudflare Pages com Pages Functions. A arquitetura
-Worker é preparada para preview/cutover e usa:
+O domínio continua disponível no Cloudflare Pages para home, páginas
+institucionais e demais rotas. Em produção, as rotas de promoções dinâmicas e
+o proxy de imagens já são atendidos pelo Worker. As antigas Pages Functions de
+promoção e `story-image` e o shell `/__app-shell/` foram removidos; a migração
+total do domínio para Workers está fora do escopo.
+
+Para validar o Worker localmente:
 
 ```bash
 npm run build
 npx wrangler dev
 ```
 
-O deploy, o preview remoto e a associação de domínio não fazem parte deste
-fluxo local. O domínio atual permanece no Pages até o cutover.
+O deploy e a associação de domínio não fazem parte deste fluxo local. O Pages
+continua ativo para as rotas que não foram migradas.
 
 Arquivos estáticos em `public/`:
 - `robots.txt` — regras de crawling.
