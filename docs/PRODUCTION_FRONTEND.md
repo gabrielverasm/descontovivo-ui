@@ -60,21 +60,25 @@ diferentes. Nenhuma automação de deploy do Worker está configurada atualmente
 ## Runtime atual e arquitetura alvo
 
 O domínio continua disponível no Cloudflare Pages para a home, páginas
-institucionais, assets estáticos e demais rotas. Em produção, o Worker atende
-`/promocoes/*` com Angular SSR e `/story-image*` com o proxy de imagem. Os
-demais arquivos são servidos pelo binding `ASSETS`, conforme `wrangler.jsonc`.
+institucionais, assets estáticos e demais rotas, conforme o fluxo já documentado.
+Em produção, o Worker usa Angular SSR em `/promocoes/:slug`, atende
+`/story-image` com o proxy de imagem e trata as rotas CSR conhecidas, fornecendo
+internamente o shell canônico `/index.csr` sem expor esse nome na URL pública.
 
 As Pages Functions `functions/promocoes/[slug].ts` e `functions/story-image.ts`
 foram removidas após a ativação controlada das rotas correspondentes no Worker.
-O shell legado `/__app-shell/` também foi removido; as rotas CSR conhecidas do
-Pages usam diretamente `/index.csr.html`. A migração total do domínio para o
-Worker continua fora do escopo.
+O shell legado `/__app-shell/` também foi removido. Nas rotas CSR conhecidas, o
+Worker resolve internamente o asset público canônico `/index.csr`; esse nome
+interno não deve aparecer no header `Location` nem substituir a URL solicitada
+no navegador. A migração total do domínio para o Worker continua fora do escopo.
 
 ## Migração em duas fases
 
 ### Histórico do cutover controlado
 
 - Publicar o Worker em `workers.dev` usando o `wrangler.jsonc`.
+- Alterações no Worker exigem `npx wrangler deploy`; o deploy automático do
+  Pages não publica o bundle do Worker.
 - Configurar `SSR_PREVIEW_HOSTNAME` com o hostname exato do preview, quando conhecido.
 - Validar SSR, rotas CSR, 404, headers e proxy de imagem.
 - O Worker foi validado para `/promocoes/*` e `/story-image*` em produção.
