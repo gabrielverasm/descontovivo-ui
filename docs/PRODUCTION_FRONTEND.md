@@ -23,6 +23,8 @@ validação do preview e deploy manual dessa versão.
 
 Enquanto esse processo manual não ocorrer, Pages e Worker podem exibir versões
 diferentes. Nenhuma automação de deploy do Worker está configurada atualmente.
+Pages Function e `_routes.json` são publicados automaticamente pelo Pages e não
+exigem outro `npx wrangler deploy` do Worker separado.
 
 ## Domínios
 
@@ -60,17 +62,17 @@ diferentes. Nenhuma automação de deploy do Worker está configurada atualmente
 ## Runtime atual e arquitetura alvo
 
 O domínio continua disponível no Cloudflare Pages para a home, páginas
-institucionais, assets estáticos e demais rotas, conforme o fluxo já documentado.
-Em produção, o Worker usa Angular SSR em `/promocoes/:slug`, atende
-`/story-image` com o proxy de imagem e trata as rotas CSR conhecidas, fornecendo
-internamente o shell canônico `/index.csr` sem expor esse nome na URL pública.
+institucionais, assets estáticos e rotas CSR conhecidas. Uma Pages Function
+importa `index.csr.html` como text module e retorna o HTML diretamente para as
+rotas incluídas em `_routes.json`, sem passar pelo binding `ASSETS`,
+redirect ou alteração da URL pública. O `_redirects` não participa mais do
+fallback CSR.
 
-As Pages Functions `functions/promocoes/[slug].ts` e `functions/story-image.ts`
-foram removidas após a ativação controlada das rotas correspondentes no Worker.
-O shell legado `/__app-shell/` também foi removido. Nas rotas CSR conhecidas, o
-Worker resolve internamente o asset público canônico `/index.csr`; esse nome
-interno não deve aparecer no header `Location` nem substituir a URL solicitada
-no navegador. A migração total do domínio para o Worker continua fora do escopo.
+Home, institucionais e assets ficam fora da Function. Como Pages Functions
+possuem consumo de Workers, a lista explícita restringe as invocações às rotas
+CSR. Em produção, `/promocoes/:slug`, `/story-image` e o fluxo próprio
+`/index.csr` continuam no Worker separado. A migração total do domínio para o
+Worker continua fora do escopo.
 
 ## Migração em duas fases
 
@@ -82,8 +84,8 @@ no navegador. A migração total do domínio para o Worker continua fora do esco
 - Configurar `SSR_PREVIEW_HOSTNAME` com o hostname exato do preview, quando conhecido.
 - Validar SSR, rotas CSR, 404, headers e proxy de imagem.
 - O Worker foi validado para `/promocoes/*` e `/story-image*` em produção.
-- O Cloudflare Pages permanece ativo para as demais rotas.
-- As Pages Functions substituídas e o shell legado foram removidos.
+- O Cloudflare Pages permanece ativo para home, institucionais, assets e rotas CSR.
+- Uma Pages Function limitada por `_routes.json` atende o fallback CSR com o shell importado como texto.
 
 ### Migração total — fora do escopo
 
