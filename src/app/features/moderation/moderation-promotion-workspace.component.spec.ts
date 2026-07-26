@@ -143,7 +143,6 @@ describe('ModerationPromotionWorkspaceComponent', () => {
   it('round-trips inspected prices as decimal currency values', () => {
     component.inspectionLoaded({ imageKey: 'image-key', imageUrl: 'https://img/p.webp', missingFields: [], marketplace: 'AMAZON', title: 'Inspected', productUrl: 'https://amazon.com.br/p', affiliateUrl: '', currentPrice: 10, originalPrice: null, storeName: 'Amazon', soldBy: 'Amazon', deliveredBy: 'Amazon', category: 'Casa', salesCount: null, productRating: null, sellerRating: null, officialStore: false, trustSignals: [] } as any);
     expect(component.form.currentPrice).toBe('R$\u00a010,00');
-    expect(component.priceValues.currentPrice).toBe(10);
     expect(moderationFormToEditRequest(component.form, { promotion, inspectionApplied: true, inspectedFormUrl: component.form.url, imageKey: component.inspectionImageKey }).currentPrice).toBe(10);
     component.inspectionLoaded({ imageKey: 'image-key', imageUrl: 'https://img/p.webp', missingFields: [], marketplace: 'AMAZON', title: 'Inspected', productUrl: 'https://amazon.com.br/p', affiliateUrl: '', currentPrice: 629.9, originalPrice: null, storeName: 'Amazon', soldBy: 'Amazon', deliveredBy: 'Amazon', category: 'Casa', salesCount: null, productRating: null, sellerRating: null, officialStore: false, trustSignals: [] } as any);
     expect(component.form.currentPrice).toBe('R$\u00a0629,90');

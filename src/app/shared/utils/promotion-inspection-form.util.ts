@@ -8,7 +8,6 @@ export interface InspectionForm {
   currentPrice: string;
   originalPrice: string;
   storeName: string;
-  sellerName: string;
   soldBy: string;
   deliveredBy: string;
   category: string;
@@ -27,7 +26,6 @@ export function applyInspectionToForm(form: InspectionForm, data: PromotionInspe
     currentPrice: data.currentPrice == null ? '' : formatCentsToBRL(numberToCents(data.currentPrice)),
     originalPrice: data.originalPrice == null ? '' : formatCentsToBRL(numberToCents(data.originalPrice)),
     storeName: data.storeName || '',
-    sellerName: data.sellerName || '',
     soldBy: data.soldBy || '',
     deliveredBy: data.deliveredBy || '',
     category: data.category || '',

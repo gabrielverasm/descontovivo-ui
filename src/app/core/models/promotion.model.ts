@@ -20,6 +20,7 @@ export interface Promotion {
   offerUrl?: string;
   imageUrl: string;
   category: string;
+  categories?: string[];
   soldBy?: string | null;
   deliveredBy?: string | null;
   tags: string[];

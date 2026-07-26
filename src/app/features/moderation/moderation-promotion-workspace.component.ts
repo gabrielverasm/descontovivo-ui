@@ -10,7 +10,7 @@ import { ModerationDecisionRequest, ModerationService } from '../../core/service
 import { PromotionService } from '../../core/services/promotion.service';
 import { SeoService } from '../../core/services/seo.service';
 import { UploadService } from '../../core/services/upload.service';
-import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
+import { formatCentsToBRL, numberToCents } from '../../shared/utils/money-input.util';
 import { formatRatingForInput } from '../../shared/utils/rating-input.util';
 import { resolveStoreName } from '../../shared/utils/store-name.util';
 import {
@@ -18,6 +18,7 @@ import {
   PromotionModerationFormValue,
   moderationFormToEditRequest,
   normalizeOfficialStoreSignals,
+  validatePromotionForm,
   promotionToModerationForm,
 } from './moderation-form.model';
 import { ModerationCreatePromotionComponent } from './components/moderation-create-promotion/moderation-create-promotion.component';
@@ -94,10 +95,6 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
     return null;
   }
 
-  get priceValues(): { currentPrice?: number; originalPrice?: number } {
-    return { currentPrice: parseBRLInputToNumber(this.form.currentPrice) ?? undefined, originalPrice: parseBRLInputToNumber(this.form.originalPrice) ?? undefined };
-  }
-
   private resolveQuery(params: ParamMap): void {
     const requestedEditSlug = params.get('editar') || '';
     if (this.preserveNextSlugQuery && requestedEditSlug === this.preserveNextSlugQuery && this.mode === 'edit' && this.promotion) {
@@ -155,7 +152,7 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
   }
 
   private emptyForm(): PromotionModerationFormValue {
-    return { marketplace: null, title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '', soldBy: '', deliveredBy: '', category: '', availability: '', priceSignal: '', salesCount: '', productRating: '', sellerRating: '', officialStore: false, trustSignals: [] };
+    return { marketplace: null, title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: '', soldBy: '', deliveredBy: '', category: '', categories: [], availability: '', priceSignal: '', salesCount: '', productRating: '', sellerRating: '', officialStore: false, trustSignals: [] };
   }
 
   private findPending(id: string): Observable<Promotion | null> {
@@ -216,7 +213,7 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
 
   inspectionLoaded(data: PromotionInspectionResponse): void {
     this.clearManualImage();
-    this.form = { ...this.form, marketplace: data.marketplace, url: data.affiliateUrl || data.productUrl || '', title: data.title || '', currentPrice: data.currentPrice == null ? '' : formatCentsToBRL(numberToCents(data.currentPrice)), originalPrice: data.originalPrice == null ? '' : formatCentsToBRL(numberToCents(data.originalPrice)), storeName: resolveStoreName(data.storeName), soldBy: data.soldBy || '', deliveredBy: data.deliveredBy || '', category: data.category || '', salesCount: data.salesCount == null ? '' : String(data.salesCount), productRating: data.productRating == null ? '' : formatRatingForInput(data.productRating), sellerRating: data.sellerRating == null ? '' : formatRatingForInput(data.sellerRating), officialStore: data.officialStore, trustSignals: normalizeOfficialStoreSignals(data.officialStore, [...data.trustSignals]) };
+    this.form = { ...this.form, marketplace: data.marketplace, url: data.affiliateUrl || data.productUrl || '', title: data.title || '', currentPrice: data.currentPrice == null ? '' : formatCentsToBRL(numberToCents(data.currentPrice)), originalPrice: data.originalPrice == null ? '' : formatCentsToBRL(numberToCents(data.originalPrice)), storeName: resolveStoreName(data.storeName), soldBy: data.soldBy || '', deliveredBy: data.deliveredBy || '', category: data.category || '', categories: data.category ? [data.category] : [], salesCount: data.salesCount == null ? '' : String(data.salesCount), productRating: data.productRating == null ? '' : formatRatingForInput(data.productRating), sellerRating: data.sellerRating == null ? '' : formatRatingForInput(data.sellerRating), officialStore: data.officialStore, trustSignals: normalizeOfficialStoreSignals(data.officialStore, [...data.trustSignals]) };
     this.inspectionImageKey = data.imageKey;
     this.inspectionApplied = true;
     this.inspectionRequiresImage = !data.imageKey;
@@ -278,9 +275,8 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
   }
 
   private validateForm(): string {
-    if (!this.form.title.trim() || !this.form.url.trim()) return 'Título e URL da oferta são obrigatórios.';
-    const price = parseBRLInputToNumber(this.form.currentPrice);
-    if (!price || price <= 0) return 'Preço atual inválido.';
+    const validation = validatePromotionForm(this.form);
+    if (validation) return validation;
     if (this.inspectionRequiresImage && !this.inspectionImageKey && !(this.newImageBlob && this.newImageStatus === 'ready')) return 'A imagem não foi encontrada. Selecione uma imagem manualmente.';
     return '';
   }

@@ -14,7 +14,6 @@
       @if (inspectionError) { <div class="moderation-workspace__error" role="alert">{{ inspectionError }}</div> }
       <app-moderation-promotion-panel
         [promotion]="promotion" [editForm]="form" [mode]="mode === 'edit' ? 'edit' : 'validate'"
-        [priceValues]="priceValues"
         [newImagePreviewUrl]="newImagePreviewUrl" [newImageSizeKB]="newImageSizeKB" [newImageStatusText]="newImageStatusText" [newImageError]="newImageError"
         [soldAndDeliveredByStore]="soldAndDeliveredByStore"
         [actionInProgress]="saving ? promotion.id : null" [showRejectInput]="showRejectInput" [rejectReason]="rejectReason"
