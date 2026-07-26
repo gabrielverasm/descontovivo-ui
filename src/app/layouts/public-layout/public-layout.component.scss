@@ -52,6 +52,11 @@
   object-fit: contain;
 }
 
+.public-layout__submenu-link {
+  padding-left: 1rem;
+  font-size: .9em;
+}
+
 .public-layout__header--compact .public-layout__brand,
 .public-layout__header--compact .public-layout__nav {
   opacity: 0;

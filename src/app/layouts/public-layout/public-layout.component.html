@@ -49,11 +49,12 @@
                 <div class="public-layout__user-dropdown">
                   <a routerLink="/minha-conta" routerLinkActive="is-active" (click)="closeUserMenu()">Minha conta</a>
                   @if (isModerator(user)) {
-                    <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" (click)="closeUserMenu()" [attr.aria-label]="hasModerationPending ? 'Moderar promoções, ' + moderationState.moderationPendingCount + ' pendentes' : 'Moderar promoções'" class="public-layout__admin-link">Moderar promoções
+                    <a routerLink="/moderacao" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeUserMenu()" [attr.aria-label]="hasModerationPending ? 'Moderação, ' + moderationState.moderationPendingCount + ' promoções pendentes' : 'Moderação'" class="public-layout__admin-link">Moderação
                       @if (hasModerationPending) {
                         <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ moderationBadgeText }}</span>
                       }
                     </a>
+                    <a routerLink="/moderacao/promocoes" [class.is-active]="isCreateModerationWorkspaceActive()" (click)="closeUserMenu()" class="public-layout__submenu-link">Add. Promoção</a>
                   }
                   @if (isAdmin(user)) {
                     <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" (click)="closeUserMenu()">Importar promoções</a>
@@ -114,11 +115,12 @@
             <span class="public-layout__menu-user">{{ getUserDisplayName(user) }}</span>
             <a routerLink="/minha-conta" routerLinkActive="is-active" (click)="closeMenu()">Minha conta</a>
             @if (isModerator(user)) {
-              <a routerLink="/moderacao/promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()" [attr.aria-label]="hasModerationPending ? 'Moderar promoções, ' + moderationState.moderationPendingCount + ' pendentes' : 'Moderar promoções'">Moderar promoções
+              <a routerLink="/moderacao" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" class="public-layout__admin-link" (click)="closeMenu()" [attr.aria-label]="hasModerationPending ? 'Moderação, ' + moderationState.moderationPendingCount + ' promoções pendentes' : 'Moderação'">Moderação
                 @if (hasModerationPending) {
                   <span class="public-layout__badge public-layout__badge--inline" aria-hidden="true">{{ moderationBadgeText }}</span>
                 }
               </a>
+              <a routerLink="/moderacao/promocoes" [class.is-active]="isCreateModerationWorkspaceActive()" class="public-layout__submenu-link" (click)="closeMenu()">Add. Promoção</a>
             }
             @if (isAdmin(user)) {
               <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>

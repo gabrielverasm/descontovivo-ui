@@ -9,13 +9,11 @@ import { CommentResponse } from '../../core/models/comment.model';
 import { Promotion } from '../../core/models/promotion.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
-import { ImageProcessingService } from '../../core/services/image-processing.service';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { buildPromotionSeo, resolveSchemaAvailability } from '../../core/seo/promotion-seo.util';
-import { ModerationDecisionRequest, ModerationService } from '../../core/services/moderation.service';
+import { ModerationService } from '../../core/services/moderation.service';
 import { PromotionService } from '../../core/services/promotion.service';
-import { UploadService } from '../../core/services/upload.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
@@ -23,22 +21,16 @@ import { PromotionImageComponent } from '../../shared/components/promotion-image
 import { PromotionPriceComponent } from '../../shared/components/promotion-price/promotion-price.component';
 import { PromotionTrustSignalsComponent } from '../../shared/components/promotion-card/promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from '../../shared/components/promotion-card/promotion-vote-buttons.component';
-import { PromotionDetailAdminComponent } from './components/promotion-detail-admin/promotion-detail-admin.component';
 import { PromotionDetailCommentsComponent } from './components/promotion-detail-comments/promotion-detail-comments.component';
 import { PromotionDetailRelatedComponent } from './components/promotion-detail-related/promotion-detail-related.component';
 import { PromotionStoryGeneratorComponent } from './components/promotion-story-generator/promotion-story-generator.component';
-import { formatCentsToBRL, numberToCents, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
-import { resolveStoreName } from '../../shared/utils/store-name.util';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../shared/utils/seller.util';
 import { sharePromotion } from '../../shared/utils/share-promotion.util';
-import { normalizeRatingInput } from '../../shared/utils/rating-input.util';
-import { deriveTrustSignals, getMultipleTrustSignalsMetadata, getMarketplaceTrustSignals } from '../../shared/utils/trust-signals.util';
+import { deriveTrustSignals, getMultipleTrustSignalsMetadata } from '../../shared/utils/trust-signals.util';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
 import { UI_VERSION } from '../../core/app-version';
 import { PromotionsFeedStateService } from './promotions-feed-state.service';
-import { PromotionInspectionResponse } from '../../core/models/marketplace-inspection.model';
-import { detectMarketplace } from '../../shared/utils/marketplace-detection.util';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -53,7 +45,6 @@ import { detectMarketplace } from '../../shared/utils/marketplace-detection.util
     PromotionPriceComponent,
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent,
-    PromotionDetailAdminComponent,
     PromotionDetailCommentsComponent,
     PromotionDetailRelatedComponent,
     PromotionStoryGeneratorComponent,
@@ -77,82 +68,16 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly commentService = inject(CommentService);
   private readonly authService = inject(AuthService);
   private readonly moderationService = inject(ModerationService);
-  private readonly imageProcessing = inject(ImageProcessingService);
-  private readonly uploadService = inject(UploadService);
   private readonly seo = inject(SeoService);
   private readonly structuredData = inject(StructuredDataService);
   private readonly analytics = inject(AnalyticsService);
   private readonly feedState = inject(PromotionsFeedStateService);
   private readonly responseInit = inject(RESPONSE_INIT, { optional: true });
 
-  // Admin state
-  isEditMode = false;
   isAdminSaving = false;
   isRemoveConfirm = false;
   isStoryGeneratorOpen = false;
-  adminMessage = '';
   adminError = '';
-  editForm = { 
-    marketplace: null as import('../../core/models/marketplace-inspection.model').MarketplaceCode | null,
-    title: '', 
-    url: '', 
-    currentPrice: '', 
-    originalPrice: '', 
-    couponCode: '', 
-    storeName: '', 
-    sellerName: '',
-    soldBy: '', 
-    deliveredBy: '', 
-    category: '', 
-    availability: '',
-    priceSignal: '',
-    // New trust signals fields
-    salesCount: '',
-    productRating: '',
-    sellerRating: '',
-    officialStore: false,
-    trustSignals: [] as string[]
-  };
-
-  // Admin image upload
-  adminImageBlob: Blob | null = null;
-  adminImagePreviewUrl: string | null = null;
-  adminImageSizeKB: number | null = null;
-  adminImageError: string | null = null;
-  adminImageStatus: 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error' = 'idle';
-  inspectionImageKey: string | null = null;
-  inspectionApplied = false;
-  inspectionRequiresImage = false;
-  private inspectedFormUrl: string | null = null;
-
-  onInspectionLoaded(data: PromotionInspectionResponse): void {
-    this.clearAdminImage();
-    this.inspectionImageKey = data.imageKey;
-    this.inspectionApplied = true;
-    this.inspectionRequiresImage = !data.imageKey;
-    this.inspectedFormUrl = this.editForm.url;
-    this.adminImagePreviewUrl = data.imageUrl;
-    this.adminImageBlob = null;
-    this.adminImageStatus = data.imageKey ? 'done' : 'idle';
-    this.adminMessage = 'Dados da Shopee carregados';
-    this.adminError = !data.imageKey
-      ? 'A imagem não foi encontrada. Selecione uma imagem manualmente.'
-      : data.missingFields.length
-        ? 'Alguns campos não foram encontrados e precisam ser preenchidos manualmente'
-        : '';
-  }
-
-  onInspectionFailed(): void { this.adminError = 'Não foi possível carregar os dados da Shopee.'; }
-
-  get adminImageStatusText(): string | null {
-    switch (this.adminImageStatus) {
-      case 'processing': return 'Processando imagem…';
-      case 'ready': return 'Nova imagem selecionada';
-      case 'uploading': return 'Enviando imagem…';
-      case 'done': return 'Upload concluído';
-      default: return null;
-    }
-  }
 
   // Trust signals methods
   get hasTrustSignals(): boolean {
@@ -191,37 +116,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       label: `✓ ${meta.label}`,
       description: meta.detailDescription || meta.tooltip
     }));
-  }
-
-  // Trust signals for admin edit form
-  get availableTrustSignals(): string[] {
-    if (!this.promotion) return [];
-    const marketplace = this.promotion.marketplace || '';
-    const trustSignals = getMarketplaceTrustSignals(marketplace);
-    return trustSignals.map((signal: any) => signal.toString());
-  }
-
-  getTrustSignalLabel(signal: string): string {
-    const metadata = getMultipleTrustSignalsMetadata([signal as any])[0];
-    return metadata?.label || signal;
-  }
-
-  getTrustSignalTooltip(signal: string): string {
-    const metadata = getMultipleTrustSignalsMetadata([signal as any])[0];
-    return metadata?.tooltip || '';
-  }
-
-  toggleTrustSignal(signal: string): void {
-    const index = this.editForm.trustSignals.indexOf(signal);
-    if (index === -1) {
-      this.editForm.trustSignals.push(signal);
-    } else {
-      this.editForm.trustSignals.splice(index, 1);
-    }
-  }
-
-  isTrustSignalSelected(signal: string): boolean {
-    return this.editForm.trustSignals.includes(signal);
   }
 
   get canModerate(): boolean { return this.authService.canModerate(); }
@@ -420,210 +314,13 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  openEditMode() {
+  editPromotion(): void {
     if (!this.promotion) return;
-    this.editForm = {
-      marketplace: (this.promotion.marketplace as import('../../core/models/marketplace-inspection.model').MarketplaceCode) ?? null,
-      title: this.promotion.title,
-      url: this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '',
-      currentPrice: formatCentsToBRL(numberToCents(this.promotion.currentPrice)),
-      originalPrice: this.promotion.originalPrice ? formatCentsToBRL(numberToCents(this.promotion.originalPrice)) : '',
-      couponCode: this.promotion.couponCode ?? '',
-      storeName: resolveStoreName(this.promotion.store?.name),
-      sellerName: this.promotion.sellerName ?? '',
-      soldBy: this.promotion.soldBy ?? '',
-      deliveredBy: this.promotion.deliveredBy ?? '',
-      category: this.promotion.category ?? '',
-      availability: this.promotion.availability ?? '',
-      priceSignal: this.promotion.priceSignal === 'NONE' ? '' : this.promotion.priceSignal ?? '',
-      // New trust signals fields
-      salesCount: this.promotion.salesCount?.toString() ?? '',
-      productRating: this.promotion.productRating?.toString().replace('.', ',') ?? '',
-      sellerRating: this.promotion.sellerRating?.toString().replace('.', ',') ?? '',
-      officialStore: this.promotion.officialStore ?? false,
-      trustSignals: this.promotion.trustSignals ?? [],
-    };
-    this.isEditMode = true;
-    this.adminMessage = '';
-    this.adminError = '';
-    this.resetInspectionState();
-  }
-
-  cancelEdit() {
-    this.isEditMode = false;
-    this.adminError = '';
-    this.resetInspectionState();
-  }
-
-  submitEdit() {
-    if (!this.promotion || this.isAdminSaving) return;
-    const f = this.editForm;
-    if (!f.title.trim() || !f.url.trim() || !f.currentPrice.trim()) {
-      this.adminError = 'Título, URL e preço atual são obrigatórios.';
-      return;
-    }
-    const price = parseBRLInputToNumber(f.currentPrice);
-    if (!price || price <= 0) {
-      this.adminError = 'Preço atual inválido.';
-      return;
-    }
-    if (this.inspectionRequiresImage && !this.inspectionImageKey
-        && (!this.adminImageBlob || this.adminImageStatus !== 'ready')) {
-      this.adminError = 'A imagem não foi encontrada. Selecione uma imagem manualmente.';
-      return;
-    }
-
-    this.isAdminSaving = true;
-    this.adminError = '';
-
-    this.doSubmitEdit(price).then();
-  }
-
-  private parseOptionalIntegerInput(value: string | number | null | undefined): number | null {
-    if (value === null || value === undefined || value === '') {
-      return null;
-    }
-    
-    // If it's already a number, validate range
-    if (typeof value === 'number') {
-      return value >= 0 && Number.isInteger(value) ? value : null;
-    }
-    
-    // If it's a string, normalize it
-    const str = String(value).trim();
-    if (!str) return null;
-    
-    // Parse to integer
-    const parsed = parseInt(str, 10);
-    
-    // Validate result
-    if (isNaN(parsed) || parsed < 0) {
-      return null;
-    }
-    
-    return parsed;
-  }
-
-
-
-  private async doSubmitEdit(price: number): Promise<void> {
-    const f = this.editForm;
-    let imageKey: string | undefined = this.inspectionImageKey || undefined;
-
-    if (this.adminImageBlob && this.adminImageStatus === 'ready') {
-      try {
-        this.adminImageStatus = 'uploading';
-        const result = await this.uploadService.uploadPromotionImage(this.adminImageBlob);
-        imageKey = result.imageKey;
-        this.adminImageStatus = 'done';
-      } catch {
-        this.adminImageStatus = 'error';
-        this.adminImageError = 'Não foi possível enviar a nova imagem.';
-        this.isAdminSaving = false;
-        this.adminError = 'Não foi possível enviar a nova imagem.';
-        return;
-      }
-    }
-
-    const req: ModerationDecisionRequest = {
-      action: 'EDIT',
-      reason: 'Ajuste administrativo no detalhe da promoção',
-      title: f.title.trim(),
-      url: f.url.trim(),
-      currentPrice: price
-    };
-    req.marketplace = detectMarketplace(f.url)?.marketplace
-      || (f.url === this.inspectedFormUrl ? f.marketplace : null);
-    req.replaceInspectionFields = this.inspectionApplied;
-    const origPrice = parseBRLInputToNumber(f.originalPrice);
-    if (origPrice && origPrice > 0) req.originalPrice = origPrice;
-    else if (this.inspectionApplied) req.originalPrice = null;
-    req.couponCode = f.couponCode.trim();
-    req.priceSignal = f.priceSignal.trim();
-    if (f.storeName.trim()) req.storeName = f.storeName.trim();
-    req.sellerName = f.soldBy.trim() || null;
-    if (imageKey) req.imageKey = imageKey;
-    req.soldBy = f.soldBy.trim() || null;
-    req.deliveredBy = f.deliveredBy.trim() || null;
-    req.category = f.category.trim() || null;
-    if (f.availability.trim()) req.availability = f.availability.trim();
-    
-    // Add new trust signals fields
-    const salesCount = this.parseOptionalIntegerInput(f.salesCount);
-    const productRating = normalizeRatingInput(f.productRating);
-    const sellerRating = normalizeRatingInput(f.sellerRating);
-    
-    req.salesCount = salesCount && salesCount > 0 ? salesCount : null;
-    req.productRating = productRating;
-    req.sellerRating = sellerRating;
-    req.officialStore = f.officialStore;
-    req.trustSignals = f.trustSignals;
-
-    this.moderationService.decide(this.promotion!.id, req).subscribe({
-      next: (updated) => {
-        this.promotion = this.normalizeUpdated(updated);
-        this.isEditMode = false;
-        this.isAdminSaving = false;
-        this.adminMessage = 'Promoção atualizada com sucesso.';
-        this.resetInspectionState();
-        this.updateSeoMeta();
-        this.updateStructuredData();
-      },
-      error: () => {
-        this.isAdminSaving = false;
-        this.adminError = 'Não foi possível salvar as alterações.';
-      }
-    });
-  }
-
-  async onAdminImageSelected(file: File): Promise<void> {
-    this.clearAdminImage();
-    if (this.inspectionApplied) this.inspectionRequiresImage = true;
-    const validationError = this.imageProcessing.validate(file);
-    if (validationError) {
-      this.adminImageError = validationError;
-      this.adminImageStatus = 'error';
-      return;
-    }
-    try {
-      this.adminImageStatus = 'processing';
-      const processed = await this.imageProcessing.process(file);
-      this.adminImageBlob = processed.blob;
-      this.adminImagePreviewUrl = processed.previewUrl;
-      this.adminImageSizeKB = processed.sizeKB;
-      this.adminImageStatus = 'ready';
-      this.inspectionRequiresImage = false;
-    } catch {
-      this.adminImageError = 'Falha ao processar imagem. Tente novamente.';
-      this.adminImageStatus = 'error';
-    }
-  }
-
-  removeAdminImage(): void {
-    this.clearAdminImage();
-    if (this.inspectionApplied) this.inspectionRequiresImage = true;
-  }
-
-  private clearAdminImage(): void {
-    if (this.adminImagePreviewUrl) URL.revokeObjectURL(this.adminImagePreviewUrl);
-    this.adminImageBlob = null;
-    this.adminImagePreviewUrl = null;
-    this.adminImageSizeKB = null;
-    this.adminImageError = null;
-    this.adminImageStatus = 'idle';
-    this.inspectionImageKey = null;
-  }
-
-  private resetInspectionState(): void {
-    this.clearAdminImage();
-    this.inspectionApplied = false;
-    this.inspectionRequiresImage = false;
-    this.inspectedFormUrl = null;
+    void this.router.navigate(['/moderacao/promocoes'], { queryParams: { editar: this.promotion.slug || this.promotion.id } });
   }
 
   confirmRemove() {
     this.isRemoveConfirm = true;
-    this.adminMessage = '';
     this.adminError = '';
   }
 
@@ -679,7 +376,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.resetInspectionState();
     this.backButtonObserver?.disconnect();
     clearTimeout(this.floatingBackAnimationTimeout);
     this.routeSubscription.unsubscribe();
@@ -815,29 +511,4 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     return destinationName;
   }
 
-  private normalizeUpdated(p: Partial<Promotion> & { id: string }): Promotion {
-    const base = this.promotion!;
-    return {
-      ...base,
-      ...p,
-      url: p.url || p.offerUrl || base.url || base.offerUrl || '',
-      offerUrl: p.url || p.offerUrl || base.offerUrl || base.url || '',
-      storeUrl: p.storeUrl || base.storeUrl || '',
-      storeName: p.storeName || p.store?.name || base.storeName || '',
-      tags: p.tags || base.tags || [],
-      likesCount: p.likesCount ?? base.likesCount ?? 0,
-      dislikesCount: p.dislikesCount ?? base.dislikesCount ?? 0,
-      commentsCount: p.commentsCount ?? base.commentsCount ?? 0,
-      status: p.status || base.status || 'approved',
-      createdBy: p.createdBy || base.createdBy || '',
-      createdAt: p.createdAt || base.createdAt,
-      publishedAt: p.publishedAt || base.publishedAt || p.createdAt || base.createdAt,
-      imageUrl: p.imageUrl || base.imageUrl || '',
-
-      currentPrice: p.currentPrice ?? base.currentPrice,
-      originalPrice: p.originalPrice ?? base.originalPrice,
-      couponCode: p.couponCode ?? base.couponCode,
-      category: p.category || base.category || '',
-    } as Promotion;
-  }
 }

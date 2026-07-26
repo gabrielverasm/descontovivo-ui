@@ -15,6 +15,7 @@ import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../..
 import { normalizePromotionTitle } from '../../../../shared/utils/normalize-title.util';
 import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata, TrustSignal } from '../../../../shared/utils/trust-signals.util';
 import { normalizeRatingInput, formatRatingForInput } from '../../../../shared/utils/rating-input.util';
+import { normalizeOfficialStoreSignals } from '../../moderation-form.model';
 
 @Component({
   selector: 'app-moderation-create-promotion',
@@ -180,6 +181,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
     if (signal === TrustSignal.OFFICIAL_STORE.toString()) {
       this.form.officialStore = index === -1; // true when added, false when removed
     }
+    this.trustSignals = normalizeOfficialStoreSignals(this.form.officialStore, this.trustSignals);
   }
 
   isTrustSignalSelected(signal: string): boolean {
@@ -306,6 +308,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
       // Remove OFFICIAL_STORE chip
       this.trustSignals.splice(index, 1);
     }
+    this.trustSignals = normalizeOfficialStoreSignals(checked, this.trustSignals);
   }
 
   // --- Submit ---
@@ -402,7 +405,7 @@ export class ModerationCreatePromotionComponent implements OnInit {
         productRating,
         sellerRating,
         officialStore: this.form.officialStore,
-        trustSignals: this.trustSignals,
+        trustSignals: normalizeOfficialStoreSignals(this.form.officialStore, this.trustSignals),
       };
 
       this.adminImportService.import({ batchId: `manual-${Date.now()}`, items: [item] }, false).pipe(
