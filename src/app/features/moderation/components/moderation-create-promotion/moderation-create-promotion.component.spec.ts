@@ -7,6 +7,7 @@ import { MarketplaceInspectionService } from '../../../../core/services/marketpl
 import { ModerationCategoryService } from '../../../../core/services/moderation-category.service';
 import { UploadService } from '../../../../core/services/upload.service';
 import { ModerationCreatePromotionComponent } from './moderation-create-promotion.component';
+import { TrustSignal } from '../../../../shared/utils/trust-signals.util';
 
 describe('ModerationCreatePromotionComponent', () => {
   let fixture: ComponentFixture<ModerationCreatePromotionComponent>;
@@ -161,17 +162,16 @@ describe('ModerationCreatePromotionComponent', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
-    const errors = element.querySelectorAll('.mod-panel__error');
+    const errors = element.querySelectorAll('.promotion-form__feedback .error');
     expect(errors.length).toBe(1);
-    expect(element.querySelector('.mod-panel__header .mod-panel__error')).toBeNull();
-    expect(element.querySelector('.mod-panel__footer .mod-panel__error')?.textContent)
+    expect(element.querySelector('.promotion-form-card__header .error')).toBeNull();
+    expect(element.querySelector('.promotion-form__footer .error')?.textContent)
       .toContain('Imagem do produto é obrigatória.');
   });
 
   it('uses Vendido por for both canonical and legacy seller payload fields', async () => {
     fillRequiredFields();
     Object.assign(component.form, {
-      sellerName: 'Valor antigo da inspeção',
       soldBy: 'Corsair',
       deliveredBy: 'MercadoLivre',
     });
@@ -184,5 +184,49 @@ describe('ModerationCreatePromotionComponent', () => {
     expect(request.items[0].sellerName).toBe('Corsair');
     expect(request.items[0].soldBy).toBe('Corsair');
     expect(request.items[0].deliveredBy).toBe('MercadoLivre');
+  });
+
+  it('keeps inspection trust badges selected and sends the same normalized state', async () => {
+    component.applyInspection({
+      marketplace: 'SHOPEE',
+      supported: true,
+      inputUrl: 'https://shopee.com.br/i.1.2',
+      productUrl: 'https://shopee.com.br/i.1.2',
+      affiliateUrl: 'https://shope.ee/teste',
+      title: 'Produto inspecionado',
+      currentPrice: 89.9,
+      originalPrice: 109.9,
+      imageKey: 'temp/promotions/inspection.webp',
+      imageUrl: 'https://images.example.com/inspection.webp',
+      storeName: 'Loja oficial',
+      sellerName: 'Loja oficial',
+      soldBy: 'Loja oficial',
+      deliveredBy: 'Shopee',
+      salesCount: 5334,
+      productRating: 4.8,
+      sellerRating: 4.9,
+      officialStore: true,
+      shopeeGuarantee: true,
+      category: 'Casa',
+      trustSignals: [TrustSignal.HIGH_SALES, TrustSignal.SHOPEE_GUARANTEE],
+      missingFields: [],
+      warnings: [],
+    });
+    fixture.detectChanges();
+
+    const selectedLabels = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.trust-chip[aria-pressed="true"]'),
+    ).map(button => button.textContent?.trim());
+    expect(selectedLabels).toEqual(jasmine.arrayContaining(['Oficial', 'Muitas vendas', 'Garantia Shopee']));
+
+    await component.submit();
+
+    const item = adminImport.import.calls.mostRecent().args[0].items[0];
+    expect(item.officialStore).toBeTrue();
+    expect(item.trustSignals).toEqual(jasmine.arrayContaining([
+      TrustSignal.OFFICIAL_STORE,
+      TrustSignal.HIGH_SALES,
+      TrustSignal.SHOPEE_GUARANTEE,
+    ]));
   });
 });

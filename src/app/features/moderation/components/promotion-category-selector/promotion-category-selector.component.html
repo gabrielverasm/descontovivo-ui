@@ -1,0 +1,59 @@
+<div class="category-select">
+  <span class="sr-only" [id]="labelId">Categorias</span>
+  @if (selected.length) {
+    <div class="category-select__chips" [attr.aria-labelledby]="labelId">
+      @for (name of selected; track name) {
+        <span class="category-select__chip">
+          {{ name }}
+          <button type="button" class="category-select__remove" [attr.aria-label]="'Remover categoria ' + name"
+            [disabled]="disabled" (click)="remove(name, $event)">×</button>
+        </span>
+      }
+    </div>
+  }
+  <button
+    type="button"
+    class="category-select__control"
+    [disabled]="disabled"
+    [attr.aria-expanded]="open"
+    [attr.aria-controls]="panelId"
+    [attr.aria-labelledby]="labelId"
+    (click)="togglePanel()"
+  >
+    <span class="category-select__placeholder">{{ selected.length ? 'Selecionar mais categorias' : 'Categorias' }}</span>
+    <span aria-hidden="true">⌄</span>
+  </button>
+
+  @if (open) {
+    <div class="category-select__panel" [id]="panelId">
+      <label class="category-select__search">
+        <span class="sr-only">Pesquisar categoria</span>
+        <input type="search" [(ngModel)]="search" placeholder="Pesquisar categoria" />
+      </label>
+      @if (loading) { <p>Carregando…</p> }
+      @else {
+        <div class="category-select__list" role="group" aria-label="Categorias disponíveis">
+          @for (category of filtered; track category.name) {
+            <div class="category-select__item">
+              @if (editing === category.name) {
+                <input class="category-select__rename" [(ngModel)]="editingName" maxlength="50" aria-label="Novo nome da categoria"
+                  [attr.disabled]="renaming ? '' : null"
+                  (keydown.enter)="saveEdit(category.name, $event)" (keydown.escape)="cancelEdit($event)" />
+                <button type="button" [disabled]="renaming" (click)="saveEdit(category.name, $event)" aria-label="Salvar nome">{{ renaming ? 'Salvando…' : 'Salvar' }}</button>
+                <button type="button" [disabled]="renaming" (click)="cancelEdit($event)" aria-label="Cancelar edição">Cancelar</button>
+              } @else {
+                <label>
+                  <input type="checkbox" [checked]="isSelected(category.name)" (change)="toggle(category.name)" />
+                  <span>{{ category.name }}</span>
+                  <small>({{ category.promotionCount }})</small>
+                </label>
+                <button type="button" class="category-select__edit" (click)="startEdit(category.name, $event)" [attr.aria-label]="'Editar categoria ' + category.name" title="Editar categoria">✎</button>
+              }
+            </div>
+          } @empty { <p>Nenhuma categoria encontrada.</p> }
+        </div>
+      }
+      @if (error) { <p class="category-select__error" role="alert">{{ error }}</p> }
+    </div>
+  }
+</div>

@@ -1,34 +1,26 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { finalize } from 'rxjs';
 import { AdminImportService } from '../../../../core/services/admin-import.service';
 import { ImageProcessingService } from '../../../../core/services/image-processing.service';
-import { ModerationCategoryService, ModerationCategory } from '../../../../core/services/moderation-category.service';
 import { UploadService } from '../../../../core/services/upload.service';
-import { PromotionImageUploadComponent } from '../../../../shared/components/promotion-image-upload/promotion-image-upload.component';
-import { MarketplaceInspectionButtonComponent } from '../../../../shared/components/marketplace-inspection-button/marketplace-inspection-button.component';
 import { PromotionInspectionResponse } from '../../../../core/models/marketplace-inspection.model';
 import { applyInspectionToForm } from '../../../../shared/utils/promotion-inspection-form.util';
 import { deriveMarketplace } from '../../../../shared/utils/marketplace.util';
 import { detectMarketplace } from '../../../../shared/utils/marketplace-detection.util';
-import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../../../shared/utils/money-input.util';
-import { normalizePromotionTitle } from '../../../../shared/utils/normalize-title.util';
-import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata, TrustSignal } from '../../../../shared/utils/trust-signals.util';
-import { normalizeRatingInput, formatRatingForInput } from '../../../../shared/utils/rating-input.util';
-import { normalizeOfficialStoreSignals } from '../../moderation-form.model';
+import { normalizeOfficialStoreSignals, promotionFormToPayload, validatePromotionForm } from '../../moderation-form.model';
+import { ModerationPromotionPanelComponent } from '../moderation-promotion-panel/moderation-promotion-panel.component';
 
 @Component({
   selector: 'app-moderation-create-promotion',
   standalone: true,
-  imports: [FormsModule, PromotionImageUploadComponent, MarketplaceInspectionButtonComponent],
+  imports: [ModerationPromotionPanelComponent],
   templateUrl: './moderation-create-promotion.component.html',
   styleUrl: './moderation-create-promotion.component.scss',
 })
-export class ModerationCreatePromotionComponent implements OnInit {
+export class ModerationCreatePromotionComponent {
   private readonly adminImportService = inject(AdminImportService);
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
-  private readonly categoryService = inject(ModerationCategoryService);
 
   @Output() created = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
@@ -41,10 +33,10 @@ export class ModerationCreatePromotionComponent implements OnInit {
     originalPrice: '',
     couponCode: '',
     storeName: '',
-    sellerName: '',
     soldBy: '',
     deliveredBy: '',
     category: '',
+    categories: [] as string[],
     availability: '',
     priceSignal: '',
     // New trust signals fields
@@ -55,18 +47,10 @@ export class ModerationCreatePromotionComponent implements OnInit {
     trustSignals: [] as string[],
   };
 
-  // Trust signals chips
-  trustSignals: string[] = [];
-
   saving = false;
   error = '';
   inspectionMessage = '';
   soldAndDeliveredByStore = false;
-
-  // Categories
-  categories: ModerationCategory[] = [];
-  categoriesLoading = false;
-  categoriesError = false;
 
   // Image
   imageBlob: Blob | null = null;
@@ -82,10 +66,10 @@ export class ModerationCreatePromotionComponent implements OnInit {
   applyInspection(data: PromotionInspectionResponse): void {
     this.resetImage();
     applyInspectionToForm(this.form, data);
+    this.form.categories = data.category ? [data.category] : [];
     this.inspectionImageKey = data.imageKey;
     this.inspectedFormUrl = this.form.url;
-    this.trustSignals = [...data.trustSignals];
-    this.form.trustSignals = [...data.trustSignals];
+    this.form.trustSignals = normalizeOfficialStoreSignals(data.officialStore, [...data.trustSignals]);
     this.imagePreviewUrl = data.imageUrl;
     this.imageBlob = null;
     this.imageStatus = data.imageKey ? 'done' : 'idle';
@@ -120,29 +104,6 @@ export class ModerationCreatePromotionComponent implements OnInit {
     return this.imageStatus === 'processing' || this.imageStatus === 'uploading';
   }
 
-  // Getter puro para availableTrustSignals
-  get availableTrustSignals(): string[] {
-    const marketplace = this.form.marketplace || deriveMarketplace(this.form.storeName || '');
-    return getMarketplaceTrustSignals(marketplace).map(signal => signal.toString());
-  }
-
-  ngOnInit(): void {
-    this.loadCategories();
-  }
-
-  // --- Price helpers ---
-
-  onPriceInput(field: 'currentPrice' | 'originalPrice', value: string): void {
-    const digits = onlyDigits(value);
-    this.form[field] = formatCentsToBRL(digits);
-  }
-
-  // --- Store / seller helpers ---
-
-  hasValidStoreName(): boolean {
-    return !!this.form.storeName.trim();
-  }
-
   toggleSoldDelivered(checked: boolean): void {
     this.soldAndDeliveredByStore = checked;
     if (checked && this.form.storeName.trim()) {
@@ -165,64 +126,6 @@ export class ModerationCreatePromotionComponent implements OnInit {
 
   copySoldByToDeliveredBy(): void {
     this.form.deliveredBy = this.form.soldBy;
-  }
-
-  // --- Trust signals helpers ---
-
-  toggleTrustSignal(signal: string): void {
-    const index = this.trustSignals.indexOf(signal);
-    if (index === -1) {
-      this.trustSignals.push(signal);
-    } else {
-      this.trustSignals.splice(index, 1);
-    }
-    
-    // Sync OFFICIAL_STORE chip with officialStore checkbox
-    if (signal === TrustSignal.OFFICIAL_STORE.toString()) {
-      this.form.officialStore = index === -1; // true when added, false when removed
-    }
-    this.trustSignals = normalizeOfficialStoreSignals(this.form.officialStore, this.trustSignals);
-  }
-
-  isTrustSignalSelected(signal: string): boolean {
-    return this.trustSignals.includes(signal);
-  }
-
-  getTrustSignalLabel(signal: string): string {
-    // Use the metadata from trust-signals.util.ts
-    const metadata = getMultipleTrustSignalsMetadata([signal as any])[0];
-    return metadata?.label || signal;
-  }
-
-  getTrustSignalTooltip(signal: string): string {
-    // Use the metadata from trust-signals.util.ts
-    const metadata = getMultipleTrustSignalsMetadata([signal as any])[0];
-    return metadata?.tooltip || '';
-  }
-
-  // --- Categories ---
-
-  loadCategories(): void {
-    this.categoriesLoading = true;
-    this.categoriesError = false;
-    this.categoryService.list().subscribe({
-      next: (cats) => {
-        this.categories = cats;
-        this.categoriesLoading = false;
-      },
-      error: () => {
-        this.categoriesError = true;
-        this.categoriesLoading = false;
-      },
-    });
-  }
-
-  selectCategory(name: string): void {
-    this.form.category = name;
-  }
-
-  isCategorySelected(name: string): boolean {
-    return this.form.category === name;
   }
 
   // --- Image ---
@@ -255,62 +158,6 @@ export class ModerationCreatePromotionComponent implements OnInit {
     this.clearImageValidationFeedback();
   }
 
-  // --- Helper functions ---
-
-  private parseOptionalIntegerInput(value: string | number | null | undefined): number | null {
-    if (value === null || value === undefined || value === '') {
-      return null;
-    }
-    
-    // If it's already a number, validate range
-    if (typeof value === 'number') {
-      return value >= 0 && Number.isInteger(value) ? value : null;
-    }
-    
-    // If it's a string, normalize it
-    const str = String(value).trim();
-    if (!str) return null;
-    
-    // Parse to integer
-    const parsed = parseInt(str, 10);
-    
-    // Validate result
-    if (isNaN(parsed) || parsed < 0) {
-      return null;
-    }
-    
-    return parsed;
-  }
-
-  normalizeRatingField(field: 'productRating' | 'sellerRating'): void {
-    const value = this.form[field];
-    const normalized = normalizeRatingInput(value);
-    
-    if (normalized !== null && normalized !== undefined) {
-      this.form[field] = formatRatingForInput(normalized);
-    } else if (value && String(value).trim()) {
-      // If normalization failed but there's a value, clear it
-      this.form[field] = '';
-    }
-  }
-
-  onOfficialStoreChange(checked: boolean): void {
-    this.form.officialStore = checked;
-    
-    // Sync with OFFICIAL_STORE chip
-    const officialStoreSignal = TrustSignal.OFFICIAL_STORE.toString();
-    const index = this.trustSignals.indexOf(officialStoreSignal);
-    
-    if (checked && index === -1) {
-      // Add OFFICIAL_STORE chip
-      this.trustSignals.push(officialStoreSignal);
-    } else if (!checked && index !== -1) {
-      // Remove OFFICIAL_STORE chip
-      this.trustSignals.splice(index, 1);
-    }
-    this.trustSignals = normalizeOfficialStoreSignals(checked, this.trustSignals);
-  }
-
   // --- Submit ---
 
   async submit(): Promise<void> {
@@ -318,28 +165,13 @@ export class ModerationCreatePromotionComponent implements OnInit {
       if (this.saving) return;
       this.error = '';
       
-      // Validação inicial
-      if (!this.form.url.trim()) { 
-        this.error = 'Link da oferta é obrigatório.';
-        return; 
-      }
-      if (!this.form.title.trim()) { 
-        this.error = 'Título é obrigatório.';
-        return; 
-      }
-      if (!this.form.storeName.trim()) { 
-        this.error = 'Nome da loja é obrigatório.';
-        return; 
-      }
-      const price = parseBRLInputToNumber(this.form.currentPrice);
-      if (!price || price <= 0) { 
-        this.error = 'Preço atual é obrigatório e deve ser maior que zero.';
-        return; 
-      }
-      if (!this.hasSubmittableImage) {
-        this.error = 'Imagem do produto é obrigatória.';
-        return; 
-      }
+      const validation = validatePromotionForm(this.form, {
+        requireStore: true,
+        requireImage: true,
+        hasImage: this.hasSubmittableImage,
+      });
+      if (validation) { this.error = validation; return; }
+      const common = promotionFormToPayload(this.form);
 
       this.saving = true;
       
@@ -363,7 +195,6 @@ export class ModerationCreatePromotionComponent implements OnInit {
         return;
       }
 
-      const originalPrice = parseBRLInputToNumber(this.form.originalPrice);
       const now = new Date().toISOString();
       const sourceId = `manual-mod-${Date.now()}`;
       const storeName = this.form.storeName.trim();
@@ -372,40 +203,35 @@ export class ModerationCreatePromotionComponent implements OnInit {
         ? this.form.marketplace
         : null;
       const marketplace = detectedMarketplace || inspectedMarketplace || deriveMarketplace(storeName);
-      const title = normalizePromotionTitle(this.form.title);
-
-      // Parse trust signals fields
-      const salesCount = this.parseOptionalIntegerInput(this.form.salesCount);
-      const productRating = normalizeRatingInput(this.form.productRating);
-      const sellerRating = normalizeRatingInput(this.form.sellerRating);
 
       const item = {
         sourceId,
-        title,
+        title: common.title,
         marketplace,
         storeName,
         // Keep the legacy import field aligned with the canonical seller field
         // without exposing two inputs for the same information.
-        sellerName: this.form.soldBy.trim() || null,
-        soldBy: this.form.soldBy.trim() || null,
-        deliveredBy: this.form.deliveredBy.trim() || null,
-        productUrl: this.form.url.trim(),
+        sellerName: common.soldBy,
+        soldBy: common.soldBy,
+        deliveredBy: common.deliveredBy,
+        productUrl: common.url,
         imageUrl,
         imageKey,
-        currentPrice: price,
-        originalPrice: originalPrice && originalPrice > 0 ? originalPrice : null,
-        coupon: this.form.couponCode.trim() || null,
-        category: this.form.category.trim() || 'GERAL',
-        availability: this.form.availability || null,
-        priceSignal: this.form.priceSignal || null,
+        currentPrice: common.currentPrice!,
+        originalPrice: common.originalPrice,
+        coupon: common.couponCode || null,
+        category: common.category || '',
+        categories: common.categories,
+        availability: common.availability || null,
+        priceSignal: common.priceSignal || null,
         publishAt: now,
         verifiedAt: now,
         // New trust signals fields
-        salesCount: salesCount && salesCount > 0 ? salesCount : null,
-        productRating,
-        sellerRating,
-        officialStore: this.form.officialStore,
-        trustSignals: normalizeOfficialStoreSignals(this.form.officialStore, this.trustSignals),
+        salesCount: common.salesCount,
+        productRating: common.productRating,
+        sellerRating: common.sellerRating,
+        officialStore: common.officialStore,
+        trustSignals: common.trustSignals,
       };
 
       this.adminImportService.import({ batchId: `manual-${Date.now()}`, items: [item] }, false).pipe(
@@ -443,10 +269,10 @@ export class ModerationCreatePromotionComponent implements OnInit {
       originalPrice: '', 
       couponCode: '', 
       storeName: '', 
-      sellerName: '',
       soldBy: '', 
       deliveredBy: '', 
       category: '', 
+      categories: [] as string[],
       availability: '', 
       priceSignal: '',
       salesCount: '',
@@ -456,7 +282,6 @@ export class ModerationCreatePromotionComponent implements OnInit {
       marketplace: null,
       trustSignals: [] as string[]
     };
-    this.trustSignals = [];
     this.inspectedFormUrl = null;
     this.soldAndDeliveredByStore = false;
     this.resetImage();

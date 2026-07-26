@@ -1,235 +1,122 @@
-<div class="mod-panel">
-  <header class="mod-panel__header">
-    <h2 class="mod-panel__title">{{ mode === 'edit' ? 'Edição administrativa' : 'Validação' }}</h2>
-    <button type="button" class="mod-panel__btn mod-panel__btn--ghost" (click)="close.emit()">✕ Fechar</button>
+<section class="promotion-form-card">
+  <header class="promotion-form-card__header">
+    <h2>{{ mode === 'create' ? 'Adicionar promoção manual' : mode === 'edit' ? 'Edição administrativa' : 'Validação' }}</h2>
+    <button type="button" class="button button--ghost" [disabled]="isActionDisabled" (click)="close.emit()">× Fechar</button>
   </header>
 
-  <div class="mod-panel__body">
-    <!-- Image -->
-    <div class="mod-panel__image">
-      @if (newImagePreviewUrl) {
-        <app-promotion-image-upload
-          previewSize="moderation"
-          [previewUrl]="newImagePreviewUrl"
-          [sizeKB]="newImageSizeKB"
-          [statusText]="newImageStatusText"
-          [error]="newImageError"
-          label="Trocar imagem"
-          name="mod-image"
-          (fileSelected)="imageSelected.emit($event)"
-          (removed)="removeImage.emit()"
-        />
-      } @else {
+  <form class="promotion-form" (ngSubmit)="mode === 'create' && create.emit()">
+    <aside class="promotion-form__media">
+      @if (promotion && !newImagePreviewUrl) {
         <app-promotion-image [promotion]="promotion" variant="moderationPanel" />
-        <app-promotion-image-upload
-          previewSize="moderation"
-          [previewUrl]="null"
-          [sizeKB]="newImageSizeKB"
-          [statusText]="newImageStatusText"
-          [error]="newImageError"
-          label="Trocar imagem"
-          name="mod-image"
-          (fileSelected)="imageSelected.emit($event)"
-          (removed)="removeImage.emit()"
-        />
       }
-    </div>
+      <app-promotion-image-upload
+        previewSize="moderation"
+        [previewUrl]="newImagePreviewUrl"
+        [sizeKB]="newImageSizeKB"
+        [statusText]="newImageStatusText"
+        [error]="newImageError"
+        [label]="mode === 'create' ? 'Imagem do produto *' : 'Trocar imagem'"
+        [name]="mode + '-image'"
+        [disabled]="isActionDisabled"
+        (fileSelected)="imageSelected.emit($event)"
+        (removed)="removeImage.emit()"
+      />
+    </aside>
 
-    <!-- Form columns -->
-    <div class="mod-panel__fields">
-      <!-- Col 1: Dados principais -->
-      <div class="mod-panel__form-col">
-        <h3 class="mod-panel__form-title">Dados principais</h3>
-
-        <label class="mod-panel__field">
-          <span>Título</span>
-          <input type="text" [(ngModel)]="editForm.title" />
-        </label>
-
-        <label class="mod-panel__field">
-          <span>Link da oferta</span>
-          <input type="url" [(ngModel)]="editForm.url" />
-        </label>
-        <app-marketplace-inspection-button [url]="editForm.url || ''" (loaded)="inspectionLoaded.emit($event)" (failed)="inspectionFailed.emit()" />
-
-        <label class="mod-panel__field">
-          <span>Cupom</span>
-          <input type="text" [(ngModel)]="editForm.couponCode" />
-        </label>
-
-        <div class="mod-panel__field-row">
-          <label class="mod-panel__field">
-            <span>Preço atual</span>
-            <input type="text" inputmode="numeric" [value]="currentPriceDisplay" (input)="onCurrentPriceInput($event)" />
-          </label>
-          <label class="mod-panel__field">
-            <span>Preço original</span>
-            <input type="text" inputmode="numeric" [value]="originalPriceDisplay" (input)="onOriginalPriceInput($event)" />
-          </label>
-        </div>
-      </div>
-
-      <!-- Col 2: Loja, venda, entrega + ações -->
-      <div class="mod-panel__form-col">
-        <h3 class="mod-panel__form-title">Loja, venda e entrega</h3>
-
-        <label class="mod-panel__field">
-          <span>Nome da loja</span>
-          <input type="text" [(ngModel)]="editForm.storeName" placeholder="Ex: Amazon, Pague Menos" />
-        </label>
-
-        <label class="mod-panel__field-check" [class.mod-panel__field-check--disabled]="!hasValidStoreName()">
-          <input type="checkbox" [checked]="soldAndDeliveredByStore" [disabled]="!hasValidStoreName()" (change)="toggleSoldDelivered.emit($any($event.target).checked)" />
-          <span>Vendido e entregue pela loja</span>
-        </label>
-
-        <div class="mod-panel__field">
-          <span class="mod-panel__field-label-row">
-            Vendido por
-            <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForSoldBy.emit()">Usar loja</button>
-          </span>
-          <input type="text" [value]="editForm.soldBy" (input)="editForm.soldBy = $any($event.target).value" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" aria-label="Vendido por" />
-        </div>
-
-        <div class="mod-panel__field">
-          <span class="mod-panel__field-label-row">
-            Entregue por
-            <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForDeliveredBy.emit()">Usar loja</button>
-            <button type="button" class="mod-panel__btn-micro" [disabled]="soldAndDeliveredByStore" (click)="copySoldByToDeliveredBy.emit()">Copiar vendido</button>
-          </span>
-          <input type="text" [value]="editForm.deliveredBy" (input)="editForm.deliveredBy = $any($event.target).value" placeholder="Ex: Amazon" [disabled]="soldAndDeliveredByStore" aria-label="Entregue por" />
-        </div>
-
-        <div class="mod-panel__field-row">
-          <label class="mod-panel__field">
-            <span>Categoria</span>
-            <input type="text" [(ngModel)]="editForm.category" placeholder="Ex: Eletrônicos" />
-          </label>
-          <label class="mod-panel__field">
-            <span>Disponibilidade</span>
-            <select [(ngModel)]="editForm.availability">
-              <option value="">Selecione</option>
-              <option value="AVAILABLE">Disponível</option>
-              <option value="EXPIRED">Expirada</option>
-              <option value="UNAVAILABLE">Indisponível</option>
-              <option value="UNKNOWN">Desconhecida</option>
-            </select>
-          </label>
-        </div>
-
-        <!-- Categorias cadastradas -->
-        <div class="mod-panel__categories">
-          <span class="mod-panel__categories-title">Categorias cadastradas</span>
-
-          @if (categoriesLoading) {
-            <span class="mod-panel__categories-status">Carregando...</span>
-          } @else if (categoriesError) {
-            <span class="mod-panel__categories-status mod-panel__categories-status--error">
-              Erro ao carregar. <button type="button" class="mod-panel__btn-micro" (click)="loadCategories()">Tentar novamente</button>
-            </span>
-          } @else if (categories.length === 0) {
-            <span class="mod-panel__categories-status">Nenhuma categoria cadastrada ainda.</span>
-          } @else {
-            <div class="mod-panel__categories-list">
-              @for (cat of categories; track cat.name) {
-                <div class="mod-panel__category-item">
-                  @if (editingCategory === cat.name) {
-                    <input
-                      type="text"
-                      class="mod-panel__category-edit-input"
-                      [(ngModel)]="editingCategoryName"
-                      (keydown)="onEditCategoryKeydown($event, cat.name)"
-                      maxlength="50"
-                    />
-                    <button type="button" class="mod-panel__btn-micro" (click)="saveEditCategory(cat.name)" aria-label="Salvar categoria">✓</button>
-                    <button type="button" class="mod-panel__btn-micro" (click)="cancelEditCategory()" aria-label="Cancelar edição">✕</button>
-                  } @else {
-                    <button type="button" class="mod-panel__category-name" (click)="selectCategory(cat.name)" [attr.aria-label]="'Usar categoria ' + cat.name">
-                      {{ cat.name }} <small>({{ cat.promotionCount }})</small>
-                    </button>
-                    <button type="button" class="mod-panel__btn-micro" (click)="startEditCategory(cat.name)" [attr.aria-label]="'Editar categoria ' + cat.name">✎</button>
-                    <button type="button" class="mod-panel__btn-micro mod-panel__btn-micro--danger" (click)="deleteCategory(cat)" [attr.aria-label]="'Excluir categoria ' + cat.name">✕</button>
-                  }
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="mod-panel__field">
-          <span>Selo de preço</span>
-          <select [(ngModel)]="editForm.priceSignal" aria-label="Selo de preço">
-            <option value="">Sem selo de preço</option>
-            <option value="GOOD_PRICE">Preço bom</option>
-            <option value="GREAT_PRICE">Preço muito bom</option>
-          </select>
-          <small class="mod-panel__hint">Use apenas quando a moderação conferiu que o preço está realmente interessante.</small>
-        </div>
-
-        <section class="mod-panel__trust">
-          <h3 class="mod-panel__form-title">Sinais de confiança</h3>
-          <div class="mod-panel__field-row">
-            <label class="mod-panel__field"><span>Quantidade de vendas</span><input type="text" inputmode="numeric" aria-label="Quantidade de vendas" [(ngModel)]="editForm.salesCount" /></label>
-            <label class="mod-panel__field"><span>Nota do produto</span><input type="text" inputmode="decimal" aria-label="Nota do produto" [value]="editForm.productRating" (input)="editForm.productRating = $any($event.target).value" (blur)="normalizeRatingField('productRating')" /></label>
-            <label class="mod-panel__field"><span>Nota do vendedor</span><input type="text" inputmode="decimal" aria-label="Nota do vendedor" [value]="editForm.sellerRating" (input)="editForm.sellerRating = $any($event.target).value" (blur)="normalizeRatingField('sellerRating')" /></label>
-          </div>
-          <label class="mod-panel__field-check"><input type="checkbox" [(ngModel)]="editForm.officialStore" (ngModelChange)="onOfficialStoreChange($event)" /><span>Loja oficial da plataforma</span></label>
-          <div class="mod-panel__categories-list">
-            @for (signal of availableTrustSignals; track signal) {
-              <button type="button" class="mod-panel__category-name" [class.mod-panel__category-name--selected]="isTrustSignalSelected(signal)" [attr.aria-pressed]="isTrustSignalSelected(signal)" [title]="getTrustSignalTooltip(signal)" (click)="toggleTrustSignal(signal)">{{ getTrustSignalLabel(signal) }}</button>
-            }
+    <div class="promotion-form__content">
+      <div class="promotion-form__columns">
+        <section class="promotion-form__column">
+          <h3>Dados principais</h3>
+          <label class="field"><span class="sr-only">Título{{ mode === 'create' ? ' obrigatório' : '' }}</span><input type="text" [(ngModel)]="editForm.title" name="title" [placeholder]="'Título' + (mode === 'create' ? ' *' : '')" /></label>
+          <label class="field"><span class="sr-only">Link da oferta{{ mode === 'create' ? ' obrigatório' : '' }}</span><input type="url" [(ngModel)]="editForm.url" name="url" [placeholder]="'Link da oferta' + (mode === 'create' ? ' *' : '')" /></label>
+          <app-marketplace-inspection-button [url]="editForm.url" (loaded)="inspectionLoaded.emit($event)" (failed)="inspectionFailed.emit()" />
+          <label class="field"><span class="sr-only">Cupom</span><input type="text" [(ngModel)]="editForm.couponCode" name="coupon" placeholder="Cupom" /></label>
+          <div class="field-row">
+            <label class="field"><span class="sr-only">Preço atual</span><input aria-label="Preço atual" type="text" inputmode="numeric" [appBrlCurrencyInput]="editForm.currentPrice" (appBrlCurrencyInputChange)="editForm.currentPrice = $event" placeholder="Preço atual *" /></label>
+            <label class="field"><span class="sr-only">Preço original</span><input aria-label="Preço original" type="text" inputmode="numeric" [appBrlCurrencyInput]="editForm.originalPrice" (appBrlCurrencyInputChange)="editForm.originalPrice = $event" placeholder="Preço original" /></label>
           </div>
         </section>
+
+        <section class="promotion-form__column">
+          <h3>Loja, venda e entrega</h3>
+          <label class="field"><span class="sr-only">Nome da loja</span><input type="text" [(ngModel)]="editForm.storeName" name="storeName" placeholder="Nome da loja *" /></label>
+          <label class="check-field">
+            <input type="checkbox" [checked]="soldAndDeliveredByStore" [disabled]="!hasValidStoreName()" (change)="toggleSoldDelivered.emit($any($event.target).checked)" />
+            <span>Vendido e entregue pela loja</span>
+          </label>
+          <div class="field field--with-actions">
+            <div><button type="button" class="micro-button" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForSoldBy.emit()">Usar loja</button></div>
+            <input aria-label="Vendido por" type="text" [(ngModel)]="editForm.soldBy" name="soldBy" placeholder="Vendido por" [attr.disabled]="soldAndDeliveredByStore ? '' : null" />
+          </div>
+          <div class="field field--with-actions">
+            <div>
+              <button type="button" class="micro-button" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForDeliveredBy.emit()">Usar loja</button>
+              <button type="button" class="micro-button" [disabled]="soldAndDeliveredByStore" (click)="copySoldByToDeliveredBy.emit()">Copiar vendido</button>
+            </div>
+            <input aria-label="Entregue por" type="text" [(ngModel)]="editForm.deliveredBy" name="deliveredBy" placeholder="Entregue por" [attr.disabled]="soldAndDeliveredByStore ? '' : null" />
+          </div>
+          <div class="field-row">
+            <app-promotion-category-selector
+              [selectorId]="mode + '-promotion-categories'"
+              [selected]="editForm.categories"
+              [disabled]="isActionDisabled"
+              (selectedChange)="updateCategories($event)"
+            />
+            <label class="field"><span class="sr-only">Disponibilidade</span>
+              <select [(ngModel)]="editForm.availability" name="availability" aria-label="Disponibilidade">
+                <option value="">Disponibilidade</option><option value="AVAILABLE">Disponível</option><option value="EXPIRED">Expirada</option><option value="UNAVAILABLE">Indisponível</option><option value="UNKNOWN">Desconhecida</option>
+              </select>
+            </label>
+          </div>
+          <label class="field"><span class="sr-only">Selo de preço</span>
+            <select [(ngModel)]="editForm.priceSignal" name="priceSignal" aria-label="Selo de preço">
+              <option value="">Selo de preço</option><option value="GOOD_PRICE">Preço bom</option><option value="GREAT_PRICE">Preço muito bom</option>
+            </select>
+          </label>
+        </section>
       </div>
-    </div>
-  </div>
 
-  <!-- Links + diagnostics -->
-  <div class="mod-panel__extras">
-    <div class="mod-panel__links">
-      @if (getOfferLink()) {
-        <a class="mod-panel__link" [href]="getOfferLink()" target="_blank" rel="noopener">Abrir oferta original ↗</a>
-      }
-      @if (promotion.imageUrl) {
-        <a class="mod-panel__link" [href]="promotion.imageUrl" target="_blank" rel="noopener">Abrir imagem ↗</a>
-      }
+      <section class="trust-section">
+        <h3>Selos de confiança</h3>
+        <div class="trust-section__numbers">
+          <label class="field"><span class="sr-only">Quantidade de vendas</span><input aria-label="Quantidade de vendas" type="text" inputmode="numeric" [value]="editForm.salesCount" (input)="updateSalesCount($any($event.target).value)" placeholder="Quantidade de vendas" /><small>Ex.: 5.334</small></label>
+          <label class="field"><span class="sr-only">Nota do produto</span><input aria-label="Nota do produto" type="text" inputmode="decimal" [value]="editForm.productRating" (input)="onRatingInput('productRating', $event)" placeholder="Nota do produto" /><small>0 a 5; “48” vira 4,8</small></label>
+          <label class="field"><span class="sr-only">Nota do vendedor</span><input aria-label="Nota do vendedor" type="text" inputmode="decimal" [value]="editForm.sellerRating" (input)="onRatingInput('sellerRating', $event)" placeholder="Nota do vendedor" /><small>0 a 5; “49” vira 4,9</small></label>
+        </div>
+        <div class="trust-section__chips" aria-label="Selos disponíveis">
+          @for (signal of availableTrustSignals; track signal) {
+            <button type="button" class="trust-chip" [class.trust-chip--selected]="isTrustSignalSelected(signal)"
+              [attr.aria-pressed]="isTrustSignalSelected(signal)" [title]="getTrustSignalTooltip(signal)" (click)="toggleTrustSignal(signal)">
+              {{ getTrustSignalLabel(signal) }}
+            </button>
+          }
+        </div>
+      </section>
     </div>
 
-    <div class="mod-panel__diag">
-      <h3 class="mod-panel__diag-title">Diagnóstico</h3>
-      <div class="mod-panel__diag-grid">
-        @for (field of getFieldDiagnostics(); track field.label) {
-          <span class="mod-panel__badge" [class.mod-panel__badge--ok]="field.status === 'ok'" [class.mod-panel__badge--warn]="field.status === 'missing'" [class.mod-panel__badge--opt]="field.status === 'optional'">
-            {{ field.label }}
-          </span>
-        }
+    @if (mode === 'validate' && showRejectInput) {
+      <div class="promotion-form__reject">
+        <label class="field"><span class="sr-only">Motivo da rejeição</span><input type="text" [ngModel]="rejectReason" (ngModelChange)="rejectReasonChange.emit($event)" name="rejectReason" placeholder="Motivo da rejeição (opcional)" /></label>
+        <button type="button" class="button button--danger" [disabled]="isActionDisabled" (click)="confirmReject.emit()">Confirmar rejeição</button>
+        <button type="button" class="button button--ghost" (click)="cancelReject.emit()">Cancelar</button>
       </div>
-    </div>
-  </div>
-
-  <!-- Reject input -->
-  @if (mode === 'validate' && showRejectInput) {
-    <div class="mod-panel__reject">
-      <label class="mod-panel__field">
-        <span>Motivo da rejeição</span>
-        <input type="text" [ngModel]="rejectReason" (ngModelChange)="onRejectReasonChange($event)" placeholder="Motivo (opcional)" />
-      </label>
-      <div class="mod-panel__reject-actions">
-        <button type="button" class="mod-panel__btn mod-panel__btn--danger" [disabled]="isActionDisabled" (click)="confirmReject.emit()">Confirmar rejeição</button>
-        <button type="button" class="mod-panel__btn mod-panel__btn--ghost" (click)="cancelReject.emit()">Cancelar</button>
-      </div>
-    </div>
-  }
-
-  <!-- Panel actions -->
-  <footer class="mod-panel__footer">
-    <button type="button" class="mod-panel__btn mod-panel__btn--secondary" [disabled]="isActionDisabled" (click)="save.emit()">{{ mode === 'edit' ? 'Salvar alterações' : 'Salvar ajustes' }}</button>
-    @if (mode === 'validate') {
-      <button type="button" class="mod-panel__btn mod-panel__btn--primary" [disabled]="isActionDisabled" (click)="publish.emit()">Publicar promoção</button>
     }
-    @if (mode === 'validate' && !showRejectInput) {
-      <button type="button" class="mod-panel__btn mod-panel__btn--ghost-danger" [disabled]="isActionDisabled" (click)="startReject.emit()">Rejeitar</button>
-    }
-    <button type="button" class="mod-panel__btn mod-panel__btn--ghost" (click)="close.emit()">{{ mode === 'edit' ? 'Cancelar' : 'Cancelar validação' }}</button>
-  </footer>
-</div>
+
+    <footer class="promotion-form__footer">
+      <div class="promotion-form__feedback" aria-live="polite">
+        @if (formError) { <p class="error" role="alert">{{ formError }}</p> }
+        @if (feedbackMessage) { <p class="success" role="status">{{ feedbackMessage }}</p> }
+      </div>
+      @if (mode === 'create') {
+        <button type="submit" class="button button--primary" [disabled]="isActionDisabled">{{ actionInProgress ? 'Adicionando…' : 'Adicionar promoção' }}</button>
+      } @else {
+        <button type="button" class="button" [disabled]="isActionDisabled" (click)="save.emit()">{{ mode === 'edit' ? 'Salvar alterações' : 'Salvar ajustes' }}</button>
+      }
+      @if (mode === 'validate') {
+        <button type="button" class="button button--primary" [disabled]="isActionDisabled" (click)="publish.emit()">Publicar promoção</button>
+        @if (!showRejectInput) { <button type="button" class="button button--danger-ghost" [disabled]="isActionDisabled" (click)="startReject.emit()">Rejeitar</button> }
+      }
+      <button type="button" class="button button--ghost" [disabled]="isActionDisabled" (click)="close.emit()">{{ mode === 'validate' ? 'Cancelar validação' : 'Cancelar' }}</button>
+    </footer>
+  </form>
+</section>

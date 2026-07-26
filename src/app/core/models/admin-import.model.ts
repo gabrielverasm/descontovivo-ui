@@ -13,6 +13,7 @@ export interface AdminImportItem {
   originalPrice?: number | null;
   coupon?: string | null;
   category: string;
+  categories?: string[];
   publishAt?: string | null;
   verifiedAt?: string | null;
   // New trust signals fields

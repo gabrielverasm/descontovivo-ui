@@ -7,7 +7,7 @@ describe('applyInspectionToForm', () => {
   }
 
   function form(): InspectionForm {
-    return { marketplace: null, url: 'old', title: 'old', currentPrice: 'old', originalPrice: 'old', storeName: 'old', sellerName: 'old', soldBy: 'old', deliveredBy: 'old', category: 'old', salesCount: '1', productRating: '5', sellerRating: '5', officialStore: true, trustSignals: ['OLD'] };
+    return { marketplace: null, url: 'old', title: 'old', currentPrice: 'old', originalPrice: 'old', storeName: 'old', soldBy: 'old', deliveredBy: 'old', category: 'old', salesCount: '1', productRating: '5', sellerRating: '5', officialStore: true, trustSignals: ['OLD'] };
   }
 
   it('prioritizes affiliateUrl over productUrl', () => {

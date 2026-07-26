@@ -80,3 +80,13 @@ export function normalizeAndFormatRating(value: string | number | null | undefin
   const normalized = normalizeRatingInput(value);
   return formatRatingForInput(normalized);
 }
+
+/** Máscara imediata de nota: somente dígitos, com uma casa decimal e máximo 5,0. */
+export function formatRatingWhileTyping(value: string, previousValue = ''): string {
+  if (!value) return '';
+  const digits = value.replace(/\D/g, '');
+  if (!digits || digits.length > 2) return previousValue;
+  if (digits.length === 1) return Number(digits) <= 5 ? digits : previousValue;
+  const numeric = Number(digits) / 10;
+  return numeric <= 5 ? numeric.toFixed(1).replace('.', ',') : previousValue;
+}

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ModerationPromotionPanelComponent } from './moderation-promotion-panel.component';
 import { PromotionModerationFormValue } from '../../moderation-form.model';
-import { moderationFormToEditRequest } from '../../moderation-form.model';
+import { moderationFormToEditRequest, promotionToModerationForm } from '../../moderation-form.model';
 import { TrustSignal } from '../../../../shared/utils/trust-signals.util';
 import { ModerationCategoryService } from '../../../../core/services/moderation-category.service';
 
@@ -14,16 +14,16 @@ import { ModerationCategoryService } from '../../../../core/services/moderation-
 })
 class ModerationPanelHostComponent {
   promotion = { id: 'p1', title: 'Produto', url: 'https://amazon.com.br/p', imageUrl: 'https://img/p.webp', storeName: 'Amazon', currentPrice: 10, originalPrice: 20, marketplace: 'AMAZON', category: 'Casa' } as any;
-  editForm = { marketplace: 'AMAZON', title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: 'Amazon', soldBy: '', deliveredBy: '', category: '', availability: '', priceSignal: '', salesCount: '', productRating: '', sellerRating: '', officialStore: false, trustSignals: [] } as PromotionModerationFormValue;
+  editForm = { marketplace: 'AMAZON', title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: 'Amazon', soldBy: '', deliveredBy: '', category: '', categories: [], availability: '', priceSignal: '', salesCount: '', productRating: '', sellerRating: '', officialStore: false, trustSignals: [] } as PromotionModerationFormValue;
   locked = true;
 }
 
 describe('ModerationPromotionPanelComponent', () => {
   function form(): PromotionModerationFormValue {
-    return { marketplace: 'AMAZON', title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: 'Amazon', soldBy: '', deliveredBy: '', category: '', availability: '', priceSignal: '', salesCount: '', productRating: '', sellerRating: '', officialStore: false, trustSignals: [] };
+    return { marketplace: 'AMAZON', title: '', url: '', currentPrice: '', originalPrice: '', couponCode: '', storeName: 'Amazon', soldBy: '', deliveredBy: '', category: '', categories: [], availability: '', priceSignal: '', salesCount: '', productRating: '', sellerRating: '', officialStore: false, trustSignals: [] };
   }
 
-  function create(mode: 'validate' | 'edit' = 'edit', promo: any = { id: 'p1', title: 'Produto', url: 'https://amazon.com.br/p', imageUrl: 'https://img/p.webp', storeName: 'Amazon', currentPrice: 10, originalPrice: 20, marketplace: 'AMAZON', category: 'Casa' }): ComponentFixture<ModerationPromotionPanelComponent> {
+  function create(mode: 'create' | 'validate' | 'edit' = 'edit', promo: any = { id: 'p1', title: 'Produto', url: 'https://amazon.com.br/p', imageUrl: 'https://img/p.webp', storeName: 'Amazon', currentPrice: 10, originalPrice: 20, marketplace: 'AMAZON', category: 'Casa' }): ComponentFixture<ModerationPromotionPanelComponent> {
     TestBed.configureTestingModule({
       imports: [ModerationPromotionPanelComponent],
       providers: [{ provide: ModerationCategoryService, useValue: jasmine.createSpyObj('ModerationCategoryService', { list: of([]) }) }],
@@ -77,10 +77,14 @@ describe('ModerationPromotionPanelComponent', () => {
     fixture.destroy();
   });
 
-  it('formats manual cents input and sends the decimal value', () => {
+  it('formats currency through the rendered input and sends the decimal value', () => {
     const fixture = create();
-    fixture.componentInstance.onCurrentPriceInput({ target: { value: '10000' } } as any);
-    expect(fixture.componentInstance.currentPriceDisplay).toBe('R$\u00a0100,00');
+    const input = fixture.nativeElement.querySelector('input[aria-label="Preço atual"]') as HTMLInputElement;
+    input.value = '10000';
+    input.setSelectionRange(5, 5);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(input.value).toBe('R$\u00a0100,00');
     expect(fixture.componentInstance.editForm.currentPrice).toBe('R$\u00a0100,00');
     expect(moderationFormToEditRequest(fixture.componentInstance.editForm, { promotion: fixture.componentInstance.promotion, inspectionApplied: false, inspectedFormUrl: null }).currentPrice).toBe(100);
     fixture.destroy();
@@ -92,7 +96,7 @@ describe('ModerationPromotionPanelComponent', () => {
     input.value = '2500';
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
-    expect(fixture.componentInstance.editForm.salesCount).toBe('2500');
+    expect(fixture.componentInstance.editForm.salesCount).toBe('2.500');
     expect(moderationFormToEditRequest(fixture.componentInstance.editForm, { promotion: fixture.componentInstance.promotion, inspectionApplied: false, inspectedFormUrl: null }).salesCount).toBe(2500);
     input.value = '';
     input.dispatchEvent(new Event('input'));
@@ -101,7 +105,7 @@ describe('ModerationPromotionPanelComponent', () => {
     fixture.destroy();
   });
 
-  it('normalizes product ratings from comma and compact decimal input on blur', () => {
+  it('normalizes product ratings and preserves the last valid value after invalid typing', () => {
     const fixture = create();
     const input = fixture.nativeElement.querySelector('input[aria-label="Nota do produto"]') as HTMLInputElement;
     input.value = '4,8'; input.dispatchEvent(new Event('input')); fixture.detectChanges(); input.dispatchEvent(new Event('blur')); fixture.detectChanges();
@@ -110,9 +114,11 @@ describe('ModerationPromotionPanelComponent', () => {
     input.value = '48'; input.dispatchEvent(new Event('input')); fixture.detectChanges(); input.dispatchEvent(new Event('blur')); fixture.detectChanges();
     expect(input.value).toBe('4,8');
     expect(moderationFormToEditRequest(fixture.componentInstance.editForm, { promotion: fixture.componentInstance.promotion, inspectionApplied: false, inspectedFormUrl: null }).productRating).toBe(4.8);
-    input.value = '60'; input.dispatchEvent(new Event('input')); fixture.detectChanges(); input.dispatchEvent(new Event('blur')); fixture.detectChanges();
-    expect(input.value).toBe('');
-    expect(moderationFormToEditRequest(fixture.componentInstance.editForm, { promotion: fixture.componentInstance.promotion, inspectionApplied: false, inspectedFormUrl: null }).productRating).toBeNull();
+    input.value = '60'; input.dispatchEvent(new Event('input')); fixture.detectChanges();
+    expect(input.value).toBe('4,8');
+    expect(moderationFormToEditRequest(fixture.componentInstance.editForm, { promotion: fixture.componentInstance.promotion, inspectionApplied: false, inspectedFormUrl: null }).productRating).toBe(4.8);
+    input.value = 'abc'; input.dispatchEvent(new Event('input')); fixture.detectChanges();
+    expect(input.value).toBe('4,8');
     fixture.destroy();
   });
 
@@ -123,7 +129,7 @@ describe('ModerationPromotionPanelComponent', () => {
     expect(seller.value).toBe('4,9');
     expect(moderationFormToEditRequest(fixture.componentInstance.editForm, { promotion: fixture.componentInstance.promotion, inspectionApplied: false, inspectedFormUrl: null }).sellerRating).toBe(4.9);
     seller.value = '50'; seller.dispatchEvent(new Event('input')); fixture.detectChanges(); seller.dispatchEvent(new Event('blur')); fixture.detectChanges();
-    expect(seller.value).toBe('5');
+    expect(seller.value).toBe('5,0');
     expect(moderationFormToEditRequest(fixture.componentInstance.editForm, { promotion: fixture.componentInstance.promotion, inspectionApplied: false, inspectedFormUrl: null }).sellerRating).toBe(5);
     fixture.componentInstance.editForm.productRating = '4,8';
     fixture.componentInstance.editForm.sellerRating = '4,9';
@@ -147,14 +153,115 @@ describe('ModerationPromotionPanelComponent', () => {
     fixture.destroy();
   });
 
-  it('keeps official store checkbox and chip synchronized', () => {
+  it('uses the Official chip as the only official-store source of truth', () => {
     const component = Object.create(ModerationPromotionPanelComponent.prototype) as ModerationPromotionPanelComponent;
     component.editForm = form();
-    component.onOfficialStoreChange(true);
+    component.toggleTrustSignal(TrustSignal.OFFICIAL_STORE);
     expect(component.editForm.officialStore).toBeTrue();
     expect(component.editForm.trustSignals).toEqual([TrustSignal.OFFICIAL_STORE]);
     component.toggleTrustSignal(TrustSignal.OFFICIAL_STORE);
     expect(component.editForm.officialStore).toBeFalse();
     expect(component.editForm.trustSignals).toEqual([]);
+  });
+
+  it('renders all modes from the same component without diagnostics or the old checkbox', () => {
+    const fixture = create();
+    for (const mode of ['create', 'edit', 'validate'] as const) {
+      fixture.componentInstance.mode = mode;
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.promotion-form')).not.toBeNull();
+      expect(fixture.nativeElement.textContent).not.toContain('Diagnóstico');
+      expect(fixture.nativeElement.textContent).not.toContain('Abrir oferta original');
+      expect(fixture.nativeElement.textContent).not.toContain('Loja oficial da plataforma');
+    }
+    fixture.destroy();
+  });
+
+  it('keeps the canonical field order and exposes only the actions for each mode', () => {
+    const fixture = create('create');
+    const selectors = [
+      'input[placeholder^="Título"]',
+      'input[placeholder^="Link da oferta"]',
+      'input[placeholder="Cupom"]',
+      'input[aria-label="Preço atual"]',
+      'input[aria-label="Preço original"]',
+      'input[placeholder^="Nome da loja"]',
+      'input[aria-label="Vendido por"]',
+      'input[aria-label="Entregue por"]',
+      'app-promotion-category-selector',
+      'select[aria-label="Disponibilidade"]',
+      'select[aria-label="Selo de preço"]',
+      'input[aria-label="Quantidade de vendas"]',
+      'input[aria-label="Nota do produto"]',
+      'input[aria-label="Nota do vendedor"]',
+    ];
+    const elements = selectors.map(selector => fixture.nativeElement.querySelector(selector) as Element);
+    expect(elements.every(Boolean)).toBeTrue();
+    for (let index = 1; index < elements.length; index += 1) {
+      expect(elements[index - 1].compareDocumentPosition(elements[index]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+    expect(fixture.nativeElement.textContent).toContain('Adicionar promoção');
+    expect(fixture.nativeElement.textContent).not.toContain('Salvar ajustes');
+
+    fixture.componentInstance.mode = 'validate';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Salvar ajustes');
+    expect(fixture.nativeElement.textContent).toContain('Publicar promoção');
+    expect(fixture.nativeElement.textContent).toContain('Rejeitar');
+
+    fixture.componentInstance.mode = 'edit';
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Salvar alterações');
+    expect(fixture.nativeElement.textContent).not.toContain('Publicar promoção');
+    fixture.destroy();
+  });
+
+  it('maps initial edit and moderation values including legacy category and official signal', async () => {
+    const fixture = create('edit');
+    await fixture.whenStable();
+    for (const mode of ['edit', 'validate'] as const) {
+      const promotion = {
+        id: 'p1', title: 'Cafeteira', url: 'https://example.com/p', imageUrl: 'https://img/p.webp',
+        storeName: 'Loja', currentPrice: 129.9, originalPrice: 199.9, category: 'Casa',
+        officialStore: true, trustSignals: [TrustSignal.HIGH_SALES],
+      } as any;
+      fixture.componentInstance.mode = mode;
+      fixture.componentInstance.promotion = promotion;
+      Object.assign(fixture.componentInstance.editForm, promotionToModerationForm(promotion));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+      expect((fixture.nativeElement.querySelector('input[placeholder^="Título"]') as HTMLInputElement).value).toBe('Cafeteira');
+      expect((fixture.nativeElement.querySelector('input[aria-label="Preço atual"]') as HTMLInputElement).value).toBe('R$\u00a0129,90');
+      expect(fixture.componentInstance.editForm.categories).toEqual(['Casa']);
+      expect(fixture.componentInstance.editForm.trustSignals).toContain(TrustSignal.OFFICIAL_STORE);
+    }
+    fixture.destroy();
+  });
+
+  it('always offers the five administrative trust badges without a marketplace and after inspection changes it', () => {
+    const fixture = create('create');
+    fixture.componentInstance.editForm.marketplace = null;
+    fixture.detectChanges();
+    const baseLabels = ['Revisada pela curadoria', 'Oficial', 'Muitas vendas', 'Produto bem avaliado', 'Vendedor bem avaliado'];
+    const labels = () => Array.from(fixture.nativeElement.querySelectorAll('.trust-chip')).map((button: any) => button.textContent.trim());
+    expect(labels().length).toBe(5);
+    expect(labels()).toEqual(jasmine.arrayContaining(baseLabels));
+    fixture.componentInstance.editForm.marketplace = 'SHOPEE';
+    fixture.detectChanges();
+    expect(labels()).toEqual(jasmine.arrayContaining(baseLabels));
+    expect(labels()).toContain('Garantia Shopee');
+    fixture.destroy();
+  });
+
+  it('exposes the selected trust state with aria-pressed', () => {
+    const fixture = create();
+    fixture.componentInstance.toggleTrustSignal(TrustSignal.OFFICIAL_STORE);
+    fixture.detectChanges();
+    const chips = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.trust-chip'));
+    const official = chips.find(button => button.textContent?.trim() === 'Oficial')!;
+    expect(official.getAttribute('aria-pressed')).toBe('true');
+    expect(fixture.componentInstance.editForm.officialStore).toBeTrue();
+    fixture.destroy();
   });
 });

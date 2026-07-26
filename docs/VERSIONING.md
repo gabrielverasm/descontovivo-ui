@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.26**
+**0.5.27**
 
 ## Convenção
 
@@ -29,6 +29,7 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.5.27 | 2026-07-26 | Unifica os formulários de promoção, corrige responsividade, máscaras, selos e categorias múltiplas |
 | 0.5.26 | 2026-07-25 | Centraliza criação, validação e edição na área de moderação |
 | 0.5.25 | 2026-07-25 | Remove handlers SSR legados do Pages após ativação das rotas no Worker |
 | 0.5.24 | 2026-07-24 | Canonicaliza rotas institucionais sem barra com redirect 301 |

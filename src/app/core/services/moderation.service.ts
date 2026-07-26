@@ -24,6 +24,7 @@ export interface ModerationDecisionRequest {
   soldBy?: string | null;
   deliveredBy?: string | null;
   category?: string | null;
+  categories?: string[];
   priceSignal?: string;
   // New trust signals fields
   salesCount?: number | null;
