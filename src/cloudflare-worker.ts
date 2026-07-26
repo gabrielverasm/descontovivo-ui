@@ -7,6 +7,8 @@ interface CloudflareEnv {
   SSR_PREVIEW_HOSTNAME?: string;
 }
 
+type AngularRequestHandler = (request: Request) => Promise<Response | null>;
+
 const IMAGE_HOST = 'img.descontovivo.com.br';
 const BASE_ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'descontovivo.com', 'www.descontovivo.com'];
 const INSTITUTIONAL_ROUTES = ['/sobre', '/servicos', '/transparencia', '/privacidade', '/termos'] as const;
@@ -98,8 +100,9 @@ function textResponse(message: string, status: number, headers: Record<string, s
 }
 
 async function serveKnownCsrRoute(request: Request, env: CloudflareEnv): Promise<Response> {
-  const shellUrl = new URL('/index.csr.html', request.url);
-  return env.ASSETS.fetch(new Request(shellUrl, { method: 'GET', headers: request.headers }));
+  const shellUrl = new URL('/index.csr', request.url);
+  const method = request.method === 'HEAD' ? 'HEAD' : 'GET';
+  return env.ASSETS.fetch(new Request(shellUrl, { method, headers: request.headers }));
 }
 
 async function servePrerenderedRoute(request: Request, env: CloudflareEnv, assetPath: string): Promise<Response> {
@@ -159,41 +162,49 @@ async function handleStoryImage(request: Request): Promise<Response> {
   });
 }
 
+export async function handleWorkerRequest(
+  request: Request,
+  env: CloudflareEnv,
+  angularHandler?: AngularRequestHandler,
+): Promise<Response> {
+  const url = new URL(request.url);
+
+  const legacyHostRedirect = redirectLegacyHost(request);
+  if (legacyHostRedirect) return withSecurityHeaders(legacyHostRedirect);
+
+  const institutionalRedirect = redirectInstitutionalRoute(request);
+  if (institutionalRedirect) return withSecurityHeaders(institutionalRedirect);
+
+  if (isPromotionPath(url.pathname)) {
+    if (url.pathname.endsWith('/') && url.pathname !== '/promocoes/') {
+      const canonicalUrl = new URL(request.url);
+      canonicalUrl.pathname = canonicalUrl.pathname.slice(0, -1);
+      return withSecurityHeaders(Response.redirect(canonicalUrl.toString(), 301));
+    }
+
+    const response = await (angularHandler ? angularHandler(request) : getAngularApp(env).handle(request));
+    if (response) return withSecurityHeaders(response);
+    return withSecurityHeaders(new Response('Not Found', { status: 404 }));
+  }
+
+  if (url.pathname === '/story-image' || url.pathname.startsWith('/story-image/')) {
+    return withSecurityHeaders(await handleStoryImage(request));
+  }
+
+  if (isKnownCsrRoute(url.pathname)) {
+    return withSecurityHeaders(await serveKnownCsrRoute(request, env));
+  }
+
+  const prerenderedPath = prerenderedAssetPath(url.pathname);
+  if (prerenderedPath) {
+    return withSecurityHeaders(await servePrerenderedRoute(request, env, prerenderedPath));
+  }
+
+  return withSecurityHeaders(await env.ASSETS.fetch(request));
+}
+
 export default {
   async fetch(request: Request, env: CloudflareEnv): Promise<Response> {
-    const url = new URL(request.url);
-
-    const legacyHostRedirect = redirectLegacyHost(request);
-    if (legacyHostRedirect) return withSecurityHeaders(legacyHostRedirect);
-
-    const institutionalRedirect = redirectInstitutionalRoute(request);
-    if (institutionalRedirect) return withSecurityHeaders(institutionalRedirect);
-
-    if (isPromotionPath(url.pathname)) {
-      if (url.pathname.endsWith('/') && url.pathname !== '/promocoes/') {
-        const canonicalUrl = new URL(request.url);
-        canonicalUrl.pathname = canonicalUrl.pathname.slice(0, -1);
-        return withSecurityHeaders(Response.redirect(canonicalUrl.toString(), 301));
-      }
-
-      const response = await getAngularApp(env).handle(request);
-      if (response) return withSecurityHeaders(response);
-      return withSecurityHeaders(new Response('Not Found', { status: 404 }));
-    }
-
-    if (url.pathname === '/story-image' || url.pathname.startsWith('/story-image/')) {
-      return withSecurityHeaders(await handleStoryImage(request));
-    }
-
-    if (isKnownCsrRoute(url.pathname)) {
-      return withSecurityHeaders(await serveKnownCsrRoute(request, env));
-    }
-
-    const prerenderedPath = prerenderedAssetPath(url.pathname);
-    if (prerenderedPath) {
-      return withSecurityHeaders(await servePrerenderedRoute(request, env, prerenderedPath));
-    }
-
-    return withSecurityHeaders(await env.ASSETS.fetch(request));
+    return handleWorkerRequest(request, env);
   },
 };
