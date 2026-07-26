@@ -1,0 +1,28 @@
+<main class="moderation-workspace">
+  @if (invalidUrl) {
+    <header class="moderation-workspace__header"><h1>URL de moderação inválida</h1><p>Escolha apenas uma promoção para validar ou editar.</p></header>
+    <button class="moderation-workspace__button" type="button" (click)="cancel()">Voltar para moderação</button>
+  } @else {
+    <header class="moderation-workspace__header"><h1>{{ title }}</h1></header>
+    @if (loading) { <p class="moderation-workspace__status">Carregando promoção...</p> }
+    @else if (loadError) { <div class="moderation-workspace__error" role="alert">{{ loadError }}</div><button class="moderation-workspace__button" type="button" (click)="cancel()">Voltar</button> }
+    @else if (mode === 'create') {
+      <app-moderation-create-promotion (created)="onCreated()" (cancel)="cancel()" />
+    } @else if (promotion) {
+      @if (successMessage) { <p class="moderation-workspace__success" role="status">{{ successMessage }}</p> }
+      @if (actionError) { <div class="moderation-workspace__error" role="alert">{{ actionError }}</div> }
+      @if (inspectionError) { <div class="moderation-workspace__error" role="alert">{{ inspectionError }}</div> }
+      <app-moderation-promotion-panel
+        [promotion]="promotion" [editForm]="form" [mode]="mode === 'edit' ? 'edit' : 'validate'"
+        [priceValues]="priceValues"
+        [newImagePreviewUrl]="newImagePreviewUrl" [newImageSizeKB]="newImageSizeKB" [newImageStatusText]="newImageStatusText" [newImageError]="newImageError"
+        [soldAndDeliveredByStore]="soldAndDeliveredByStore"
+        [actionInProgress]="saving ? promotion.id : null" [showRejectInput]="showRejectInput" [rejectReason]="rejectReason"
+        (save)="save()" (publish)="publish()" (startReject)="showRejectInput = true" (cancelReject)="showRejectInput = false"
+        (confirmReject)="confirmReject()" (close)="cancel()" (rejectReasonChange)="rejectReason = $event"
+        (toggleSoldDelivered)="toggleSoldAndDeliveredByStore($event)" (useStoreForSoldBy)="useStoreForSoldBy()" (useStoreForDeliveredBy)="useStoreForDeliveredBy()" (copySoldByToDeliveredBy)="copySoldByToDeliveredBy()"
+        (imageSelected)="onImageSelected($event)" (removeImage)="removeImage()" (inspectionLoaded)="inspectionLoaded($event)" (inspectionFailed)="inspectionFailed()"
+      />
+    }
+  }
+</main>

@@ -401,6 +401,38 @@
   padding-top: 0.5rem;
 }
 
+.promotion-detail__admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #dbe4f0;
+  border-radius: 0.65rem;
+  background: #f8fafc;
+}
+
+.promotion-detail__admin-actions button {
+  border: 1px solid #cbd5e1;
+  border-radius: 0.45rem;
+  padding: 0.5rem 0.75rem;
+  color: #1e3a5f;
+  background: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.promotion-detail__admin-actions button:hover { border-color: #2563eb; color: #1d4ed8; }
+.promotion-detail__admin-remove,
+.promotion-detail__admin-remove-confirm { color: #b42318 !important; }
+.promotion-detail__admin-error { flex-basis: 100%; margin: 0; color: #b42318; font-size: 0.85rem; }
+
+@media (max-width: 760px) {
+  .promotion-detail__admin-actions { align-items: stretch; }
+  .promotion-detail__admin-actions button { flex: 1 1 100%; }
+}
+
 @media (max-width: 760px) {
   :is(.promotion-detail__content, .promotion-detail__signals, .promotion-detail__below) {
     grid-template-columns: 1fr;

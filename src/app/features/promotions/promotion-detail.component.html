@@ -118,30 +118,18 @@
         </dl>
 
         @if (canModerate) {
-          <app-promotion-detail-admin
-            [isAdmin]="isAdmin"
-            [isEditMode]="isEditMode"
-            [isRemoveConfirm]="isRemoveConfirm"
-            [isAdminSaving]="isAdminSaving"
-            [adminMessage]="adminMessage"
-            [adminError]="adminError"
-            [editForm]="editForm"
-            [adminImagePreviewUrl]="adminImagePreviewUrl"
-            [adminImageSizeKB]="adminImageSizeKB"
-            [adminImageStatusText]="adminImageStatusText"
-            [adminImageError]="adminImageError"
-            (openEdit)="openEditMode()"
-            (generateStory)="isStoryGeneratorOpen = true"
-            (cancelEdit)="cancelEdit()"
-            (submitEdit)="submitEdit()"
-            (confirmRemove)="confirmRemove()"
-            (cancelRemove)="cancelRemove()"
-            (executeRemove)="executeRemove()"
-            (imageSelected)="onAdminImageSelected($event)"
-            (removeImage)="removeAdminImage()"
-            (inspectionLoaded)="onInspectionLoaded($event)"
-            (inspectionFailed)="onInspectionFailed()"
-          />
+          <section class="promotion-detail__admin-actions" aria-label="Ações administrativas">
+            @if (adminError) { <p class="promotion-detail__admin-error" role="alert">{{ adminError }}</p> }
+            @if (!isRemoveConfirm) {
+              <button type="button" (click)="editPromotion()" [disabled]="isAdminSaving">Editar promoção</button>
+              <button type="button" (click)="isStoryGeneratorOpen = true" [disabled]="isAdminSaving">Gerar story</button>
+              @if (isAdmin) { <button type="button" class="promotion-detail__admin-remove" (click)="confirmRemove()" [disabled]="isAdminSaving">Remover promoção</button> }
+            } @else {
+              <p>Tem certeza que deseja remover esta promoção?</p>
+              <button type="button" class="promotion-detail__admin-remove-confirm" (click)="executeRemove()" [disabled]="isAdminSaving">Confirmar remoção</button>
+              <button type="button" class="promotion-detail__admin-cancel" (click)="cancelRemove()" [disabled]="isAdminSaving">Cancelar</button>
+            }
+          </section>
         }
       </section>
     </article>

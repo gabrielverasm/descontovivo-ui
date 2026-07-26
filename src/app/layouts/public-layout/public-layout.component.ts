@@ -209,6 +209,11 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
     this.isUserMenuOpen = false;
   }
 
+  isCreateModerationWorkspaceActive(): boolean {
+    const url = this.router.url;
+    return url.split('?')[0] === '/moderacao/promocoes' && !url.includes('validar=') && !url.includes('editar=');
+  }
+
   // --- Private helpers ---
 
   private isHoverCapable(): boolean {

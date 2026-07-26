@@ -95,13 +95,22 @@ export const routes: Routes = [
         title: 'Cadastro | DescontoVivo',
       },
       {
-        path: 'moderacao/promocoes',
+        path: 'moderacao',
         canActivate: [moderatorGuard],
         loadComponent: () =>
           import('./features/moderation/moderation-promotions.component').then(
             (m) => m.ModerationPromotionsComponent,
           ),
-        title: 'Moderar promoções | DescontoVivo',
+        title: 'Moderação | DescontoVivo',
+      },
+      {
+        path: 'moderacao/promocoes',
+        canActivate: [moderatorGuard],
+        loadComponent: () =>
+          import('./features/moderation/moderation-promotion-workspace.component').then(
+            (m) => m.ModerationPromotionWorkspaceComponent,
+          ),
+        title: 'Moderação | DescontoVivo',
       },
       {
         path: 'admin/importar-promocoes',

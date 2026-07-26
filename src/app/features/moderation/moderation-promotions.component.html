@@ -2,93 +2,38 @@
   <header class="mod__header">
     <h1 class="mod__title">Fila de validação</h1>
     <p class="mod__desc">Promoções pendentes aguardando revisão e aprovação.</p>
-    @if (!showCreateForm) {
-      <button type="button" class="mod__btn mod__btn--primary mod__btn--create" (click)="openCreateForm()">Adicionar promoção</button>
-    }
   </header>
-
-  @if (showCreateForm) {
-    <app-moderation-create-promotion
-      (created)="onPromotionCreated()"
-      (cancel)="closeCreateForm()"
-    />
-  }
 
   @if (loading) {
     <p class="mod__status mod__status--loading">Carregando fila...</p>
-  }
-
-  @if (error) {
+  } @else if (error) {
     <div class="mod__status mod__status--error" role="alert">{{ error }}</div>
+  } @else if (promotions.length === 0) {
+    <p class="mod__status">Nenhuma promoção pendente para validação.</p>
   }
 
   @if (successMessage) {
     <div class="mod__status mod__status--success" role="status" aria-live="polite">{{ successMessage }}</div>
   }
 
-  @if (!loading && !error && promotions.length === 0 && !selectedPromo) {
-    <p class="mod__status">Nenhuma promoção pendente para validação.</p>
-  }
-
-  <!-- Validation panel (top) -->
-  @if (selectedPromo) {
-    <app-moderation-promotion-panel
-      [promotion]="selectedPromo"
-      [editForm]="editForm"
-      [priceValues]="{ currentPrice: editForm.currentPrice, originalPrice: editForm.originalPrice ?? undefined }"
-      [actionInProgress]="actionInProgress"
-      [newImagePreviewUrl]="newImagePreviewUrl"
-      [newImageSizeKB]="newImageSizeKB"
-      [newImageStatusText]="newImageStatusText"
-      [newImageError]="newImageError"
-      [soldAndDeliveredByStore]="soldAndDeliveredByStore"
-      [showRejectInput]="showRejectInput"
-      [rejectReason]="rejectReason"
-      (close)="closeValidation()"
-      (save)="saveEdits()"
-      (publish)="publish()"
-      (startReject)="startReject()"
-      (cancelReject)="cancelReject()"
-      (confirmReject)="confirmReject(selectedPromo)"
-      (imageSelected)="onNewImageSelected($event)"
-      (removeImage)="removeNewImage()"
-      (toggleSoldDelivered)="toggleSoldAndDeliveredByStore($event)"
-      (useStoreForSoldBy)="useStoreForSoldBy()"
-      (useStoreForDeliveredBy)="useStoreForDeliveredBy()"
-      (copySoldByToDeliveredBy)="copySoldByToDeliveredBy()"
-      (rejectReasonChange)="rejectReason = $event"
-    />
-  }
-
-  <!-- Queue list (below) -->
   <div class="mod__queue">
     @for (promo of promotions; track promo.id) {
-      <article class="mod__item" [class.mod__item--active]="selectedPromo?.id === promo.id">
-        <div class="mod__item-img">
-          <app-promotion-image [promotion]="promo" variant="card" />
-        </div>
-
+      <article class="mod__item">
+        <div class="mod__item-img"><app-promotion-image [promotion]="promo" variant="card" /></div>
         <div class="mod__item-body">
           <h2 class="mod__item-title">{{ promo.title }}</h2>
           <div class="mod__item-meta">
             <span class="mod__item-price">R$ {{ promo.currentPrice | number:'1.2-2' }}</span>
-            @if (promo.storeName && promo.storeName !== 'loja-nao-identificada') {
-              <span class="mod__item-store">{{ promo.storeName }}</span>
-            }
-            @if (promo.createdAt) {
-              <span class="mod__item-date">{{ promo.createdAt | date:'dd/MM/yy HH:mm' }}</span>
-            }
+            @if (promo.storeName && promo.storeName !== 'loja-nao-identificada') { <span class="mod__item-store">{{ promo.storeName }}</span> }
+            @if (promo.createdAt) { <span class="mod__item-date">{{ promo.createdAt | date:'dd/MM/yy HH:mm' }}</span> }
           </div>
           @if (getMissingFields(promo).length > 0) {
-            <div class="mod__item-missing">
-              <span class="mod__badge mod__badge--warn">{{ getMissingFields(promo).length }} campo(s) faltando</span>
-            </div>
+            <span class="mod__badge mod__badge--warn">{{ getMissingFields(promo).length }} campo(s) faltando</span>
           }
         </div>
-
         <div class="mod__item-actions">
-          <button type="button" class="mod__btn mod__btn--primary" [disabled]="actionInProgress === promo.id" (click)="openValidation(promo)">Validar</button>
-          <button type="button" class="mod__btn mod__btn--ghost-danger" [disabled]="actionInProgress === promo.id" (click)="rejectFromQueue(promo)">Rejeitar</button>
+          <button type="button" class="mod__btn mod__btn--primary" (click)="validate(promo)">Validar</button>
+          <button type="button" class="mod__btn mod__btn--ghost-danger" (click)="reject(promo)">Rejeitar</button>
         </div>
       </article>
     }
