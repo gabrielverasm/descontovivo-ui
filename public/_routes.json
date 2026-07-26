@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "include": [
+    "/login",
+    "/login/*",
+    "/cadastro",
+    "/cadastro/*",
+    "/publicar",
+    "/publicar/*",
+    "/minha-conta",
+    "/minha-conta/*",
+    "/erro",
+    "/erro/*",
+    "/promocoes",
+    "/admin",
+    "/admin/*",
+    "/moderacao",
+    "/moderacao/*",
+    "/callback",
+    "/callback/*",
+    "/silent-renew",
+    "/silent-renew/*"
+  ],
+  "exclude": []
+}

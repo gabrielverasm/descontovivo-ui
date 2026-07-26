@@ -47,8 +47,9 @@ Aplicação SPA para os domínios `descontovivo.com` e `descontovivo.com.br`, co
 
 - `/promocoes/:slug` usa Angular SSR no Cloudflare Worker em produção.
 - `/story-image` usa o proxy seguro do Worker.
-- Home, páginas institucionais e demais rotas continuam sendo servidas pelo Cloudflare Pages.
-- O Worker resolve internamente o asset canônico `/index.csr` nas rotas CSR conhecidas, sem expor o nome do shell nem alterar a URL pública; o shell legado `/__app-shell/` foi removido.
+- Home, páginas institucionais e assets continuam sendo servidos estaticamente pelo Cloudflare Pages.
+- Uma Pages Function atende somente as rotas CSR conhecidas e devolve o shell Angular importado como text module, sem passar por rewrites, pelo binding `ASSETS` ou alterar a URL pública.
+- `_routes.json` limita as invocações da Function. `/promocoes/:slug` e `/story-image` permanecem no Worker separado.
 
 ## O que NÃO está implementado
 
@@ -110,10 +111,13 @@ npm test -- --watch=false
 ## Deploy
 
 O domínio continua disponível no Cloudflare Pages para home, páginas
-institucionais e demais rotas. Em produção, as rotas de promoções dinâmicas e
-o proxy de imagens já são atendidos pelo Worker. As antigas Pages Functions de
-promoção e `story-image` e o shell `/__app-shell/` foram removidos; a migração
-total do domínio para Workers está fora do escopo.
+institucionais, assets e rotas CSR conhecidas. Uma Function limitada por
+`_routes.json` importa `index.csr.html` como text module e responde somente às
+rotas CSR, sem usar `_redirects` como fallback. Essas invocações possuem consumo
+de Workers restrito às rotas explicitamente incluídas.
+
+Em produção, `/promocoes/:slug` e `/story-image` continuam no Worker separado.
+A migração total do domínio para Workers está fora do escopo.
 
 Para validar o Worker localmente:
 
@@ -125,13 +129,15 @@ npx wrangler dev
 O deploy e a associação de domínio não fazem parte deste fluxo local. Alterações
 em `src/cloudflare-worker.ts` exigem publicação manual com `npx wrangler deploy`;
 o deploy automático do Pages não atualiza esse Worker. O Pages continua ativo
-para as rotas que não foram migradas.
+para as rotas que não foram migradas. Esta correção será publicada pelo deploy
+automático do Pages após o merge e não exige novo deploy do Worker separado.
 
 Arquivos estáticos em `public/`:
 - `robots.txt` — regras de crawling.
 - `sitemap.xml` — sitemap estático (páginas principais).
 - `_headers` — headers de segurança/cache.
-- `_redirects` — redirects de domínio e rewrites explícitos das rotas CSR.
+- `_redirects` — redirects de domínio e rewrites estáticos.
+- `_routes.json` — limita a Pages Function às rotas CSR conhecidas.
 
 ## SEO
 
