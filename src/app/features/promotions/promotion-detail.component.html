@@ -119,7 +119,6 @@
 
         @if (canModerate) {
           <section class="promotion-detail__admin-actions" aria-label="Ações administrativas">
-            @if (adminError) { <p class="promotion-detail__admin-error" role="alert">{{ adminError }}</p> }
             @if (!isRemoveConfirm) {
               <button type="button" (click)="editPromotion()" [disabled]="isAdminSaving">Editar promoção</button>
               <button type="button" (click)="isStoryGeneratorOpen = true" [disabled]="isAdminSaving">Gerar story</button>
@@ -149,7 +148,6 @@
         [totalCommentsCount]="totalCommentsCount"
         [isAuthenticated]="isAuthenticated"
         [isSubmittingComment]="isSubmittingComment"
-        [commentError]="commentError"
         [newCommentContent]="newCommentContent"
         (newCommentContentChange)="newCommentContent = $event"
         (submitComment)="submitComment()"

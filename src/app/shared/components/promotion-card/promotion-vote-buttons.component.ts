@@ -4,6 +4,7 @@ import { Promotion } from '../../../core/models/promotion.model';
 import { VoteService, PriceVote } from '../../../core/services/vote.service';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
 import { buildPromotionVoteParams } from '../../../core/analytics/analytics-events';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-promotion-vote-buttons',
@@ -14,6 +15,7 @@ import { buildPromotionVoteParams } from '../../../core/analytics/analytics-even
 export class PromotionVoteButtonsComponent {
   private readonly voteService = inject(VoteService);
   private readonly analytics = inject(AnalyticsService);
+  private readonly toast = inject(ToastService);
 
   userPriceVote: PriceVote = null;
   localLikesCount = 0;
@@ -109,6 +111,7 @@ export class PromotionVoteButtonsComponent {
         this.localDislikesCount = prevDislikes;
         this.userPriceVote = prevVote;
         this.voting = false;
+        this.toast.error('Não foi possível registrar seu voto. Tente novamente.');
       },
     });
   }
@@ -137,6 +140,7 @@ export class PromotionVoteButtonsComponent {
         this.localDislikesCount = prevDislikes;
         this.userPriceVote = prevVote;
         this.voting = false;
+        this.toast.error('Não foi possível remover seu voto. Tente novamente.');
       },
     });
   }

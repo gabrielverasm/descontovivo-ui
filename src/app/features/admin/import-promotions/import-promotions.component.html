@@ -73,9 +73,6 @@
       @if (parseError) {
         <div class="import__error" role="alert">{{ parseError }}</div>
       }
-      @if (httpError) {
-        <div class="import__error" role="alert">{{ httpError }}</div>
-      }
     </aside>
   </div>
 
@@ -151,10 +148,6 @@
           <tr><td>Erros</td><td>{{ result.errors.length }}</td></tr>
         </tbody>
       </table>
-
-      @if (result.created > 0 && !result.dryRun) {
-        <p class="import__success" role="status" aria-live="polite">✅ Importação concluída com sucesso.</p>
-      }
 
       @if (result.errors.length > 0) {
         <div class="import__errors-detail">

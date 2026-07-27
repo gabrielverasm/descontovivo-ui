@@ -32,6 +32,9 @@
           [(ngModel)]="currentPrice"
           (ngModelChange)="onPriceInput($event)"
         />
+        @if (priceError) {
+          <p class="publish__error" role="alert">{{ priceError }}</p>
+        }
 
         <app-file-field
           label="Imagem do produto *"
@@ -45,14 +48,6 @@
           [error]="imageError"
           (fileSelected)="onImageSelected($event)"
         />
-
-        @if (submitMessage) {
-          <p class="publish__success" role="status" aria-live="polite">{{ submitMessage }}</p>
-        }
-
-        @if (submitError) {
-          <p class="publish__error" role="alert">{{ submitError }}</p>
-        }
 
         <button
           class="publish__submit"

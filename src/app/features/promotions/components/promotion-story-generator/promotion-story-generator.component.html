@@ -32,9 +32,6 @@
           <button type="button" [disabled]="isRendering" (click)="copyCaption()">Copiar legenda</button>
           <button type="button" (click)="closed.emit()">Fechar</button>
         </div>
-        @if (feedback) {
-          <p class="story-modal__feedback" role="status" aria-live="polite">{{ feedback }}</p>
-        }
       </aside>
     </div>
   </section>

@@ -6,6 +6,7 @@ import { SeoService } from '../../../core/services/seo.service';
 import { AdminImportItem, AdminImportRequest, AdminImportResponse } from '../../../core/models/admin-import.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface ValidationMessage {
   sourceId: string;
@@ -79,6 +80,7 @@ const VALID_MARKETPLACES = [
 })
 export class ImportPromotionsComponent {
   private readonly importService = inject(AdminImportService);
+  private readonly toast = inject(ToastService);
 
   constructor() {
     inject(SeoService).setNoIndex();
@@ -87,7 +89,6 @@ export class ImportPromotionsComponent {
   jsonText = '';
   parseError = '';
   loading = false;
-  httpError = '';
   result: AdminImportResponse | null = null;
   showFormat = false;
 
@@ -110,7 +111,6 @@ export class ImportPromotionsComponent {
 
   validateJson(): void {
     this.parseError = '';
-    this.httpError = '';
     this.result = null;
     this.clearValidation();
 
@@ -211,7 +211,6 @@ export class ImportPromotionsComponent {
 
   private send(dryRun: boolean): void {
     this.parseError = '';
-    this.httpError = '';
     this.result = null;
 
     let body: AdminImportRequest;
@@ -227,9 +226,14 @@ export class ImportPromotionsComponent {
       .import(body, dryRun)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: (res) => (this.result = res),
+        next: (res) => {
+          this.result = res;
+          if (!res.dryRun && res.created > 0) {
+            this.toast.success('Importação concluída com sucesso.');
+          }
+        },
         error: (err: HttpErrorResponse) => {
-          this.httpError = err.error?.message ?? err.message ?? `Erro HTTP ${err.status}`;
+          this.toast.error(err.error?.message ?? err.message ?? `Erro HTTP ${err.status}`);
         },
       });
   }

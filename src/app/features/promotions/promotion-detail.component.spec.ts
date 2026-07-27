@@ -13,6 +13,7 @@ import { ModerationService } from '../../core/services/moderation.service';
 import { PromotionService } from '../../core/services/promotion.service';
 import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
+import { ToastService } from '../../core/services/toast.service';
 import { UploadService } from '../../core/services/upload.service';
 import { PromotionsFeedStateService } from './promotions-feed-state.service';
 import { PromotionDetailComponent } from './promotion-detail.component';
@@ -113,6 +114,52 @@ describe('PromotionDetailComponent administrative action', () => {
     expect(host.querySelector('.promotion-detail__admin-cancel')).not.toBeNull();
     expect(host.querySelector('.promotion-detail__admin-cancel')?.classList.contains('promotion-detail__admin-remove')).toBeFalse();
     fixture.destroy();
+  });
+
+  it('removes the promotion, shows a success toast, and preserves navigation', () => {
+    const router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    const moderation = jasmine.createSpyObj<ModerationService>('ModerationService', ['decide']);
+    const toast = jasmine.createSpyObj<ToastService>('ToastService', ['success', 'error']);
+    moderation.decide.and.returnValue(of(promotion as unknown as Promotion));
+    const component = Object.create(PromotionDetailComponent.prototype) as PromotionDetailComponent;
+    component.promotion = promotion as unknown as Promotion;
+    component.isRemoveConfirm = true;
+    component.isAdminSaving = false;
+    Object.defineProperties(component, {
+      router: { value: router },
+      moderationService: { value: moderation },
+      toast: { value: toast },
+    });
+
+    component.executeRemove();
+
+    expect(toast.success).toHaveBeenCalledOnceWith('Promoção removida com sucesso.');
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/promocoes']);
+    expect(component.isRemoveConfirm).toBeFalse();
+    expect(component.isAdminSaving).toBeFalse();
+  });
+});
+
+describe('PromotionDetailComponent comment feedback', () => {
+  it('shows an error toast without clearing the comment after a failed submission', () => {
+    const comments = jasmine.createSpyObj<CommentService>('CommentService', ['createComment']);
+    const toast = jasmine.createSpyObj<ToastService>('ToastService', ['success', 'error']);
+    comments.createComment.and.returnValue(throwError(() => new Error('request failed')));
+    const component = Object.create(PromotionDetailComponent.prototype) as PromotionDetailComponent;
+    component.promotion = promotion as unknown as Promotion;
+    component.comments = [];
+    component.newCommentContent = 'Comentário ainda editável';
+    component.isSubmittingComment = false;
+    Object.defineProperties(component, {
+      commentService: { value: comments },
+      toast: { value: toast },
+    });
+
+    component.submitComment();
+
+    expect(toast.error).toHaveBeenCalledOnceWith('Não foi possível publicar o comentário. Tente novamente.');
+    expect(component.newCommentContent).toBe('Comentário ainda editável');
+    expect(component.isSubmittingComment).toBeFalse();
   });
 });
 
