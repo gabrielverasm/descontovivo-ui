@@ -11,7 +11,7 @@ import { FileFieldComponent } from '../file-field/file-field.component';
 export class PromotionImageUploadComponent {
   @Input() label = 'Trocar imagem';
   @Input() previewUrl: string | null = null;
-  @Input() previewLabel = 'Nova imagem selecionada';
+  @Input() imageAlt = 'Imagem da promoção';
   @Input() sizeKB: number | null = null;
   @Input() statusText: string | null = null;
   @Input() error: string | null = null;
@@ -29,6 +29,20 @@ export class PromotionImageUploadComponent {
   }
 
   onRemove(): void {
+    if (this.disabled) return;
     this.removed.emit();
+  }
+
+  openFilePicker(input: HTMLInputElement): void {
+    if (this.disabled) return;
+    input.value = '';
+    input.click();
+  }
+
+  onHiddenFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file) this.onFileSelected(file);
+    input.value = '';
   }
 }

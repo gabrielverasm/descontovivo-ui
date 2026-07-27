@@ -212,17 +212,18 @@ describe('ModerationPromotionWorkspaceComponent', () => {
     expect(component.promotion?.slug).toBe('produto-renomeado');
   });
 
-  it('blocks inspection save without an image while preserving missing-field guidance', () => {
+  it('keeps the persisted image when inspection has no replacement and preserves missing-field guidance', async () => {
     params$.next(convertToParamMap({ editar: 'produto-1' }));
     component.inspectionLoaded({ imageKey: null, imageUrl: null, missingFields: ['title'], marketplace: 'AMAZON', title: '', productUrl: '', affiliateUrl: '', currentPrice: null, originalPrice: null, storeName: '', soldBy: '', deliveredBy: '', category: '', salesCount: null, productRating: null, sellerRating: null, officialStore: false, trustSignals: [] } as any);
     component.form.title = 'Título preenchido';
     component.form.url = 'https://amazon.com.br/produto';
     component.form.currentPrice = '10,00';
-    expect(component.inspectionError).toContain('A imagem não foi encontrada');
+    expect(component.inspectionError).not.toContain('A imagem não foi encontrada');
     expect(component.inspectionError).toContain('Alguns campos não foram encontrados');
     component.save();
-    expect(component.actionError).toContain('A imagem não foi encontrada');
-    expect(pending.decide).not.toHaveBeenCalled();
+    await fixture.whenStable();
+    expect(component.actionError).toBe('');
+    expect(pending.decide).toHaveBeenCalled();
   });
 
   it('returns to the queue after a direct approval', () => {
@@ -281,6 +282,7 @@ describe('ModerationPromotionWorkspaceComponent', () => {
   });
 
   it('unblocks manual image selection, blocks again after removal, and clears it on inspection', async () => {
+    params$.next(convertToParamMap({ editar: 'produto-1' }));
     component.inspectionApplied = true;
     component.inspectionRequiresImage = true;
     component.inspectionError = 'A imagem não foi encontrada. Selecione uma imagem manualmente.';
@@ -289,10 +291,41 @@ describe('ModerationPromotionWorkspaceComponent', () => {
     expect(component.inspectionRequiresImage).toBeFalse();
     expect(component.inspectionError).not.toContain('A imagem não foi encontrada');
     component.removeImage();
-    expect(component.inspectionRequiresImage).toBeTrue();
+    expect(component.inspectionRequiresImage).toBeFalse();
+    expect(component.newImagePreviewUrl).toBeNull();
+    expect(component.persistedImageHidden).toBeFalse();
     component.inspectionLoaded({ imageKey: 'stored-key', imageUrl: 'https://img/new.webp', missingFields: ['title'], marketplace: 'AMAZON', title: 'Novo', productUrl: 'https://amazon.com.br/p', affiliateUrl: '', currentPrice: 10, originalPrice: null, storeName: 'Amazon', soldBy: null, deliveredBy: null, category: null, salesCount: null, productRating: null, sellerRating: null, officialStore: false, trustSignals: [] } as any);
     expect(component.inspectionError).not.toContain('A imagem não foi encontrada');
     expect(component.inspectionError).toContain('Alguns campos não foram encontrados');
+  });
+
+  it('falls back to the persisted image when a replacement is removed', async () => {
+    params$.next(convertToParamMap({ editar: 'produto-1' }));
+    imageProcessing.process.and.resolveTo({
+      blob: new Blob(['replacement']),
+      previewUrl: 'blob:replacement',
+      sizeKB: 1,
+    } as any);
+    await component.onImageSelected(new File(['image'], 'replacement.webp', { type: 'image/webp' }));
+
+    component.removeImage();
+
+    expect(component.newImagePreviewUrl).toBeNull();
+    expect(component.newImageBlob).toBeNull();
+    expect(component.persistedImageHidden).toBeFalse();
+    expect(component.inspectionRequiresImage).toBeFalse();
+  });
+
+  it('blocks saving after the persisted image is hidden until a replacement is selected', () => {
+    params$.next(convertToParamMap({ editar: 'produto-1' }));
+
+    component.removeImage();
+    component.form.title = 'Alteração sem imagem';
+    component.save();
+
+    expect(component.persistedImageHidden).toBeTrue();
+    expect(component.actionError).toContain('Selecione uma imagem');
+    expect(pending.decide).not.toHaveBeenCalled();
   });
 
   it('revokes blob previews but never revokes HTTP image URLs', () => {

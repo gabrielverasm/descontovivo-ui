@@ -1,21 +1,51 @@
 <div class="promotion-image-upload" [class.promotion-image-upload--disabled]="disabled">
   @if (previewUrl) {
     <div class="promotion-image-upload__preview" [class.promotion-image-upload__preview--moderation]="previewSize === 'moderation'">
-      <span class="promotion-image-upload__label">{{ previewLabel }}</span>
-      <img [src]="previewUrl" alt="Prévia da nova imagem" />
-      <button type="button" (click)="onRemove()" [disabled]="disabled">Remover imagem selecionada</button>
+      <img [src]="previewUrl" [alt]="imageAlt" />
+      <div class="promotion-image-upload__actions">
+        <button
+          type="button"
+          class="promotion-image-upload__action"
+          aria-label="Alterar imagem"
+          [disabled]="disabled"
+          (click)="openFilePicker(imageInput)"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m4 16.5-.8 4.3 4.3-.8L19 8.5 15.5 5 4 16.5Zm13-13 3.5 3.5 1-1a1.4 1.4 0 0 0 0-2l-1.5-1.5a1.4 1.4 0 0 0-2 0l-1 1Z"/></svg>
+          <span class="promotion-image-upload__tooltip" role="tooltip">Alterar imagem — JPG, PNG ou WebP, máximo 5 MB</span>
+        </button>
+        <button
+          type="button"
+          class="promotion-image-upload__action"
+          aria-label="Remover imagem"
+          [disabled]="disabled"
+          (click)="onRemove()"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4 6.4 5Z"/></svg>
+          <span class="promotion-image-upload__tooltip" role="tooltip">Remover imagem</span>
+        </button>
+      </div>
+      <input
+        #imageInput
+        class="promotion-image-upload__hidden-input"
+        type="file"
+        [name]="name"
+        [accept]="accept"
+        [disabled]="disabled"
+        (change)="onHiddenFileChange($event)"
+      />
     </div>
+  } @else {
+    <app-file-field
+      [label]="label"
+      [name]="name"
+      [accept]="accept"
+      [hint]="hint"
+      [previewUrl]="null"
+      [sizeKB]="sizeKB"
+      [statusText]="statusText"
+      [error]="error"
+      [disabled]="disabled"
+      (fileSelected)="onFileSelected($event)"
+    />
   }
-
-  <app-file-field
-    [label]="label"
-    [name]="name"
-    [accept]="accept"
-    [hint]="hint"
-    [previewUrl]="null"
-    [sizeKB]="sizeKB"
-    [statusText]="statusText"
-    [error]="error"
-    (fileSelected)="onFileSelected($event)"
-  />
 </div>

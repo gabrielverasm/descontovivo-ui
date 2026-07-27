@@ -68,6 +68,7 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
   newImageSizeKB: number | null = null;
   newImageError: string | null = null;
   newImageStatus: 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error' = 'idle';
+  persistedImageHidden = false;
 
   constructor() { inject(SeoService).setNoIndex(); }
 
@@ -93,6 +94,10 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
     if (this.newImageStatus === 'uploading') return 'Enviando imagem…';
     if (this.newImageStatus === 'done') return 'Upload concluído';
     return null;
+  }
+
+  get isImageBusy(): boolean {
+    return this.newImageStatus === 'processing' || this.newImageStatus === 'uploading';
   }
 
   private resolveQuery(params: ParamMap): void {
@@ -123,6 +128,7 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
         }
         this.promotion = promotion;
         this.form = promotionToModerationForm(promotion);
+        this.persistedImageHidden = false;
         this.syncSoldAndDeliveredByStore();
       },
       error: (error: unknown) => {
@@ -149,6 +155,7 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
     this.clearInspectionState();
     this.clearManualImage();
     this.newImagePreviewUrl = null;
+    this.persistedImageHidden = false;
   }
 
   private emptyForm(): PromotionModerationFormValue {
@@ -204,10 +211,24 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
   }
 
   removeImage(): void {
+    const hadReplacement = !!this.newImagePreviewUrl;
     this.clearManualImage();
-    if (this.inspectionApplied) {
-      this.inspectionImageKey = null; this.inspectionRequiresImage = true; this.newImagePreviewUrl = null;
-      if (!this.inspectionError.includes('A imagem não foi encontrada')) this.inspectionError = `A imagem não foi encontrada. Selecione uma imagem manualmente. ${this.inspectionError}`.trim();
+    this.newImagePreviewUrl = null;
+
+    if (hadReplacement) {
+      this.inspectionImageKey = null;
+      this.inspectionRequiresImage = this.persistedImageHidden || !this.promotion?.imageUrl?.trim();
+    } else if (this.promotion?.imageUrl?.trim() && !this.persistedImageHidden) {
+      this.persistedImageHidden = true;
+      this.inspectionRequiresImage = true;
+    }
+
+    if (this.inspectionRequiresImage) {
+      if (!this.inspectionError.includes('A imagem não foi encontrada')) {
+        this.inspectionError = `A imagem não foi encontrada. Selecione uma imagem manualmente. ${this.inspectionError}`.trim();
+      }
+    } else {
+      this.inspectionError = this.inspectionError.replace('A imagem não foi encontrada. Selecione uma imagem manualmente.', '').trim();
     }
   }
 
@@ -216,12 +237,14 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
     this.form = { ...this.form, marketplace: data.marketplace, url: data.affiliateUrl || data.productUrl || '', title: data.title || '', currentPrice: data.currentPrice == null ? '' : formatCentsToBRL(numberToCents(data.currentPrice)), originalPrice: data.originalPrice == null ? '' : formatCentsToBRL(numberToCents(data.originalPrice)), storeName: resolveStoreName(data.storeName), soldBy: data.soldBy || '', deliveredBy: data.deliveredBy || '', category: data.category || '', categories: data.category ? [data.category] : [], salesCount: data.salesCount == null ? '' : String(data.salesCount), productRating: data.productRating == null ? '' : formatRatingForInput(data.productRating), sellerRating: data.sellerRating == null ? '' : formatRatingForInput(data.sellerRating), officialStore: data.officialStore, trustSignals: normalizeOfficialStoreSignals(data.officialStore, [...data.trustSignals]) };
     this.inspectionImageKey = data.imageKey;
     this.inspectionApplied = true;
-    this.inspectionRequiresImage = !data.imageKey;
+    const hasPersistedImage =
+      !this.persistedImageHidden && !!this.promotion?.imageUrl?.trim();
+    this.inspectionRequiresImage = !data.imageKey && !hasPersistedImage;
     this.inspectedFormUrl = this.form.url;
     this.newImagePreviewUrl = data.imageUrl;
     this.newImageStatus = data.imageKey ? 'done' : 'idle';
     this.inspectionError = [
-      !data.imageKey ? 'A imagem não foi encontrada. Selecione uma imagem manualmente.' : '',
+      this.inspectionRequiresImage ? 'A imagem não foi encontrada. Selecione uma imagem manualmente.' : '',
       data.missingFields.length ? 'Alguns campos não foram encontrados e precisam ser preenchidos manualmente.' : '',
     ].filter(Boolean).join(' ');
     this.syncSoldAndDeliveredByStore();
@@ -277,11 +300,13 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
   private validateForm(): string {
     const validation = validatePromotionForm(this.form);
     if (validation) return validation;
-    if (this.inspectionRequiresImage && !this.inspectionImageKey && !(this.newImageBlob && this.newImageStatus === 'ready')) return 'A imagem não foi encontrada. Selecione uma imagem manualmente.';
+    const hasReplacement = !!this.inspectionImageKey || !!(this.newImageBlob && this.newImageStatus === 'ready');
+    const hasPersistedImage = !this.persistedImageHidden && !!this.promotion?.imageUrl?.trim();
+    if (!hasReplacement && !hasPersistedImage) return 'A imagem não foi encontrada. Selecione uma imagem manualmente.';
     return '';
   }
 
-  private hasPendingImageState(): boolean { return !!this.newImageBlob || !!this.inspectionImageKey || this.inspectionApplied; }
+  private hasPendingImageState(): boolean { return !!this.newImageBlob || !!this.inspectionImageKey || this.inspectionApplied || this.persistedImageHidden; }
 
   private hasFormChanges(): boolean {
     if (!this.promotion) return false;
@@ -299,7 +324,7 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
 
   private returnToQueue(message: string): void { void this.router.navigate(['/moderacao'], { state: { message } }); }
 
-  private resetSavedImageState(): void { this.clearInspectionState(); this.clearManualImage(); this.newImagePreviewUrl = null; }
+  private resetSavedImageState(): void { this.clearInspectionState(); this.clearManualImage(); this.newImagePreviewUrl = null; this.persistedImageHidden = false; }
   private clearInspectionState(): void { this.inspectionImageKey = null; this.inspectionApplied = false; this.inspectionRequiresImage = false; this.inspectedFormUrl = null; }
   private clearManualImage(): void { this.revokeBlobPreview(); this.newImageBlob = null; this.newImageSizeKB = null; this.newImageError = null; this.newImageStatus = 'idle'; }
   private revokeBlobPreview(): void { if (this.newImagePreviewUrl?.startsWith('blob:')) { URL.revokeObjectURL(this.newImagePreviewUrl); this.newImagePreviewUrl = null; } }

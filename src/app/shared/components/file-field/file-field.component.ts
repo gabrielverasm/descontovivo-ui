@@ -18,6 +18,7 @@ export class FileFieldComponent {
   @Input() sizeKB: number | null = null;
   @Input() statusText: string | null = null;
   @Input() error: string | null = null;
+  @Input() disabled = false;
   @Output() fileSelected = new EventEmitter<File>();
 
   onFileChange(event: Event): void {
@@ -26,5 +27,6 @@ export class FileFieldComponent {
     if (file) {
       this.fileSelected.emit(file);
     }
+    input.value = '';
   }
 }

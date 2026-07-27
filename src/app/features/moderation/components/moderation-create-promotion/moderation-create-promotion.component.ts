@@ -288,7 +288,7 @@ export class ModerationCreatePromotionComponent {
   }
 
   private resetImage(): void {
-    if (this.imagePreviewUrl) URL.revokeObjectURL(this.imagePreviewUrl);
+    if (this.imagePreviewUrl?.startsWith('blob:')) URL.revokeObjectURL(this.imagePreviewUrl);
     this.imageBlob = null;
     this.imagePreviewUrl = null;
     this.imageSizeKB = null;

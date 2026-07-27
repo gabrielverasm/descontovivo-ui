@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { Subject, of, throwError } from 'rxjs';
 import { ModerationCategoryService } from '../../../../core/services/moderation-category.service';
 import { PromotionCategorySelectorComponent } from './promotion-category-selector.component';
@@ -10,15 +9,13 @@ import { PromotionCategorySelectorComponent } from './promotion-category-selecto
   imports: [PromotionCategorySelectorComponent],
   template: `
     <form (submit)="submits = submits + 1">
-      <app-promotion-category-selector selectorId="primary-categories" [selected]="selected" (selectedChange)="selected = $event" />
-      <app-promotion-category-selector selectorId="secondary-categories" [selected]="other" (selectedChange)="other = $event" />
+      <app-promotion-category-selector [selected]="selected" (selectedChange)="selected = $event" />
       <button type="submit">Enviar</button>
     </form>
   `,
 })
 class CategorySelectorHostComponent {
-  selected = ['Casa', 'Games'];
-  other: string[] = [];
+  selected = ['Games', 'Casa'];
   submits = 0;
 }
 
@@ -29,8 +26,9 @@ describe('PromotionCategorySelectorComponent', () => {
   beforeEach(() => {
     service = jasmine.createSpyObj('ModerationCategoryService', ['list', 'rename']);
     service.list.and.returnValue(of([
-      { name: 'Casa', promotionCount: 3 },
       { name: 'Eletrônicos', promotionCount: 7 },
+      { name: 'Casa', promotionCount: 3 },
+      { name: 'Bebidas', promotionCount: 8 },
       { name: 'Games', promotionCount: 2 },
     ]));
     service.rename.and.returnValue(of({ name: 'Lar', promotionCount: 3 }));
@@ -39,71 +37,67 @@ describe('PromotionCategorySelectorComponent', () => {
       providers: [{ provide: ModerationCategoryService, useValue: service }],
     });
     fixture = TestBed.createComponent(PromotionCategorySelectorComponent);
-    fixture.componentInstance.selectorId = 'isolated-categories';
-    fixture.componentInstance.selected = ['Casa', 'Games'];
+    fixture.componentInstance.selected = ['Games', 'Casa'];
     fixture.detectChanges();
   });
 
-  it('renders selected chips outside the panel button with real remove buttons', () => {
-    const control = fixture.nativeElement.querySelector('.category-select__control') as HTMLButtonElement;
-    expect(control.querySelector('button, input, [role="button"]')).toBeNull();
-    const remove = fixture.nativeElement.querySelector('[aria-label="Remover categoria Casa"]') as HTMLButtonElement;
-    expect(remove.tagName).toBe('BUTTON');
-    expect(remove.type).toBe('button');
+  const itemNames = (element: HTMLElement): string[] =>
+    Array.from(element.querySelectorAll('.category-select__name')).map(item => item.textContent?.trim() || '');
+
+  it('renders every category inside one contained, scrollable list without dropdown remnants', () => {
+    expect(itemNames(fixture.nativeElement)).toEqual(['Games', 'Casa', 'Bebidas', 'Eletrônicos']);
+    expect(fixture.nativeElement.querySelector('.category-select__viewport')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.category-select__panel')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.category-select__chips')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.category-select__control')).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('Selecionar mais categorias');
+    expect(fixture.nativeElement.textContent).not.toContain('⌄');
+    expect(getComputedStyle(fixture.nativeElement.querySelector('.category-select__viewport')).overflowY).toBe('auto');
   });
 
-  it('removes only the requested category without opening the panel', () => {
-    const changes = spyOn(fixture.componentInstance.selectedChange, 'emit');
-    const remove = fixture.nativeElement.querySelector('[aria-label="Remover categoria Casa"]') as HTMLButtonElement;
-    remove.click();
-    expect(changes).toHaveBeenCalledOnceWith(['Games']);
-    expect(fixture.componentInstance.open).toBeFalse();
+  it('keeps selected categories in input order and sorts the remainder alphabetically', () => {
+    expect(fixture.componentInstance.orderedCategories.map(category => category.name))
+      .toEqual(['Games', 'Casa', 'Bebidas', 'Eletrônicos']);
   });
 
-  it('removes chips with the native Enter and Space button activation without submitting the form', () => {
+  it('adds a new selection to the end of the selected block', () => {
     const hostFixture = TestBed.createComponent(CategorySelectorHostComponent);
     hostFixture.detectChanges();
-    const activate = (button: HTMLButtonElement, key: 'Enter' | ' ') => {
-      const down = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
-      button.dispatchEvent(down);
-      if (!down.defaultPrevented) button.click();
-      button.dispatchEvent(new KeyboardEvent('keyup', { key, bubbles: true }));
-      hostFixture.detectChanges();
-    };
+    const choices = Array.from(hostFixture.nativeElement.querySelectorAll('.category-select__choice')) as HTMLLabelElement[];
+    const checkbox = choices
+      .find(label => label.textContent?.includes('Bebidas'))!
+      .querySelector('input') as HTMLInputElement;
+    checkbox.click();
+    hostFixture.detectChanges();
 
-    activate(hostFixture.nativeElement.querySelector('[aria-label="Remover categoria Casa"]'), 'Enter');
-    expect(hostFixture.componentInstance.selected).toEqual(['Games']);
-    activate(hostFixture.nativeElement.querySelector('[aria-label="Remover categoria Games"]'), ' ');
-    expect(hostFixture.componentInstance.selected).toEqual([]);
-    expect(hostFixture.componentInstance.submits).toBe(0);
+    expect(hostFixture.componentInstance.selected).toEqual(['Games', 'Casa', 'Bebidas']);
+    expect(itemNames(hostFixture.nativeElement)).toEqual(['Games', 'Casa', 'Bebidas', 'Eletrônicos']);
   });
 
-  it('filters categories while searching and has no delete action', () => {
-    fixture.componentInstance.open = true;
-    fixture.componentInstance.search = 'ele';
-    fixture.detectChanges();
-    const list = fixture.nativeElement.querySelector('.category-select__list') as HTMLElement;
-    expect(list.textContent).toContain('Eletrônicos');
-    expect(list.textContent).not.toContain('Games');
-    expect(fixture.nativeElement.querySelector('[aria-label^="Excluir categoria"]')).toBeNull();
+  it('returns an unselected category to the alphabetized block', () => {
+    const hostFixture = TestBed.createComponent(CategorySelectorHostComponent);
+    hostFixture.detectChanges();
+    const choices = Array.from(hostFixture.nativeElement.querySelectorAll('.category-select__choice')) as HTMLLabelElement[];
+    const checkbox = choices
+      .find(label => label.textContent?.includes('Games'))!
+      .querySelector('input') as HTMLInputElement;
+    checkbox.click();
+    hostFixture.detectChanges();
+
+    expect(hostFixture.componentInstance.selected).toEqual(['Casa']);
+    expect(itemNames(hostFixture.nativeElement)).toEqual(['Casa', 'Bebidas', 'Eletrônicos', 'Games']);
   });
 
-  it('starts editing without changing selection or opening/closing the panel', () => {
-    fixture.componentInstance.open = true;
-    fixture.detectChanges();
+  it('starts editing from the pencil without changing selection', () => {
     const changes = spyOn(fixture.componentInstance.selectedChange, 'emit');
     (fixture.nativeElement.querySelector('[aria-label="Editar categoria Casa"]') as HTMLButtonElement).click();
-    expect(fixture.componentInstance.open).toBeTrue();
+
     expect(fixture.componentInstance.editing).toBe('Casa');
     expect(changes).not.toHaveBeenCalled();
   });
 
-  it('renames on Enter, prevents form submission and updates the selected chip', () => {
+  it('renames on Enter without submitting and preserves the selected position', () => {
     const hostFixture = TestBed.createComponent(CategorySelectorHostComponent);
-    hostFixture.detectChanges();
-    const selector = hostFixture.debugElement.queryAll(By.directive(PromotionCategorySelectorComponent))[0]
-      .componentInstance as PromotionCategorySelectorComponent;
-    selector.open = true;
     hostFixture.detectChanges();
     (hostFixture.nativeElement.querySelector('[aria-label="Editar categoria Casa"]') as HTMLButtonElement).click();
     hostFixture.detectChanges();
@@ -113,31 +107,15 @@ describe('PromotionCategorySelectorComponent', () => {
     const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
     input.dispatchEvent(event);
     hostFixture.detectChanges();
+
     expect(event.defaultPrevented).toBeTrue();
     expect(hostFixture.componentInstance.submits).toBe(0);
     expect(service.rename).toHaveBeenCalledWith('Casa', 'Lar');
-    expect(hostFixture.componentInstance.selected).toEqual(['Lar', 'Games']);
+    expect(hostFixture.componentInstance.selected).toEqual(['Games', 'Lar']);
+    expect(itemNames(hostFixture.nativeElement).slice(0, 2)).toEqual(['Games', 'Lar']);
   });
 
-  it('keeps the typed name and exposes feedback when rename fails', () => {
-    service.rename.and.returnValue(throwError(() => ({ error: { message: 'Nome já existe.' } })));
-    fixture.componentInstance.open = true;
-    fixture.detectChanges();
-    (fixture.nativeElement.querySelector('[aria-label="Editar categoria Casa"]') as HTMLButtonElement).click();
-    fixture.detectChanges();
-    const input = fixture.nativeElement.querySelector('[aria-label="Novo nome da categoria"]') as HTMLInputElement;
-    input.value = 'Lar';
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    (fixture.nativeElement.querySelector('[aria-label="Salvar nome"]') as HTMLButtonElement).click();
-    fixture.detectChanges();
-    expect(fixture.componentInstance.editing).toBe('Casa');
-    expect(fixture.componentInstance.editingName).toBe('Lar');
-    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('Nome já existe.');
-  });
-
-  it('cancels rename with Escape without changing selection', () => {
-    fixture.componentInstance.open = true;
-    fixture.detectChanges();
+  it('cancels rename with Escape and keeps the selection unchanged', () => {
     const changes = spyOn(fixture.componentInstance.selectedChange, 'emit');
     (fixture.nativeElement.querySelector('[aria-label="Editar categoria Casa"]') as HTMLButtonElement).click();
     fixture.detectChanges();
@@ -145,16 +123,30 @@ describe('PromotionCategorySelectorComponent', () => {
     const event = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
     input.dispatchEvent(event);
     fixture.detectChanges();
+
     expect(event.defaultPrevented).toBeTrue();
     expect(fixture.componentInstance.editing).toBeNull();
     expect(changes).not.toHaveBeenCalled();
   });
 
-  it('blocks repeated rename actions while the request is pending', async () => {
+  it('preserves rename errors and typed values', () => {
+    service.rename.and.returnValue(throwError(() => ({ error: { message: 'Nome já existe.' } })));
+    (fixture.nativeElement.querySelector('[aria-label="Editar categoria Casa"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const input = fixture.nativeElement.querySelector('[aria-label="Novo nome da categoria"]') as HTMLInputElement;
+    input.value = 'Lar';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    (fixture.nativeElement.querySelector('[aria-label="Salvar nome"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.editing).toBe('Casa');
+    expect(fixture.componentInstance.editingName).toBe('Lar');
+    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('Nome já existe.');
+  });
+
+  it('disables repeated rename actions while loading and respects the disabled input', async () => {
     const pending = new Subject<any>();
     service.rename.and.returnValue(pending);
-    fixture.componentInstance.open = true;
-    fixture.detectChanges();
     (fixture.nativeElement.querySelector('[aria-label="Editar categoria Casa"]') as HTMLButtonElement).click();
     fixture.detectChanges();
     const input = fixture.nativeElement.querySelector('[aria-label="Novo nome da categoria"]') as HTMLInputElement;
@@ -163,40 +155,32 @@ describe('PromotionCategorySelectorComponent', () => {
     (fixture.nativeElement.querySelector('[aria-label="Salvar nome"]') as HTMLButtonElement).click();
     await fixture.whenStable();
     fixture.detectChanges();
-    expect((fixture.nativeElement.querySelector('[aria-label="Novo nome da categoria"]') as HTMLInputElement).disabled).toBeTrue();
-    expect((fixture.nativeElement.querySelector('[aria-label="Salvar nome"]') as HTMLButtonElement).disabled).toBeTrue();
+
+    expect(fixture.componentInstance.renaming).toBeTrue();
+    expect(
+      (fixture.nativeElement.querySelector('[aria-label="Salvar nome"]') as HTMLButtonElement).disabled,
+    ).toBeTrue();
     fixture.componentInstance.saveEdit('Casa');
     expect(service.rename).toHaveBeenCalledTimes(1);
+
+    pending.next({ name: 'Lar', promotionCount: 3 });
+    pending.complete();
+    fixture.componentInstance.disabled = true;
+    fixture.detectChanges();
+    expect(Array.from(fixture.nativeElement.querySelectorAll('input[type="checkbox"]'))
+      .every((checkbox: any) => checkbox.disabled)).toBeTrue();
   });
 
-  it('uses unique label and panel ids for multiple instances', () => {
-    const hostFixture = TestBed.createComponent(CategorySelectorHostComponent);
-    hostFixture.detectChanges();
-    const controls = Array.from(hostFixture.nativeElement.querySelectorAll('.category-select__control')) as HTMLButtonElement[];
-    expect(controls.length).toBe(2);
-    expect(controls[0].getAttribute('aria-controls')).not.toBe(controls[1].getAttribute('aria-controls'));
-    expect(controls[0].getAttribute('aria-labelledby')).not.toBe(controls[1].getAttribute('aria-labelledby'));
-    expect(controls[0].getAttribute('aria-controls')).toBe('primary-categories-panel');
-    expect(controls[1].getAttribute('aria-controls')).toBe('secondary-categories-panel');
-    expect(hostFixture.nativeElement.querySelectorAll('#primary-categories-label').length).toBe(1);
-    expect(hostFixture.nativeElement.querySelectorAll('#secondary-categories-label').length).toBe(1);
-    controls.forEach(control => {
-      const labelId = control.getAttribute('aria-labelledby')!;
-      expect(hostFixture.nativeElement.querySelector(`[id="${labelId}"]`)).not.toBeNull();
-      control.click();
-      hostFixture.detectChanges();
-      const panelId = control.getAttribute('aria-controls')!;
-      expect(hostFixture.nativeElement.querySelector(`[id="${panelId}"]`)).not.toBeNull();
-      control.click();
-      hostFixture.detectChanges();
-    });
-  });
+  it('shows loading and load errors inside the category container', () => {
+    const pending = new Subject<any>();
+    service.list.and.returnValue(pending);
+    const loadingFixture = TestBed.createComponent(PromotionCategorySelectorComponent);
+    loadingFixture.detectChanges();
+    expect(loadingFixture.nativeElement.querySelector('.category-select__viewport').textContent).toContain('Carregando');
 
-  it('opens and closes without changing categories', () => {
-    const changes = spyOn(fixture.componentInstance.selectedChange, 'emit');
-    fixture.componentInstance.togglePanel();
-    fixture.componentInstance.close();
-    expect(changes).not.toHaveBeenCalled();
-    expect(fixture.componentInstance.selected).toEqual(['Casa', 'Games']);
+    pending.error(new Error('offline'));
+    loadingFixture.detectChanges();
+    expect(loadingFixture.nativeElement.querySelector('[role="alert"]').textContent)
+      .toContain('Não foi possível carregar as categorias');
   });
 });

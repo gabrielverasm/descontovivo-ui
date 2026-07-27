@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.29**
+**0.5.30**
 
 ## Convenção
 
@@ -29,6 +29,7 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.5.30 | 2026-07-26 | Preenche automaticamente a loja pelo link e melhora a edição de imagem e categorias no formulário de moderação |
 | 0.5.29 | 2026-07-26 | Corrige o hard refresh das rotas CSR do Pages retornando o shell Angular diretamente por uma Function com text module |
 | 0.5.28 | 2026-07-26 | Corrige hard refresh das rotas CSR para manter a URL original e impedir redirecionamento para o shell interno |
 | 0.5.27 | 2026-07-26 | Unifica os formulários de promoção, corrige responsividade, máscaras, selos e categorias múltiplas |

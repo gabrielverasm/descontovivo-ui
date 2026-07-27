@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { debounceTime, Subject, Subscription } from 'rxjs';
 import { Promotion } from '../../../../core/models/promotion.model';
-import { PromotionImageComponent } from '../../../../shared/components/promotion-image/promotion-image.component';
 import { PromotionImageUploadComponent } from '../../../../shared/components/promotion-image-upload/promotion-image-upload.component';
 import { MarketplaceInspectionButtonComponent } from '../../../../shared/components/marketplace-inspection-button/marketplace-inspection-button.component';
 import { PromotionInspectionResponse } from '../../../../core/models/marketplace-inspection.model';
@@ -11,17 +11,18 @@ import { getMarketplaceTrustSignals, getMultipleTrustSignalsMetadata, TrustSigna
 import { normalizeOfficialStoreSignals, PromotionModerationFormValue } from '../../moderation-form.model';
 import { PromotionCategorySelectorComponent } from '../promotion-category-selector/promotion-category-selector.component';
 import { BrlCurrencyInputDirective } from '../../../../shared/directives/brl-currency-input.directive';
+import { resolveStoreFromOfferUrl } from '../../../../shared/utils/store-from-offer-url.util';
 
 export type ModerationPromotionMode = 'create' | 'validate' | 'edit';
 
 @Component({
   selector: 'app-moderation-promotion-panel',
   standalone: true,
-  imports: [FormsModule, PromotionImageComponent, PromotionImageUploadComponent, MarketplaceInspectionButtonComponent, PromotionCategorySelectorComponent, BrlCurrencyInputDirective],
+  imports: [FormsModule, PromotionImageUploadComponent, MarketplaceInspectionButtonComponent, PromotionCategorySelectorComponent, BrlCurrencyInputDirective],
   templateUrl: './moderation-promotion-panel.component.html',
   styleUrl: './moderation-promotion-panel.component.scss',
 })
-export class ModerationPromotionPanelComponent {
+export class ModerationPromotionPanelComponent implements OnChanges, OnDestroy, OnInit {
   @Input() promotion!: Promotion;
   @Input({ required: true }) mode: ModerationPromotionMode = 'validate';
   @Input({ required: true }) editForm!: PromotionModerationFormValue;
@@ -30,6 +31,7 @@ export class ModerationPromotionPanelComponent {
   @Input() newImageSizeKB: number | null = null;
   @Input() newImageStatusText: string | null = null;
   @Input() newImageError: string | null = null;
+  @Input() persistedImageHidden = false;
   @Input() soldAndDeliveredByStore = false;
   @Input() showRejectInput = false;
   @Input() rejectReason = '';
@@ -54,8 +56,44 @@ export class ModerationPromotionPanelComponent {
   @Output() inspectionLoaded = new EventEmitter<PromotionInspectionResponse>();
   @Output() inspectionFailed = new EventEmitter<void>();
 
+  private readonly offerUrlChanges = new Subject<string>();
+  private readonly subscriptions = new Subscription();
+  private lastAutoStoreName: string | null = null;
+  private lastAutoDeliveredBy: string | null = null;
+  private storeNameManuallyEdited = false;
+  private deliveredByManuallyEdited = false;
+  private initialized = false;
+
+  ngOnInit(): void {
+    this.subscriptions.add(
+      this.offerUrlChanges.pipe(debounceTime(400)).subscribe((url) => this.autofillStore(url)),
+    );
+    this.initialized = true;
+    this.offerUrlChanges.next(this.editForm.url);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['editForm']) return;
+    this.resetAutofillTracking();
+    if (this.initialized) this.offerUrlChanges.next(this.editForm.url);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
   get isActionDisabled(): boolean {
     return this.imageBusy || !!this.actionInProgress;
+  }
+
+  get displayedImageUrl(): string | null {
+    if (this.newImagePreviewUrl) return this.newImagePreviewUrl;
+    if (this.mode !== 'create' && !this.persistedImageHidden) return this.promotion?.imageUrl?.trim() || null;
+    return null;
+  }
+
+  get displayedImageAlt(): string {
+    return this.promotion?.title ? `Imagem de ${this.promotion.title}` : 'Imagem da promoção';
   }
 
   get availableTrustSignals(): string[] {
@@ -64,6 +102,21 @@ export class ModerationPromotionPanelComponent {
   }
 
   hasValidStoreName(): boolean { return !!this.editForm.storeName.trim(); }
+
+  onOfferUrlChange(value: string): void {
+    this.editForm.url = value;
+    this.offerUrlChanges.next(value);
+  }
+
+  onStoreNameChange(value: string): void {
+    this.editForm.storeName = value;
+    this.storeNameManuallyEdited = value !== this.lastAutoStoreName;
+  }
+
+  onDeliveredByChange(value: string): void {
+    this.editForm.deliveredBy = value;
+    this.deliveredByManuallyEdited = value !== this.lastAutoDeliveredBy;
+  }
 
   updateSalesCount(value: string): void {
     this.editForm.salesCount = formatIntegerInput(value);
@@ -94,4 +147,32 @@ export class ModerationPromotionPanelComponent {
   isTrustSignalSelected(signal: string): boolean { return this.editForm.trustSignals.includes(signal); }
   getTrustSignalLabel(signal: string): string { return getMultipleTrustSignalsMetadata([signal as TrustSignal])[0]?.label || signal; }
   getTrustSignalTooltip(signal: string): string { return getMultipleTrustSignalsMetadata([signal as TrustSignal])[0]?.tooltip || ''; }
+
+  private autofillStore(url: string): void {
+    const storeName = resolveStoreFromOfferUrl(url);
+    if (!storeName) return;
+
+    if (this.canAutofill(this.editForm.storeName, this.lastAutoStoreName, this.storeNameManuallyEdited)) {
+      this.editForm.storeName = storeName;
+      this.lastAutoStoreName = storeName;
+      this.storeNameManuallyEdited = false;
+    }
+
+    if (this.canAutofill(this.editForm.deliveredBy, this.lastAutoDeliveredBy, this.deliveredByManuallyEdited)) {
+      this.editForm.deliveredBy = storeName;
+      this.lastAutoDeliveredBy = storeName;
+      this.deliveredByManuallyEdited = false;
+    }
+  }
+
+  private canAutofill(currentValue: string, lastAutoValue: string | null, manuallyEdited: boolean): boolean {
+    return !currentValue.trim() || (!manuallyEdited && lastAutoValue !== null && currentValue === lastAutoValue);
+  }
+
+  private resetAutofillTracking(): void {
+    this.lastAutoStoreName = null;
+    this.lastAutoDeliveredBy = null;
+    this.storeNameManuallyEdited = false;
+    this.deliveredByManuallyEdited = false;
+  }
 }
