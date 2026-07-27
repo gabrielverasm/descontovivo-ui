@@ -1,14 +1,17 @@
 :host {
   display: block;
   width: 100%;
+  height: 100%;
   min-width: 0;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
 .category-select {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: .3rem;
+  height: 100%;
   width: 100%;
   min-width: 0;
 }
@@ -20,8 +23,9 @@
 }
 
 .category-select__viewport {
+  flex: 1 1 auto;
   width: 100%;
-  height: 128px;
+  min-height: 0;
   min-width: 0;
   overflow-x: hidden;
   overflow-y: auto;
@@ -43,11 +47,11 @@
   align-items: center;
   gap: .35rem;
   min-width: 0;
-  min-height: 38px;
+  min-height: 32px;
   border: 1px solid #dbe3ee;
   border-radius: 7px;
   background: #fff;
-  padding: .2rem .3rem;
+  padding: .1rem .25rem;
 }
 
 .category-select__item--selected {
@@ -59,16 +63,16 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: .45rem;
+  gap: .35rem;
   flex: 1;
   min-width: 0;
-  min-height: 32px;
+  min-height: 30px;
   cursor: pointer;
 }
 
 .category-select__choice input {
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
   margin: 0;
   accent-color: #2563eb;
 }
@@ -77,20 +81,20 @@
   min-width: 0;
   overflow-wrap: anywhere;
   color: #334155;
-  font-size: .75rem;
+  font-size: .73rem;
   font-weight: 700;
 }
 
 .category-select__choice small {
   color: #64748b;
-  font-size: .68rem;
+  font-size: .66rem;
 }
 
 .category-select__edit,
 .category-select__edit-row button {
   flex: 0 0 auto;
-  min-width: 34px;
-  min-height: 34px;
+  min-width: 30px;
+  min-height: 30px;
   border: 0;
   border-radius: 5px;
   background: transparent;
@@ -154,7 +158,6 @@
 }
 
 @media (max-width: 680px) {
-  .category-select__viewport { height: 132px; }
   .category-select__edit-row { grid-template-columns: minmax(0, 1fr) auto; }
   .category-select__edit-row button:last-child { grid-column: 1 / -1; justify-self: start; }
 }
