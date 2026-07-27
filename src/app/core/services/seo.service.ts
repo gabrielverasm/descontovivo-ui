@@ -39,10 +39,6 @@ export class SeoService {
     this.removeCanonical();
   }
 
-  setIndexFollow(): void {
-    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
-  }
-
   setTitleAndDescription(title: string, description: string): void {
     this.title.setTitle(title);
     this.meta.updateTag({ name: 'description', content: description });

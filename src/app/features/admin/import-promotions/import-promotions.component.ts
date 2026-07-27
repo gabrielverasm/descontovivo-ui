@@ -18,7 +18,6 @@ interface ValidationMessage {
 interface ValidatedItem extends AdminImportItem {
   _errors: ValidationMessage[];
   _warnings: ValidationMessage[];
-  _imgLoaded: boolean;
   _imgError: boolean;
 }
 
@@ -90,7 +89,6 @@ export class ImportPromotionsComponent {
   parseError = '';
   loading = false;
   result: AdminImportResponse | null = null;
-  showFormat = false;
 
   validatedItems: ValidatedItem[] = [];
   totalErrors = 0;
@@ -103,10 +101,6 @@ export class ImportPromotionsComponent {
     this.jsonText = this.exampleFormatted;
     this.parseError = '';
     this.clearValidation();
-  }
-
-  toggleFormat(): void {
-    this.showFormat = !this.showFormat;
   }
 
   validateJson(): void {
@@ -151,10 +145,6 @@ export class ImportPromotionsComponent {
     this.send(false);
   }
 
-  onImgLoad(item: ValidatedItem): void {
-    item._imgLoaded = true;
-  }
-
   onImgError(item: ValidatedItem): void {
     item._imgError = true;
   }
@@ -195,7 +185,7 @@ export class ImportPromotionsComponent {
       errors.push({ sourceId: sid, field: 'publishAt', message: 'publishAt está no futuro. A importação não agenda publicação; use uma data/hora passada ou atual', severity: 'error' });
     }
 
-    return { ...item, _errors: errors, _warnings: warnings, _imgLoaded: false, _imgError: false };
+    return { ...item, _errors: errors, _warnings: warnings, _imgError: false };
   }
 
   private isUrl(s: string): boolean {

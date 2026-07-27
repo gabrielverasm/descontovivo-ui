@@ -31,7 +31,6 @@ import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
 import { UI_VERSION } from '../../core/app-version';
 import { ToastService } from '../../core/services/toast.service';
-import { PromotionsFeedStateService } from './promotions-feed-state.service';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -61,7 +60,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   private backButtonObserver?: IntersectionObserver;
   private floatingBackAnimationTimeout?: ReturnType<typeof setTimeout>;
-  private readonly relatedPageSize = 3;
   private readonly commentsPageSize = 5;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -72,7 +70,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly seo = inject(SeoService);
   private readonly structuredData = inject(StructuredDataService);
   private readonly analytics = inject(AnalyticsService);
-  private readonly feedState = inject(PromotionsFeedStateService);
   private readonly responseInit = inject(RESPONSE_INIT, { optional: true });
   private readonly toast = inject(ToastService);
 
@@ -94,8 +91,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   get trustSignalsList(): { label: string; description: string }[] {
     if (!this.promotion) return [];
-    
-    const signals: { label: string; description: string }[] = [];
     
     // Derive trust signals from promotion fields
     const derivedSignals = deriveTrustSignals({

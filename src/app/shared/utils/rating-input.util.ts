@@ -69,18 +69,6 @@ export function formatRatingForInput(value: number | null | undefined): string {
   return value.toString().replace('.', ',');
 }
 
-/**
- * Normaliza um campo de rating e retorna o valor formatado para input.
- * Útil para ser usado no evento blur de campos de rating.
- * 
- * @param value - Valor atual do campo
- * @returns Valor formatado para exibição no input
- */
-export function normalizeAndFormatRating(value: string | number | null | undefined): string {
-  const normalized = normalizeRatingInput(value);
-  return formatRatingForInput(normalized);
-}
-
 /** Máscara imediata de nota: somente dígitos, com uma casa decimal e máximo 5,0. */
 export function formatRatingWhileTyping(value: string, previousValue = ''): string {
   if (!value) return '';

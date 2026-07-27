@@ -15,7 +15,6 @@ import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { ToastService } from '../../core/services/toast.service';
 import { UploadService } from '../../core/services/upload.service';
-import { PromotionsFeedStateService } from './promotions-feed-state.service';
 import { PromotionDetailComponent } from './promotion-detail.component';
 
 const promotion = {
@@ -37,7 +36,7 @@ function providers(router: jasmine.SpyObj<Router>, analytics: jasmine.SpyObj<Ana
     { provide: UploadService, useValue: jasmine.createSpyObj('UploadService', ['uploadPromotionImage']) },
     { provide: SeoService, useValue: jasmine.createSpyObj('SeoService', ['setNoIndex', 'setNonIndexable', 'setIndexable']) },
     { provide: StructuredDataService, useValue: jasmine.createSpyObj('StructuredDataService', ['clearPageStructuredData', 'setStructuredData']) },
-    { provide: AnalyticsService, useValue: analytics }, { provide: PromotionsFeedStateService, useValue: {} },
+    { provide: AnalyticsService, useValue: analytics },
   ];
 }
 

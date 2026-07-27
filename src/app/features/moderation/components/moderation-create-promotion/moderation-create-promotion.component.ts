@@ -52,7 +52,6 @@ export class ModerationCreatePromotionComponent {
 
   saving = false;
   error = '';
-  inspectionMessage = '';
   soldAndDeliveredByStore = false;
 
   // Image
@@ -76,7 +75,6 @@ export class ModerationCreatePromotionComponent {
     this.imagePreviewUrl = data.imageUrl;
     this.imageBlob = null;
     this.imageStatus = data.imageKey ? 'done' : 'idle';
-    this.inspectionMessage = '';
     this.toast.success('Inspeção concluída.');
     this.error = data.missingFields.length
       ? 'Alguns campos não foram encontrados e precisam ser preenchidos manualmente'
@@ -84,7 +82,6 @@ export class ModerationCreatePromotionComponent {
   }
 
   inspectionFailed(): void {
-    this.inspectionMessage = '';
     this.toast.error('Não foi possível carregar os dados da Shopee.');
   }
 
@@ -303,7 +300,6 @@ export class ModerationCreatePromotionComponent {
     this.inspectionImageKey = null;
     this.uploadedImageKey = null;
     this.uploadedImageUrl = null;
-    this.inspectionMessage = '';
   }
 
   private clearImageValidationFeedback(): void {

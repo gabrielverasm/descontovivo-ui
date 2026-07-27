@@ -32,7 +32,4 @@ export class PromotionsFeedStateService {
     this.state = null;
   }
 
-  get hasSavedState(): boolean {
-    return this.state !== null && this.state.promotions.length > 0;
-  }
 }

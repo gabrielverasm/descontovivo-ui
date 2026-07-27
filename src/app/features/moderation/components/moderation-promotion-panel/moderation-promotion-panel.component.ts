@@ -38,7 +38,6 @@ export class ModerationPromotionPanelComponent implements OnChanges, OnDestroy, 
   @Input() showRejectInput = false;
   @Input() rejectReason = '';
   @Input() formError = '';
-  @Input() feedbackMessage = '';
   @Input() imageBusy = false;
 
   @Output() close = new EventEmitter<void>();

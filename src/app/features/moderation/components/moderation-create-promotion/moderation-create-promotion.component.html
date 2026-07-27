@@ -9,7 +9,6 @@
   [actionInProgress]="saving ? 'create' : null"
   [imageBusy]="isImageBusy"
   [formError]="error"
-  [feedbackMessage]="inspectionMessage"
   (create)="submit()"
   (close)="cancel.emit()"
   (toggleSoldDelivered)="toggleSoldDelivered($event)"

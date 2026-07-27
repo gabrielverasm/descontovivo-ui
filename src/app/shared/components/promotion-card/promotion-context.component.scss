@@ -16,10 +16,6 @@ div {
   min-width: 0;
 }
 
-.promotion-context--merged > div:first-child {
-  grid-column: 2;
-}
-
 dt {
   color: #64748b;
   font-size: 0.66rem;
@@ -38,8 +34,7 @@ dd {
   line-height: 1.2;
 }
 
-a:focus-visible,
-.promotion-context__icon:focus-visible {
+a:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.28);
   outline-offset: 3px;
 }
@@ -54,36 +49,6 @@ a:focus-visible,
   color: #2563eb;
 }
 
-.promotion-context__item--trusted {
-  grid-column: auto;
-}
-
-.promotion-context__icon {
-  position: relative;
-  display: inline-grid;
-  place-items: center;
-  flex: 0 0 auto;
-  width: 1.08rem;
-  height: 1.08rem;
-  border-radius: 999px;
-}
-
-.promotion-context__icon--fulfillment {
-  width: 1.14rem;
-  height: 1.14rem;
-}
-
-.promotion-context__icon img {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.promotion-context__icon--warning {
-  width: 1.4rem;
-  height: 1.4rem;
-}
-
 @media (max-width: 760px) {
   .promotion-context {
     grid-template-columns: repeat(3, minmax(6.5rem, 1fr));
@@ -95,9 +60,6 @@ a:focus-visible,
     grid-template-columns: 1fr;
   }
 
-  .promotion-context--merged > div:first-child {
-    grid-column: auto;
-  }
 }
 
 .promotion-context__truck {
@@ -149,5 +111,4 @@ a:focus-visible,
   vertical-align: -0.12rem;
   margin-left: 0.25rem;
 }
-
 

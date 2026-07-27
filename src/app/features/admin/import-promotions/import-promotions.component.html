@@ -89,7 +89,6 @@
                   [src]="item.imageUrl"
                   [alt]="item.title"
                   loading="lazy"
-                  (load)="onImgLoad(item)"
                   (error)="onImgError(item)"
                 />
               } @else {

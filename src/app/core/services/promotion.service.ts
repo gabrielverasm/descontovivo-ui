@@ -51,10 +51,6 @@ export class PromotionService {
     );
   }
 
-  getPromotionById(id: string): Observable<Promotion> {
-    return this.getPromotionBySlug(id);
-  }
-
   searchPromotions(term: string): Observable<Promotion[]> {
     const params = new HttpParams().set('q', term);
     return this.http.get<PagedResponse<Promotion>>(this.baseUrl, { params }).pipe(
@@ -78,14 +74,6 @@ export class PromotionService {
 
   createPromotion(request: PromotionCreateRequest): Observable<Promotion> {
     return this.http.post<Promotion>(this.baseUrl, request);
-  }
-
-  /** Compat: usado pelo promotion-detail para carregar lista completa */
-  getApprovedPromotions(): Observable<Promotion[]> {
-    return this.getPromotions(0, 50).pipe(
-      map((res) => res.content),
-      catchError(() => of([])),
-    );
   }
 
   /** Compat: garante que campos usados pelos cards existam */
