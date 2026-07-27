@@ -4,12 +4,13 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, take } from 'rxjs';
 import { AuthService } from './core/services/auth.service';
 import { AnalyticsService } from './core/analytics/analytics.service';
+import { ToastContainerComponent } from './shared/components/toast-container/toast-container.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
-  template: '<router-outlet />',
+  imports: [RouterOutlet, ToastContainerComponent],
+  template: '<app-toast-container /><router-outlet />',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {

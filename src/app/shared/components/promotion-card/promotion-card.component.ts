@@ -11,6 +11,7 @@ import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../utils/sel
 import { sharePromotion } from '../../utils/share-promotion.util';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams } from '../../../core/analytics/analytics-events';
+import { truncateText } from '../../utils/truncate-text.util';
 
 @Component({
   selector: 'app-promotion-card',
@@ -30,6 +31,14 @@ export class PromotionCardComponent {
   private readonly router = inject(Router);
   private readonly analytics = inject(AnalyticsService);
   @Input({ required: true }) promotion!: Promotion;
+
+  get visualTitle(): string {
+    return truncateText(this.promotion.title, 80).text;
+  }
+
+  get isTitleTruncated(): boolean {
+    return truncateText(this.promotion.title, 80).truncated;
+  }
 
   get actualCommentsCount(): number {
     return this.promotion.commentsCount ?? 0;

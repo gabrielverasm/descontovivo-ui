@@ -6,6 +6,7 @@ import { ModerationService } from '../../core/services/moderation.service';
 import { SeoService } from '../../core/services/seo.service';
 import { Router } from '@angular/router';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-moderation-promotions',
@@ -17,6 +18,7 @@ import { PromotionImageComponent } from '../../shared/components/promotion-image
 export class ModerationPromotionsComponent implements OnInit {
   private readonly moderationService = inject(ModerationService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   constructor() {
     inject(SeoService).setNoIndex();
@@ -25,7 +27,6 @@ export class ModerationPromotionsComponent implements OnInit {
   promotions: Promotion[] = [];
   loading = true;
   error = '';
-  successMessage = '';
 
   ngOnInit(): void {
     const navigationState = this.router.getCurrentNavigation?.()?.extras.state as { message?: unknown } | undefined;
@@ -37,7 +38,7 @@ export class ModerationPromotionsComponent implements OnInit {
     } else if (message && typeof window !== 'undefined') {
       window.history.replaceState({ ...window.history.state, message: undefined }, typeof document !== 'undefined' ? document.title : '');
     }
-    if (message) this.successMessage = message;
+    if (message) this.toast.success(message);
     this.load();
   }
 

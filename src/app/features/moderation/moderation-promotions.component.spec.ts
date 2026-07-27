@@ -5,6 +5,7 @@ import { ModerationService } from '../../core/services/moderation.service';
 import { Promotion } from '../../core/models/promotion.model';
 import { SeoService } from '../../core/services/seo.service';
 import { ModerationPromotionsComponent } from './moderation-promotions.component';
+import { ToastService } from '../../core/services/toast.service';
 
 describe('ModerationPromotionsComponent', () => {
   it('loads the queue and navigates validation with the promotion id', () => {
@@ -38,8 +39,9 @@ describe('ModerationPromotionsComponent', () => {
     const replaceState = spyOn(window.history, 'replaceState').and.callThrough();
     TestBed.configureTestingModule({ providers: [{ provide: ModerationService, useValue: moderation }, { provide: Router, useValue: router }, { provide: SeoService, useValue: jasmine.createSpyObj('SeoService', ['setNoIndex']) }] });
     const component = TestBed.runInInjectionContext(() => new ModerationPromotionsComponent());
+    const toast = TestBed.inject(ToastService);
     component.ngOnInit();
-    expect(component.successMessage).toBe('Salvo');
+    expect(toast.toasts()[0].message).toBe('Salvo');
     expect(replaceState).toHaveBeenCalled();
     expect((replaceState.calls.mostRecent().args[0] as any).keep).toBe('keep');
   });
@@ -53,8 +55,9 @@ describe('ModerationPromotionsComponent', () => {
     window.history.replaceState({ ...original, message: 'Retorno', keep: 1 }, document.title);
     TestBed.configureTestingModule({ providers: [{ provide: ModerationService, useValue: moderation }, { provide: Router, useValue: router }, { provide: SeoService, useValue: jasmine.createSpyObj('SeoService', ['setNoIndex']) }] });
     const component = TestBed.runInInjectionContext(() => new ModerationPromotionsComponent());
+    const toast = TestBed.inject(ToastService);
     component.ngOnInit();
-    expect(component.successMessage).toBe('Retorno');
+    expect(toast.toasts()[0].message).toBe('Retorno');
     expect(window.history.state.keep).toBe(1);
     expect(window.history.state.message).toBeUndefined();
   });

@@ -1,1 +1,1 @@
-export const UI_VERSION = '0.5.31';
+export const UI_VERSION = '0.5.32';

@@ -25,7 +25,7 @@
       <div class="promotion-form__columns">
         <section class="promotion-form__column promotion-form__column--main">
           <h3>Dados principais</h3>
-          <label class="field"><span class="sr-only">Título{{ mode === 'create' ? ' obrigatório' : '' }}</span><input type="text" [(ngModel)]="editForm.title" name="title" [placeholder]="'Título' + (mode === 'create' ? ' *' : '')" /></label>
+          <label class="field"><span class="sr-only">Título{{ mode === 'create' ? ' obrigatório' : '' }}</span><input #titleInput type="text" [(ngModel)]="editForm.title" name="title" [placeholder]="'Título' + (mode === 'create' ? ' *' : '')" /></label>
           <label class="field"><span class="sr-only">Link da oferta{{ mode === 'create' ? ' obrigatório' : '' }}</span><input type="url" [ngModel]="editForm.url" (ngModelChange)="onOfferUrlChange($event)" name="url" [placeholder]="'Link da oferta' + (mode === 'create' ? ' *' : '')" /></label>
           <app-marketplace-inspection-button [url]="editForm.url" (loaded)="inspectionLoaded.emit($event)" (failed)="inspectionFailed.emit()" />
           <label class="field"><span class="sr-only">Cupom</span><input type="text" [(ngModel)]="editForm.couponCode" name="coupon" placeholder="Cupom" /></label>

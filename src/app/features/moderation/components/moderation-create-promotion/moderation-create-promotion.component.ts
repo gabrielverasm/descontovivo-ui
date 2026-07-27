@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
 import { finalize } from 'rxjs';
 import { AdminImportService } from '../../../../core/services/admin-import.service';
 import { ImageProcessingService } from '../../../../core/services/image-processing.service';
@@ -9,6 +9,7 @@ import { deriveMarketplace } from '../../../../shared/utils/marketplace.util';
 import { detectMarketplace } from '../../../../shared/utils/marketplace-detection.util';
 import { normalizeOfficialStoreSignals, promotionFormToPayload, validatePromotionForm } from '../../moderation-form.model';
 import { ModerationPromotionPanelComponent } from '../moderation-promotion-panel/moderation-promotion-panel.component';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-moderation-create-promotion',
@@ -18,9 +19,11 @@ import { ModerationPromotionPanelComponent } from '../moderation-promotion-panel
   styleUrl: './moderation-create-promotion.component.scss',
 })
 export class ModerationCreatePromotionComponent {
+  @ViewChild(ModerationPromotionPanelComponent) panel?: ModerationPromotionPanelComponent;
   private readonly adminImportService = inject(AdminImportService);
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
+  private readonly toast = inject(ToastService);
 
   @Output() created = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
@@ -73,7 +76,8 @@ export class ModerationCreatePromotionComponent {
     this.imagePreviewUrl = data.imageUrl;
     this.imageBlob = null;
     this.imageStatus = data.imageKey ? 'done' : 'idle';
-    this.inspectionMessage = 'Dados da Shopee carregados';
+    this.inspectionMessage = '';
+    this.toast.success('Inspeção concluída.');
     this.error = data.missingFields.length
       ? 'Alguns campos não foram encontrados e precisam ser preenchidos manualmente'
       : '';
@@ -81,7 +85,7 @@ export class ModerationCreatePromotionComponent {
 
   inspectionFailed(): void {
     this.inspectionMessage = '';
-    this.error = 'Não foi possível carregar os dados da Shopee.';
+    this.toast.error('Não foi possível carregar os dados da Shopee.');
   }
 
   get imageStatusText(): string | null {
@@ -240,22 +244,24 @@ export class ModerationCreatePromotionComponent {
         next: (res) => {
           if (res.created > 0) {
             this.resetForm();
+            this.panel?.resetCategoriesAndFocusTitle();
+            this.toast.success('Promoção adicionada e publicada com sucesso.');
             this.created.emit();
           } else if (res.errors?.length > 0) {
-            this.error = `Erro: ${res.errors[0].message}`;
+            this.toast.error(`Erro ao criar promoção: ${res.errors[0].message}`);
           } else {
-            this.error = 'Promoção não foi criada. Pode já existir com o mesmo link.';
+            this.toast.warning('Promoção não foi criada. Pode já existir com o mesmo link.');
           }
         },
         error: (error) => {
           console.error('Submit error:', error);
-          this.error = 'Não foi possível criar a promoção. Tente novamente.';
+          this.toast.error('Não foi possível criar a promoção. Tente novamente.');
         },
       });
     } catch (error) {
       console.error('Unexpected error in submit:', error);
       this.saving = false;
-      this.error = 'Ocorreu um erro inesperado. Tente novamente.';
+      this.toast.error('Ocorreu um erro inesperado ao criar a promoção. Tente novamente.');
     }
   }
 

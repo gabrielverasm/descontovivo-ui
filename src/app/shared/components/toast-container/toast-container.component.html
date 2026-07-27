@@ -1,0 +1,18 @@
+<section class="toast-container" aria-label="Notificações">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <article
+      class="toast"
+      [class]="'toast toast--' + toast.type"
+      [attr.role]="roleFor(toast)"
+      [attr.aria-live]="liveFor(toast)"
+      (mouseenter)="toastService.pause(toast.id, 'hover')"
+      (mouseleave)="toastService.resume(toast.id, 'hover')"
+      (focusin)="toastService.pause(toast.id, 'focus')"
+      (focusout)="onFocusOut(toast, $event)"
+    >
+      <span class="toast__icon" aria-hidden="true">{{ iconFor(toast) }}</span>
+      <p>{{ toast.message }}</p>
+      <button type="button" aria-label="Fechar notificação" (click)="toastService.dismiss(toast.id)">×</button>
+    </article>
+  }
+</section>

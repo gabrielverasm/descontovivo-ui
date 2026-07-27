@@ -6,7 +6,6 @@
 .mod__status { margin: 0; font-size: 0.85rem; color: #526070; padding: 0.5rem 0.75rem; border-radius: 6px; }
 .mod__status--loading { color: #2563eb; font-weight: 600; }
 .mod__status--error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; font-weight: 600; }
-.mod__status--success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; font-weight: 600; }
 .mod__queue { display: grid; gap: 0.6rem; }
 .mod__item { display: grid; grid-template-columns: 48px 1fr auto; gap: 0.6rem; align-items: center; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; padding: 0.5rem 0.7rem; }
 .mod__item--active { border-color: #2563eb; }

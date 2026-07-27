@@ -10,7 +10,12 @@
 
   <div class="promotion-card__content">
     <div class="promotion-card__title-row">
-      <h2><a [routerLink]="['/promocoes', detailId]" (click)="$event.stopPropagation()">{{ promotion.title }}</a></h2>
+      <h2><a
+        [routerLink]="['/promocoes', detailId]"
+        [attr.aria-label]="promotion.title"
+        [attr.title]="isTitleTruncated ? promotion.title : null"
+        (click)="$event.stopPropagation()"
+      >{{ visualTitle }}</a></h2>
 
       <div class="promotion-card__publisher">
         <span
