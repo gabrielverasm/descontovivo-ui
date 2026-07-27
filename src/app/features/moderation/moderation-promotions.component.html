@@ -12,10 +12,6 @@
     <p class="mod__status">Nenhuma promoção pendente para validação.</p>
   }
 
-  @if (successMessage) {
-    <div class="mod__status mod__status--success" role="status" aria-live="polite">{{ successMessage }}</div>
-  }
-
   <div class="mod__queue">
     @for (promo of promotions; track promo.id) {
       <article class="mod__item">

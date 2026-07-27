@@ -23,6 +23,7 @@ import {
 } from './moderation-form.model';
 import { ModerationCreatePromotionComponent } from './components/moderation-create-promotion/moderation-create-promotion.component';
 import { ModerationPromotionPanelComponent } from './components/moderation-promotion-panel/moderation-promotion-panel.component';
+import { ToastService } from '../../core/services/toast.service';
 
 export type ModerationWorkspaceMode = 'create' | 'validate' | 'edit';
 
@@ -40,6 +41,7 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
   private readonly promotionService = inject(PromotionService);
   private readonly imageProcessing = inject(ImageProcessingService);
   private readonly uploadService = inject(UploadService);
+  private readonly toast = inject(ToastService);
   private readonly subscriptions = new Subscription();
   private loadSubscription: Subscription | null = null;
   private preserveNextSlugQuery = '';
@@ -52,7 +54,6 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
   loadError = '';
   actionError = '';
   inspectionError = '';
-  successMessage = '';
   invalidUrl = false;
   showRejectInput = false;
   rejectReason = '';
@@ -147,7 +148,6 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
     this.loadError = '';
     this.actionError = '';
     this.inspectionError = '';
-    this.successMessage = '';
     this.invalidUrl = false;
     this.showRejectInput = false;
     this.rejectReason = '';
@@ -179,7 +179,7 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
     return page(0);
   }
 
-  onCreated(): void { void this.router.navigate(['/moderacao'], { state: { message: 'Promoção adicionada com sucesso. Ela foi publicada diretamente.' } }); }
+  onCreated(): void {}
 
   cancel(): void { void this.router.navigate(this.mode === 'edit' && this.promotion ? ['/promocoes', this.promotion.slug || this.promotion.id] : ['/moderacao']); }
 
@@ -248,9 +248,13 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
       data.missingFields.length ? 'Alguns campos não foram encontrados e precisam ser preenchidos manualmente.' : '',
     ].filter(Boolean).join(' ');
     this.syncSoldAndDeliveredByStore();
+    this.toast.success('Inspeção concluída.');
   }
 
-  inspectionFailed(): void { this.inspectionError = 'Não foi possível carregar os dados da inspeção.'; }
+  inspectionFailed(): void {
+    this.inspectionError = '';
+    this.toast.error('Não foi possível carregar os dados da inspeção.');
+  }
 
   save(): void { this.submitEdit('Ajustes salvos com sucesso.'); }
   publish(): void {
@@ -280,12 +284,15 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
     this.subscriptions.add(this.moderationService.decide(this.promotion!.id, request).subscribe({
       next: (updated) => {
         if (approveAfterEdit) {
-          this.moderationService.decide(updated.id, { action: 'APPROVE', reason: 'Validado e aprovado manualmente' }).pipe(finalize(() => this.saving = false)).subscribe({ next: () => this.returnToQueue(success), error: () => this.actionError = 'Ajustes salvos, mas não foi possível publicar a promoção.' });
+          this.moderationService.decide(updated.id, { action: 'APPROVE', reason: 'Validado e aprovado manualmente' }).pipe(finalize(() => this.saving = false)).subscribe({
+            next: () => this.returnToQueue(success),
+            error: () => this.toast.error('Ajustes salvos, mas não foi possível publicar a promoção.'),
+          });
           return;
         }
         if (request.action === 'EDIT') {
           const previousSlug = this.route.snapshot.queryParamMap.get('editar');
-          this.promotion = updated; this.form = promotionToModerationForm(updated); this.successMessage = success; this.resetSavedImageState(); this.saving = false; this.syncSoldAndDeliveredByStore();
+          this.promotion = updated; this.form = promotionToModerationForm(updated); this.toast.success(success); this.resetSavedImageState(); this.saving = false; this.syncSoldAndDeliveredByStore();
           if (this.mode === 'edit' && updated.slug && updated.slug !== previousSlug) {
             this.preserveNextSlugQuery = updated.slug;
             void this.router.navigate([], { relativeTo: this.route, queryParams: { editar: updated.slug }, replaceUrl: true });
@@ -293,7 +300,16 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
         }
         else { this.saving = false; this.returnToQueue(success); }
       },
-      error: () => { this.saving = false; this.actionError = request.action === 'REJECT' ? 'Não foi possível rejeitar a promoção.' : 'Não foi possível salvar as alterações.'; },
+      error: () => {
+        this.saving = false;
+        this.toast.error(
+          request.action === 'REJECT'
+            ? 'Não foi possível rejeitar a promoção.'
+            : request.action === 'APPROVE'
+              ? 'Não foi possível publicar a promoção.'
+              : 'Não foi possível salvar as alterações.',
+        );
+      },
     }));
   }
 

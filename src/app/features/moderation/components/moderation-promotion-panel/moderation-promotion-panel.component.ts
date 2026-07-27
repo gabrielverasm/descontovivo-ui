@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, Subject, Subscription } from 'rxjs';
 import { Promotion } from '../../../../core/models/promotion.model';
@@ -23,6 +23,8 @@ export type ModerationPromotionMode = 'create' | 'validate' | 'edit';
   styleUrl: './moderation-promotion-panel.component.scss',
 })
 export class ModerationPromotionPanelComponent implements OnChanges, OnDestroy, OnInit {
+  @ViewChild(PromotionCategorySelectorComponent) categorySelector?: PromotionCategorySelectorComponent;
+  @ViewChild('titleInput') titleInput?: ElementRef<HTMLInputElement>;
   @Input() promotion!: Promotion;
   @Input({ required: true }) mode: ModerationPromotionMode = 'validate';
   @Input({ required: true }) editForm!: PromotionModerationFormValue;
@@ -137,6 +139,11 @@ export class ModerationPromotionPanelComponent implements OnChanges, OnDestroy, 
   updateCategories(categories: string[]): void {
     this.editForm.categories = [...new Set(categories)];
     this.editForm.category = this.editForm.categories[0] || '';
+  }
+
+  resetCategoriesAndFocusTitle(): void {
+    this.categorySelector?.resetAfterSuccessfulSave();
+    queueMicrotask(() => this.titleInput?.nativeElement.focus());
   }
 
   toggleTrustSignal(signal: string): void {

@@ -51,6 +51,7 @@ h2 {
   a {
     color: inherit;
     text-decoration: none;
+    overflow-wrap: anywhere;
 
     &:hover {
       color: #2563eb;

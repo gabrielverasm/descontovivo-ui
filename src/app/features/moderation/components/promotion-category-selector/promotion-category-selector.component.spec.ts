@@ -49,11 +49,80 @@ describe('PromotionCategorySelectorComponent', () => {
     expect(fixture.nativeElement.querySelector('.category-select__viewport')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('.category-select__panel')).toBeNull();
     expect(fixture.nativeElement.querySelector('.category-select__chips')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.category-select__control')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.category-select__search')).not.toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Selecionar mais categorias');
     expect(fixture.nativeElement.textContent).not.toContain('⌄');
     expect(getComputedStyle(fixture.nativeElement.querySelector('.category-select__viewport')).overflowY).toBe('auto');
     expect(getComputedStyle(fixture.nativeElement.querySelector('.category-select__item')).minHeight).toBe('32px');
+  });
+
+  it('shows the search field above the list with the plus button beside it', () => {
+    const viewport = fixture.nativeElement.querySelector('.category-select__viewport') as HTMLElement;
+    const search = viewport.querySelector('.category-select__search') as HTMLElement;
+    expect(search.querySelector('input')?.getAttribute('placeholder')).toBe('Pesquisar ou adicionar categoria');
+    expect(search.querySelector('button')?.textContent?.trim()).toBe('+');
+    expect(viewport.firstElementChild).toBe(search);
+  });
+
+  it('filters without changing selection and ignores case and accents', () => {
+    fixture.componentInstance.search = 'eleTRONI';
+    fixture.detectChanges();
+    expect(itemNames(fixture.nativeElement)).toEqual(['Eletrônicos']);
+    expect(fixture.componentInstance.selected).toEqual(['Games', 'Casa']);
+
+    fixture.componentInstance.search = 'beb';
+    fixture.detectChanges();
+    expect(itemNames(fixture.nativeElement)).toEqual(['Bebidas']);
+  });
+
+  it('disables addition for empty or already selected values', () => {
+    const button = () => fixture.nativeElement.querySelector('.category-select__search button') as HTMLButtonElement;
+    expect(button().disabled).toBeTrue();
+    fixture.componentInstance.search = '  casa  ';
+    fixture.detectChanges();
+    expect(button().disabled).toBeTrue();
+    expect(button().title).toBe('Categoria já selecionada');
+  });
+
+  it('selects a canonical existing category without duplicating or calling the API', () => {
+    const changes = spyOn(fixture.componentInstance.selectedChange, 'emit');
+    fixture.componentInstance.search = '  BEBÍDAS ';
+    fixture.componentInstance.addOrSelect();
+    expect(changes).toHaveBeenCalledWith(['Games', 'Casa', 'Bebidas']);
+    expect(service.list).toHaveBeenCalledTimes(1);
+    expect(service.rename).not.toHaveBeenCalled();
+  });
+
+  it('creates and selects a normalized local category with zero promotions', () => {
+    const changes = spyOn(fixture.componentInstance.selectedChange, 'emit');
+    fixture.componentInstance.search = '  Casa   e   Jardim  ';
+    fixture.componentInstance.addOrSelect();
+    const local = fixture.componentInstance.categories.find(category => category.name === 'Casa e Jardim');
+    expect(local).toEqual({ name: 'Casa e Jardim', promotionCount: 0 });
+    expect(changes).toHaveBeenCalledWith(['Games', 'Casa', 'Casa e Jardim']);
+    expect(fixture.componentInstance.search).toBe('');
+    expect(service.list).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles Enter without submitting and Escape without changing selection', () => {
+    const hostFixture = TestBed.createComponent(CategorySelectorHostComponent);
+    hostFixture.detectChanges();
+    const input = hostFixture.nativeElement.querySelector('.category-select__search input') as HTMLInputElement;
+    input.value = 'Nova categoria';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    const enter = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    input.dispatchEvent(enter);
+    hostFixture.detectChanges();
+    expect(enter.defaultPrevented).toBeTrue();
+    expect(hostFixture.componentInstance.submits).toBe(0);
+    expect(hostFixture.componentInstance.selected).toEqual(['Games', 'Casa', 'Nova categoria']);
+
+    input.value = 'texto';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    hostFixture.detectChanges();
+    expect(input.value).toBe('');
+    expect(hostFixture.componentInstance.selected).toEqual(['Games', 'Casa', 'Nova categoria']);
   });
 
   it('keeps selected categories in input order and sorts the remainder alphabetically', () => {

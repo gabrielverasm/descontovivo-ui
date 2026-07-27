@@ -7,6 +7,7 @@ import { ModerationService } from '../../core/services/moderation.service';
 import { PromotionService } from '../../core/services/promotion.service';
 import { SeoService } from '../../core/services/seo.service';
 import { UploadService } from '../../core/services/upload.service';
+import { ToastService } from '../../core/services/toast.service';
 import { TrustSignal } from '../../shared/utils/trust-signals.util';
 import { moderationFormToEditRequest, PromotionModerationFormValue, promotionToModerationForm } from './moderation-form.model';
 import { ModerationPromotionWorkspaceComponent } from './moderation-promotion-workspace.component';
@@ -89,7 +90,8 @@ describe('ModerationPromotionWorkspaceComponent', () => {
   it('keeps operational errors separate from load errors', () => {
     params$.next(convertToParamMap({ editar: 'produto-1' }));
     component.inspectionFailed();
-    expect(component.inspectionError).toContain('inspeção');
+    expect(TestBed.inject(ToastService).toasts()[0].message).toContain('inspeção');
+    expect(component.inspectionError).toBe('');
     expect(component.loadError).toBe('');
   });
 
@@ -208,7 +210,7 @@ describe('ModerationPromotionWorkspaceComponent', () => {
     const loads = promotions.getPromotionBySlug.calls.count();
     params$.next(convertToParamMap({ editar: 'produto-renomeado' }));
     expect(promotions.getPromotionBySlug.calls.count()).toBe(loads);
-    expect(component.successMessage).toBe('Ajustes salvos com sucesso.');
+    expect(TestBed.inject(ToastService).toasts()[0].message).toBe('Ajustes salvos com sucesso.');
     expect(component.promotion?.slug).toBe('produto-renomeado');
   });
 
@@ -233,6 +235,13 @@ describe('ModerationPromotionWorkspaceComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/moderacao'], { state: { message: 'Promoção publicada com sucesso!' } });
   });
 
+  it('does not navigate away after a successful manual creation', () => {
+    router.navigate.calls.reset();
+    component.onCreated();
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(component.mode).toBe('create');
+  });
+
   it('sends EDIT before APPROVE when publishing changed fields', async () => {
     params$.next(convertToParamMap({ validar: 'pending-1' }));
     component.form.title = 'Título alterado';
@@ -251,7 +260,8 @@ describe('ModerationPromotionWorkspaceComponent', () => {
     expect(pending.decide.calls.count()).toBe(1);
     expect(pending.decide.calls.argsFor(0)[1].action).toBe('EDIT');
     expect(component.saving).toBeFalse();
-    expect(component.actionError).toContain('salvar');
+    expect(TestBed.inject(ToastService).toasts()[0].message).toContain('salvar');
+    expect(component.actionError).toBe('');
     expect(component.form.title).toBe('Alteração mantida');
   });
 
@@ -373,7 +383,7 @@ describe('ModerationPromotionWorkspaceComponent', () => {
     component.form.title = 'Edição manual';
     component.inspectionFailed();
     expect(component.form.title).toBe('Edição manual');
-    expect(component.inspectionError).toContain('inspeção');
+    expect(TestBed.inject(ToastService).toasts()[0].message).toContain('inspeção');
   });
 
 });

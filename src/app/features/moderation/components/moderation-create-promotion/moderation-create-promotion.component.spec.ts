@@ -8,6 +8,7 @@ import { ModerationCategoryService } from '../../../../core/services/moderation-
 import { UploadService } from '../../../../core/services/upload.service';
 import { ModerationCreatePromotionComponent } from './moderation-create-promotion.component';
 import { TrustSignal } from '../../../../shared/utils/trust-signals.util';
+import { ToastService } from '../../../../core/services/toast.service';
 
 describe('ModerationCreatePromotionComponent', () => {
   let fixture: ComponentFixture<ModerationCreatePromotionComponent>;
@@ -15,6 +16,7 @@ describe('ModerationCreatePromotionComponent', () => {
   let adminImport: jasmine.SpyObj<AdminImportService>;
   let imageProcessing: jasmine.SpyObj<ImageProcessingService>;
   let uploadService: jasmine.SpyObj<UploadService>;
+  let categoryService: jasmine.SpyObj<ModerationCategoryService>;
 
   const validImportResponse = {
     batchId: 'test',
@@ -29,6 +31,8 @@ describe('ModerationCreatePromotionComponent', () => {
     adminImport.import.and.returnValue(of(validImportResponse));
     imageProcessing = jasmine.createSpyObj('ImageProcessingService', ['validate', 'process']);
     uploadService = jasmine.createSpyObj('UploadService', ['uploadPromotionImage']);
+    categoryService = jasmine.createSpyObj('ModerationCategoryService', ['list', 'rename']);
+    categoryService.list.and.returnValue(of([]));
 
     TestBed.configureTestingModule({
       imports: [ModerationCreatePromotionComponent],
@@ -37,7 +41,7 @@ describe('ModerationCreatePromotionComponent', () => {
         { provide: ImageProcessingService, useValue: imageProcessing },
         { provide: UploadService, useValue: uploadService },
         { provide: MarketplaceInspectionService, useValue: { inspect: () => of(null) } },
-        { provide: ModerationCategoryService, useValue: { list: () => of([]) } },
+        { provide: ModerationCategoryService, useValue: categoryService },
       ],
     });
     fixture = TestBed.createComponent(ModerationCreatePromotionComponent);
@@ -172,7 +176,48 @@ describe('ModerationCreatePromotionComponent', () => {
 
     expect(component.error).toBe('');
     expect(component.imageError).toBeNull();
+    expect(component.form.title).toBe('');
+    expect(component.form.categories).toEqual([]);
+    expect(component.form.trustSignals).toEqual([]);
+    expect(component.soldAndDeliveredByStore).toBeFalse();
+    expect(TestBed.inject(ToastService).toasts()[0].message)
+      .toBe('Promoção adicionada e publicada com sucesso.');
     expect(created).toHaveBeenCalled();
+  });
+
+  it('sends a new local category in categories and keeps legacy category aligned', async () => {
+    fillRequiredFields();
+    component.form.categories = ['Casa e Jardim'];
+    component.form.category = 'Casa e Jardim';
+    component.inspectionImageKey = 'temp/promotions/product.webp';
+
+    await component.submit();
+
+    const item = adminImport.import.calls.mostRecent().args[0].items[0];
+    expect(item.categories).toEqual(['Casa e Jardim']);
+    expect(item.category).toBe('Casa e Jardim');
+    expect(categoryService.rename).not.toHaveBeenCalled();
+  });
+
+  it('reloads categories after success and keeps the form ready for another creation', async () => {
+    fixture.detectChanges();
+    fillRequiredFields();
+    component.form.categories = ['Nova'];
+    component.form.category = 'Nova';
+    component.inspectionImageKey = 'temp/promotions/product.webp';
+    component.soldAndDeliveredByStore = true;
+    adminImport.import.and.returnValue(of({ ...validImportResponse, created: 1 }));
+    const initialLoads = categoryService.list.calls.count();
+
+    await component.submit();
+    fixture.detectChanges();
+
+    expect(categoryService.list.calls.count()).toBe(initialLoads + 1);
+    expect(component.form.categories).toEqual([]);
+    expect(component.imagePreviewUrl).toBeNull();
+    expect(component.soldAndDeliveredByStore).toBeFalse();
+    expect(component.saving).toBeFalse();
+    expect((fixture.nativeElement.querySelector('input[name="title"]') as HTMLInputElement).disabled).toBeFalse();
   });
 
   it('renders the global feedback once, next to the final actions', () => {

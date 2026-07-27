@@ -1,6 +1,25 @@
 <div class="category-select">
   <span class="category-select__title">Categorias</span>
   <div class="category-select__viewport" role="group" aria-label="Categorias disponíveis">
+    <div class="category-select__search">
+      <input
+        #searchInput
+        type="text"
+        [(ngModel)]="search"
+        maxlength="50"
+        placeholder="Pesquisar ou adicionar categoria"
+        aria-label="Pesquisar ou adicionar categoria"
+        [disabled]="disabled"
+        (keydown)="onSearchKeydown($event)"
+      />
+      <button
+        type="button"
+        [disabled]="addDisabled"
+        [attr.aria-label]="addLabel"
+        [title]="addLabel"
+        (click)="addOrSelect($event)"
+      >+</button>
+    </div>
     @if (loading) {
       <p class="category-select__status">Carregando…</p>
     } @else {
@@ -30,6 +49,10 @@
         }
       </div>
     }
+    <p class="sr-only" aria-live="polite">
+      {{ orderedCategories.length }} {{ orderedCategories.length === 1 ? 'resultado encontrado' : 'resultados encontrados' }}.
+      {{ announcement }}
+    </p>
   </div>
   @if (error) { <p class="category-select__error" role="alert">{{ error }}</p> }
 </div>
