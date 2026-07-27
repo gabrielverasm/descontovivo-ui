@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ModerationPromotionPanelComponent } from './moderation-promotion-panel.component';
 import { PromotionModerationFormValue } from '../../moderation-form.model';
@@ -76,6 +76,74 @@ describe('ModerationPromotionPanelComponent', () => {
     expect((fixture.nativeElement.querySelector('input[aria-label="Entregue por"]') as HTMLInputElement).disabled).toBeFalse();
     fixture.destroy();
   });
+
+  it('shows the persisted image without a duplicate file selector and restores it when locally hidden', () => {
+    const fixture = create('edit');
+    expect(fixture.nativeElement.querySelector('.promotion-image-upload__preview img')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('app-file-field')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[aria-label="Alterar imagem"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[aria-label="Remover imagem"]')).not.toBeNull();
+
+    fixture.componentInstance.persistedImageHidden = true;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.promotion-image-upload__preview')).toBeNull();
+    expect(fixture.nativeElement.querySelector('app-file-field')).not.toBeNull();
+    fixture.destroy();
+  });
+
+  it('disables image overlay actions while image processing is busy', () => {
+    const fixture = create('edit');
+    fixture.componentInstance.imageBusy = true;
+    fixture.detectChanges();
+    const actions = Array.from(fixture.nativeElement.querySelectorAll('.promotion-image-upload__action')) as HTMLButtonElement[];
+    expect(actions.length).toBe(2);
+    expect(actions.every(button => button.disabled)).toBeTrue();
+    fixture.destroy();
+  });
+
+  it('autofills store and delivery from the offer URL without filling the seller', fakeAsync(() => {
+    const fixture = create('create');
+    fixture.componentInstance.editForm.storeName = '';
+    fixture.componentInstance.editForm.deliveredBy = '';
+    fixture.componentInstance.editForm.soldBy = '';
+
+    fixture.componentInstance.onOfferUrlChange('https://www.amazon.com.br/produto');
+    tick(399);
+    expect(fixture.componentInstance.editForm.storeName).toBe('');
+    tick(1);
+
+    expect(fixture.componentInstance.editForm.storeName).toBe('Amazon');
+    expect(fixture.componentInstance.editForm.deliveredBy).toBe('Amazon');
+    expect(fixture.componentInstance.editForm.soldBy).toBe('');
+    expect(fixture.componentInstance.soldAndDeliveredByStore).toBeFalse();
+    fixture.destroy();
+  }));
+
+  it('updates prior automatic values but preserves manual corrections and unknown domains', fakeAsync(() => {
+    const fixture = create('edit');
+    fixture.componentInstance.editForm.storeName = '';
+    fixture.componentInstance.editForm.deliveredBy = '';
+
+    fixture.componentInstance.onOfferUrlChange('amazon.com.br/produto');
+    tick(400);
+    fixture.componentInstance.onOfferUrlChange('https://meli.la/oferta');
+    tick(400);
+    expect(fixture.componentInstance.editForm.storeName).toBe('MercadoLivre');
+    expect(fixture.componentInstance.editForm.deliveredBy).toBe('MercadoLivre');
+
+    fixture.componentInstance.onStoreNameChange('Loja corrigida');
+    fixture.componentInstance.onDeliveredByChange('Entrega corrigida');
+    fixture.componentInstance.onOfferUrlChange('https://s.shopee.com.br/oferta');
+    tick(400);
+    expect(fixture.componentInstance.editForm.storeName).toBe('Loja corrigida');
+    expect(fixture.componentInstance.editForm.deliveredBy).toBe('Entrega corrigida');
+
+    fixture.componentInstance.onOfferUrlChange('https://example.com/oferta');
+    tick(400);
+    expect(fixture.componentInstance.editForm.storeName).toBe('Loja corrigida');
+    expect(fixture.componentInstance.editForm.deliveredBy).toBe('Entrega corrigida');
+    fixture.destroy();
+  }));
 
   it('formats currency through the rendered input and sends the decimal value', () => {
     const fixture = create();
@@ -185,10 +253,10 @@ describe('ModerationPromotionPanelComponent', () => {
       'input[placeholder="Cupom"]',
       'input[aria-label="Preço atual"]',
       'input[aria-label="Preço original"]',
+      'app-promotion-category-selector',
       'input[placeholder^="Nome da loja"]',
       'input[aria-label="Vendido por"]',
       'input[aria-label="Entregue por"]',
-      'app-promotion-category-selector',
       'select[aria-label="Disponibilidade"]',
       'select[aria-label="Selo de preço"]',
       'input[aria-label="Quantidade de vendas"]',

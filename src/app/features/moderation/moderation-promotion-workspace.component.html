@@ -15,6 +15,7 @@
       <app-moderation-promotion-panel
         [promotion]="promotion" [editForm]="form" [mode]="mode === 'edit' ? 'edit' : 'validate'"
         [newImagePreviewUrl]="newImagePreviewUrl" [newImageSizeKB]="newImageSizeKB" [newImageStatusText]="newImageStatusText" [newImageError]="newImageError"
+        [persistedImageHidden]="persistedImageHidden" [imageBusy]="isImageBusy"
         [soldAndDeliveredByStore]="soldAndDeliveredByStore"
         [actionInProgress]="saving ? promotion.id : null" [showRejectInput]="showRejectInput" [rejectReason]="rejectReason"
         (save)="save()" (publish)="publish()" (startReject)="showRejectInput = true" (cancelReject)="showRejectInput = false"

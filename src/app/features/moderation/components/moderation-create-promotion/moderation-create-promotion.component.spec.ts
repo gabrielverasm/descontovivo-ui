@@ -105,6 +105,25 @@ describe('ModerationCreatePromotionComponent', () => {
     expect(adminImport.import).not.toHaveBeenCalled();
   });
 
+  it('removes the selected image from the overlay action and restores the file selector', () => {
+    const revoke = spyOn(URL, 'revokeObjectURL');
+    component.inspectionImageKey = 'temp/promotions/product.webp';
+    component.imagePreviewUrl = 'https://images.example.com/product.webp';
+    component.imageStatus = 'done';
+    fixture.detectChanges();
+
+    (fixture.nativeElement.querySelector('[aria-label="Remover imagem"]') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(component.imagePreviewUrl).toBeNull();
+    expect(component.inspectionImageKey).toBeNull();
+    expect(component.imageBlob).toBeNull();
+    expect(component.imageSizeKB).toBeNull();
+    expect(component.imageStatus).toBe('idle');
+    expect(fixture.nativeElement.querySelector('app-file-field')).not.toBeNull();
+    expect(revoke).not.toHaveBeenCalled();
+  });
+
   it('reuses an uploaded image key when the import needs to be retried', async () => {
     fillRequiredFields();
     component.imageBlob = new Blob(['processed'], { type: 'image/webp' });
