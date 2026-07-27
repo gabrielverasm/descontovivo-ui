@@ -53,6 +53,7 @@ describe('PromotionCategorySelectorComponent', () => {
     expect(fixture.nativeElement.textContent).not.toContain('Selecionar mais categorias');
     expect(fixture.nativeElement.textContent).not.toContain('⌄');
     expect(getComputedStyle(fixture.nativeElement.querySelector('.category-select__viewport')).overflowY).toBe('auto');
+    expect(getComputedStyle(fixture.nativeElement.querySelector('.category-select__item')).minHeight).toBe('32px');
   });
 
   it('keeps selected categories in input order and sorts the remainder alphabetically', () => {

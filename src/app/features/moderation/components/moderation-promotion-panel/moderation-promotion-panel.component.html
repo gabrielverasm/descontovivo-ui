@@ -23,7 +23,7 @@
 
     <div class="promotion-form__content">
       <div class="promotion-form__columns">
-        <section class="promotion-form__column">
+        <section class="promotion-form__column promotion-form__column--main">
           <h3>Dados principais</h3>
           <label class="field"><span class="sr-only">Título{{ mode === 'create' ? ' obrigatório' : '' }}</span><input type="text" [(ngModel)]="editForm.title" name="title" [placeholder]="'Título' + (mode === 'create' ? ' *' : '')" /></label>
           <label class="field"><span class="sr-only">Link da oferta{{ mode === 'create' ? ' obrigatório' : '' }}</span><input type="url" [ngModel]="editForm.url" (ngModelChange)="onOfferUrlChange($event)" name="url" [placeholder]="'Link da oferta' + (mode === 'create' ? ' *' : '')" /></label>
@@ -40,53 +40,62 @@
           />
         </section>
 
-        <section class="promotion-form__column">
+        <section class="promotion-form__column promotion-form__column--store">
           <h3>Loja, venda e entrega</h3>
           <label class="field"><span class="sr-only">Nome da loja</span><input type="text" [ngModel]="editForm.storeName" (ngModelChange)="onStoreNameChange($event)" name="storeName" placeholder="Nome da loja *" /></label>
           <label class="check-field">
             <input type="checkbox" [checked]="soldAndDeliveredByStore" [disabled]="!hasValidStoreName()" (change)="toggleSoldDelivered.emit($any($event.target).checked)" />
             <span>Vendido e entregue pela loja</span>
           </label>
-          <div class="field field--with-actions">
-            <div><button type="button" class="micro-button" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForSoldBy.emit()">Usar loja</button></div>
-            <input aria-label="Vendido por" type="text" [(ngModel)]="editForm.soldBy" name="soldBy" placeholder="Vendido por" [attr.disabled]="soldAndDeliveredByStore ? '' : null" />
+          <div class="field">
+            <span class="sr-only">Vendido por</span>
+            <div class="seller-control">
+              <input aria-label="Vendido por" type="text" [(ngModel)]="editForm.soldBy" name="soldBy" placeholder="Vendido por" [attr.disabled]="soldAndDeliveredByStore ? '' : null" />
+              <div class="seller-control__actions">
+                <button type="button" class="micro-button" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForSoldBy.emit()">Usar loja</button>
+              </div>
+            </div>
           </div>
-          <div class="field field--with-actions">
-            <div>
+          <div class="field">
+            <span class="sr-only">Entregue por</span>
+            <div class="seller-control seller-control--delivery">
+              <input aria-label="Entregue por" type="text" [ngModel]="editForm.deliveredBy" (ngModelChange)="onDeliveredByChange($event)" name="deliveredBy" placeholder="Entregue por" [attr.disabled]="soldAndDeliveredByStore ? '' : null" />
+              <div class="seller-control__actions">
               <button type="button" class="micro-button" [disabled]="soldAndDeliveredByStore || !hasValidStoreName()" (click)="useStoreForDeliveredBy.emit()">Usar loja</button>
               <button type="button" class="micro-button" [disabled]="soldAndDeliveredByStore" (click)="copySoldByToDeliveredBy.emit()">Copiar vendido</button>
+              </div>
             </div>
-            <input aria-label="Entregue por" type="text" [ngModel]="editForm.deliveredBy" (ngModelChange)="onDeliveredByChange($event)" name="deliveredBy" placeholder="Entregue por" [attr.disabled]="soldAndDeliveredByStore ? '' : null" />
           </div>
-          <label class="field"><span class="sr-only">Disponibilidade</span>
-            <select [(ngModel)]="editForm.availability" name="availability" aria-label="Disponibilidade">
-              <option value="">Disponibilidade</option><option value="AVAILABLE">Disponível</option><option value="EXPIRED">Expirada</option><option value="UNAVAILABLE">Indisponível</option><option value="UNKNOWN">Desconhecida</option>
-            </select>
-          </label>
-          <label class="field"><span class="sr-only">Selo de preço</span>
-            <select [(ngModel)]="editForm.priceSignal" name="priceSignal" aria-label="Selo de preço">
-              <option value="">Selo de preço</option><option value="GOOD_PRICE">Preço bom</option><option value="GREAT_PRICE">Preço muito bom</option>
-            </select>
-          </label>
+          <div class="field-row field-row--selects">
+            <label class="field"><span class="sr-only">Disponibilidade</span>
+              <select [(ngModel)]="editForm.availability" name="availability" aria-label="Disponibilidade">
+                <option value="">Disponibilidade</option><option value="AVAILABLE">Disponível</option><option value="EXPIRED">Expirada</option><option value="UNAVAILABLE">Indisponível</option><option value="UNKNOWN">Desconhecida</option>
+              </select>
+            </label>
+            <label class="field"><span class="sr-only">Selo de preço</span>
+              <select [(ngModel)]="editForm.priceSignal" name="priceSignal" aria-label="Selo de preço">
+                <option value="">Selo de preço</option><option value="GOOD_PRICE">Preço bom</option><option value="GREAT_PRICE">Preço muito bom</option>
+              </select>
+            </label>
+          </div>
+          <section class="trust-section">
+            <h3>Selos de confiança</h3>
+            <div class="trust-section__numbers">
+              <label class="field"><span class="sr-only">Quantidade de vendas</span><input aria-label="Quantidade de vendas" type="text" inputmode="numeric" [value]="editForm.salesCount" (input)="updateSalesCount($any($event.target).value)" placeholder="Quantidade de vendas" /><small>Ex.: 5.334</small></label>
+              <label class="field"><span class="sr-only">Nota do produto</span><input aria-label="Nota do produto" type="text" inputmode="decimal" [value]="editForm.productRating" (input)="onRatingInput('productRating', $event)" placeholder="Nota do produto" /><small>0 a 5; “48” vira 4,8</small></label>
+              <label class="field"><span class="sr-only">Nota do vendedor</span><input aria-label="Nota do vendedor" type="text" inputmode="decimal" [value]="editForm.sellerRating" (input)="onRatingInput('sellerRating', $event)" placeholder="Nota do vendedor" /><small>0 a 5; “49” vira 4,9</small></label>
+            </div>
+            <div class="trust-section__chips" aria-label="Selos disponíveis">
+              @for (signal of availableTrustSignals; track signal) {
+                <button type="button" class="trust-chip" [class.trust-chip--selected]="isTrustSignalSelected(signal)"
+                  [attr.aria-pressed]="isTrustSignalSelected(signal)" [title]="getTrustSignalTooltip(signal)" (click)="toggleTrustSignal(signal)">
+                  {{ getTrustSignalLabel(signal) }}
+                </button>
+              }
+            </div>
+          </section>
         </section>
       </div>
-
-      <section class="trust-section">
-        <h3>Selos de confiança</h3>
-        <div class="trust-section__numbers">
-          <label class="field"><span class="sr-only">Quantidade de vendas</span><input aria-label="Quantidade de vendas" type="text" inputmode="numeric" [value]="editForm.salesCount" (input)="updateSalesCount($any($event.target).value)" placeholder="Quantidade de vendas" /><small>Ex.: 5.334</small></label>
-          <label class="field"><span class="sr-only">Nota do produto</span><input aria-label="Nota do produto" type="text" inputmode="decimal" [value]="editForm.productRating" (input)="onRatingInput('productRating', $event)" placeholder="Nota do produto" /><small>0 a 5; “48” vira 4,8</small></label>
-          <label class="field"><span class="sr-only">Nota do vendedor</span><input aria-label="Nota do vendedor" type="text" inputmode="decimal" [value]="editForm.sellerRating" (input)="onRatingInput('sellerRating', $event)" placeholder="Nota do vendedor" /><small>0 a 5; “49” vira 4,9</small></label>
-        </div>
-        <div class="trust-section__chips" aria-label="Selos disponíveis">
-          @for (signal of availableTrustSignals; track signal) {
-            <button type="button" class="trust-chip" [class.trust-chip--selected]="isTrustSignalSelected(signal)"
-              [attr.aria-pressed]="isTrustSignalSelected(signal)" [title]="getTrustSignalTooltip(signal)" (click)="toggleTrustSignal(signal)">
-              {{ getTrustSignalLabel(signal) }}
-            </button>
-          }
-        </div>
-      </section>
     </div>
 
     @if (mode === 'validate' && showRejectInput) {

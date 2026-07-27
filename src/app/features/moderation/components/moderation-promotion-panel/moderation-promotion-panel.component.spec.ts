@@ -315,10 +315,53 @@ describe('ModerationPromotionPanelComponent', () => {
     const labels = () => Array.from(fixture.nativeElement.querySelectorAll('.trust-chip')).map((button: any) => button.textContent.trim());
     expect(labels().length).toBe(5);
     expect(labels()).toEqual(jasmine.arrayContaining(baseLabels));
+    expect(labels()[0]).toBe('Revisada pela curadoria');
     fixture.componentInstance.editForm.marketplace = 'SHOPEE';
     fixture.detectChanges();
     expect(labels()).toEqual(jasmine.arrayContaining(baseLabels));
     expect(labels()).toContain('Garantia Shopee');
+    fixture.destroy();
+  });
+
+  it('keeps categories in the main column and trust signals in the store column', () => {
+    const fixture = create('create');
+    const columns = fixture.nativeElement.querySelectorAll('.promotion-form__column') as NodeListOf<HTMLElement>;
+    const mainColumn = fixture.nativeElement.querySelector('.promotion-form__column--main') as HTMLElement;
+    const storeColumn = fixture.nativeElement.querySelector('.promotion-form__column--store') as HTMLElement;
+    const categories = fixture.nativeElement.querySelector('app-promotion-category-selector') as HTMLElement;
+    const trust = fixture.nativeElement.querySelector('.trust-section') as HTMLElement;
+
+    expect(columns.length).toBe(2);
+    expect(mainColumn.contains(categories)).toBeTrue();
+    expect(storeColumn.contains(trust)).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.promotion-form__content > .trust-section')).toBeNull();
+    expect(getComputedStyle(categories).flexGrow).toBe('1');
+    fixture.destroy();
+  });
+
+  it('groups store shortcuts inside their respective editable controls', () => {
+    const fixture = create();
+    const soldBy = fixture.nativeElement.querySelector('input[aria-label="Vendido por"]') as HTMLInputElement;
+    const deliveredBy = fixture.nativeElement.querySelector('input[aria-label="Entregue por"]') as HTMLInputElement;
+    const soldControl = soldBy.closest('.seller-control') as HTMLElement;
+    const deliveredControl = deliveredBy.closest('.seller-control') as HTMLElement;
+
+    expect(soldControl.textContent).toContain('Usar loja');
+    expect(deliveredControl.textContent).toContain('Usar loja');
+    expect(deliveredControl.textContent).toContain('Copiar vendido');
+    expect(soldBy.disabled).toBeFalse();
+    expect(deliveredBy.disabled).toBeFalse();
+    fixture.destroy();
+  });
+
+  it('places availability and price signal in the same responsive row', () => {
+    const fixture = create();
+    const availability = fixture.nativeElement.querySelector('select[aria-label="Disponibilidade"]') as HTMLSelectElement;
+    const priceSignal = fixture.nativeElement.querySelector('select[aria-label="Selo de preço"]') as HTMLSelectElement;
+    const row = availability.closest('.field-row--selects') as HTMLElement;
+
+    expect(row).not.toBeNull();
+    expect(row.contains(priceSignal)).toBeTrue();
     fixture.destroy();
   });
 

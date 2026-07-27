@@ -98,7 +98,9 @@ export class ModerationPromotionPanelComponent implements OnChanges, OnDestroy, 
 
   get availableTrustSignals(): string[] {
     const marketplace = this.editForm.marketplace || (this.mode === 'create' ? '' : this.promotion?.marketplace || '');
-    return getMarketplaceTrustSignals(marketplace).map(signal => signal.toString());
+    const signals = getMarketplaceTrustSignals(marketplace).map(signal => signal.toString());
+    const curated = TrustSignal.CURATED_BY_DESCONTOVIVO.toString();
+    return signals.includes(curated) ? [curated, ...signals.filter(signal => signal !== curated)] : signals;
   }
 
   hasValidStoreName(): boolean { return !!this.editForm.storeName.trim(); }
