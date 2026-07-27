@@ -127,11 +127,3 @@ export function buildPromotionVoteParams(
     ui_version: UI_VERSION,
   };
 }
-
-export function buildCommentSubmitParams(id: string, slug: string): CommentSubmitParams {
-  return {
-    promotion_id: id,
-    promotion_slug: slug,
-    ui_version: UI_VERSION,
-  };
-}

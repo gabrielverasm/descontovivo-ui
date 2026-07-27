@@ -50,13 +50,6 @@
         não sejam mais necessários, conforme avaliação do pedido.
       </p>
 
-      @if (successMessage) {
-        <p class="account-card__success" role="status" aria-live="polite">{{ successMessage }}</p>
-      }
-      @if (errorMessage) {
-        <p class="account-card__error" role="alert">{{ errorMessage }}</p>
-      }
-
       <form class="account-card__form" (ngSubmit)="submitRequest()">
         <label class="account-card__field">
           <span>Tipo de solicitação</span>
@@ -66,6 +59,9 @@
               <option [value]="opt.value">{{ opt.label }}</option>
             }
           </select>
+          @if (requestTypeError) {
+            <span class="account-card__error" role="alert">{{ requestTypeError }}</span>
+          }
         </label>
 
         <label class="account-card__field">

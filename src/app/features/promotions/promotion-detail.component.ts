@@ -30,7 +30,7 @@ import { deriveTrustSignals, getMultipleTrustSignalsMetadata } from '../../share
 import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
 import { UI_VERSION } from '../../core/app-version';
-import { PromotionsFeedStateService } from './promotions-feed-state.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -60,7 +60,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   private backButtonObserver?: IntersectionObserver;
   private floatingBackAnimationTimeout?: ReturnType<typeof setTimeout>;
-  private readonly relatedPageSize = 3;
   private readonly commentsPageSize = 5;
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -71,13 +70,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   private readonly seo = inject(SeoService);
   private readonly structuredData = inject(StructuredDataService);
   private readonly analytics = inject(AnalyticsService);
-  private readonly feedState = inject(PromotionsFeedStateService);
   private readonly responseInit = inject(RESPONSE_INIT, { optional: true });
+  private readonly toast = inject(ToastService);
 
   isAdminSaving = false;
   isRemoveConfirm = false;
   isStoryGeneratorOpen = false;
-  adminError = '';
 
   // Trust signals methods
   get hasTrustSignals(): boolean {
@@ -93,8 +91,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   get trustSignalsList(): { label: string; description: string }[] {
     if (!this.promotion) return [];
-    
-    const signals: { label: string; description: string }[] = [];
     
     // Derive trust signals from promotion fields
     const derivedSignals = deriveTrustSignals({
@@ -136,7 +132,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   relatedPromotions: Promotion[] = [];
   newCommentContent = '';
   isSubmittingComment = false;
-  commentError = '';
 
   private readonly routeSubscription: Subscription = this.route.paramMap.pipe(
     map(params => params.get('id') || ''),
@@ -209,12 +204,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     const slug = this.promotion?.slug || this.promotion?.id;
     if (!slug) return;
     this.isSubmittingComment = true;
-    this.commentError = '';
     this.commentService.createComment(slug, content).subscribe({
       next: (created) => {
         this.newCommentContent = '';
         this.isSubmittingComment = false;
         this.comments = [created, ...this.comments];
+        this.toast.success('Comentário publicado.');
         if (this.promotion) {
           this.promotion = { ...this.promotion, commentsCount: (this.promotion.commentsCount ?? 0) + 1 };
           this.analytics.trackCommentSubmit({
@@ -226,7 +221,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       },
       error: () => {
         this.isSubmittingComment = false;
-        this.commentError = 'Não foi possível publicar o comentário. Tente novamente.';
+        this.toast.error('Não foi possível publicar o comentário. Tente novamente.');
       }
     });
   }
@@ -321,7 +316,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   confirmRemove() {
     this.isRemoveConfirm = true;
-    this.adminError = '';
   }
 
   cancelRemove() {
@@ -331,7 +325,6 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   executeRemove() {
     if (!this.promotion || this.isAdminSaving) return;
     this.isAdminSaving = true;
-    this.adminError = '';
     this.moderationService.decide(this.promotion.id, {
       action: 'REMOVE',
       reason: 'Removida pelo administrador'
@@ -339,11 +332,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
       next: () => {
         this.isAdminSaving = false;
         this.isRemoveConfirm = false;
+        this.toast.success('Promoção removida com sucesso.');
         void this.router.navigate(['/promocoes']);
       },
       error: () => {
         this.isAdminSaving = false;
-        this.adminError = 'Erro ao remover. Tente novamente.';
+        this.toast.error('Erro ao remover. Tente novamente.');
       }
     });
   }

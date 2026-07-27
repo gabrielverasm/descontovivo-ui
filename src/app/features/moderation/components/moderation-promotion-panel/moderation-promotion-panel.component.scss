@@ -35,8 +35,7 @@
 .promotion-form__reject .field { flex: 1; }
 .promotion-form__footer { grid-area: footer; display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; border-top: 1px solid #e2e8f0; padding-top: .9rem; }
 .promotion-form__feedback { flex: 1 0 100%; }
-.error, .success { margin: 0; font-size: .82rem; font-weight: 700; }
-.error { color: #b91c1c; } .success { color: #166534; }
+.error { margin: 0; color: #b91c1c; font-size: .82rem; font-weight: 700; }
 .button { min-height: 36px; border: 1px solid #cbd5e1; border-radius: 6px; padding: .45rem .75rem; background: #fff; color: #334155; font-size: .78rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .button:disabled { opacity: .5; cursor: not-allowed; }
 .button:focus-visible { outline: 3px solid rgba(37, 99, 235, .28); outline-offset: 2px; }

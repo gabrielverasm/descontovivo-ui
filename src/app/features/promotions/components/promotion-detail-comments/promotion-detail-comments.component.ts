@@ -18,7 +18,6 @@ export class PromotionDetailCommentsComponent {
   @Input() totalCommentsCount = 0;
   @Input() isAuthenticated = false;
   @Input() isSubmittingComment = false;
-  @Input() commentError = '';
   @Input() newCommentContent = '';
   @Output() newCommentContentChange = new EventEmitter<string>();
   @Output() submitComment = new EventEmitter<void>();

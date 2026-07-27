@@ -45,14 +45,6 @@ export class StructuredDataService {
     scripts.forEach((script) => script.remove());
   }
 
-  /**
-   * Removes all structured data blocks managed by this service.
-   */
-  clearAll(): void {
-    const scripts = this.document.querySelectorAll('script[type="application/ld+json"][id^="sd-"]');
-    scripts.forEach((script) => script.remove());
-  }
-
   private buildScriptId(id: string): string {
     return id.startsWith('sd-') ? id : `sd-${id}`;
   }

@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, ViewChild, inject } from '@angular/core';
 import { Promotion } from '../../../../core/models/promotion.model';
 import { environment } from '../../../../../environments/environment';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-promotion-story-generator',
@@ -9,13 +10,13 @@ import { environment } from '../../../../../environments/environment';
   styleUrl: './promotion-story-generator.component.scss',
 })
 export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChanges {
+  private readonly toast = inject(ToastService);
   @Input({ required: true }) promotion!: Promotion;
   @Input({ required: true }) canonicalUrl = '';
   @Output() closed = new EventEmitter<void>();
   @ViewChild('storyCanvas') private canvasRef?: ElementRef<HTMLCanvasElement>;
 
   isRendering = true;
-  feedback = '';
   private viewReady = false;
   private renderSequence = 0;
   private renderedPngBlob: Blob | null = null;
@@ -44,7 +45,6 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
 
   async shareImage(): Promise<void> {
     if (this.isRendering) return;
-    this.feedback = '';
     const blob = await this.canvasToPngBlob();
     if (!blob) return;
     const file = this.buildStoryFile(blob);
@@ -56,7 +56,7 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
       supportsFileShare = false;
     }
     if (!supportsFileShare) {
-      this.feedback = 'Compartilhamento de imagem não suportado neste navegador. Use baixar PNG.';
+      this.toast.warning('Compartilhamento de imagem não suportado neste navegador. Use baixar PNG.');
       return;
     }
 
@@ -66,35 +66,33 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
         title: 'Story DescontoVivo',
         text: this.buildCaption(),
       });
-      this.feedback = 'Imagem compartilhada.';
+      this.toast.success('Imagem compartilhada.');
     } catch (error: unknown) {
       if (error instanceof DOMException && error.name === 'AbortError') return;
-      this.feedback = 'Não foi possível compartilhar a imagem. Use baixar PNG.';
+      this.toast.error('Não foi possível compartilhar a imagem. Use baixar PNG.');
     }
   }
 
   async copyImage(): Promise<void> {
     if (this.isRendering) return;
-    this.feedback = '';
     const blob = await this.canvasToPngBlob();
     if (!blob) return;
 
     if (typeof ClipboardItem === 'undefined' || !navigator.clipboard?.write) {
-      this.feedback = 'Copiar imagem não é suportado neste navegador. Use compartilhar ou baixar PNG.';
+      this.toast.warning('Copiar imagem não é suportado neste navegador. Use compartilhar ou baixar PNG.');
       return;
     }
 
     try {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      this.feedback = 'Imagem copiada.';
+      this.toast.success('Imagem copiada.');
     } catch {
-      this.feedback = 'Não foi possível copiar a imagem. Use compartilhar ou baixar PNG.';
+      this.toast.error('Não foi possível copiar a imagem. Use compartilhar ou baixar PNG.');
     }
   }
 
   async downloadPng(): Promise<void> {
     if (this.isRendering) return;
-    this.feedback = '';
     const blob = await this.canvasToPngBlob();
     if (!blob) return;
 
@@ -104,7 +102,7 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
     anchor.download = this.storyFileName();
     anchor.click();
     URL.revokeObjectURL(objectUrl);
-    this.feedback = 'PNG gerado.';
+    this.toast.success('PNG gerado.');
   }
 
   private async renderStory(): Promise<void> {
@@ -326,20 +324,20 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
     if (this.renderedPngBlob) return this.renderedPngBlob;
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas || this.isRendering) {
-      this.feedback = 'A imagem ainda não está pronta.';
+      this.toast.info('A imagem ainda não está pronta.');
       return null;
     }
 
     try {
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
       if (!blob) {
-        this.feedback = 'Não foi possível gerar a imagem.';
+        this.toast.error('Não foi possível gerar a imagem.');
         return null;
       }
       this.renderedPngBlob = blob;
       return blob;
     } catch {
-      this.feedback = 'Não foi possível gerar a imagem.';
+      this.toast.error('Não foi possível gerar a imagem.');
       return null;
     }
   }
@@ -362,9 +360,9 @@ export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChange
   private async copyText(text: string, successMessage: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(text);
-      this.feedback = successMessage;
+      this.toast.success(successMessage);
     } catch {
-      this.feedback = 'Não foi possível copiar automaticamente.';
+      this.toast.error('Não foi possível copiar automaticamente.');
     }
   }
 }

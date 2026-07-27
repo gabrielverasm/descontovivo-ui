@@ -287,7 +287,11 @@ describe('ModerationPromotionWorkspaceComponent', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(pending.decide).not.toHaveBeenCalled();
     expect(component.saving).toBeFalse();
-    expect(component.actionError).toContain('nova imagem');
+    expect(component.actionError).toBe('');
+    expect(TestBed.inject(ToastService).toasts()[0]).toEqual(jasmine.objectContaining({
+      type: 'error',
+      message: 'Não foi possível enviar a nova imagem.',
+    }));
     expect(component.form.title).toBe('Formulário preservado');
   });
 

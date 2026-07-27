@@ -52,9 +52,6 @@
         [ngModel]="newCommentContent"
         (ngModelChange)="onContentChange($event)"
       />
-      @if (commentError) {
-        <p class="detail-comments__error" role="alert">{{ commentError }}</p>
-      }
       <button type="submit" [disabled]="isSubmittingComment || !newCommentContent.trim()">
         {{ isSubmittingComment ? 'Publicando…' : 'Comentar' }}
       </button>

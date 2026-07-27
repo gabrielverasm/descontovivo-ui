@@ -15,10 +15,6 @@ export class AnalyticsConsentService {
     return this.status();
   }
 
-  get hasDecided(): boolean {
-    return this.currentStatus !== 'pending';
-  }
-
   grant(): void {
     this.persist('granted');
   }

@@ -11,6 +11,7 @@ import {
   AdminDataRequestType,
   AdminDataRequestUpdate,
 } from '../../../core/models/admin-data-request.model';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-admin-data-requests',
@@ -21,6 +22,7 @@ import {
 })
 export class AdminDataRequestsComponent implements OnInit {
   private readonly service = inject(AdminDataRequestService);
+  private readonly toast = inject(ToastService);
 
   constructor() {
     inject(SeoService).setNoIndex();
@@ -30,7 +32,6 @@ export class AdminDataRequestsComponent implements OnInit {
   requests: AdminDataRequestSummary[] = [];
   loading = true;
   error = '';
-  successMessage = '';
 
   // Filters
   filterStatus: AdminDataRequestStatus | '' = '';
@@ -83,12 +84,9 @@ export class AdminDataRequestsComponent implements OnInit {
     this.load();
   }
 
-  load(options?: { preserveSuccess?: boolean }): void {
+  load(): void {
     this.loading = true;
     this.error = '';
-    if (!options?.preserveSuccess) {
-      this.successMessage = '';
-    }
 
     const filters: AdminDataRequestFilters = {};
     if (this.filterStatus) filters.status = this.filterStatus;
@@ -101,7 +99,6 @@ export class AdminDataRequestsComponent implements OnInit {
         this.requests = data ?? [];
       },
       error: (err) => {
-        this.successMessage = '';
         if (err.status === 401 || err.status === 403) {
           this.error = 'Você não tem permissão para acessar esta área.';
         } else {
@@ -117,7 +114,6 @@ export class AdminDataRequestsComponent implements OnInit {
 
   // Actions
   markInReview(request: AdminDataRequestSummary): void {
-    this.successMessage = '';
     this.updateTargetId = request.id;
     this.updateTargetStatus = 'IN_REVIEW';
     this.updateNote = '';
@@ -126,7 +122,6 @@ export class AdminDataRequestsComponent implements OnInit {
   }
 
   markCompleted(request: AdminDataRequestSummary): void {
-    this.successMessage = '';
     this.updateTargetId = request.id;
     this.updateTargetStatus = 'COMPLETED';
     this.updateNote = '';
@@ -135,7 +130,6 @@ export class AdminDataRequestsComponent implements OnInit {
   }
 
   markRejected(request: AdminDataRequestSummary): void {
-    this.successMessage = '';
     this.updateTargetId = request.id;
     this.updateTargetStatus = 'REJECTED';
     this.updateNote = '';
@@ -175,18 +169,18 @@ export class AdminDataRequestsComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.cancelUpdate();
-        this.successMessage = 'Solicitação atualizada com sucesso.';
-        this.load({ preserveSuccess: true });
+        this.toast.success('Solicitação atualizada com sucesso.');
+        this.load();
       },
       error: (err) => {
         if (err.status === 400) {
-          this.updateError = 'Não foi possível atualizar. Verifique se a solicitação já foi finalizada.';
+          this.toast.warning('Não foi possível atualizar. Verifique se a solicitação já foi finalizada.');
         } else if (err.status === 404) {
-          this.updateError = 'Solicitação não encontrada.';
+          this.toast.error('Solicitação não encontrada.');
         } else if (err.status === 401 || err.status === 403) {
-          this.updateError = 'Você não tem permissão para esta ação.';
+          this.toast.error('Você não tem permissão para esta ação.');
         } else {
-          this.updateError = 'Não foi possível atualizar a solicitação.';
+          this.toast.error('Não foi possível atualizar a solicitação.');
         }
       },
     });

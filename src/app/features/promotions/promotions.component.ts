@@ -258,17 +258,6 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Toggle auto-load timer (legacy, kept for reference)
-   */
-  toggleAutoLoad(): void {
-    if (this.autoLoadEnabled) {
-      this.stopAutoLoad(true); // User stopped it
-    } else {
-      this.startAutoLoad();
-    }
-  }
-
-  /**
    * Start auto-load timer
    */
   startAutoLoad(): void {

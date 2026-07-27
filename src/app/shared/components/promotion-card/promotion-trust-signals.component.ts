@@ -47,10 +47,6 @@ export class PromotionTrustSignalsComponent {
     return this.promotion.priceSignal === 'GOOD_PRICE' || this.promotion.priceSignal === 'GREAT_PRICE';
   }
 
-  get priceSignalLabel(): string {
-    return this.promotion.priceSignal === 'GREAT_PRICE' ? 'Preço muito bom' : 'Preço bom';
-  }
-
   get priceSignalTitle(): string {
     return this.promotion.priceSignal === 'GREAT_PRICE'
       ? 'Preço marcado como muito bom pela moderação. Confira preço final, frete e condições antes de comprar.'
@@ -188,32 +184,6 @@ export class PromotionTrustSignalsComponent {
 
   getTrustSignalTooltip(signal: TrustSignal): string {
     return getTrustSignalTooltip(signal);
-  }
-
-  get officialStoreTitle(): string {
-    return 'Loja oficial do vendedor na plataforma.';
-  }
-
-  get platformGuaranteeTitle(): string {
-    if (!this.promotion.marketplace) {
-      return 'Garantia da plataforma.';
-    }
-    
-    const marketplace = this.promotion.marketplace.toUpperCase();
-    switch (marketplace) {
-      case 'AMAZON':
-        return 'Protegido pela Garantia de A a Z da Amazon.';
-      case 'MERCADO_LIVRE':
-        return 'Compra protegida pela Garantia do Mercado Livre.';
-      case 'MAGALU':
-        return 'Compra protegida pela Garantia Magalu.';
-      case 'SHOPEE':
-        return 'Compra finalizada na Shopee e sujeita às regras da Garantia Shopee.';
-      case 'ALIEXPRESS':
-        return 'Protegido pela Política de Proteção ao Comprador do AliExpress.';
-      default:
-        return 'Garantia da plataforma.';
-    }
   }
 
   get highSalesTitle(): string {

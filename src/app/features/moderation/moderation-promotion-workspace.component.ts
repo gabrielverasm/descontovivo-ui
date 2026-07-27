@@ -277,7 +277,11 @@ export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy 
       const context: PromotionModerationFormContext = { promotion: this.promotion!, inspectionApplied: this.inspectionApplied, inspectedFormUrl: this.inspectedFormUrl, imageKey: imageKey || this.inspectionImageKey };
       const request = moderationFormToEditRequest(this.form, context, 'EDIT', 'Ajustes de moderação');
       this.decide(request, success, approveAfterEdit);
-    }).catch(() => { this.saving = false; this.actionError = 'Não foi possível enviar a nova imagem.'; });
+    }).catch(() => {
+      this.saving = false;
+      this.newImageStatus = 'ready';
+      this.toast.error('Não foi possível enviar a nova imagem.');
+    });
   }
 
   private decide(request: ModerationDecisionRequest, success: string, approveAfterEdit = false): void {

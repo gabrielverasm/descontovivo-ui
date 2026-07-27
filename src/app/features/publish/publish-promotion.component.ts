@@ -10,6 +10,7 @@ import { FloatingFieldComponent } from '../../shared/components/floating-field/f
 import { formatCentsToBRL, onlyDigits, parseBRLInputToNumber } from '../../shared/utils/money-input.util';
 import { normalizePromotionTitle } from '../../shared/utils/normalize-title.util';
 import { AnalyticsService } from '../../core/analytics/analytics.service';
+import { ToastService } from '../../core/services/toast.service';
 
 type ImageStatus = 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'error';
 
@@ -26,6 +27,7 @@ export class PublishPromotionComponent implements OnDestroy {
   private readonly uploadService = inject(UploadService);
   private readonly promotionService = inject(PromotionService);
   private readonly analytics = inject(AnalyticsService);
+  private readonly toast = inject(ToastService);
 
   title = '';
   url = '';
@@ -41,8 +43,7 @@ export class PublishPromotionComponent implements OnDestroy {
   imageKey: string | null = null;
 
   submitting = false;
-  submitMessage: string | null = null;
-  submitError: string | null = null;
+  priceError: string | null = null;
 
   get imageStatusText(): string | null {
     switch (this.imageStatus) {
@@ -91,13 +92,12 @@ export class PublishPromotionComponent implements OnDestroy {
 
     const price = parseBRLInputToNumber(this.currentPrice);
     if (!price || price <= 0) {
-      this.submitError = 'Preço inválido.';
+      this.priceError = 'Preço inválido.';
       return;
     }
 
     this.submitting = true;
-    this.submitError = null;
-    this.submitMessage = null;
+    this.priceError = null;
 
     try {
       if (!this.imageUrl || !this.imageKey) {
@@ -117,7 +117,7 @@ export class PublishPromotionComponent implements OnDestroy {
     } catch {
       this.submitting = false;
       this.imageStatus = 'ready';
-      this.submitError = 'Falha ao enviar imagem. Tente novamente.';
+      this.toast.error('Falha ao enviar imagem. Tente novamente.');
       return;
     }
 
@@ -132,20 +132,19 @@ export class PublishPromotionComponent implements OnDestroy {
     this.promotionService.createPromotion(payload).subscribe({
       next: () => {
         this.submitting = false;
-        this.submitMessage = 'Promoção enviada para moderação com sucesso.';
+        this.toast.success('Promoção enviada para moderação com sucesso.');
         this.analytics.trackPromotionSubmit();
         this.resetForm();
       },
       error: () => {
         this.submitting = false;
-        this.submitError = 'Erro ao publicar promoção. Tente novamente.';
+        this.toast.error('Erro ao publicar promoção. Tente novamente.');
       },
     });
   }
 
   clearSubmitFeedback(): void {
-    this.submitMessage = null;
-    this.submitError = null;
+    this.priceError = null;
   }
 
   async onImageSelected(file: File): Promise<void> {

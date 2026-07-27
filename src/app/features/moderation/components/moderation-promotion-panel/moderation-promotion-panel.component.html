@@ -109,7 +109,6 @@
     <footer class="promotion-form__footer">
       <div class="promotion-form__feedback" aria-live="polite">
         @if (formError) { <p class="error" role="alert">{{ formError }}</p> }
-        @if (feedbackMessage) { <p class="success" role="status">{{ feedbackMessage }}</p> }
       </div>
       @if (mode === 'create') {
         <button type="submit" class="button button--primary" [disabled]="isActionDisabled">{{ actionInProgress ? 'Adicionando…' : 'Adicionar promoção' }}</button>

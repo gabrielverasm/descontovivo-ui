@@ -9,6 +9,7 @@ import { SeoService } from '../../core/services/seo.service';
 import { AccountMe } from '../../core/models/account-me.model';
 import { canModerate, hasRole } from '../../core/utils/permissions';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-account',
@@ -21,6 +22,7 @@ export class AccountComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly accountDataService = inject(AccountDataService);
   private readonly seo = inject(SeoService);
+  private readonly toast = inject(ToastService);
 
   readonly currentUser$ = this.authService.currentUser$;
 
@@ -28,8 +30,7 @@ export class AccountComponent implements OnInit {
   requestType: DataRequestType | '' = '';
   requestDetails = '';
   submitting = false;
-  successMessage = '';
-  errorMessage = '';
+  requestTypeError = '';
 
   // My requests list
   myRequests: DataRequestSummary[] = [];
@@ -90,16 +91,15 @@ export class AccountComponent implements OnInit {
 
   submitRequest(): void {
     if (!this.requestType) {
-      this.errorMessage = 'Selecione o tipo de solicitação.';
+      this.requestTypeError = 'Selecione o tipo de solicitação.';
       return;
     }
     this.submitting = true;
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.requestTypeError = '';
 
     this.accountDataService.createDataRequest(this.requestType, this.requestDetails.trim()).subscribe({
       next: (res) => {
-        this.successMessage = res.message;
+        this.toast.success(res.message);
         this.requestType = '';
         this.requestDetails = '';
         this.submitting = false;
@@ -107,9 +107,9 @@ export class AccountComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         if (err.status === 401 || err.status === 403) {
-          this.errorMessage = 'Sua sessão expirou. Entre novamente para enviar a solicitação.';
+          this.toast.error('Sua sessão expirou. Entre novamente para enviar a solicitação.');
         } else {
-          this.errorMessage = 'Não foi possível enviar a solicitação. Tente novamente.';
+          this.toast.error('Não foi possível enviar a solicitação. Tente novamente.');
         }
         this.submitting = false;
       },
