@@ -14,20 +14,33 @@ import { PublicLayoutComponent } from './public-layout.component';
 describe('PublicLayoutComponent moderation navigation', () => {
   let fixture: ComponentFixture<PublicLayoutComponent>;
   let user$: BehaviorSubject<any>;
+  let publicState$: BehaviorSubject<any>;
+  let adminState$: BehaviorSubject<any>;
+  let titleService: jasmine.SpyObj<Title>;
 
   beforeEach(() => {
     user$ = new BehaviorSubject<any>({ id: 'u1', username: 'moderador', roles: ['moderator'] });
     const auth = { currentUser$: user$.asObservable(), authReady$: of(true) };
-    const publicStream = { state$: of({ connected: true, error: false, publishedCount: 3, latestPublishedAt: null, newPromotionsCount: 2 }), connect: jasmine.createSpy(), disconnect: jasmine.createSpy(), formatCount: (count: number) => String(count) };
+    publicState$ = new BehaviorSubject({
+      connected: true, error: false, publishedCount: 3, latestPromotionId: 'p3',
+      latestPublishedAt: null, newPromotionsCount: 2, newPromotionsCountIsLowerBound: false,
+    });
+    const publicStream = {
+      state$: publicState$, connect: jasmine.createSpy(), disconnect: jasmine.createSpy(),
+      formatCount: (count: number, lowerBound: boolean) => count > 99 ? '99+' : `${count}${lowerBound ? '+' : ''}`,
+    };
     const moderationStream = { state$: of({ connected: true, error: false, moderationPendingCount: 4 }), connect: jasmine.createSpy(), disconnect: jasmine.createSpy(), formatCount: (count: number) => String(count) };
-    const adminStream = { state$: of({ connected: false, error: false, dataRequestsOpenCount: 0 }), connect: jasmine.createSpy(), disconnect: jasmine.createSpy(), formatCount: (count: number) => String(count) };
+    adminState$ = new BehaviorSubject({ connected: false, error: false, dataRequestsOpenCount: 0 });
+    const adminStream = { state$: adminState$, connect: jasmine.createSpy(), disconnect: jasmine.createSpy(), formatCount: (count: number) => String(count) };
+    titleService = jasmine.createSpyObj('Title', ['setTitle', 'getTitle']);
+    titleService.getTitle.and.returnValue('DescontoVivo');
     TestBed.configureTestingModule({
       imports: [PublicLayoutComponent],
       providers: [
         { provide: AuthService, useValue: auth }, { provide: PublicNotificationStreamService, useValue: publicStream },
         { provide: ModerationNotificationStreamService, useValue: moderationStream }, { provide: AdminNotificationStreamService, useValue: adminStream },
         { provide: VersionService, useValue: { getApiVersion: () => of('v1') } }, { provide: AnalyticsService, useValue: jasmine.createSpyObj('AnalyticsService', ['trackEvent']) },
-        { provide: Title, useValue: { setTitle: jasmine.createSpy() } },
+        { provide: Title, useValue: titleService },
         { provide: ActivatedRoute, useValue: {} },
         { provide: Router, useValue: { url: '/moderacao/promocoes', events: of(), createUrlTree: () => ({}), serializeUrl: () => '', navigate: jasmine.createSpy(), navigateByUrl: jasmine.createSpy() } },
       ],
@@ -78,4 +91,71 @@ describe('PublicLayoutComponent moderation navigation', () => {
     expect(fixture.nativeElement.textContent).toContain('Moderação');
     expect(fixture.nativeElement.textContent).toContain('Add. Promoção');
   });
+
+  it('sums an exact confirmed public count into the tab title', () => {
+    const promotionsLink = getPromotionsLink();
+    expect(promotionsLink.querySelector('.public-layout__badge')?.textContent).toContain('2');
+    expect(titleService.setTitle).toHaveBeenCalledWith('(6) DescontoVivo');
+  });
+
+  it('propagates a public lower bound to the combined tab title', () => {
+    publicState$.next({
+      ...publicState$.value,
+      newPromotionsCount: 12,
+      newPromotionsCountIsLowerBound: true,
+    });
+    fixture.detectChanges();
+
+    expect(getPromotionsLink().querySelector('.public-layout__badge')?.textContent).toContain('12+');
+    expect(titleService.setTitle).toHaveBeenCalledWith('(16+) DescontoVivo');
+  });
+
+  it('caps a combined total above 99 without duplicating the plus sign', () => {
+    publicState$.next({
+      ...publicState$.value,
+      newPromotionsCount: 120,
+      newPromotionsCountIsLowerBound: true,
+    });
+    fixture.detectChanges();
+
+    expect(titleService.setTitle).toHaveBeenCalledWith('(99+) DescontoVivo');
+  });
+
+  it('removes the public badge and lower bound when confirmed count becomes zero', () => {
+    publicState$.next({
+      ...publicState$.value,
+      newPromotionsCount: 12,
+      newPromotionsCountIsLowerBound: true,
+    });
+
+    publicState$.next({
+      ...publicState$.value,
+      publishedCount: 999,
+      latestPromotionId: 'unverified-sse-id',
+      latestPublishedAt: '2099-01-01T00:00:00Z',
+      newPromotionsCount: 0,
+    });
+    fixture.detectChanges();
+
+    expect(getPromotionsLink().querySelector('.public-layout__badge')).toBeNull();
+    expect(titleService.setTitle).toHaveBeenCalledWith('(4) DescontoVivo');
+  });
+
+  it('keeps remaining exact administrative counts exact when public count is zero', () => {
+    publicState$.next({
+      ...publicState$.value,
+      newPromotionsCount: 0,
+      newPromotionsCountIsLowerBound: true,
+    });
+    adminState$.next({ ...adminState$.value, dataRequestsOpenCount: 1 });
+    fixture.detectChanges();
+
+    expect(titleService.setTitle).toHaveBeenCalledWith('(5) DescontoVivo');
+  });
+
+  function getPromotionsLink(): HTMLAnchorElement {
+    return Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('a'),
+    ).find(link => link.textContent?.includes('Promoções'))!;
+  }
 });

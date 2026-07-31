@@ -56,6 +56,11 @@ describe('PromotionCategorySelectorComponent', () => {
     expect(getComputedStyle(fixture.nativeElement.querySelector('.category-select__item')).minHeight).toBe('32px');
   });
 
+  it('lays out the category list in three columns on desktop', () => {
+    const viewport = fixture.nativeElement.querySelector('.category-select__viewport') as HTMLElement;
+    expect(getComputedStyle(viewport).gridTemplateColumns.split(' ')).toHaveSize(3);
+  });
+
   it('shows the search field above the list with the plus button beside it', () => {
     const viewport = fixture.nativeElement.querySelector('.category-select__viewport') as HTMLElement;
     const search = viewport.querySelector('.category-select__search') as HTMLElement;
@@ -102,6 +107,46 @@ describe('PromotionCategorySelectorComponent', () => {
     expect(changes).toHaveBeenCalledWith(['Games', 'Casa', 'Casa e Jardim']);
     expect(fixture.componentInstance.search).toBe('');
     expect(service.list).toHaveBeenCalledTimes(1);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Nova — será criada ao salvar');
+  });
+
+  it('reloads the persisted count and removes the pending marker after a successful save', () => {
+    fixture.componentInstance.search = 'Casa e Jardim';
+    fixture.componentInstance.addOrSelect();
+    service.list.and.returnValue(of([
+      { name: 'Casa e Jardim', promotionCount: 1 },
+      { name: 'Casa', promotionCount: 3 },
+    ]));
+
+    fixture.componentInstance.resetAfterSuccessfulSave();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.isPendingCreation('Casa e Jardim')).toBeFalse();
+    expect(fixture.componentInstance.categories.find(item => item.name === 'Casa e Jardim')?.promotionCount).toBe(1);
+    expect(fixture.nativeElement.textContent).not.toContain('Nova — será criada ao salvar');
+  });
+
+  it('limits the selection to four categories', () => {
+    fixture.componentInstance.selected = ['Games', 'Casa', 'Bebidas', 'Eletrônicos'];
+    fixture.componentInstance.search = 'Nova categoria';
+    fixture.detectChanges();
+
+    const add = fixture.nativeElement.querySelector('.category-select__search button') as HTMLButtonElement;
+    expect(add.disabled).toBeTrue();
+    expect(add.title).toBe('Selecione no máximo quatro categorias');
+  });
+
+  it('renames a pending category locally without calling the category API', () => {
+    fixture.componentInstance.search = 'Saude';
+    fixture.componentInstance.addOrSelect();
+    fixture.componentInstance.startEdit('Saude', new Event('click'));
+    fixture.componentInstance.editingName = 'Saúde e bem-estar';
+    fixture.componentInstance.saveEdit('Saude');
+
+    expect(fixture.componentInstance.categories.some(category => category.name === 'Saúde e bem-estar')).toBeTrue();
+    expect(fixture.componentInstance.isPendingCreation('Saúde e bem-estar')).toBeTrue();
+    expect(service.rename).not.toHaveBeenCalled();
   });
 
   it('handles Enter without submitting and Escape without changing selection', () => {

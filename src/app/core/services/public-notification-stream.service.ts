@@ -1,9 +1,12 @@
 import { Injectable, inject, NgZone, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, Subject, Subscription } from 'rxjs';
+import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { PromotionService } from './promotion.service';
 
 export interface PublicPromotionsEvent {
   publishedCount: number;
+  latestPromotionId?: string | null;
   latestPublishedAt: string | null;
 }
 
@@ -11,39 +14,70 @@ export interface PublicNotificationState {
   connected: boolean;
   error: boolean;
   publishedCount: number;
+  latestPromotionId: string | null;
   latestPublishedAt: string | null;
   newPromotionsCount: number;
+  newPromotionsCountIsLowerBound: boolean;
 }
 
 export interface DisplayedFeedSnapshot {
-  publishedCount?: number;
-  latestPublishedAt?: string | null;
+  promotionIds: string[];
+  latestPromotionId: string | null;
+  latestPublishedAt: string | null;
+  totalElements: number;
+}
+
+interface VerificationRequest {
+  fingerprint: string;
+  displayedRevision: number;
+  displayedIds: string[];
+  pageSize: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class PublicNotificationStreamService implements OnDestroy {
   private readonly ngZone = inject(NgZone);
+  private readonly promotionService = inject(PromotionService);
 
   private eventSource: EventSource | null = null;
   private visibilityHandler: (() => void) | null = null;
+  private hasReceivedServerBaseline = false;
+  private lastServerFingerprint: string | null = null;
+  private displayedRevision = 0;
+  private displayedIds: string[] = [];
+  private displayedSnapshotRegistered = false;
 
-  // Server snapshot — updated by SSE events
-  private serverPublishedCount: number | null = null;
-  private serverLatestPublishedAt: string | null = null;
-
-  // Displayed snapshot — updated by the feed component after loading
-  private displayedPublishedCount: number | null = null;
-  private displayedLatestPublishedAt: string | null = null;
+  private readonly verificationRequests = new Subject<VerificationRequest>();
+  private readonly verificationSubscription: Subscription;
 
   private readonly stateSubject = new BehaviorSubject<PublicNotificationState>({
     connected: false,
     error: false,
     publishedCount: 0,
+    latestPromotionId: null,
     latestPublishedAt: null,
     newPromotionsCount: 0,
+    newPromotionsCountIsLowerBound: false,
   });
 
   readonly state$: Observable<PublicNotificationState> = this.stateSubject.asObservable();
+
+  constructor() {
+    this.verificationSubscription = this.verificationRequests.pipe(
+      debounceTime(80),
+      switchMap(request => this.promotionService.getPromotionsFresh(0, request.pageSize).pipe(
+        map(response => ({ request, freshIds: response.content.map(promotion => promotion.id) })),
+        catchError(() => EMPTY),
+      )),
+    ).subscribe(({ request, freshIds }) => {
+      if (request.displayedRevision !== this.displayedRevision) return;
+      const confirmation = this.countLeadingNewPromotions(request.displayedIds, freshIds);
+      this.updateState({
+        newPromotionsCount: confirmation.count,
+        newPromotionsCountIsLowerBound: confirmation.isLowerBound,
+      });
+    });
+  }
 
   get snapshot(): PublicNotificationState {
     return this.stateSubject.value;
@@ -51,57 +85,29 @@ export class PublicNotificationStreamService implements OnDestroy {
 
   connect(): void {
     if (typeof window === 'undefined' || !('EventSource' in window)) return;
-
-    // Allow reconnection if EventSource is closed (readyState === 2)
     if (this.eventSource && this.eventSource.readyState !== EventSource.CLOSED) return;
-
-    // Clean up closed EventSource reference
-    if (this.eventSource && this.eventSource.readyState === EventSource.CLOSED) {
-      this.eventSource = null;
-    }
+    if (this.eventSource?.readyState === EventSource.CLOSED) this.eventSource = null;
 
     this.subscribeToVisibilityChange();
-
     const url = `${environment.apiBaseUrl}/events/public/stream`;
 
     this.ngZone.runOutsideAngular(() => {
       this.eventSource = new EventSource(url);
-
-      this.eventSource.onopen = () => {
-        this.ngZone.run(() => {
-          this.updateState({ connected: true, error: false });
-        });
-      };
-
-      this.eventSource.addEventListener('promotions', (event: MessageEvent) => {
-        this.ngZone.run(() => {
-          this.handlePromotionsEvent(event);
-        });
+      this.eventSource.onopen = () => this.ngZone.run(() =>
+        this.updateState({ connected: true, error: false }));
+      this.eventSource.addEventListener('promotions', (event: MessageEvent) =>
+        this.ngZone.run(() => this.handlePromotionsEvent(event)));
+      this.eventSource.addEventListener('heartbeat', () => undefined);
+      this.eventSource.onerror = () => this.ngZone.run(() => {
+        this.updateState({ connected: false, error: true });
+        if (this.eventSource?.readyState === EventSource.CLOSED) this.eventSource = null;
       });
-
-      this.eventSource.addEventListener('heartbeat', () => {
-        // Heartbeat received — connection is alive. No state change needed.
-      });
-
-      this.eventSource.onerror = () => {
-        this.ngZone.run(() => {
-          this.updateState({ connected: false, error: true });
-
-          // If EventSource is permanently closed (won't auto-reconnect),
-          // clear the reference so connect() can create a new one
-          if (this.eventSource?.readyState === EventSource.CLOSED) {
-            this.eventSource = null;
-          }
-        });
-      };
     });
   }
 
   disconnect(): void {
-    if (this.eventSource) {
-      this.eventSource.close();
-      this.eventSource = null;
-    }
+    this.eventSource?.close();
+    this.eventSource = null;
     this.updateState({ connected: false, error: false });
     this.unsubscribeVisibilityChange();
   }
@@ -111,47 +117,29 @@ export class PublicNotificationStreamService implements OnDestroy {
     this.connect();
   }
 
-  /**
-   * Called by the feed component after successfully loading promotions.
-   * Registers what the user is currently seeing so we can compare against the server.
-   */
+  /** Registers the authoritative first page currently visible to the user. */
   setDisplayedFeedSnapshot(snapshot: DisplayedFeedSnapshot): void {
-    if (snapshot.publishedCount !== undefined) {
-      this.displayedPublishedCount = snapshot.publishedCount;
-    }
-    if (snapshot.latestPublishedAt !== undefined) {
-      this.displayedLatestPublishedAt = snapshot.latestPublishedAt ?? null;
-    }
-    this.recalculateNewPromotionsCount();
+    this.displayedIds = [...snapshot.promotionIds];
+    this.displayedSnapshotRegistered = true;
+    this.displayedRevision += 1;
+    this.updateState({ newPromotionsCount: 0, newPromotionsCountIsLowerBound: false });
   }
 
-  /**
-   * Clears the badge only if the displayed feed is now aligned with the server.
-   * Called after refreshFeed() completes successfully.
-   */
+  /** Kept for callers during rollout; never copies an unverified SSE snapshot. */
   clearNewPromotions(): void {
-    // Align displayed snapshot to current server state
-    if (this.serverPublishedCount !== null) {
-      this.displayedPublishedCount = this.serverPublishedCount;
-    }
-    if (this.serverLatestPublishedAt !== null) {
-      this.displayedLatestPublishedAt = this.serverLatestPublishedAt;
-    }
-    this.updateState({ newPromotionsCount: 0 });
+    this.updateState({ newPromotionsCount: 0, newPromotionsCountIsLowerBound: false });
   }
 
   ngOnDestroy(): void {
+    this.verificationSubscription.unsubscribe();
     this.disconnect();
   }
 
-  /** Format count for display: 1-99 or "99+" */
-  formatCount(count: number): string {
+  formatCount(count: number, isLowerBound = false): string {
     if (count <= 0) return '';
     if (count > 99) return '99+';
-    return String(count);
+    return `${count}${isLowerBound ? '+' : ''}`;
   }
-
-  // --- Private ---
 
   private handlePromotionsEvent(event: MessageEvent): void {
     let data: PublicPromotionsEvent;
@@ -160,60 +148,58 @@ export class PublicNotificationStreamService implements OnDestroy {
     } catch {
       return;
     }
+    if (!Number.isSafeInteger(data.publishedCount) || data.publishedCount < 0) return;
 
-    const { publishedCount, latestPublishedAt } = data;
-
-    // Update server snapshot
-    this.serverPublishedCount = publishedCount;
-    this.serverLatestPublishedAt = latestPublishedAt;
-
-    // If no displayed snapshot exists yet, use first server event as initial displayed state.
-    // The feed component will override this when it calls setDisplayedFeedSnapshot().
-    if (this.displayedPublishedCount === null && this.displayedLatestPublishedAt === null) {
-      this.displayedPublishedCount = publishedCount;
-      this.displayedLatestPublishedAt = latestPublishedAt;
-    }
+    const latestPromotionId = typeof data.latestPromotionId === 'string' ? data.latestPromotionId : null;
+    const latestPublishedAt = typeof data.latestPublishedAt === 'string' ? data.latestPublishedAt : null;
+    const fingerprint = this.serverFingerprint(data.publishedCount, latestPromotionId, latestPublishedAt);
 
     this.updateState({
       connected: true,
       error: false,
-      publishedCount,
+      publishedCount: data.publishedCount,
+      latestPromotionId,
       latestPublishedAt,
     });
 
-    this.recalculateNewPromotionsCount();
-  }
-
-  private recalculateNewPromotionsCount(): void {
-    if (this.serverPublishedCount === null) {
-      // No server data yet — nothing to compare
+    if (!this.hasReceivedServerBaseline) {
+      this.hasReceivedServerBaseline = true;
+      this.lastServerFingerprint = fingerprint;
       return;
     }
+    if (fingerprint === this.lastServerFingerprint) return;
+    this.lastServerFingerprint = fingerprint;
+    if (!this.displayedSnapshotRegistered) return;
 
-    let newCount = 0;
+    this.verificationRequests.next({
+      fingerprint,
+      displayedRevision: this.displayedRevision,
+      displayedIds: [...this.displayedIds],
+      pageSize: Math.max(this.displayedIds.length, 12),
+    });
+  }
 
-    // Primary: compare counts
-    if (this.displayedPublishedCount !== null && this.serverPublishedCount > this.displayedPublishedCount) {
-      newCount = this.serverPublishedCount - this.displayedPublishedCount;
+  private serverFingerprint(count: number, id: string | null, timestamp: string | null): string {
+    const instant = timestamp == null ? '' : Date.parse(timestamp);
+    const normalizedInstant = typeof instant === 'number' && Number.isFinite(instant) ? String(instant) : timestamp ?? '';
+    return `${count}|${id ?? ''}|${normalizedInstant}`;
+  }
+
+  private countLeadingNewPromotions(displayedIds: string[], freshIds: string[]): { count: number; isLowerBound: boolean } {
+    if (freshIds.length === 0 || displayedIds.length === 0) {
+      return { count: 0, isLowerBound: false };
     }
+    const displayed = new Set(displayedIds);
+    if (displayed.has(freshIds[0])) return { count: 0, isLowerBound: false };
 
-    // Edge case: count is same but latestPublishedAt is newer
-    // (one added + one removed simultaneously)
-    if (
-      newCount === 0 &&
-      this.serverLatestPublishedAt &&
-      this.displayedLatestPublishedAt &&
-      this.serverLatestPublishedAt > this.displayedLatestPublishedAt
-    ) {
-      newCount = 1;
+    const firstCommonIndex = freshIds.findIndex(id => displayed.has(id));
+    if (firstCommonIndex >= 0) {
+      return { count: firstCommonIndex, isLowerBound: false };
     }
-
-    // If server count is lower (deletion/moderation), no negative badge
-    if (newCount < 0) {
-      newCount = 0;
-    }
-
-    this.updateState({ newPromotionsCount: newCount });
+    return {
+      count: freshIds.filter(id => !displayed.has(id)).length,
+      isLowerBound: freshIds.length > 0,
+    };
   }
 
   private updateState(partial: Partial<PublicNotificationState>): void {
@@ -222,16 +208,12 @@ export class PublicNotificationStreamService implements OnDestroy {
 
   private subscribeToVisibilityChange(): void {
     if (typeof document === 'undefined' || this.visibilityHandler) return;
-
     this.visibilityHandler = () => {
-      if (document.visibilityState === 'visible') {
-        // Tab became visible again — ensure connection is alive
-        if (!this.eventSource || this.eventSource.readyState === EventSource.CLOSED) {
-          this.connect();
-        }
+      if (document.visibilityState === 'visible'
+        && (!this.eventSource || this.eventSource.readyState === EventSource.CLOSED)) {
+        this.connect();
       }
     };
-
     document.addEventListener('visibilitychange', this.visibilityHandler);
   }
 

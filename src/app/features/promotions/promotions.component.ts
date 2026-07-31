@@ -46,6 +46,7 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   loadingMore = false;
   error = '';
   loadMoreError = '';
+  refreshError = '';
   newPromotionsCount = 0;
   query = '';
   private isSearchActive = false;
@@ -165,9 +166,10 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   refreshFeed(): void {
     this.loading = true;
     this.error = '';
+    this.refreshError = '';
     this.autoLoadStoppedByUser = false; // Reset user stopped flag
 
-    this.promotionService.getPromotions(0, this.pageSize).subscribe({
+    this.promotionService.getPromotionsFresh(0, this.pageSize).subscribe({
       next: (res) => {
         this.promotions = res.content;
         this.currentPage = res.page;
@@ -176,15 +178,15 @@ export class PromotionsComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.loadingMore = false;
 
-        // Register the new displayed snapshot, then clear badge
+        // Reconcile against exactly what the response rendered. If an SSE event
+        // raced ahead of this request, the notification remains visible.
         this.registerDisplayedSnapshot(res.content, res.totalElements);
-        this.notificationStream.clearNewPromotions();
         if (this.isBrowser) {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       },
       error: () => {
-        this.error = 'Não foi possível carregar as promoções. Tente novamente mais tarde.';
+        this.refreshError = 'Não foi possível atualizar as promoções. Tente novamente.';
         this.loading = false;
       },
     });
@@ -215,7 +217,6 @@ export class PromotionsComponent implements OnInit, OnDestroy {
         this.totalPages = res.totalPages;
         this.totalElements = res.totalElements;
         this.registerDisplayedSnapshot(res.content, res.totalElements);
-        this.notificationStream.clearNewPromotions();
       },
       error: () => {
         // Keep the prerendered/transferred feed visible when silent revalidation fails.
@@ -224,7 +225,16 @@ export class PromotionsComponent implements OnInit, OnDestroy {
   }
 
   get newPromotionsBadge(): string {
-    return this.notificationStream.formatCount(this.newPromotionsCount);
+    return this.notificationStream.formatCount(
+      this.newPromotionsCount,
+      this.notificationStream.snapshot.newPromotionsCountIsLowerBound,
+    );
+  }
+
+  get newPromotionsMessage(): string {
+    const isExactSingular = this.newPromotionsCount === 1
+      && !this.notificationStream.snapshot.newPromotionsCountIsLowerBound;
+    return `Há ${this.newPromotionsBadge} ${isExactSingular ? 'nova promoção' : 'novas promoções'}.`;
   }
 
   loadMore(): void {
@@ -429,7 +439,9 @@ export class PromotionsComponent implements OnInit, OnDestroy {
       : null;
 
     this.notificationStream.setDisplayedFeedSnapshot({
-      publishedCount: totalElements ?? promotions.length,
+      promotionIds: promotions.slice(0, this.pageSize).map(promotion => promotion.id),
+      totalElements: totalElements ?? promotions.length,
+      latestPromotionId: promotions[0]?.id ?? null,
       latestPublishedAt,
     });
   }

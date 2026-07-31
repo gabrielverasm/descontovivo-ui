@@ -1,434 +1,332 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { Subject, of, throwError } from 'rxjs';
+import { PagedResponse, Promotion } from '../models/promotion.model';
+import { PromotionService } from './promotion.service';
 import { PublicNotificationStreamService } from './public-notification-stream.service';
 
-// Mock EventSource
 class MockEventSource {
   static instances: MockEventSource[] = [];
   static readonly CONNECTING = 0;
   static readonly OPEN = 1;
   static readonly CLOSED = 2;
-
-  url: string;
   onopen: (() => void) | null = null;
   onerror: (() => void) | null = null;
-  private listeners: Record<string, ((event: MessageEvent) => void)[]> = {};
   readyState = MockEventSource.CONNECTING;
+  private readonly listeners: Record<string, ((event: MessageEvent) => void)[]> = {};
 
-  constructor(url: string) {
-    this.url = url;
-    MockEventSource.instances.push(this);
-  }
-
+  constructor(readonly url: string) { MockEventSource.instances.push(this); }
   addEventListener(type: string, listener: (event: MessageEvent) => void): void {
-    if (!this.listeners[type]) this.listeners[type] = [];
-    this.listeners[type].push(listener);
+    (this.listeners[type] ??= []).push(listener);
   }
-
-  removeEventListener(type: string, listener: (event: MessageEvent) => void): void {
-    if (!this.listeners[type]) return;
-    this.listeners[type] = this.listeners[type].filter((fn) => fn !== listener);
+  close(): void { this.readyState = MockEventSource.CLOSED; }
+  open(): void { this.readyState = MockEventSource.OPEN; this.onopen?.(); }
+  emit(type: string, data: unknown): void {
+    this.emitRaw(type, JSON.stringify(data));
   }
-
-  close(): void {
-    this.readyState = MockEventSource.CLOSED;
+  emitRaw(type: string, data: string): void {
+    const event = new MessageEvent(type, { data });
+    (this.listeners[type] ?? []).forEach(listener => listener(event));
   }
-
-  // Test helper: simulate opening
-  simulateOpen(): void {
-    this.readyState = MockEventSource.OPEN;
-    this.onopen?.();
-  }
-
-  // Test helper: simulate message event
-  simulateMessage(type: string, data: unknown): void {
-    const event = new MessageEvent(type, { data: JSON.stringify(data) });
-    (this.listeners[type] || []).forEach((fn) => fn(event));
-  }
-
-  // Test helper: simulate error
-  simulateError(): void {
-    this.onerror?.();
-  }
-
-  // Test helper: simulate permanent close (no auto-reconnect)
-  simulatePermanentClose(): void {
-    this.readyState = MockEventSource.CLOSED;
+  fail(permanent = false): void {
+    if (permanent) this.readyState = MockEventSource.CLOSED;
     this.onerror?.();
   }
 }
 
 describe('PublicNotificationStreamService', () => {
   let service: PublicNotificationStreamService;
+  let promotionService: jasmine.SpyObj<PromotionService>;
   let originalEventSource: typeof EventSource;
 
   beforeEach(() => {
     MockEventSource.instances = [];
-    originalEventSource = (window as any).EventSource;
-    (window as any).EventSource = MockEventSource as any;
-
-    TestBed.configureTestingModule({
-      providers: [
-        PublicNotificationStreamService,
-      ],
-    });
-
+    originalEventSource = window.EventSource;
+    (window as unknown as { EventSource: typeof EventSource }).EventSource = MockEventSource as unknown as typeof EventSource;
+    promotionService = jasmine.createSpyObj('PromotionService', ['getPromotionsFresh']);
+    promotionService.getPromotionsFresh.and.returnValue(of(page(['A', 'B', 'C', 'D'])));
+    TestBed.configureTestingModule({ providers: [
+      PublicNotificationStreamService,
+      { provide: PromotionService, useValue: promotionService },
+    ] });
     service = TestBed.inject(PublicNotificationStreamService);
   });
 
   afterEach(() => {
-    service.disconnect();
-    (window as any).EventSource = originalEventSource;
+    service.ngOnDestroy();
+    (window as unknown as { EventSource: typeof EventSource }).EventSource = originalEventSource;
   });
 
-  function getEventSource(): MockEventSource {
-    return MockEventSource.instances[MockEventSource.instances.length - 1];
-  }
-
-  it('should create', () => {
-    expect(service).toBeTruthy();
-  });
-
-  // --- Connection lifecycle ---
-
-  it('should connect and set connected=true on open', () => {
+  it('connects once, reports errors and reconnects a permanently closed stream', () => {
     service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
+    service.connect();
+    expect(MockEventSource.instances).toHaveSize(1);
+    source().open();
     expect(service.snapshot.connected).toBeTrue();
-    expect(service.snapshot.error).toBeFalse();
-  });
-
-  it('should set error=true on EventSource error', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateError();
-
-    expect(service.snapshot.connected).toBeFalse();
+    source().fail(true);
     expect(service.snapshot.error).toBeTrue();
+    service.connect();
+    expect(MockEventSource.instances).toHaveSize(2);
   });
 
-  it('should not open duplicate connection if already connected', () => {
+  it('disconnect closes the EventSource and marks the stream disconnected', () => {
     service.connect();
-    service.connect();
+    source().open();
 
-    expect(MockEventSource.instances.length).toBe(1);
-  });
-
-  it('should disconnect properly', () => {
-    service.connect();
-    const es = getEventSource();
     service.disconnect();
 
-    expect(es.readyState).toBe(MockEventSource.CLOSED);
+    expect(source().readyState).toBe(MockEventSource.CLOSED);
     expect(service.snapshot.connected).toBeFalse();
   });
 
-  it('should reconnect by closing old connection and opening new', () => {
+  it('reconnect closes the previous EventSource and creates a new connection', () => {
     service.connect();
-    const firstEs = getEventSource();
+    const previous = source();
+    previous.open();
+
     service.reconnect();
 
-    expect(firstEs.readyState).toBe(MockEventSource.CLOSED);
-    expect(MockEventSource.instances.length).toBe(2);
+    expect(previous.readyState).toBe(MockEventSource.CLOSED);
+    expect(MockEventSource.instances).toHaveSize(2);
+    expect(source()).not.toBe(previous);
   });
 
-  it('should allow reconnection when EventSource is permanently closed', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulatePermanentClose();
+  it('ignores malformed JSON without changing the badge or requesting the feed', fakeAsync(() => {
+    displayed(['A', 'B']);
+    connectAndEmit(event(10, 'A'));
 
-    service.connect();
-    expect(MockEventSource.instances.length).toBe(2);
-  });
-
-  // --- Server vs Displayed snapshot model ---
-
-  it('should use first SSE event as initial displayed snapshot when feed has not registered yet', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T00:00:00Z' });
-
-    // No badge because first event is used as initial displayed state
-    expect(service.snapshot.publishedCount).toBe(10);
-    expect(service.snapshot.newPromotionsCount).toBe(0);
-  });
-
-  it('should show badge when server publishedCount > displayed publishedCount', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    // First event sets initial displayed snapshot
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
-    expect(service.snapshot.newPromotionsCount).toBe(0);
-
-    // Second event: count increased by 3
-    es.simulateMessage('promotions', { publishedCount: 13, latestPublishedAt: '2026-07-01T12:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(3);
-  });
-
-  it('should detect staleness when feed registers snapshot older than server', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    // SSE delivers server state
-    es.simulateMessage('promotions', { publishedCount: 15, latestPublishedAt: '2026-07-02T10:00:00Z' });
-
-    // Initially no badge (first event is initial displayed)
-    expect(service.snapshot.newPromotionsCount).toBe(0);
-
-    // Feed loads from cache and registers an older snapshot
-    service.setDisplayedFeedSnapshot({ publishedCount: 12, latestPublishedAt: '2026-07-01T08:00:00Z' });
-
-    // Now badge should show difference
-    expect(service.snapshot.newPromotionsCount).toBe(3);
-  });
-
-  it('should show badge when feed registers snapshot with older latestPublishedAt', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-02T10:00:00Z' });
-
-    // Feed registers same count but older date
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T08:00:00Z' });
-
-    // At least 1 new promotion detected via date comparison
-    expect(service.snapshot.newPromotionsCount).toBe(1);
-  });
-
-  it('should clear badge when feed catches up with server', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T08:00:00Z' });
-
-    // Feed registers stale snapshot
-    service.setDisplayedFeedSnapshot({ publishedCount: 8, latestPublishedAt: '2026-06-30T10:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(2);
-
-    // Feed refreshes and catches up
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T08:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(0);
-  });
-
-  it('should not show negative count when server count decreases', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
-
-    // Server count decreases (deletion/rejection)
-    es.simulateMessage('promotions', { publishedCount: 8, latestPublishedAt: null });
+    expect(() => source().emitRaw('promotions', '{invalid')).not.toThrow();
+    tick(100);
 
     expect(service.snapshot.newPromotionsCount).toBe(0);
-  });
+    expect(promotionService.getPromotionsFresh).not.toHaveBeenCalled();
+  }));
 
-  it('should maintain badge across navigation (no auto-clear)', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
+  it('ignores missing, negative and decimal published counts', fakeAsync(() => {
+    displayed(['A', 'B']);
+    connectAndEmit(event(10, 'A'));
 
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: null });
-    service.setDisplayedFeedSnapshot({ publishedCount: 7, latestPublishedAt: null });
-    expect(service.snapshot.newPromotionsCount).toBe(3);
+    for (const payload of [
+      { latestPromotionId: 'X', latestPublishedAt: '2026-08-01T17:00:00Z' },
+      event(-1, 'X'),
+      event(10.5, 'X'),
+    ]) {
+      source().emit('promotions', payload);
+    }
+    tick(100);
 
-    // Badge persists — no auto-clear from navigation or other events
-    expect(service.snapshot.newPromotionsCount).toBe(3);
-  });
-
-  it('first SSE should not hide badge if feed loaded is stale', () => {
-    // Feed registers first (from cache)
-    service.setDisplayedFeedSnapshot({ publishedCount: 5, latestPublishedAt: '2026-06-30T00:00:00Z' });
-
-    // SSE connects later with newer state
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-    es.simulateMessage('promotions', { publishedCount: 8, latestPublishedAt: '2026-07-01T10:00:00Z' });
-
-    // Badge should show 3
-    expect(service.snapshot.newPromotionsCount).toBe(3);
-  });
-
-  // --- clearNewPromotions ---
-
-  it('should clear badge and align displayed snapshot to server on clearNewPromotions', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 15, latestPublishedAt: '2026-07-01T12:00:00Z' });
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-06-30T10:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(5);
-
-    service.clearNewPromotions();
     expect(service.snapshot.newPromotionsCount).toBe(0);
+    expect(promotionService.getPromotionsFresh).not.toHaveBeenCalled();
+  }));
 
-    // Further events use new aligned baseline
-    es.simulateMessage('promotions', { publishedCount: 17, latestPublishedAt: '2026-07-01T14:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(2);
-  });
-
-  it('should not show badge after clear when same event arrives', () => {
+  it('recreates a closed connection when the tab becomes visible', () => {
+    spyOnProperty(document, 'visibilityState', 'get').and.returnValue('visible');
     service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
+    source().close();
 
-    es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: '2026-07-01T12:00:00Z' });
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T08:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(2);
+    document.dispatchEvent(new Event('visibilitychange'));
 
-    service.clearNewPromotions();
-
-    // Same event (no change)
-    es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: '2026-07-01T12:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(0);
+    expect(MockEventSource.instances).toHaveSize(2);
   });
 
-  // --- setDisplayedFeedSnapshot edge cases ---
-
-  it('should handle setDisplayedFeedSnapshot before any SSE event arrives', () => {
-    // No SSE connected yet — feed loads before stream
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T00:00:00Z' });
-
-    // No crash, no badge yet
-    expect(service.snapshot.newPromotionsCount).toBe(0);
-
-    // SSE connects later
+  it('does not duplicate a live connection when the tab becomes visible', () => {
+    spyOnProperty(document, 'visibilityState', 'get').and.returnValue('visible');
     service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-    es.simulateMessage('promotions', { publishedCount: 12, latestPublishedAt: '2026-07-01T10:00:00Z' });
+    source().open();
 
-    // Now badge shows because displayed (10) < server (12)
-    expect(service.snapshot.newPromotionsCount).toBe(2);
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    expect(MockEventSource.instances).toHaveSize(1);
   });
 
-  it('should recalculate when setDisplayedFeedSnapshot is called with higher count', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 10, latestPublishedAt: '2026-07-01T10:00:00Z' });
-    service.setDisplayedFeedSnapshot({ publishedCount: 8, latestPublishedAt: '2026-06-30T00:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(2);
-
-    // Feed refreshes and loads all 10
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: '2026-07-01T10:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(0);
-  });
-
-  // --- Reconnect preserves state ---
-
-  it('should preserve badge count across reconnect', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    es.simulateMessage('promotions', { publishedCount: 13, latestPublishedAt: null });
-    service.setDisplayedFeedSnapshot({ publishedCount: 10, latestPublishedAt: null });
-    expect(service.snapshot.newPromotionsCount).toBe(3);
-
-    // Reconnect
-    service.reconnect();
-    const es2 = getEventSource();
-    es2.simulateOpen();
-
-    // Stored badge count is maintained in state
-    expect(service.snapshot.newPromotionsCount).toBe(3);
-
-    // New event uses preserved displayed snapshot (10)
-    es2.simulateMessage('promotions', { publishedCount: 14, latestPublishedAt: null });
-    expect(service.snapshot.newPromotionsCount).toBe(4);
-  });
-
-  // --- Format ---
-
-  it('should format count correctly', () => {
+  it('formats exact and lower-bound counts without duplicate plus signs', () => {
     expect(service.formatCount(0)).toBe('');
     expect(service.formatCount(1)).toBe('1');
-    expect(service.formatCount(50)).toBe('50');
     expect(service.formatCount(99)).toBe('99');
     expect(service.formatCount(100)).toBe('99+');
-    expect(service.formatCount(500)).toBe('99+');
+    expect(service.formatCount(12, true)).toBe('12+');
+    expect(service.formatCount(100, true)).toBe('99+');
   });
 
-  // --- Malformed data ---
-
-  it('should handle malformed JSON gracefully', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    // Manually dispatch a malformed event
-    const event = new MessageEvent('promotions', { data: 'not-json' });
-    (es as any).listeners['promotions'][0](event);
-
-    // Should not crash, state unchanged
-    expect(service.snapshot.publishedCount).toBe(0);
+  it('uses the first SSE event only as a technical baseline', fakeAsync(() => {
+    displayed(['A', 'B', 'C', 'D']);
+    connectAndEmit(event(10, 'A', '2026-07-31T14:00:00-03:00'));
+    tick(100);
+    expect(promotionService.getPromotionsFresh).not.toHaveBeenCalled();
     expect(service.snapshot.newPromotionsCount).toBe(0);
-  });
+  }));
 
-  // --- Visibility change ---
+  it('does not verify twice for identical SSE fingerprints', fakeAsync(() => {
+    displayed(['A', 'B', 'C', 'D']);
+    connectAndEmit(event(10, 'A'));
+    source().emit('promotions', event(11, 'X'));
+    source().emit('promotions', event(11, 'X'));
+    tick(81);
+    expect(promotionService.getPromotionsFresh).toHaveBeenCalledTimes(1);
+  }));
 
-  it('should reconnect when tab becomes visible and connection is closed', () => {
+  it('normalizes equivalent timestamp formats in the SSE fingerprint', fakeAsync(() => {
+    displayed(['A', 'B']);
+    connectAndEmit(event(10, 'A', '2026-07-31T14:00:00-03:00'));
+    source().emit('promotions', event(10, 'A', '2026-07-31T17:00:00Z'));
+    tick(100);
+    expect(promotionService.getPromotionsFresh).not.toHaveBeenCalled();
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+  }));
+
+  it('keeps zero when count or timestamp changes but fresh IDs are unchanged', fakeAsync(() => {
+    displayed(['A', 'B', 'C', 'D']);
+    connectAndEmit(event(10, 'A', '2026-07-31T17:00:00Z'));
+    source().emit('promotions', event(99, 'A', '2026-08-01T17:00:00Z'));
+    tick(81);
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+  }));
+
+  it('confirms one and two leading new IDs', fakeAsync(() => {
+    displayed(['A', 'B', 'C', 'D']);
+    connectAndEmit(event(10, 'A'));
+    promotionService.getPromotionsFresh.and.returnValue(of(page(['X', 'A', 'B', 'C'])));
+    source().emit('promotions', event(11, 'X'));
+    tick(81);
+    expect(service.snapshot.newPromotionsCount).toBe(1);
+
+    service.setDisplayedFeedSnapshot(snapshot(['A', 'B', 'C', 'D']));
+    promotionService.getPromotionsFresh.and.returnValue(of(page(['X', 'Y', 'A', 'B'])));
+    source().emit('promotions', event(12, 'Y'));
+    tick(81);
+    expect(service.snapshot.newPromotionsCount).toBe(2);
+  }));
+
+  it('does not announce removals, retroactive insertion or reordering below an existing leader', fakeAsync(() => {
+    displayed(['A', 'B', 'C', 'D']);
+    connectAndEmit(event(10, 'A'));
+    let publishedCount = 11;
+    for (const ids of [['A', 'C', 'D', 'E'], ['A', 'B', 'X', 'C'], ['B', 'A', 'C', 'D']]) {
+      promotionService.getPromotionsFresh.and.returnValue(of(page(ids)));
+      source().emit('promotions', event(publishedCount++, ids[0]));
+      tick(81);
+      expect(service.snapshot.newPromotionsCount).toBe(0);
+    }
+  }));
+
+  it('marks a page with no common ID as a proven lower bound', fakeAsync(() => {
+    displayed(['A', 'B', 'C', 'D']);
+    connectAndEmit(event(10, 'A'));
+    promotionService.getPromotionsFresh.and.returnValue(of(page(['W', 'X', 'Y', 'Z'])));
+    source().emit('promotions', event(14, 'W'));
+    tick(81);
+    expect(service.snapshot.newPromotionsCount).toBe(4);
+    expect(service.snapshot.newPromotionsCountIsLowerBound).toBeTrue();
+    expect(service.formatCount(4, true)).toBe('4+');
+  }));
+
+  it('discards a verification response after the displayed feed changes', fakeAsync(() => {
+    const response = new Subject<PagedResponse<Promotion>>();
+    promotionService.getPromotionsFresh.and.returnValue(response);
+    displayed(['A', 'B', 'C']);
+    connectAndEmit(event(10, 'A'));
+    source().emit('promotions', event(11, 'X'));
+    tick(81);
+    service.setDisplayedFeedSnapshot(snapshot(['X', 'A', 'B']));
+    response.next(page(['X', 'A', 'B']));
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+  }));
+
+  it('does not resurrect a badge when an SSE event arrives after fresh content was rendered', fakeAsync(() => {
+    displayed(['A', 'B', 'C']);
+    connectAndEmit(event(10, 'A'));
+    service.setDisplayedFeedSnapshot(snapshot(['X', 'A', 'B']));
+    promotionService.getPromotionsFresh.and.returnValue(of(page(['X', 'A', 'B'])));
+
+    source().emit('promotions', event(11, 'X'));
+    tick(81);
+
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+  }));
+
+  it('cancels an obsolete verification when a newer SSE event arrives', fakeAsync(() => {
+    const first = new Subject<PagedResponse<Promotion>>();
+    const second = new Subject<PagedResponse<Promotion>>();
+    promotionService.getPromotionsFresh.and.returnValues(first, second);
+    displayed(['A', 'B', 'C']);
+    connectAndEmit(event(10, 'A'));
+    source().emit('promotions', event(11, 'X'));
+    tick(81);
+    source().emit('promotions', event(12, 'Y'));
+    tick(81);
+    first.next(page(['X', 'A', 'B']));
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+    second.next(page(['Y', 'X', 'A']));
+    expect(service.snapshot.newPromotionsCount).toBe(2);
+  }));
+
+  it('keeps zero when fresh verification fails', fakeAsync(() => {
+    promotionService.getPromotionsFresh.and.returnValue(throwError(() => new Error('offline')));
+    displayed(['A', 'B']);
+    connectAndEmit(event(10, 'A'));
+    source().emit('promotions', event(11, 'X'));
+    tick(81);
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+  }));
+
+  it('does not create a badge before a displayed baseline exists', fakeAsync(() => {
+    connectAndEmit(event(10, 'A'));
+    source().emit('promotions', event(11, 'X'));
+    tick(100);
+    expect(promotionService.getPromotionsFresh).not.toHaveBeenCalled();
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+  }));
+
+  it('ngOnDestroy cancels verification and closes the EventSource', fakeAsync(() => {
+    const response = new Subject<PagedResponse<Promotion>>();
+    promotionService.getPromotionsFresh.and.returnValue(response);
+    displayed(['A', 'B']);
+    connectAndEmit(event(10, 'A'));
+    source().emit('promotions', event(11, 'X'));
+    tick(81);
+    const activeSource = source();
+
+    service.ngOnDestroy();
+    response.next(page(['X', 'A']));
+
+    expect(activeSource.readyState).toBe(MockEventSource.CLOSED);
+    expect(service.snapshot.connected).toBeFalse();
+    expect(service.snapshot.newPromotionsCount).toBe(0);
+  }));
+
+  function displayed(ids: string[]): void {
+    service.setDisplayedFeedSnapshot(snapshot(ids));
+  }
+
+  function connectAndEmit(payload: object): void {
     service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
+    source().open();
+    source().emit('promotions', payload);
+  }
 
-    // Simulate permanent close
-    es.simulatePermanentClose();
-    expect(MockEventSource.instances.length).toBe(1);
-
-    // Simulate tab becoming visible
-    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
-    document.dispatchEvent(new Event('visibilitychange'));
-
-    // Should have created a new connection
-    expect(MockEventSource.instances.length).toBe(2);
-
-    // Cleanup
-    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
-  });
-
-  it('should not create duplicate connection when tab becomes visible and connection is alive', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    // Tab becomes visible while connection is active
-    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
-    document.dispatchEvent(new Event('visibilitychange'));
-
-    // Should NOT create another connection
-    expect(MockEventSource.instances.length).toBe(1);
-  });
-
-  // --- Cache scenario: navigation does not clear badge ---
-
-  it('should not clear badge when navigating away and back with cache', () => {
-    service.connect();
-    const es = getEventSource();
-    es.simulateOpen();
-
-    // Server says 15
-    es.simulateMessage('promotions', { publishedCount: 15, latestPublishedAt: '2026-07-02T10:00:00Z' });
-
-    // Feed loaded from cache shows 12
-    service.setDisplayedFeedSnapshot({ publishedCount: 12, latestPublishedAt: '2026-07-01T08:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(3);
-
-    // User navigates away (no action changes badge)
-    // User comes back — feed restores same cache
-    service.setDisplayedFeedSnapshot({ publishedCount: 12, latestPublishedAt: '2026-07-01T08:00:00Z' });
-    expect(service.snapshot.newPromotionsCount).toBe(3); // Still stale
-  });
+  function source(): MockEventSource {
+    return MockEventSource.instances[MockEventSource.instances.length - 1];
+  }
 });
+
+function event(publishedCount: number, latestPromotionId: string, latestPublishedAt = '2026-07-31T17:00:00Z') {
+  return { publishedCount, latestPromotionId, latestPublishedAt };
+}
+
+function snapshot(ids: string[]) {
+  return {
+    promotionIds: ids,
+    latestPromotionId: ids[0] ?? null,
+    latestPublishedAt: '2026-07-31T17:00:00Z',
+    totalElements: ids.length,
+  };
+}
+
+function page(ids: string[]): PagedResponse<Promotion> {
+  return {
+    content: ids.map(id => ({ id } as Promotion)),
+    page: 0,
+    size: 12,
+    totalPages: 1,
+    totalElements: ids.length,
+  };
+}
