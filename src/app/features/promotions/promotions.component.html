@@ -21,10 +21,13 @@
       type="button"
       class="promotions-feed__new-bar"
       (click)="refreshFeed()"
-      [attr.aria-label]="'Há ' + newPromotionsBadge + ' novas promoções. Clique para atualizar.'"
+      [attr.aria-label]="newPromotionsMessage + ' Clique para atualizar.'"
     >
-      Há {{ newPromotionsBadge }} novas promoções. <span class="promotions-feed__new-bar-action">Atualizar</span>
+      {{ newPromotionsMessage }} <span class="promotions-feed__new-bar-action">Atualizar</span>
     </button>
+  }
+  @if (refreshError && !loading) {
+    <p class="promotions-feed__refresh-error" role="alert">{{ refreshError }}</p>
   }
   @if (loading) {
     <app-loading-state />

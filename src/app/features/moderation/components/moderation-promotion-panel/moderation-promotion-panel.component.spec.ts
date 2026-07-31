@@ -323,7 +323,7 @@ describe('ModerationPromotionPanelComponent', () => {
     fixture.destroy();
   });
 
-  it('keeps categories in the main column and trust signals in the store column', () => {
+  it('spans categories below the image and main data while keeping trust signals in the store column', () => {
     const fixture = create('create');
     const columns = fixture.nativeElement.querySelectorAll('.promotion-form__column') as NodeListOf<HTMLElement>;
     const mainColumn = fixture.nativeElement.querySelector('.promotion-form__column--main') as HTMLElement;
@@ -332,10 +332,10 @@ describe('ModerationPromotionPanelComponent', () => {
     const trust = fixture.nativeElement.querySelector('.trust-section') as HTMLElement;
 
     expect(columns.length).toBe(2);
-    expect(mainColumn.contains(categories)).toBeTrue();
+    expect(mainColumn.contains(categories)).toBeFalse();
+    expect(categories.parentElement).toBe(fixture.nativeElement.querySelector('.promotion-form'));
     expect(storeColumn.contains(trust)).toBeTrue();
-    expect(fixture.nativeElement.querySelector('.promotion-form__content > .trust-section')).toBeNull();
-    expect(getComputedStyle(categories).flexGrow).toBe('1');
+    expect(getComputedStyle(categories).gridArea).toBe('categories');
     fixture.destroy();
   });
 

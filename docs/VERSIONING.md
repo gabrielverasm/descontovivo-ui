@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.33**
+**0.5.34**
 
 ## Convenção
 
@@ -29,6 +29,7 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.5.34 | 2026-07-31 | Amplia o seletor responsivo para três colunas, sinaliza categorias novas e elimina avisos falsos de promoções por confirmação fresca dos IDs |
 | 0.5.33 | 2026-07-27 | Padroniza notificações operacionais e remove código comprovadamente sem uso |
 | 0.5.32 | 2026-07-27 | Adiciona pesquisa e inclusão de categorias, notificações flutuantes e títulos compactos nos cards |
 | 0.5.31 | 2026-07-26 | Aprimora o layout das categorias, ações de loja e selos no formulário de moderação |

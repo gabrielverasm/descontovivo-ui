@@ -38,7 +38,11 @@
               <label class="category-select__choice">
                 <input type="checkbox" [checked]="isSelected(category.name)" [disabled]="disabled || renaming" (change)="toggle(category.name)" />
                 <span class="category-select__name">{{ category.name }}</span>
-                <small>{{ category.promotionCount }}</small>
+                @if (isPendingCreation(category.name)) {
+                  <small class="category-select__pending">Nova — será criada ao salvar</small>
+                } @else {
+                  <small>{{ category.promotionCount }}</small>
+                }
               </label>
               <button type="button" class="category-select__edit" [disabled]="disabled || renaming"
                 (click)="startEdit(category.name, $event)" [attr.aria-label]="'Editar categoria ' + category.name">✎</button>

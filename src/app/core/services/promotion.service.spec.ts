@@ -18,6 +18,7 @@ describe('PromotionService', () => {
       candidate.url.endsWith('/promotions')
       && candidate.params.get('page') === '0'
       && candidate.params.get('size') === '12'
+      && /^\d+$/.test(candidate.params.get('_fresh') ?? '')
     );
     expect(request.request.transferCache).toBeFalse();
     request.flush({ content: [], totalElements: 0, totalPages: 0, size: 12, page: 0 });

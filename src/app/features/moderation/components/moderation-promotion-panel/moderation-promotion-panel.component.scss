@@ -5,12 +5,12 @@
 .promotion-form-card__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .promotion-form-card__header h2, h3 { margin: 0; color: #1e293b; }
 .promotion-form-card__header h2 { min-width: 0; font-size: 1rem; }
-.promotion-form { display: grid; grid-template-columns: minmax(210px, .72fr) minmax(0, 2fr); grid-template-areas: "media content" "reject reject" "footer footer"; gap: 1rem; min-width: 0; }
+.promotion-form { display: grid; grid-template-columns: minmax(210px, .72fr) repeat(2, minmax(0, 1fr)); grid-template-areas: "media main store" "categories categories store" "reject reject reject" "footer footer footer"; align-items: start; gap: 1rem; min-width: 0; }
 .promotion-form__media { grid-area: media; display: grid; align-content: start; gap: .7rem; min-width: 0; }
-.promotion-form__content { grid-area: content; min-width: 0; }
-.promotion-form__columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 1rem; min-width: 0; }
 .promotion-form__column { display: flex; flex-direction: column; align-items: stretch; gap: .55rem; min-width: 0; }
-.promotion-form__column--main app-promotion-category-selector { display: block; flex: 1 1 240px; min-height: 240px; max-height: 330px; }
+.promotion-form__column--main { grid-area: main; }
+.promotion-form__column--store { grid-area: store; }
+.promotion-form__categories { grid-area: categories; display: block; height: clamp(300px, 32vh, 360px); min-height: 300px; max-height: 400px; }
 .field { display: grid; gap: .22rem; min-width: 0; }
 .field input, .field select { width: 100%; min-width: 0; min-height: 38px; border: 1px solid #cbd5e1; border-radius: 7px; padding: .45rem .65rem; background: #fff; color: #1e293b; font: inherit; font-size: .84rem; }
 .field input:focus, .field select:focus { outline: 3px solid rgba(37, 99, 235, .2); border-color: #2563eb; }
@@ -44,11 +44,11 @@
 .button--danger-ghost { color: #b91c1c; }
 .button--ghost { color: #64748b; }
 @media (max-width: 900px) {
-  .promotion-form { grid-template-columns: 1fr; grid-template-areas: "media" "content" "reject" "footer"; }
+  .promotion-form { grid-template-columns: 1fr; grid-template-areas: "media" "main" "categories" "store" "reject" "footer"; }
 }
 @media (max-width: 680px) {
-  .promotion-form__columns, .trust-section__numbers, .field-row { grid-template-columns: 1fr; }
-  .promotion-form__column--main app-promotion-category-selector { flex-basis: 240px; min-height: 220px; max-height: 260px; }
+  .trust-section__numbers, .field-row { grid-template-columns: 1fr; }
+  .promotion-form__categories { height: 260px; min-height: 220px; max-height: 280px; }
   .seller-control { flex-wrap: wrap; }
   .seller-control input { flex-basis: 100%; width: auto; }
   .seller-control__actions { width: 100%; justify-content: flex-end; border-top: 1px solid #e2e8f0; border-left: 0; }

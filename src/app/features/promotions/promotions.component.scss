@@ -116,6 +116,14 @@
   text-align: center;
 }
 
+.promotions-feed__refresh-error {
+  margin: 0 0 1rem;
+  color: #b91c1c;
+  font-size: .85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
 .promotions-feed__empty {
   display: grid;
   place-items: center;

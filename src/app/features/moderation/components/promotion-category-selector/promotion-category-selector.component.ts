@@ -10,6 +10,7 @@ import { ModerationCategory, ModerationCategoryService } from '../../../../core/
   styleUrl: './promotion-category-selector.component.scss',
 })
 export class PromotionCategorySelectorComponent implements OnInit {
+  private static readonly MAX_SELECTION = 4;
   private readonly service = inject(ModerationCategoryService);
   private readonly localCategoryNames = new Set<string>();
 
@@ -54,12 +55,15 @@ export class PromotionCategorySelectorComponent implements OnInit {
 
   get addDisabled(): boolean {
     return this.disabled || this.renaming || !this.normalizedSearch || this.normalizedSearch.length > 50
-      || (!!this.matchingCategory && this.isSelected(this.matchingCategory.name));
+      || (!!this.matchingCategory && this.isSelected(this.matchingCategory.name))
+      || (this.selected.length >= PromotionCategorySelectorComponent.MAX_SELECTION
+        && (!this.matchingCategory || !this.isSelected(this.matchingCategory.name)));
   }
 
   get addLabel(): string {
     if (!this.normalizedSearch) return 'Digite uma categoria para adicionar';
     if (this.matchingCategory && this.isSelected(this.matchingCategory.name)) return 'Categoria já selecionada';
+    if (this.selected.length >= PromotionCategorySelectorComponent.MAX_SELECTION) return 'Selecione no máximo quatro categorias';
     return this.matchingCategory
       ? `Selecionar categoria ${this.matchingCategory.name}`
       : `Adicionar categoria ${this.normalizedSearch}`;
@@ -73,6 +77,9 @@ export class PromotionCategorySelectorComponent implements OnInit {
     this.service.list().subscribe({
       next: categories => {
         const returnedNames = new Set(categories.map(category => this.normalizeForComparison(category.name)));
+        const canonicalByKey = new Map(categories.map(category =>
+          [this.normalizeForComparison(category.name), category.name],
+        ));
         this.localCategoryNames.forEach(name => {
           if (returnedNames.has(this.normalizeForComparison(name))) this.localCategoryNames.delete(name);
         });
@@ -81,6 +88,12 @@ export class PromotionCategorySelectorComponent implements OnInit {
           && !returnedNames.has(this.normalizeForComparison(category.name)),
         );
         this.categories = [...categories, ...pendingLocal];
+        const canonicalSelection = this.selected.map(name =>
+          canonicalByKey.get(this.normalizeForComparison(name)) ?? name,
+        );
+        if (canonicalSelection.some((name, index) => name !== this.selected[index])) {
+          this.selectedChange.emit(canonicalSelection);
+        }
         this.loading = false;
       },
       error: () => { this.error = 'Não foi possível carregar as categorias.'; this.loading = false; },
@@ -88,9 +101,16 @@ export class PromotionCategorySelectorComponent implements OnInit {
   }
 
   isSelected(name: string): boolean { return this.selected.includes(name); }
+  isPendingCreation(name: string): boolean { return this.localCategoryNames.has(name); }
 
   toggle(name: string): void {
     if (this.disabled || this.renaming) return;
+    if (!this.isSelected(name) && this.selected.length >= PromotionCategorySelectorComponent.MAX_SELECTION) {
+      this.error = 'Selecione no máximo quatro categorias.';
+      this.announcement = this.error;
+      return;
+    }
+    this.error = '';
     const next = this.isSelected(name) ? this.selected.filter(value => value !== name) : [...this.selected, name];
     this.selectedChange.emit(next);
   }
@@ -155,9 +175,22 @@ export class PromotionCategorySelectorComponent implements OnInit {
     event?.preventDefault();
     event?.stopPropagation();
     if (this.renaming) return;
-    const newName = this.editingName.trim();
+    const newName = this.editingName.trim().replace(/\s+/g, ' ');
     if (!newName) { this.error = 'O nome da categoria não pode ficar vazio.'; return; }
+    if (newName.length > 50) { this.error = 'O nome da categoria deve ter no máximo 50 caracteres.'; return; }
     if (newName === oldName) { this.cancelEdit(); return; }
+    if (this.localCategoryNames.has(oldName)) {
+      const equivalent = this.categories.find(category =>
+        category.name !== oldName
+        && this.normalizeForComparison(category.name) === this.normalizeForComparison(newName),
+      );
+      if (equivalent) {
+        this.replaceLocalCategory(oldName, equivalent.name, true);
+        return;
+      }
+      this.replaceLocalCategory(oldName, newName, false);
+      return;
+    }
     this.error = '';
     this.renaming = true;
     this.service.rename(oldName, newName).subscribe({
@@ -174,6 +207,22 @@ export class PromotionCategorySelectorComponent implements OnInit {
         this.error = response?.error?.message || 'Não foi possível renomear a categoria.';
       },
     });
+  }
+
+  private replaceLocalCategory(oldName: string, newName: string, merge: boolean): void {
+    this.localCategoryNames.delete(oldName);
+    if (!merge) this.localCategoryNames.add(newName);
+    this.categories = merge
+      ? this.categories.filter(category => category.name !== oldName)
+      : this.categories.map(category => category.name === oldName ? { ...category, name: newName } : category);
+    if (this.isSelected(oldName)) {
+      const selected = this.selected.map(value => value === oldName ? newName : value);
+      this.selectedChange.emit([...new Set(selected)]);
+    }
+    this.announcement = merge
+      ? `Categoria substituída pelo nome existente ${newName}.`
+      : `Categoria local renomeada para ${newName}.`;
+    this.cancelEdit();
   }
 
   private normalizeForComparison(value: string): string {

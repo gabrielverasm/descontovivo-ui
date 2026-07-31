@@ -21,9 +21,7 @@
       />
     </aside>
 
-    <div class="promotion-form__content">
-      <div class="promotion-form__columns">
-        <section class="promotion-form__column promotion-form__column--main">
+    <section class="promotion-form__column promotion-form__column--main">
           <h3>Dados principais</h3>
           <label class="field"><span class="sr-only">Título{{ mode === 'create' ? ' obrigatório' : '' }}</span><input #titleInput type="text" [(ngModel)]="editForm.title" name="title" [placeholder]="'Título' + (mode === 'create' ? ' *' : '')" /></label>
           <label class="field"><span class="sr-only">Link da oferta{{ mode === 'create' ? ' obrigatório' : '' }}</span><input type="url" [ngModel]="editForm.url" (ngModelChange)="onOfferUrlChange($event)" name="url" [placeholder]="'Link da oferta' + (mode === 'create' ? ' *' : '')" /></label>
@@ -33,14 +31,16 @@
             <label class="field"><span class="sr-only">Preço atual</span><input aria-label="Preço atual" type="text" inputmode="numeric" [appBrlCurrencyInput]="editForm.currentPrice" (appBrlCurrencyInputChange)="editForm.currentPrice = $event" placeholder="Preço atual *" /></label>
             <label class="field"><span class="sr-only">Preço original</span><input aria-label="Preço original" type="text" inputmode="numeric" [appBrlCurrencyInput]="editForm.originalPrice" (appBrlCurrencyInputChange)="editForm.originalPrice = $event" placeholder="Preço original" /></label>
           </div>
-          <app-promotion-category-selector
-            [selected]="editForm.categories"
-            [disabled]="isActionDisabled"
-            (selectedChange)="updateCategories($event)"
-          />
-        </section>
+    </section>
 
-        <section class="promotion-form__column promotion-form__column--store">
+    <app-promotion-category-selector
+      class="promotion-form__categories"
+      [selected]="editForm.categories"
+      [disabled]="isActionDisabled"
+      (selectedChange)="updateCategories($event)"
+    />
+
+    <section class="promotion-form__column promotion-form__column--store">
           <h3>Loja, venda e entrega</h3>
           <label class="field"><span class="sr-only">Nome da loja</span><input type="text" [ngModel]="editForm.storeName" (ngModelChange)="onStoreNameChange($event)" name="storeName" placeholder="Nome da loja *" /></label>
           <label class="check-field">
@@ -94,9 +94,7 @@
               }
             </div>
           </section>
-        </section>
-      </div>
-    </div>
+    </section>
 
     @if (mode === 'validate' && showRejectInput) {
       <div class="promotion-form__reject">

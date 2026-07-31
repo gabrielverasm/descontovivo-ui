@@ -35,7 +35,10 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
   readonly uiVersion = UI_VERSION;
   readonly apiVersion$: Observable<string | null> = this.versionService.getApiVersion();
 
-  notificationState: PublicNotificationState = { connected: false, error: false, publishedCount: 0, latestPublishedAt: null, newPromotionsCount: 0 };
+  notificationState: PublicNotificationState = {
+    connected: false, error: false, publishedCount: 0, latestPromotionId: null,
+    latestPublishedAt: null, newPromotionsCount: 0, newPromotionsCountIsLowerBound: false,
+  };
   moderationState: ModerationNotificationState = { connected: false, error: false, moderationPendingCount: 0 };
   adminState: AdminNotificationState = { connected: false, error: false, dataRequestsOpenCount: 0 };
 
@@ -249,7 +252,10 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
   }
 
   get badgeText(): string {
-    return this.notificationStream.formatCount(this.notificationState.newPromotionsCount);
+    return this.notificationStream.formatCount(
+      this.notificationState.newPromotionsCount,
+      this.notificationState.newPromotionsCountIsLowerBound,
+    );
   }
 
   get hasNewPromotions(): boolean {
@@ -289,9 +295,18 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
   // --- Browser tab title management ---
 
   get browserTabNotificationCount(): number {
-    return this.notificationState.newPromotionsCount
-      + this.moderationState.moderationPendingCount
-      + this.adminState.dataRequestsOpenCount;
+    return this.browserTabNotificationTotal.count;
+  }
+
+  get browserTabNotificationTotal(): { count: number; isLowerBound: boolean } {
+    const publicCount = this.notificationState.newPromotionsCount;
+    return {
+      count: publicCount
+        + this.moderationState.moderationPendingCount
+        + this.adminState.dataRequestsOpenCount,
+      isLowerBound: publicCount > 0
+        && this.notificationState.newPromotionsCountIsLowerBound,
+    };
   }
 
   private updateBrowserNotificationTitle(): void {
@@ -299,10 +314,10 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
 
     const currentTitle = this.titleService.getTitle();
     const stripped = this.stripNotificationPrefix(currentTitle);
-    const total = this.browserTabNotificationCount;
+    const total = this.browserTabNotificationTotal;
 
-    if (total > 0) {
-      const prefix = this.formatNotificationCount(total);
+    if (total.count > 0) {
+      const prefix = this.formatNotificationCount(total.count, total.isLowerBound);
       this.titleService.setTitle(`(${prefix}) ${stripped}`);
     } else {
       this.titleService.setTitle(stripped);
@@ -313,10 +328,10 @@ export class PublicLayoutComponent implements OnInit, OnDestroy {
     return title.replace(/^\(\d+\+?\)\s+/, '');
   }
 
-  private formatNotificationCount(count: number): string {
+  private formatNotificationCount(count: number, isLowerBound = false): string {
     if (count <= 0) return '';
     if (count > 99) return '99+';
-    return String(count);
+    return `${count}${isLowerBound ? '+' : ''}`;
   }
 
   logout(): void {

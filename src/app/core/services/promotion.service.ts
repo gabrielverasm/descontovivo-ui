@@ -29,7 +29,10 @@ export class PromotionService {
   }
 
   getPromotionsFresh(page = 0, size = 20): Observable<PagedResponse<Promotion>> {
-    const params = new HttpParams().set('page', page).set('size', size);
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size)
+      .set('_fresh', Date.now().toString());
     return this.http.get<PagedResponse<Promotion>>(this.baseUrl, {
       params,
       transferCache: false,
