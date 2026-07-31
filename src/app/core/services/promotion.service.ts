@@ -63,14 +63,28 @@ export class PromotionService {
   }
 
   getRelatedPromotions(promotion: Promotion, limit = 4): Observable<Promotion[]> {
+    const slug = promotion.slug?.trim();
+    const currentCategories = this.categoryKeys(promotion);
+    if (!slug || currentCategories.size === 0) return of([]);
+
     return this.http
-      .get<PagedResponse<Promotion>>(this.baseUrl, {
+      .get<PagedResponse<Promotion>>(`${this.baseUrl}/${encodeURIComponent(slug)}/related`, {
         params: new HttpParams().set('size', limit),
       })
       .pipe(
-        map((res) =>
-          res.content.filter((p) => p.id !== promotion.id).slice(0, limit).map((p) => this.normalize(p)),
-        ),
+        map((res) => {
+          const seen = new Set<string>();
+          return res.content
+            .map((item) => this.normalize(item))
+            .filter((item) => {
+              if (item.id === promotion.id || !item.slug?.trim() || seen.has(item.id)) return false;
+              const sharesCategory = [...this.categoryKeys(item)].some(category => currentCategories.has(category));
+              if (!sharesCategory) return false;
+              seen.add(item.id);
+              return true;
+            })
+            .slice(0, limit);
+        }),
         catchError(() => of([])),
       );
   }
@@ -95,6 +109,14 @@ export class PromotionService {
       createdBy: p.createdBy || '',
       createdAt: p.publishedAt || p.createdAt || new Date().toISOString(),
       imageUrl: p.imageUrl || '',
+      categories: p.categories?.filter(Boolean) ?? (p.category ? [p.category] : []),
     };
+  }
+
+  private categoryKeys(promotion: Promotion): Set<string> {
+    const categories = promotion.categories?.length
+      ? promotion.categories
+      : promotion.category ? [promotion.category] : [];
+    return new Set(categories.map(category => category.trim().toLocaleLowerCase('pt-BR')).filter(Boolean));
   }
 }

@@ -183,6 +183,14 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
 
   get isAuthenticated(): boolean { return this.authService.canComment(); }
 
+  get promotionCategories(): string[] {
+    if (!this.promotion) return [];
+    const categories = this.promotion.categories?.length
+      ? this.promotion.categories
+      : this.promotion.category ? [this.promotion.category] : [];
+    return [...new Set(categories.map(category => category.trim()).filter(Boolean))];
+  }
+
   get totalCommentsCount() {
     return this.comments.length || this.promotion?.commentsCount || 0;
   }
@@ -377,7 +385,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   private loadRelatedPromotions(): void {
-    if (!this.promotion) {
+    if (!this.promotion || !this.promotion.slug || this.promotionCategories.length === 0) {
       this.relatedPromotions = [];
       return;
     }

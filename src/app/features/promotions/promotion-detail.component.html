@@ -39,7 +39,15 @@
 
         <app-promotion-price [promotion]="promotion" />
 
-        <p class="promotion-detail__store">{{ promotion.storeName }} · {{ promotion.category }}</p>
+        <p class="promotion-detail__store">{{ promotion.storeName }}</p>
+
+        @if (promotionCategories.length) {
+          <ul class="promotion-detail__categories" aria-label="Categorias da promoção">
+            @for (category of promotionCategories; track category) {
+              <li>{{ category }}</li>
+            }
+          </ul>
+        }
 
         <div class="promotion-detail__tags" aria-label="Tags da promoção">
           @for (tag of promotion.tags; track tag) {

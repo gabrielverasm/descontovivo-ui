@@ -74,6 +74,30 @@ describe('PromotionDetailComponent public actions', () => {
     host.querySelector<HTMLButtonElement>('.promotion-detail__share-btn')!.click();
     expect(share).toHaveBeenCalledTimes(1);
   });
+
+  it('renders one category from the legacy field without creating an empty block', () => {
+    const categories = fixture.nativeElement.querySelectorAll('.promotion-detail__categories li');
+    expect(categories.length).toBe(1);
+    expect(categories[0].textContent?.trim()).toBe('Tecnologia');
+
+    component.promotion = { ...promotion, category: '', categories: [] } as unknown as Promotion;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.promotion-detail__categories')).toBeNull();
+  });
+
+  it('renders every category as a semantic wrapping list', () => {
+    component.promotion = {
+      ...promotion,
+      categories: ['Casa', 'Saúde', 'Fitness'],
+    } as unknown as Promotion;
+    fixture.detectChanges();
+
+    const list = fixture.nativeElement.querySelector('.promotion-detail__categories') as HTMLUListElement;
+    expect(list.tagName).toBe('UL');
+    expect(list.getAttribute('aria-label')).toBe('Categorias da promoção');
+    expect(Array.from(list.querySelectorAll('li')).map(item => item.textContent?.trim()))
+      .toEqual(['Casa', 'Saúde', 'Fitness']);
+  });
 });
 
 describe('PromotionDetailComponent administrative action', () => {

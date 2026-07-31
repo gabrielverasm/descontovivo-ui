@@ -98,19 +98,24 @@
 
 .category-select__item {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: .35rem;
   min-width: 0;
-  min-height: 32px;
+  min-height: 44px;
   border: 1px solid #dbe3ee;
   border-radius: 7px;
   background: #fff;
-  padding: .1rem .25rem;
+  padding: .3rem .35rem;
 }
 
 .category-select__item--selected {
   border-color: #93c5fd;
   background: #eff6ff;
+}
+
+.category-select__item--pending {
+  border-color: #86efac;
+  background: #f0fdf4;
 }
 
 .category-select__choice {
@@ -120,8 +125,16 @@
   gap: .35rem;
   flex: 1;
   min-width: 0;
-  min-height: 30px;
+  min-height: 36px;
   cursor: pointer;
+}
+
+.category-select__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: .1rem;
+  min-width: 0;
 }
 
 .category-select__choice input {
@@ -139,15 +152,18 @@
   font-weight: 700;
 }
 
-.category-select__choice small {
+.category-select__count {
   color: #64748b;
   font-size: .66rem;
 }
 
 .category-select__pending {
-  grid-column: 2 / -1;
+  display: block;
   color: #047857 !important;
+  font-size: .64rem;
   font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .category-select__edit,
