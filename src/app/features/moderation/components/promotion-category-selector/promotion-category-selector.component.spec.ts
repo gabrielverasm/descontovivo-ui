@@ -19,6 +19,19 @@ class CategorySelectorHostComponent {
   submits = 0;
 }
 
+@Component({
+  standalone: true,
+  imports: [PromotionCategorySelectorComponent],
+  template: `
+    <app-promotion-category-selector [selected]="first" />
+    <app-promotion-category-selector [selected]="second" />
+  `,
+})
+class TwoCategorySelectorsHostComponent {
+  first = ['Casa'];
+  second = ['Games'];
+}
+
 describe('PromotionCategorySelectorComponent', () => {
   let fixture: ComponentFixture<PromotionCategorySelectorComponent>;
   let service: jasmine.SpyObj<ModerationCategoryService>;
@@ -33,7 +46,7 @@ describe('PromotionCategorySelectorComponent', () => {
     ]));
     service.rename.and.returnValue(of({ name: 'Lar', promotionCount: 3 }));
     TestBed.configureTestingModule({
-      imports: [PromotionCategorySelectorComponent, CategorySelectorHostComponent],
+      imports: [PromotionCategorySelectorComponent, CategorySelectorHostComponent, TwoCategorySelectorsHostComponent],
       providers: [{ provide: ModerationCategoryService, useValue: service }],
     });
     fixture = TestBed.createComponent(PromotionCategorySelectorComponent);
@@ -53,7 +66,7 @@ describe('PromotionCategorySelectorComponent', () => {
     expect(fixture.nativeElement.textContent).not.toContain('Selecionar mais categorias');
     expect(fixture.nativeElement.textContent).not.toContain('⌄');
     expect(getComputedStyle(fixture.nativeElement.querySelector('.category-select__viewport')).overflowY).toBe('auto');
-    expect(getComputedStyle(fixture.nativeElement.querySelector('.category-select__item')).minHeight).toBe('32px');
+    expect(getComputedStyle(fixture.nativeElement.querySelector('.category-select__item')).minHeight).toBe('44px');
   });
 
   it('lays out the category list in three columns on desktop', () => {
@@ -109,6 +122,37 @@ describe('PromotionCategorySelectorComponent', () => {
     expect(service.list).toHaveBeenCalledTimes(1);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Nova — será criada ao salvar');
+    const pending = fixture.nativeElement.querySelector('.category-select__item--pending') as HTMLElement;
+    expect(pending.textContent).toContain('Casa e Jardim');
+    expect(pending.textContent).not.toContain('Adicionar');
+    expect(pending.querySelector('.category-select__content .category-select__pending')).not.toBeNull();
+  });
+
+  it('keeps a long pending name and its creation notice in the same logical content cell', () => {
+    fixture.componentInstance.search = 'Categoria longa para casa jardim e decoração';
+    fixture.componentInstance.addOrSelect();
+    fixture.detectChanges();
+
+    const pending = fixture.nativeElement.querySelector('.category-select__item--pending') as HTMLElement;
+    const content = pending.querySelector('.category-select__content') as HTMLElement;
+    expect(content.querySelector('.category-select__name')?.textContent?.trim())
+      .toBe('Categoria longa para casa jardim e decoração');
+    expect(content.querySelector('.category-select__pending')?.textContent?.trim())
+      .toBe('Nova — será criada ao salvar');
+    expect(pending.querySelector('input[type="checkbox"]')).not.toBeNull();
+  });
+
+  it('keeps label associations valid and does not duplicate IDs across component instances', () => {
+    const hostFixture = TestBed.createComponent(TwoCategorySelectorsHostComponent);
+    hostFixture.detectChanges();
+    const checkboxes = Array.from(hostFixture.nativeElement.querySelectorAll('input[type="checkbox"]')) as HTMLInputElement[];
+    expect(checkboxes.length).toBeGreaterThan(0);
+    expect(checkboxes.every(checkbox => checkbox.closest('label.category-select__choice') !== null)).toBeTrue();
+    const host = hostFixture.nativeElement as HTMLElement;
+    const ids = Array.from(host.querySelectorAll<HTMLElement>('[id]'))
+      .map(element => element.id).filter(Boolean);
+    expect(new Set(ids).size).toBe(ids.length);
+    hostFixture.destroy();
   });
 
   it('reloads the persisted count and removes the pending marker after a successful save', () => {

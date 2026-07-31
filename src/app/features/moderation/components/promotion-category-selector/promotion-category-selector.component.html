@@ -25,7 +25,11 @@
     } @else {
       <div class="category-select__list">
         @for (category of orderedCategories; track category.name) {
-          <div class="category-select__item" [class.category-select__item--selected]="isSelected(category.name)">
+          <div
+            class="category-select__item"
+            [class.category-select__item--selected]="isSelected(category.name)"
+            [class.category-select__item--pending]="isPendingCreation(category.name)"
+          >
             @if (editing === category.name) {
               <div class="category-select__edit-row">
                 <input class="category-select__rename" [(ngModel)]="editingName" maxlength="50" aria-label="Novo nome da categoria"
@@ -37,11 +41,14 @@
             } @else {
               <label class="category-select__choice">
                 <input type="checkbox" [checked]="isSelected(category.name)" [disabled]="disabled || renaming" (change)="toggle(category.name)" />
-                <span class="category-select__name">{{ category.name }}</span>
-                @if (isPendingCreation(category.name)) {
-                  <small class="category-select__pending">Nova — será criada ao salvar</small>
-                } @else {
-                  <small>{{ category.promotionCount }}</small>
+                <span class="category-select__content">
+                  <span class="category-select__name">{{ category.name }}</span>
+                  @if (isPendingCreation(category.name)) {
+                    <small class="category-select__pending">Nova — será criada ao salvar</small>
+                  }
+                </span>
+                @if (!isPendingCreation(category.name)) {
+                  <small class="category-select__count">{{ category.promotionCount }}</small>
                 }
               </label>
               <button type="button" class="category-select__edit" [disabled]="disabled || renaming"

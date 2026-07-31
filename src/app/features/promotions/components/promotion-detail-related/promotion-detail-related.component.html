@@ -1,31 +1,26 @@
+@if (relatedPromotions.length) {
 <section class="detail-related" [class.is-expanded]="relatedExpanded" aria-labelledby="promotion-related-title">
   <div class="detail-related__heading">
     <div>
-      <h2 id="promotion-related-title">Ofertas parecidas</h2>
-      <p>Outras promoções com categoria, tags ou produto semelhante.</p>
+      <h2 id="promotion-related-title">Outras ofertas</h2>
+      <p>Outras promoções das mesmas categorias.</p>
     </div>
     <button class="detail-related__toggle" type="button" (click)="toggleExpanded()">
       {{ relatedExpanded ? 'Recolher' : 'Expandir' }}
     </button>
   </div>
 
-  @if (visibleRelatedPromotions.length) {
-    <div class="detail-related__list">
-      @for (relatedPromotion of visibleRelatedPromotions; track relatedPromotion.id) {
-        <app-related-promotion-item
-          [promotion]="relatedPromotion"
-          [publishedAgo]="getPublishedAgo(relatedPromotion.publishedAt || relatedPromotion.createdAt)"
-        />
-      }
-    </div>
-  } @else {
-    <p class="detail-related__empty">
-      Ainda não encontramos ofertas parecidas para esta promoção.
-    </p>
-  }
+  <div class="detail-related__list">
+    @for (relatedPromotion of visibleRelatedPromotions; track relatedPromotion.id) {
+      <app-related-promotion-item
+        [promotion]="relatedPromotion"
+        [publishedAgo]="getPublishedAgo(relatedPromotion.publishedAt || relatedPromotion.createdAt)"
+      />
+    }
+  </div>
 
   @if (hasRelatedPagination) {
-    <nav class="detail-related__pages" aria-label="Paginação de ofertas parecidas">
+    <nav class="detail-related__pages" aria-label="Paginação de outras ofertas">
       <button
         type="button"
         (click)="showPrevious()"
@@ -56,3 +51,4 @@
     </nav>
   }
 </section>
+}

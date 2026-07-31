@@ -229,6 +229,27 @@
   font-weight: 800;
 }
 
+.promotion-detail__categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.promotion-detail__categories li {
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: .76rem;
+  font-weight: 800;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  padding: .22rem .5rem;
+}
+
 .promotion-detail__trust-badges {
   display: flex;
   align-items: center;
