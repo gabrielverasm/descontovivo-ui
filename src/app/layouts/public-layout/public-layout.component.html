@@ -57,6 +57,7 @@
                     <a routerLink="/moderacao/promocoes" [class.is-active]="isCreateModerationWorkspaceActive()" (click)="closeUserMenu()" class="public-layout__submenu-link">Add. Promoção</a>
                   }
                   @if (isAdmin(user)) {
+                    <a routerLink="/admin/shopee" routerLinkActive="is-active" (click)="closeUserMenu()">Central Shopee</a>
                     <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" (click)="closeUserMenu()">Importar promoções</a>
                     <a routerLink="/admin/solicitacoes-de-dados" routerLinkActive="is-active" (click)="closeUserMenu()" [attr.aria-label]="hasDataRequestsOpen ? 'Solicitações de dados, ' + adminState.dataRequestsOpenCount + ' abertas' : 'Solicitações de dados'" class="public-layout__admin-link">Solicitações de dados
                       @if (hasDataRequestsOpen) {
@@ -123,6 +124,7 @@
               <a routerLink="/moderacao/promocoes" [class.is-active]="isCreateModerationWorkspaceActive()" class="public-layout__submenu-link" (click)="closeMenu()">Add. Promoção</a>
             }
             @if (isAdmin(user)) {
+              <a routerLink="/admin/shopee" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Central Shopee</a>
               <a routerLink="/admin/importar-promocoes" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()">Importar promoções</a>
               <a routerLink="/admin/solicitacoes-de-dados" routerLinkActive="is-active" class="public-layout__admin-link" (click)="closeMenu()" [attr.aria-label]="hasDataRequestsOpen ? 'Solicitações de dados, ' + adminState.dataRequestsOpenCount + ' abertas' : 'Solicitações de dados'">Solicitações de dados
                 @if (hasDataRequestsOpen) {

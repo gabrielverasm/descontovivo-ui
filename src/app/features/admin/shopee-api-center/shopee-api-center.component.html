@@ -1,0 +1,46 @@
+<section class="shopee-center">
+  <header class="shopee-center__header">
+    <span class="shopee-center__eyebrow">Central de afiliados</span>
+    <h1>Pesquisa de produtos Shopee</h1>
+    <p>Consulte as operações oficiais da Shopee sem expor suas credenciais. Os resultados podem ser usados para garimpar e importar promoções.</p>
+  </header>
+
+  <nav class="shopee-center__tabs" aria-label="Operações Shopee">
+    @for (item of operations; track item.id) {
+      <button type="button" [class.active]="selected === item.id" (click)="select(item.id)">{{ item.label }}</button>
+    }
+  </nav>
+
+  <div class="shopee-center__workspace">
+    <form class="shopee-center__form" (ngSubmit)="run()">
+      <h2>{{ operations.find(item => item.id === selected)?.label }}</h2>
+      <p>{{ operations.find(item => item.id === selected)?.description }}</p>
+
+      @if (selected === 'products') {
+        <label>Palavra-chave <input name="keyword" [(ngModel)]="keyword" placeholder="Ex.: barbeador, air fryer..." /></label>
+      }
+      @if (selected === 'short_link') {
+        <label>URL original <input name="originUrl" [(ngModel)]="originUrl" placeholder="https://shopee.com.br/..." required /></label>
+        <label>Sub IDs <input name="subIds" [(ngModel)]="subIds" placeholder="instagram, barbeador, agosto" /></label>
+      }
+      @if (selected === 'feed_data') {
+        <label>ID do feed <input type="number" name="feedId" [(ngModel)]="feedId" min="1" required /></label>
+      }
+      @if (selected === 'conversions') {
+        <div class="shopee-center__dates"><label>De <input type="date" name="startDate" [(ngModel)]="startDate" required /></label><label>Até <input type="date" name="endDate" [(ngModel)]="endDate" required /></label></div>
+      }
+      <button class="shopee-center__submit" type="submit" [disabled]="loading">{{ loading ? 'Consultando...' : 'Consultar Shopee' }}</button>
+      <small>As credenciais ficam somente no servidor.</small>
+    </form>
+
+    <div class="shopee-center__result">
+      @if (error) { <div class="shopee-center__error" role="alert">{{ error }}</div> }
+      @if (result) {
+        <div class="shopee-center__result-head"><h2>Resposta da API</h2><button type="button" (click)="result = null">Limpar</button></div>
+        <pre>{{ result | json }}</pre>
+      } @else if (!loading && !error) {
+        <div class="shopee-center__empty"><strong>Pronto para pesquisar</strong><span>Escolha uma operação e consulte os dados oficiais da Shopee.</span></div>
+      }
+    </div>
+  </div>
+</section>

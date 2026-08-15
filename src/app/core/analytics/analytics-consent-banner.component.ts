@@ -51,6 +51,7 @@ import { AnalyticsConsentService } from './analytics-consent.service';
       margin: 0;
       flex: 1 1 300px;
       text-align: center;
+      min-width: 0;
     }
 
     .consent-banner__link {
@@ -90,16 +91,31 @@ import { AnalyticsConsentService } from './analytics-consent.service';
       border: 1px solid var(--color-border-inverse, #64748b);
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
       .consent-banner {
         flex-direction: column;
-        padding: 0.75rem 1rem;
-        gap: 0.5rem;
+        align-items: center;
+        min-height: 0;
+        padding: 0.5rem 0.75rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+        gap: 0.375rem;
+        font-size: 0.75rem;
+        line-height: 1.25;
+      }
+
+      .consent-banner__text {
+        flex: 0 1 auto;
+        max-width: 38rem;
       }
 
       .consent-banner__actions {
-        width: 100%;
+        width: auto;
         justify-content: center;
+        gap: 0.375rem;
+      }
+
+      .consent-banner__btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
       }
     }
   `],
