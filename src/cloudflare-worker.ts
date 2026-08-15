@@ -12,6 +12,8 @@ type AngularRequestHandler = (request: Request) => Promise<Response | null>;
 const IMAGE_HOST = 'img.descontovivo.com.br';
 const BASE_ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'descontovivo.com', 'www.descontovivo.com'];
 const INSTITUTIONAL_ROUTES = ['/sobre', '/servicos', '/transparencia', '/privacidade', '/termos'] as const;
+const SHOPEE_REDIRECT_HOSTS = new Set(['s.shopee.com.br', 'shope.ee', 'shopee.com.br', 'www.shopee.com.br']);
+const MAX_EXTERNAL_REDIRECTS = 5;
 const angularApps = new Map<string, AngularAppEngine>();
 
 const SECURITY_HEADERS: Record<string, string> = {
@@ -97,6 +99,74 @@ function textResponse(message: string, status: number, headers: Record<string, s
     status,
     headers: { 'content-type': 'text/plain; charset=utf-8', ...headers },
   });
+}
+
+function allowedShopeeUrl(value: string): URL | null {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'https:' || !SHOPEE_REDIRECT_HOSTS.has(url.hostname.toLowerCase())) return null;
+    if (url.username || url.password) return null;
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+function decodeShopeeTransferUrl(html: string): URL | null {
+  const match = html.match(/httpUrl:\"([^\"]+)\"/);
+  if (!match) return null;
+  return allowedShopeeUrl(match[1].replaceAll('\\/', '/').replaceAll('\\u0026', '&'));
+}
+
+async function handleShopeeRedirect(request: Request): Promise<Response> {
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return textResponse('Method Not Allowed', 405, { allow: 'GET, HEAD' });
+  }
+
+  const input = new URL(request.url).searchParams.get('url');
+  const firstUrl = input ? allowedShopeeUrl(input) : null;
+  if (!firstUrl) return textResponse('Invalid Shopee URL', 400);
+
+  let current = firstUrl;
+  const seen = new Set<string>();
+  for (let redirects = 0; redirects <= MAX_EXTERNAL_REDIRECTS; redirects += 1) {
+    if (seen.has(current.toString())) return textResponse('Shopee redirect loop', 502);
+    seen.add(current.toString());
+
+    let upstream: Response;
+    try {
+      upstream = await fetch(current.toString(), {
+        method: request.method,
+        redirect: 'manual',
+        headers: {
+          accept: 'text/html,application/xhtml+xml',
+          'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36',
+        },
+      });
+    } catch {
+      return textResponse('Shopee is unavailable', 502);
+    }
+
+    const location = upstream.headers.get('location');
+    if (location) {
+      const next = allowedShopeeUrl(new URL(location, current).toString());
+      if (!next) return textResponse('Invalid Shopee redirect', 502);
+      current = next;
+      continue;
+    }
+
+    if (current.hostname === 's.shopee.com.br' || current.hostname === 'shopee.ee') {
+      const transferUrl = decodeShopeeTransferUrl(await upstream.text());
+      if (transferUrl) {
+        current = transferUrl;
+        continue;
+      }
+    }
+
+    return Response.redirect(current.toString(), 302);
+  }
+
+  return textResponse('Too many Shopee redirects', 502);
 }
 
 async function serveKnownCsrRoute(request: Request, env: CloudflareEnv): Promise<Response> {
@@ -189,6 +259,10 @@ export async function handleWorkerRequest(
 
   if (url.pathname === '/story-image' || url.pathname.startsWith('/story-image/')) {
     return withSecurityHeaders(await handleStoryImage(request));
+  }
+
+  if (url.pathname === '/go') {
+    return withSecurityHeaders(await handleShopeeRedirect(request));
   }
 
   if (isKnownCsrRoute(url.pathname)) {

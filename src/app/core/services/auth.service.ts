@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { BehaviorSubject, catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, catchError, map, Observable, of, shareReplay, switchMap, tap } from 'rxjs';
 import { AccountMe } from '../models/account-me.model';
 import { AccountService } from './account.service';
 import { canComment, canModerate, canPublish, canVote, hasRole } from '../utils/permissions';
@@ -16,6 +17,7 @@ export class AuthService {
 
   private readonly currentUserSubject = new BehaviorSubject<AccountMe | null>(null);
   private readonly authReadySubject = new BehaviorSubject<boolean>(false);
+  private authCheck$?: Observable<boolean>;
 
   readonly currentUser$ = this.currentUserSubject.asObservable();
   readonly isAuthenticated$: Observable<boolean> = this.oidc.isAuthenticated$.pipe(
@@ -49,6 +51,8 @@ export class AuthService {
   }
 
   logout(): void {
+    this.authCheck$ = undefined;
+    this.currentUserSubject.next(null);
     this.oidc.logoff().subscribe();
   }
 
@@ -70,7 +74,9 @@ export class AuthService {
    * without waiting for the slower iframe-based server check.
    */
   checkAuth(): Observable<boolean> {
-    return this.oidc.checkAuth().pipe(
+    if (this.authCheck$) return this.authCheck$;
+
+    const authCheck$ = this.oidc.checkAuth().pipe(
       switchMap((result) => {
         if (result.isAuthenticated) {
           // Phase 1 success: local tokens found (shared via localStorage)
@@ -88,6 +94,10 @@ export class AuthService {
         return this.checkAuthViaServer();
       }),
     );
+    // AppComponent and route guards can ask for auth at the same time. A
+    // single shared check avoids racing the OIDC client and /account/me.
+    this.authCheck$ = authCheck$.pipe(shareReplay({ bufferSize: 1, refCount: false }));
+    return this.authCheck$;
   }
 
   /**
@@ -121,9 +131,14 @@ export class AuthService {
   loadCurrentUser(): Observable<AccountMe | null> {
     return this.accountService.getMe().pipe(
       tap((user) => this.currentUserSubject.next(user)),
-      catchError(() => {
-        this.currentUserSubject.next(null);
-        return of(null);
+      catchError((error: unknown) => {
+        // A timeout/5xx must not make an authenticated user look logged out.
+        // Clear the cached profile only when the API explicitly rejects the token.
+        if (error instanceof HttpErrorResponse && [401, 403].includes(error.status)) {
+          this.currentUserSubject.next(null);
+          return of(null);
+        }
+        return of(this.currentUserSubject.value);
       }),
     );
   }

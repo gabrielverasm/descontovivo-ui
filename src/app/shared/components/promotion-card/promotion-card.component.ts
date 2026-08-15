@@ -12,6 +12,7 @@ import { sharePromotion } from '../../utils/share-promotion.util';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams } from '../../../core/analytics/analytics-events';
 import { truncateText } from '../../utils/truncate-text.util';
+import { buildOfferNavigationUrl } from '../../utils/offer-link.util';
 
 @Component({
   selector: 'app-promotion-card',
@@ -136,7 +137,7 @@ export class PromotionCardComponent {
   }
 
   get externalOfferUrl(): string {
-    return this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '';
+    return buildOfferNavigationUrl(this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '');
   }
 
   get externalOfferRel(): string {
