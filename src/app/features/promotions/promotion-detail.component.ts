@@ -31,6 +31,7 @@ import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
 import { UI_VERSION } from '../../core/app-version';
 import { ToastService } from '../../core/services/toast.service';
+import { buildOfferNavigationUrl } from '../../shared/utils/offer-link.util';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -235,7 +236,7 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   get externalOfferUrl() {
-    return this.promotion?.url || this.promotion?.offerUrl || this.promotion?.storeUrl || '';
+    return buildOfferNavigationUrl(this.promotion?.url || this.promotion?.offerUrl || this.promotion?.storeUrl || '');
   }
 
   get externalOfferRel(): string {

@@ -8,13 +8,17 @@ const CONSENT_KEY = 'descontovivo_analytics_consent';
 describe('AnalyticsConsentBannerComponent', () => {
   beforeEach(() => {
     localStorage.removeItem(CONSENT_KEY);
+    document.cookie = `${CONSENT_KEY}=; Max-Age=0; Path=/`;
     TestBed.configureTestingModule({
       imports: [AnalyticsConsentBannerComponent],
       providers: [provideRouter([])],
     });
   });
 
-  afterEach(() => localStorage.removeItem(CONSENT_KEY));
+  afterEach(() => {
+    localStorage.removeItem(CONSENT_KEY);
+    document.cookie = `${CONSENT_KEY}=; Max-Age=0; Path=/`;
+  });
 
   it('shows the banner while consent is pending', () => {
     const fixture = createComponent();

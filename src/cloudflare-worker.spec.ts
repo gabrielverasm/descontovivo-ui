@@ -127,6 +127,35 @@ describe('Cloudflare Worker CSR routing', () => {
     expect(assets.requests).toEqual([]);
   });
 
+  it('resolves Shopee mobile transfer pages through the product destination', async () => {
+    const upstream = spyOn(globalThis, 'fetch').and.resolveTo(
+      new Response('<script>var CONFIG={httpUrl:\"https:\\/\\/shopee.com.br\\/opaanlp\\/1\\/2?x=1\\u0026y=2\"}</script>', {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      }),
+    );
+    const { env, assets } = createEnv();
+    const response = await worker.fetch(
+      new Request('https://descontovivo.com/go?url=https%3A%2F%2Fs.shopee.com.br%2F3B6PXKACP1'),
+      env,
+    );
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get('location')).toBe('https://shopee.com.br/opaanlp/1/2?x=1&y=2');
+    expect(upstream).toHaveBeenCalled();
+    expect(assets.requests).toEqual([]);
+  });
+
+  it('rejects non-Shopee destinations on the redirect endpoint', async () => {
+    const { env } = createEnv();
+    const response = await worker.fetch(
+      new Request('https://descontovivo.com/go?url=https%3A%2F%2Fevil.example%2Fphishing'),
+      env,
+    );
+
+    expect(response.status).toBe(400);
+  });
+
   it('preserves legacy-host redirects and ordinary static asset delivery', async () => {
     const { env } = createEnv();
     const legacy = await worker.fetch(new Request('https://www.descontovivo.com/publicar?origem=teste'), env);

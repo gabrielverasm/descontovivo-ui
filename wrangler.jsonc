@@ -33,7 +33,9 @@
       "/transparencia",
       "/privacidade",
       "/termos",
-      "/story-image*"
+      "/story-image*",
+      "/go",
+      "/go/*"
     ]
   }
 }
