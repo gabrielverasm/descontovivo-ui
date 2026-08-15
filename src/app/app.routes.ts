@@ -122,6 +122,15 @@ export const routes: Routes = [
         title: 'Importar promoções | Admin | DescontoVivo',
       },
       {
+        path: 'admin/shopee',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/shopee-api-center/shopee-api-center.component').then(
+            (m) => m.ShopeeApiCenterComponent,
+          ),
+        title: 'Central Shopee | Admin | DescontoVivo',
+      },
+      {
         path: 'admin/solicitacoes-de-dados',
         canActivate: [adminGuard],
         loadComponent: () =>
