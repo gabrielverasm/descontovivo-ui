@@ -1,0 +1,21 @@
+:host {
+  display: inline-flex;
+}
+
+.promotion-view-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.promotion-view-count__icon {
+  flex: none;
+}
+
+.promotion-view-count__value {
+  white-space: nowrap;
+}
