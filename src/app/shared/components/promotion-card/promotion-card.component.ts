@@ -204,6 +204,8 @@ export class PromotionCardComponent {
         this.promotion.id,
         this.promotion.slug || this.promotion.id,
         this.promotion.storeName,
+        this.promotion.marketplace,
+        this.promotion.currentPrice,
         'card',
       ),
     );

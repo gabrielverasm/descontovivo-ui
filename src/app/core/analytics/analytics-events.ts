@@ -18,6 +18,8 @@ export interface ClickStoreParams {
   promotion_id: string;
   promotion_slug: string;
   store_name: string;
+  marketplace: string;
+  price: number;
   source_component: 'card' | 'detail';
   position?: number;
   ui_version: string;
@@ -87,6 +89,8 @@ export function buildClickStoreParams(
   id: string,
   slug: string,
   storeName: string,
+  marketplace: string | undefined,
+  price: number,
   source: 'card' | 'detail',
   position?: number,
 ): ClickStoreParams {
@@ -94,6 +98,8 @@ export function buildClickStoreParams(
     promotion_id: id,
     promotion_slug: slug,
     store_name: storeName,
+    marketplace: marketplace || storeName,
+    price,
     source_component: source,
     ui_version: UI_VERSION,
   };
