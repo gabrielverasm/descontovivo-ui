@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject, of, throwError } from 'rxjs';
 import { ModerationCategoryService } from '../../../../core/services/moderation-category.service';
@@ -7,6 +7,7 @@ import { PromotionCategorySelectorComponent } from './promotion-category-selecto
 @Component({
   standalone: true,
   imports: [PromotionCategorySelectorComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <form (submit)="submits = submits + 1">
       <app-promotion-category-selector [selected]="selected" (selectedChange)="selected = $event" />
@@ -22,6 +23,7 @@ class CategorySelectorHostComponent {
 @Component({
   standalone: true,
   imports: [PromotionCategorySelectorComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <app-promotion-category-selector [selected]="first" />
     <app-promotion-category-selector [selected]="second" />

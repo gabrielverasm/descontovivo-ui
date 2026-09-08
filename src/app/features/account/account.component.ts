@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe, DatePipe } from '@angular/common';
@@ -16,6 +16,7 @@ import { ToastService } from '../../core/services/toast.service';
   standalone: true,
   imports: [FormsModule, RouterLink, AsyncPipe, DatePipe],
   templateUrl: './account.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './account.component.scss',
 })
 export class AccountComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { finalize } from 'rxjs';
 import { AdminImportService } from '../../../../core/services/admin-import.service';
 import { ImageProcessingService } from '../../../../core/services/image-processing.service';
@@ -16,6 +16,7 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [ModerationPromotionPanelComponent],
   templateUrl: './moderation-create-promotion.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './moderation-create-promotion.component.scss',
 })
 export class ModerationCreatePromotionComponent {

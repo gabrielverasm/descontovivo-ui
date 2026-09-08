@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { parseBRLInputToNumber } from '../utils/money-input.util';
 import { BrlCurrencyInputDirective } from './brl-currency-input.directive';
@@ -6,6 +6,7 @@ import { BrlCurrencyInputDirective } from './brl-currency-input.directive';
 @Component({
   standalone: true,
   imports: [BrlCurrencyInputDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<input aria-label="Preço" [appBrlCurrencyInput]="value" (appBrlCurrencyInputChange)="value = $event">',
 })
 class CurrencyHostComponent {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { SeoService } from '../../core/services/seo.service';
@@ -8,6 +8,7 @@ import { SeoService } from '../../core/services/seo.service';
   standalone: true,
   imports: [RouterLink, BreadcrumbComponent],
   templateUrl: './about.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './about.component.scss'
 })
 export class AboutComponent {

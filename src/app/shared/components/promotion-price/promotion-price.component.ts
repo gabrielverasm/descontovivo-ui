@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { Promotion } from '../../../core/models/promotion.model';
 
@@ -8,6 +8,7 @@ import { Promotion } from '../../../core/models/promotion.model';
   standalone: true,
   imports: [CurrencyPipe],
   templateUrl: './promotion-price.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-price.component.scss',
 })
 export class PromotionPriceComponent {

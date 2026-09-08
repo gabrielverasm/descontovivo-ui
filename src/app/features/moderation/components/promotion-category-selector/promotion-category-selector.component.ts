@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ModerationCategory, ModerationCategoryService } from '../../../../core/services/moderation-category.service';
 
@@ -7,6 +7,7 @@ import { ModerationCategory, ModerationCategoryService } from '../../../../core/
   standalone: true,
   imports: [FormsModule],
   templateUrl: './promotion-category-selector.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-category-selector.component.scss',
 })
 export class PromotionCategorySelectorComponent implements OnInit {

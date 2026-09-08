@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, HostListener, inject, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { Title } from '@angular/platform-browser';
@@ -19,6 +19,7 @@ import { AnalyticsService } from '../../core/analytics/analytics.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, RouterOutlet, AsyncPipe, AnalyticsConsentBannerComponent],
   templateUrl: './public-layout.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './public-layout.component.scss'
 })
 export class PublicLayoutComponent implements OnInit, OnDestroy {

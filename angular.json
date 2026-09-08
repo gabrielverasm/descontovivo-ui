@@ -34,7 +34,7 @@
             "server": "src/main.server.ts",
             "ssr": {
               "entry": "src/cloudflare-worker.ts",
-              "experimentalPlatform": "neutral"
+              "platform": "neutral"
             },
             "outputMode": "server"
           },

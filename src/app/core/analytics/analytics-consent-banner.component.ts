@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AnalyticsConsentService } from './analytics-consent.service';
 
@@ -21,6 +21,7 @@ import { AnalyticsConsentService } from './analytics-consent.service';
       </aside>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .consent-banner {
       position: fixed;

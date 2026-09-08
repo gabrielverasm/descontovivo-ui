@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Observable, Subscription, of } from 'rxjs';
 import { finalize, switchMap } from 'rxjs/operators';
@@ -32,6 +32,7 @@ export type ModerationWorkspaceMode = 'create' | 'validate' | 'edit';
   standalone: true,
   imports: [ModerationCreatePromotionComponent, ModerationPromotionPanelComponent],
   templateUrl: './moderation-promotion-workspace.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './moderation-promotion-workspace.component.scss',
 })
 export class ModerationPromotionWorkspaceComponent implements OnInit, OnDestroy {

@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { afterNextRender, Component, inject, Injector, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { afterNextRender, Component, inject, Injector, OnDestroy, OnInit, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NavigationStart, Router } from '@angular/router';
 import { PromotionCardComponent } from '../../shared/components/promotion-card/promotion-card.component';
@@ -17,6 +17,7 @@ import { filter, Subscription } from 'rxjs';
   standalone: true,
   imports: [FormsModule, PromotionCardComponent, LoadingStateComponent],
   templateUrl: './promotions.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotions.component.scss',
 })
 export class PromotionsComponent implements OnInit, OnDestroy {

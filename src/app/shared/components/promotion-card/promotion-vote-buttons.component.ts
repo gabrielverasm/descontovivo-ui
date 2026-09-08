@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { Promotion } from '../../../core/models/promotion.model';
 import { VoteService, PriceVote } from '../../../core/services/vote.service';
@@ -10,6 +10,7 @@ import { ToastService } from '../../../core/services/toast.service';
   selector: 'app-promotion-vote-buttons',
   standalone: true,
   templateUrl: './promotion-vote-buttons.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-vote-buttons.component.scss',
 })
 export class PromotionVoteButtonsComponent {

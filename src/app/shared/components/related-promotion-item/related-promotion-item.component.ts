@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
@@ -11,6 +11,7 @@ import { PromotionTrustSignalsComponent } from '../promotion-card/promotion-trus
   standalone: true,
   imports: [RouterLink, PromotionImageComponent, PromotionPriceComponent, PromotionTrustSignalsComponent],
   templateUrl: './related-promotion-item.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './related-promotion-item.component.scss',
 })
 export class RelatedPromotionItemComponent {

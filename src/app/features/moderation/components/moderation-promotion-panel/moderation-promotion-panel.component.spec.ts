@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ModerationPromotionPanelComponent } from './moderation-promotion-panel.component';
@@ -10,6 +10,7 @@ import { ModerationCategoryService } from '../../../../core/services/moderation-
 @Component({
   standalone: true,
   imports: [ModerationPromotionPanelComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<app-moderation-promotion-panel [promotion]="promotion" mode="edit" [editForm]="editForm" [soldAndDeliveredByStore]="locked" />',
 })
 class ModerationPanelHostComponent {

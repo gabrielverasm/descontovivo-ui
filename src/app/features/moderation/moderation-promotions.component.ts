@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { finalize } from 'rxjs';
 import { Promotion } from '../../core/models/promotion.model';
@@ -13,6 +13,7 @@ import { ToastService } from '../../core/services/toast.service';
   standalone: true,
   imports: [DecimalPipe, DatePipe, PromotionImageComponent],
   templateUrl: './moderation-promotions.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './moderation-promotions.component.scss',
 })
 export class ModerationPromotionsComponent implements OnInit {

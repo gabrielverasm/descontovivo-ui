@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ImageProcessingService } from '../../core/services/image-processing.service';
 import { PromotionCreateRequest, PromotionService } from '../../core/services/promotion.service';
@@ -19,6 +19,7 @@ type ImageStatus = 'idle' | 'processing' | 'ready' | 'uploading' | 'done' | 'err
   standalone: true,
   imports: [FormsModule, BreadcrumbComponent, FloatingFieldComponent, FileFieldComponent],
   templateUrl: './publish-promotion.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './publish-promotion.component.scss',
 })
 export class PublishPromotionComponent implements OnDestroy {

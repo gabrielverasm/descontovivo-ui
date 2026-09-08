@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, OnDestroy, RESPONSE_INIT, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, RESPONSE_INIT, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription, of } from 'rxjs';
@@ -51,6 +51,7 @@ import { buildOfferNavigationUrl } from '../../shared/utils/offer-link.util';
     PromotionStoryGeneratorComponent,
   ],
   templateUrl: './promotion-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-detail.component.scss'
 })
 export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
