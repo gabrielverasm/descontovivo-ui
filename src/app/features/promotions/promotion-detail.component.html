@@ -34,6 +34,8 @@
             aria-label="Sinais da promoção"
           ></app-promotion-trust-signals>
 
+          <app-promotion-view-count [viewCount]="promotion.viewCount ?? 0"></app-promotion-view-count>
+
           <app-promotion-context [promotion]="promotion"></app-promotion-context>
         </div>
 

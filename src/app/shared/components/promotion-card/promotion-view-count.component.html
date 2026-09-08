@@ -1,0 +1,20 @@
+<span class="promotion-view-count" [attr.aria-label]="ariaLabel" [attr.title]="ariaLabel">
+  <svg
+    class="promotion-view-count__icon"
+    viewBox="0 0 24 24"
+    width="16"
+    height="16"
+    fill="none"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path
+      d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linejoin="round"
+    />
+    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" />
+  </svg>
+  <span class="promotion-view-count__value">{{ formattedCount }}</span>
+</span>

@@ -42,6 +42,7 @@ export interface Promotion {
   likesCount: number;
   dislikesCount?: number;
   commentsCount: number;
+  viewCount?: number;
   latestCommentPreview?: string;
   availability?: string;
   status: PromotionStatus;

@@ -105,6 +105,7 @@ export class PromotionService {
       likesCount: p.likesCount ?? 0,
       dislikesCount: p.dislikesCount ?? 0,
       commentsCount: p.commentsCount ?? 0,
+      viewCount: p.viewCount ?? 0,
       status: p.status || 'approved',
       createdBy: p.createdBy || '',
       createdAt: p.publishedAt || p.createdAt || new Date().toISOString(),

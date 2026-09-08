@@ -20,6 +20,7 @@ import { PromotionContextComponent } from '../../shared/components/promotion-car
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
 import { PromotionPriceComponent } from '../../shared/components/promotion-price/promotion-price.component';
 import { PromotionTrustSignalsComponent } from '../../shared/components/promotion-card/promotion-trust-signals.component';
+import { PromotionViewCountComponent } from '../../shared/components/promotion-card/promotion-view-count.component';
 import { PromotionVoteButtonsComponent } from '../../shared/components/promotion-card/promotion-vote-buttons.component';
 import { PromotionDetailCommentsComponent } from './components/promotion-detail-comments/promotion-detail-comments.component';
 import { PromotionDetailRelatedComponent } from './components/promotion-detail-related/promotion-detail-related.component';
@@ -45,6 +46,7 @@ import { buildOfferNavigationUrl } from '../../shared/utils/offer-link.util';
     PromotionImageComponent,
     PromotionPriceComponent,
     PromotionTrustSignalsComponent,
+    PromotionViewCountComponent,
     PromotionVoteButtonsComponent,
     PromotionDetailCommentsComponent,
     PromotionDetailRelatedComponent,
