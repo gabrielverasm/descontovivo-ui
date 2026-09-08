@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CommentResponse } from '../../../../core/models/comment.model';
@@ -10,6 +10,7 @@ import { FloatingFieldComponent } from '../../../../shared/components/floating-f
   standalone: true,
   imports: [DatePipe, FormsModule, RouterLink, FloatingFieldComponent],
   templateUrl: './promotion-detail-comments.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-detail-comments.component.scss',
 })
 export class PromotionDetailCommentsComponent {

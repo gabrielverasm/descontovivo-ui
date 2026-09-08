@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SeoService } from '../../core/services/seo.service';
 
@@ -7,6 +7,7 @@ import { SeoService } from '../../core/services/seo.service';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './server-error.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './server-error.component.scss'
 })
 export class ServerErrorComponent {

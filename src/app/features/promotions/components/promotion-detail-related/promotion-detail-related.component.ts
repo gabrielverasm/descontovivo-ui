@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Promotion } from '../../../../core/models/promotion.model';
 import { RelatedPromotionItemComponent } from '../../../../shared/components/related-promotion-item/related-promotion-item.component';
 
@@ -7,6 +7,7 @@ import { RelatedPromotionItemComponent } from '../../../../shared/components/rel
   standalone: true,
   imports: [RelatedPromotionItemComponent],
   templateUrl: './promotion-detail-related.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-detail-related.component.scss',
 })
 export class PromotionDetailRelatedComponent {

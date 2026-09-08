@@ -1,4 +1,4 @@
-import { Component, HostBinding, Input } from '@angular/core';
+import { Component, HostBinding, Input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
@@ -21,6 +21,7 @@ import {
   standalone: true,
   imports: [RouterLink],
   templateUrl: './promotion-trust-signals.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-trust-signals.component.scss',
 })
 export class PromotionTrustSignalsComponent {

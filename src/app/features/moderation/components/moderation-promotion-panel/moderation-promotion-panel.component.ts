@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, Subject, Subscription } from 'rxjs';
 import { Promotion } from '../../../../core/models/promotion.model';
@@ -20,6 +20,7 @@ export type ModerationPromotionMode = 'create' | 'validate' | 'edit';
   standalone: true,
   imports: [FormsModule, PromotionImageUploadComponent, MarketplaceInspectionButtonComponent, PromotionCategorySelectorComponent, BrlCurrencyInputDirective],
   templateUrl: './moderation-promotion-panel.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './moderation-promotion-panel.component.scss',
 })
 export class ModerationPromotionPanelComponent implements OnChanges, OnDestroy, OnInit {

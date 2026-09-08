@@ -1,5 +1,5 @@
 import { JsonPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { SeoService } from '../../../core/services/seo.service';
@@ -11,6 +11,7 @@ import { ToastService } from '../../../core/services/toast.service';
   standalone: true,
   imports: [FormsModule, JsonPipe],
   templateUrl: './shopee-api-center.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './shopee-api-center.component.scss',
 })
 export class ShopeeApiCenterComponent {

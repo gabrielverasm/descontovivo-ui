@@ -1,4 +1,4 @@
-import { Component, HostBinding, Input } from '@angular/core';
+import { Component, HostBinding, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { Promotion } from '../../../core/models/promotion.model';
 
@@ -9,6 +9,7 @@ type PromotionImageVariant = 'card' | 'detail' | 'moderationPanel';
   standalone: true,
   imports: [],
   templateUrl: './promotion-image.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-image.component.scss',
 })
 export class PromotionImageComponent {

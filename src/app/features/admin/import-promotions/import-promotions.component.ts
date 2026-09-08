@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { AdminImportService } from '../../../core/services/admin-import.service';
@@ -75,6 +75,7 @@ const VALID_MARKETPLACES = [
   standalone: true,
   imports: [FormsModule, DecimalPipe],
   templateUrl: './import-promotions.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './import-promotions.component.scss',
 })
 export class ImportPromotionsComponent {

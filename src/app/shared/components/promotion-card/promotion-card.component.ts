@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
@@ -26,6 +26,7 @@ import { buildOfferNavigationUrl } from '../../utils/offer-link.util';
     RouterLink,
   ],
   templateUrl: './promotion-card.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-card.component.scss',
 })
 export class PromotionCardComponent {

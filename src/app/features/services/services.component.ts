@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { AffiliateStoreId } from '../../core/analytics/analytics-events';
@@ -37,6 +37,7 @@ interface RelatedService {
   standalone: true,
   imports: [RouterLink, BreadcrumbComponent],
   templateUrl: './services.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './services.component.scss',
 })
 export class ServicesComponent {

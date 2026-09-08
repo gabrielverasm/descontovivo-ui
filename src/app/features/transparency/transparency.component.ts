@@ -1,4 +1,4 @@
-import { Component, inject, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, inject, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
@@ -17,6 +17,7 @@ import { SeoService } from '../../core/services/seo.service';
   standalone: true,
   imports: [RouterLink, BreadcrumbComponent],
   templateUrl: './transparency.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './transparency.component.scss',
 })
 export class TransparencyComponent implements AfterViewInit, OnDestroy {

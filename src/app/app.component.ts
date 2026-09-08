@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, take } from 'rxjs';
 import { AuthService } from './core/services/auth.service';
@@ -11,6 +11,7 @@ import { ToastContainerComponent } from './shared/components/toast-container/toa
   standalone: true,
   imports: [RouterOutlet, ToastContainerComponent],
   template: '<app-toast-container /><router-outlet />',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {

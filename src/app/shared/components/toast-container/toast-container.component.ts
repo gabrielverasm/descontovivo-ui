@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Toast } from '../../../core/models/toast.model';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -6,6 +6,7 @@ import { ToastService } from '../../../core/services/toast.service';
   selector: 'app-toast-container',
   standalone: true,
   templateUrl: './toast-container.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './toast-container.component.scss',
 })
 export class ToastContainerComponent {

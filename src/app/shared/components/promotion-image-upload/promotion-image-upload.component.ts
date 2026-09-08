@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FileFieldComponent } from '../file-field/file-field.component';
 
 @Component({
@@ -6,6 +6,7 @@ import { FileFieldComponent } from '../file-field/file-field.component';
   standalone: true,
   imports: [FileFieldComponent],
   templateUrl: './promotion-image-upload.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-image-upload.component.scss',
 })
 export class PromotionImageUploadComponent {

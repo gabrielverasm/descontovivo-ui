@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
@@ -16,6 +16,7 @@ import {
   standalone: true,
   imports: [RouterLink],
   templateUrl: './promotion-context.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-context.component.scss',
 })
 export class PromotionContextComponent {

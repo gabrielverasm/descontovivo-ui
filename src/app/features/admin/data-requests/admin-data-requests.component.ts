@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -18,6 +18,7 @@ import { ToastService } from '../../../core/services/toast.service';
   standalone: true,
   imports: [FormsModule, DatePipe],
   templateUrl: './admin-data-requests.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin-data-requests.component.scss',
 })
 export class AdminDataRequestsComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
@@ -14,7 +14,7 @@ const promotion = {
 describe('PromotionService', () => {
   it('disables the HTTP transfer cache for a fresh promotions request', () => {
     TestBed.configureTestingModule({
-      providers: [PromotionService, provideHttpClient(), provideHttpClientTesting()],
+      providers: [PromotionService, provideHttpClient(withXhr()), provideHttpClientTesting()],
     });
     const service = TestBed.inject(PromotionService);
     const http = TestBed.inject(HttpTestingController);
@@ -34,7 +34,7 @@ describe('PromotionService', () => {
 
   it('loads related promotions from the slug endpoint and keeps only unique category matches with valid slugs', () => {
     TestBed.configureTestingModule({
-      providers: [PromotionService, provideHttpClient(), provideHttpClientTesting()],
+      providers: [PromotionService, provideHttpClient(withXhr()), provideHttpClientTesting()],
     });
     const service = TestBed.inject(PromotionService);
     const http = TestBed.inject(HttpTestingController);
@@ -61,7 +61,7 @@ describe('PromotionService', () => {
 
   it('does not request arbitrary recommendations when the current promotion has no categories', () => {
     TestBed.configureTestingModule({
-      providers: [PromotionService, provideHttpClient(), provideHttpClientTesting()],
+      providers: [PromotionService, provideHttpClient(withXhr()), provideHttpClientTesting()],
     });
     const service = TestBed.inject(PromotionService);
     const http = TestBed.inject(HttpTestingController);

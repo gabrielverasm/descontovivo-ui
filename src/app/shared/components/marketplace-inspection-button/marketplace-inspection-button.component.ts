@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { finalize } from 'rxjs';
 import { PromotionInspectionResponse } from '../../../core/models/marketplace-inspection.model';
 import { MarketplaceInspectionService } from '../../../core/services/marketplace-inspection.service';
@@ -17,6 +17,7 @@ import { detectMarketplace } from '../../utils/marketplace-detection.util';
       </div>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`.inspection-action { display:flex; gap:.75rem; align-items:center; flex-wrap:wrap } button { cursor:pointer } small { opacity:.72 }`],
 })
 export class MarketplaceInspectionButtonComponent {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Promotion } from '../../../../core/models/promotion.model';
 import { environment } from '../../../../../environments/environment';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -7,6 +7,7 @@ import { ToastService } from '../../../../core/services/toast.service';
   selector: 'app-promotion-story-generator',
   standalone: true,
   templateUrl: './promotion-story-generator.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './promotion-story-generator.component.scss',
 })
 export class PromotionStoryGeneratorComponent implements AfterViewInit, OnChanges {
