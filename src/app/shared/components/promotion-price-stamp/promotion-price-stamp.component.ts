@@ -1,10 +1,21 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, inject, InjectionToken, Input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Promotion } from '../../../core/models/promotion.model';
 import { isAffiliateOffer } from '../../utils/offer-link.util';
-import { formatPriceStamp, isPriceStampStale, resolvePriceStampDate } from '../../utils/price-stamp.util';
+import {
+  formatPriceStamp,
+  formatPriceStampDate,
+  isPriceStampStale,
+  resolvePriceStampDate,
+} from '../../utils/price-stamp.util';
 import { resolveStoreDisplayName } from '../../utils/store-name.util';
+
+/** Relógio do carimbo (ms desde a época). Os testes injetam um valor fixo. */
+export const PRICE_STAMP_NOW = new InjectionToken<() => number>('PRICE_STAMP_NOW', {
+  providedIn: 'root',
+  factory: () => () => Date.now(),
+});
 
 @Component({
   selector: 'app-promotion-price-stamp',
@@ -17,6 +28,17 @@ import { resolveStoreDisplayName } from '../../utils/store-name.util';
 export class PromotionPriceStampComponent {
   @Input({ required: true }) promotion!: Promotion;
 
+  private readonly now = inject(PRICE_STAMP_NOW);
+
+  // O SSR e o prerender só escrevem a data absoluta ("DD/MM HH:mm"): o HTML gerado é servido depois
+  // do dia em que foi feito, e "hoje" ali ficaria errado. afterNextRender só roda no navegador,
+  // depois da hidratação, então a primeira renderização do navegador é igual à do servidor.
+  readonly ready = signal(false);
+
+  constructor() {
+    afterNextRender(() => this.ready.set(true));
+  }
+
   private get stampDate(): Date | null {
     return resolvePriceStampDate(this.promotion);
   }
@@ -28,7 +50,8 @@ export class PromotionPriceStampComponent {
 
   get stampLabel(): string {
     const date = this.stampDate;
-    return date ? formatPriceStamp(date) : '';
+    if (!date) return '';
+    return this.ready() ? formatPriceStampDate(date, this.now()) : formatPriceStamp(date);
   }
 
   get stampDateTime(): string | null {
@@ -37,7 +60,7 @@ export class PromotionPriceStampComponent {
 
   get isStale(): boolean {
     const date = this.stampDate;
-    return date ? isPriceStampStale(date) : false;
+    return date ? isPriceStampStale(date, this.now()) : false;
   }
 
   get storeName(): string {

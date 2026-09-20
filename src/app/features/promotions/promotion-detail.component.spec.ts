@@ -15,6 +15,10 @@ import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { ToastService } from '../../core/services/toast.service';
 import { UploadService } from '../../core/services/upload.service';
+import {
+  PRICE_STAMP_NOW,
+  PromotionPriceStampComponent,
+} from '../../shared/components/promotion-price-stamp/promotion-price-stamp.component';
 import { SponsoredLabelComponent } from '../../shared/components/sponsored-label/sponsored-label.component';
 import { PromotionDetailComponent } from './promotion-detail.component';
 
@@ -233,5 +237,64 @@ describe('PromotionDetailComponent sponsored link label', () => {
     const host = render({ sponsoredLink: false, url: 'https://shopee.com.br/produto' });
     expect(host.querySelector('app-sponsored-label')).toBeNull();
     expect(host.querySelector<HTMLAnchorElement>('.promotion-detail__cta')!.rel).toBe('noopener noreferrer');
+  });
+});
+
+describe('PromotionDetailComponent price stamp date', () => {
+  let clock: { now: number };
+
+  function render(verifiedAt: string, { hydrated = true } = {}): HTMLElement {
+    const router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    const analytics = jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['trackViewPromotion']);
+    const current = {
+      ...promotion,
+      storeName: 'Amazon',
+      url: 'https://www.amazon.com.br/dp/B0ABC12345?tag=descontovivoo-20',
+      verifiedAt,
+    };
+    TestBed.configureTestingModule({
+      imports: [PromotionDetailComponent],
+      providers: [
+        ...providers(router, analytics, { getPromotionBySlug: () => of(current), getRelatedPromotions: () => of([]) }),
+        { provide: PRICE_STAMP_NOW, useValue: () => clock.now },
+      ],
+    });
+    TestBed.overrideComponent(PromotionDetailComponent, {
+      set: { imports: [DatePipe, SponsoredLabelComponent, PromotionPriceStampComponent], schemas: [NO_ERRORS_SCHEMA] },
+    });
+    // O Router é um spy neste arquivo: sem o RouterLink, o link "i" do carimbo é só um atributo.
+    TestBed.overrideComponent(PromotionPriceStampComponent, { set: { imports: [] } });
+    const fixture = TestBed.createComponent(PromotionDetailComponent);
+    fixture.detectChanges();
+    if (hydrated) fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  const stamp = (host: HTMLElement) => host.querySelector('.price-stamp__text')?.textContent?.replace(/\s+/g, ' ').trim();
+
+  beforeEach(() => {
+    clock = { now: Date.parse('2026-09-20T22:00:00Z') }; // 19:00 de 20/09 em Fortaleza
+  });
+
+  it('shows "hoje HH:mm" on the detail page for a stamp from today', () => {
+    expect(stamp(render('2026-09-20T19:32:00Z'))).toContain('Preço de hoje 16:32 · pode mudar; vale o preço na Amazon ao comprar');
+  });
+
+  it('shows DD/MM HH:mm on the detail page for the previous day', () => {
+    expect(stamp(render('2026-09-19T19:32:00Z'))).toContain('Preço de 19/09 16:32 · pode mudar; vale o preço na Amazon ao comprar');
+  });
+
+  it('keeps "hoje" at 23:59 and the date from 00:00 in Fortaleza, with the clock in UTC', () => {
+    clock.now = Date.parse('2026-09-21T02:30:00Z'); // 23:30 de 20/09 em Fortaleza (já é dia 21 em UTC)
+    expect(stamp(render('2026-09-20T15:00:00Z'))).toContain('Preço de hoje 12:00 ·');
+    TestBed.resetTestingModule();
+    clock.now = Date.parse('2026-09-21T03:00:00Z'); // 00:00 de 21/09
+    expect(stamp(render('2026-09-20T15:00:00Z'))).toContain('Preço de 20/09 12:00 ·');
+  });
+
+  it('renders only the absolute date before hydration', () => {
+    const host = render('2026-09-20T19:32:00Z', { hydrated: false });
+    expect(stamp(host)).toContain('Preço de 20/09 16:32 ·');
+    expect(host.querySelector('.price-stamp')?.textContent).not.toContain('hoje');
   });
 });

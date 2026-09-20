@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { Promotion } from '../../../core/models/promotion.model';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
 import { SponsoredLabelComponent } from '../sponsored-label/sponsored-label.component';
+import { PRICE_STAMP_NOW, PromotionPriceStampComponent } from '../promotion-price-stamp/promotion-price-stamp.component';
 import { PromotionCardComponent } from './promotion-card.component';
 
 describe('PromotionCardComponent title', () => {
@@ -137,5 +138,66 @@ describe('PromotionCardComponent comments line', () => {
 
   it('pluralizes the comment count', () => {
     expect(render(4).querySelector('.promotion-card__comment-count')?.textContent?.trim()).toBe('4 comentários');
+  });
+});
+
+describe('PromotionCardComponent price stamp date', () => {
+  let clock: { now: number };
+
+  function render(verifiedAt: string, { hydrated = true } = {}): HTMLElement {
+    TestBed.configureTestingModule({
+      imports: [PromotionCardComponent],
+      providers: [
+        provideRouter([]),
+        { provide: PRICE_STAMP_NOW, useValue: () => clock.now },
+        { provide: AnalyticsService, useValue: jasmine.createSpyObj('AnalyticsService', ['trackSharePromotion', 'trackClickStore']) },
+      ],
+    });
+    TestBed.overrideComponent(PromotionCardComponent, {
+      set: { imports: [SponsoredLabelComponent, PromotionPriceStampComponent], schemas: [NO_ERRORS_SCHEMA] },
+    });
+    const fixture = TestBed.createComponent(PromotionCardComponent);
+    fixture.componentInstance.promotion = {
+      id: 'promo-1',
+      slug: 'promo-1',
+      title: 'Produto',
+      currentPrice: 10,
+      storeName: 'Amazon',
+      url: 'https://www.amazon.com.br/dp/B0ABC12345?tag=descontovivoo-20',
+      createdAt: '2026-09-01T10:00:00.000Z',
+      publishedAt: '2026-09-01T10:00:00.000Z',
+      verifiedAt,
+    } as Promotion;
+    fixture.detectChanges();
+    if (hydrated) fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  const stamp = (host: HTMLElement) => host.querySelector('.price-stamp__text')?.textContent?.replace(/\s+/g, ' ').trim();
+
+  beforeEach(() => {
+    clock = { now: Date.parse('2026-09-20T22:00:00Z') }; // 19:00 de 20/09 em Fortaleza
+  });
+
+  it('shows "hoje HH:mm" on the card for a stamp from today', () => {
+    expect(stamp(render('2026-09-20T19:32:00Z'))).toContain('Preço de hoje 16:32 · pode mudar; vale o preço na Amazon ao comprar');
+  });
+
+  it('shows DD/MM HH:mm on the card for the previous day', () => {
+    expect(stamp(render('2026-09-19T19:32:00Z'))).toContain('Preço de 19/09 16:32 · pode mudar; vale o preço na Amazon ao comprar');
+  });
+
+  it('keeps "hoje" at 23:59 and the date from 00:00 in Fortaleza, with the clock in UTC', () => {
+    clock.now = Date.parse('2026-09-21T02:30:00Z'); // 23:30 de 20/09 em Fortaleza (já é dia 21 em UTC)
+    expect(stamp(render('2026-09-20T15:00:00Z'))).toContain('Preço de hoje 12:00 ·');
+    TestBed.resetTestingModule();
+    clock.now = Date.parse('2026-09-21T03:00:00Z'); // 00:00 de 21/09
+    expect(stamp(render('2026-09-20T15:00:00Z'))).toContain('Preço de 20/09 12:00 ·');
+  });
+
+  it('renders only the absolute date before hydration', () => {
+    const host = render('2026-09-20T19:32:00Z', { hydrated: false });
+    expect(stamp(host)).toContain('Preço de 20/09 16:32 ·');
+    expect(host.textContent).not.toContain('hoje');
   });
 });
