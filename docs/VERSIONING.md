@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.5.37**
+**0.6.0**
 
 ## Convenção
 
@@ -29,6 +29,7 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.6.0  | 2026-09-20 | Prepara a UI para anúncios: preços em pt-BR (locale `pt`, `LOCALE_ID` `pt-BR`), selo de desconto calculado entre preço original e atual (a partir de 5%) nos cards e no detalhe, selo "Link patrocinado" e `rel="sponsored"` também para links de afiliado detectados pela URL, e frase de Associado da Amazon no rodapé |
 | 0.5.37 | 2026-08-14 | Adiciona a Central Shopee para pesquisa de produtos, lojas, campanhas, conversões, feeds e links afiliados |
 | 0.5.36 | 2026-08-14 | Corrige persistência de consentimento e sessão, além de resolver links móveis da Shopee |
 | 0.5.35 | 2026-07-31 | Corrige rotas e critérios de outras ofertas, exibe todas as categorias no detalhe e estabiliza o card de nova categoria |

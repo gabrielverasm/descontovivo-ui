@@ -1,5 +1,7 @@
+import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import localePt from '@angular/common/locales/pt';
+import { ApplicationConfig, LOCALE_ID, provideZoneChangeDetection } from '@angular/core';
 import { provideClientHydration, withEventReplay, withNoIncrementalHydration } from '@angular/platform-browser';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { AbstractSecurityStorage, DefaultLocalStorageService, LogLevel, provideAuth } from 'angular-auth-oidc-client';
@@ -10,8 +12,14 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 const oidcOrigin = new URL(environment.oidc.redirectUri).origin;
 
+// The `pt` data is Brazilian Portuguese and is the parent of `pt-BR`, so the
+// pipes (currency, number, date) resolve it for LOCALE_ID 'pt-BR'. The SSR
+// config merges this one, so the server render and the browser agree.
+registerLocaleData(localePt);
+
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'disabled', anchorScrolling: 'enabled' })),
     // Fetch is required by Angular SSR and the hydration provider transfers the

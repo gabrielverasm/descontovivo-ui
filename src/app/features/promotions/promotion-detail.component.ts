@@ -32,7 +32,8 @@ import { AnalyticsService } from '../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams, buildViewPromotionParams } from '../../core/analytics/analytics-events';
 import { UI_VERSION } from '../../core/app-version';
 import { ToastService } from '../../core/services/toast.service';
-import { buildOfferNavigationUrl } from '../../shared/utils/offer-link.util';
+import { SponsoredLabelComponent } from '../../shared/components/sponsored-label/sponsored-label.component';
+import { buildOfferNavigationUrl, buildOfferRel, isAffiliateOffer } from '../../shared/utils/offer-link.util';
 
 @Component({
   selector: 'app-promotion-detail',
@@ -51,6 +52,7 @@ import { buildOfferNavigationUrl } from '../../shared/utils/offer-link.util';
     PromotionDetailCommentsComponent,
     PromotionDetailRelatedComponent,
     PromotionStoryGeneratorComponent,
+    SponsoredLabelComponent,
   ],
   templateUrl: './promotion-detail.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -242,10 +244,12 @@ export class PromotionDetailComponent implements AfterViewInit, OnDestroy {
     return buildOfferNavigationUrl(this.promotion?.url || this.promotion?.offerUrl || this.promotion?.storeUrl || '');
   }
 
+  get hasAffiliateLink(): boolean {
+    return isAffiliateOffer(this.promotion);
+  }
+
   get externalOfferRel(): string {
-    const isSponsored = this.promotion?.sponsoredLink === true
-      || (this.promotion?.affiliateProgram != null && this.promotion?.affiliateProgram !== 'NONE');
-    return isSponsored ? 'sponsored noopener noreferrer' : 'noopener noreferrer';
+    return buildOfferRel(this.hasAffiliateLink);
   }
 
   get isAmazonFulfillment(): boolean {

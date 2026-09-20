@@ -1,13 +1,11 @@
 <span class="promotion-price">
   <strong>{{ promotion.currentPrice | currency: 'BRL' }}</strong>
-  @if (promotion.originalPrice || promotion.discountPercentage) {
+  @if (promotion.originalPrice) {
     <span class="promotion-price__reference">
-      @if (promotion.discountPercentage) {
-        <small>-{{ promotion.discountPercentage }}%</small>
+      @if (discountPercentage; as discount) {
+        <small>-{{ discount }}%</small>
       }
-      @if (promotion.originalPrice) {
-        <span>{{ promotion.originalPrice | currency: 'BRL' }}</span>
-      }
+      <span>{{ promotion.originalPrice | currency: 'BRL' }}</span>
     </span>
   }
 </span>

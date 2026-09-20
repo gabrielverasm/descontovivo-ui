@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Promotion } from '../../../core/models/promotion.model';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
+import { SponsoredLabelComponent } from '../sponsored-label/sponsored-label.component';
 import { PromotionCardComponent } from './promotion-card.component';
 
 describe('PromotionCardComponent title', () => {
@@ -49,5 +50,54 @@ describe('PromotionCardComponent title', () => {
     expect(link.textContent?.trim()).toBe(title);
     expect(link.hasAttribute('title')).toBeFalse();
     expect(link.getAttribute('aria-label')).toBe(title);
+  });
+});
+
+describe('PromotionCardComponent sponsored link label', () => {
+  function render(overrides: Partial<Promotion>): HTMLElement {
+    TestBed.configureTestingModule({
+      imports: [PromotionCardComponent],
+      providers: [
+        provideRouter([]),
+        { provide: AnalyticsService, useValue: jasmine.createSpyObj('AnalyticsService', ['trackSharePromotion', 'trackClickStore']) },
+      ],
+    });
+    TestBed.overrideComponent(PromotionCardComponent, { set: { imports: [SponsoredLabelComponent], schemas: [NO_ERRORS_SCHEMA] } });
+    const fixture = TestBed.createComponent(PromotionCardComponent);
+    fixture.componentInstance.promotion = {
+      id: 'promo-1',
+      slug: 'promo-1',
+      title: 'Produto',
+      currentPrice: 10,
+      storeName: 'Amazon',
+      createdAt: '2026-07-27T10:00:00.000Z',
+      publishedAt: '2026-07-27T10:00:00.000Z',
+      ...overrides,
+    } as Promotion;
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('shows "Link patrocinado" next to "Ir para <loja>" for an affiliate link', () => {
+    const host = render({ url: 'https://www.amazon.com.br/dp/B0ABC12345?tag=descontovivoo-20' });
+    const offer = host.querySelector('.promotion-card__offer')!;
+    const link = offer.querySelector<HTMLAnchorElement>('a.promotion-card__offer-link')!;
+
+    expect(link.textContent?.trim()).toBe('Ir para Amazon');
+    expect(link.rel).toBe('sponsored noopener noreferrer');
+    expect(offer.querySelector('app-sponsored-label')?.textContent?.trim()).toBe('Link patrocinado');
+  });
+
+  it('honours the explicit API flag', () => {
+    const host = render({ url: 'https://loja.example/produto', sponsoredLink: true });
+
+    expect(host.querySelector('.promotion-card__offer app-sponsored-label')).not.toBeNull();
+  });
+
+  it('shows neither the label nor the sponsored rel for an ordinary link', () => {
+    const host = render({ url: 'https://loja.example/produto' });
+
+    expect(host.querySelector('app-sponsored-label')).toBeNull();
+    expect(host.querySelector<HTMLAnchorElement>('a.promotion-card__offer-link')!.rel).toBe('noopener noreferrer');
   });
 });

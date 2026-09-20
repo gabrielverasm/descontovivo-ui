@@ -77,6 +77,12 @@ describe('PublicLayoutComponent moderation navigation', () => {
     expect(addLink.querySelector('.public-layout__badge')).toBeNull();
   });
 
+  it('shows the Amazon Associates statement and keeps the affiliate notice in the footer', () => {
+    const footer = (fixture.nativeElement as HTMLElement).querySelector('footer')!;
+    expect(footer.textContent).toContain('Como Associado da Amazon, eu ganho com compras qualificadas.');
+    expect(footer.textContent).toContain('Algumas ofertas podem conter links de afiliado quando indicado, sem custo adicional para você.');
+  });
+
   it('hides moderation links for a common user', () => {
     user$.next({ id: 'u2', username: 'comum', roles: [] });
     fixture.detectChanges();
