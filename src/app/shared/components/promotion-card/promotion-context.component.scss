@@ -5,7 +5,7 @@
 
 .promotion-context {
   display: grid;
-  grid-template-columns: repeat(3, minmax(8rem, max-content));
+  grid-template-columns: repeat(auto-fit, minmax(min(8rem, 100%), max-content));
   gap: 0.32rem 1.35rem;
   justify-content: end;
   margin: 0;

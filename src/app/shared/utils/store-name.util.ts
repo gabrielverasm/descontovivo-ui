@@ -14,3 +14,9 @@ export function resolveStoreName(name: string | null | undefined): string {
   if (lower === 'loja-nao-identificada' || lower === 'loja não identificada') return '';
   return trimmed;
 }
+
+/** Nome da loja para textos corridos: "Amazon.com.br" vira "Amazon"; desconhecida vira string vazia. */
+export function resolveStoreDisplayName(name: string | null | undefined): string {
+  const store = resolveStoreName(name);
+  return store.toLowerCase() === 'amazon.com.br' ? 'Amazon' : store;
+}

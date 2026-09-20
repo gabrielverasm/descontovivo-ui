@@ -44,7 +44,10 @@
     <div class="promotion-card__deal-row">
       <div class="promotion-card__deal-main">
         <div class="promotion-card__prices">
-          <app-promotion-price [promotion]="promotion" />
+          <div class="promotion-card__price-block">
+            <app-promotion-price [promotion]="promotion" />
+            <app-promotion-price-stamp [promotion]="promotion" />
+          </div>
 
           <app-promotion-vote-buttons
             [promotion]="promotion"
@@ -86,9 +89,11 @@
         </div>
       </div>
 
-      <p class="promotion-card__comment-preview">
-        <span class="promotion-card__comment-count">{{ commentsLabelShort }}</span>
-      </p>
+      @if (actualCommentsCount > 0) {
+        <p class="promotion-card__comment-preview">
+          <span class="promotion-card__comment-count">{{ commentsLabelShort }}</span>
+        </p>
+      }
     </div>
   </div>
 </article>

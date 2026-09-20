@@ -48,6 +48,7 @@ export interface Promotion {
   status: PromotionStatus;
   createdAt: string;
   publishedAt?: string;
+  verifiedAt?: string | null;
   createdBy: string;
   authorUsername?: string;
   store?: PromotionStore;

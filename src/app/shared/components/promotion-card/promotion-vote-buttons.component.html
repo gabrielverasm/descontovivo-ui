@@ -10,7 +10,9 @@
   (click)="$event.stopPropagation(); toggleLikePrice()"
 >
   <img src="/brand/like.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-  <span>{{ localLikesCount }}</span>
+  @if (localLikesCount > 0) {
+    <span>{{ localLikesCount }}</span>
+  }
 </button>
 
 <button
@@ -25,5 +27,7 @@
   (click)="$event.stopPropagation(); toggleDislikePrice()"
 >
   <img src="/brand/dislike.svg" alt="" aria-hidden="true" loading="lazy" decoding="async" />
-  <span>{{ localDislikesCount }}</span>
+  @if (localDislikesCount > 0) {
+    <span>{{ localDislikesCount }}</span>
+  }
 </button>

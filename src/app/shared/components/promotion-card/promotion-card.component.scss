@@ -189,6 +189,12 @@ a {
   min-width: 0;
 }
 
+.promotion-card__price-block {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
 .promotion-card__prices app-promotion-vote-buttons {
   margin-left: 0.35rem;
   padding-left: 0.82rem;
@@ -214,6 +220,7 @@ a {
   font-weight: 750;
   line-height: 1;
   padding: 0 0.82rem;
+  white-space: nowrap;
   transition:
     background var(--dv-transition),
     border-color var(--dv-transition),
