@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AnalyticsConsentService } from './analytics-consent.service';
 
@@ -7,7 +7,7 @@ import { AnalyticsConsentService } from './analytics-consent.service';
   standalone: true,
   imports: [RouterLink],
   template: `
-    @if (consentService.status() === 'pending') {
+    @if (ready() && consentService.status() === 'pending') {
       <aside class="consent-banner" role="dialog" aria-label="Consentimento de métricas" aria-live="polite">
         <p class="consent-banner__text">
           Usamos métricas para entender acessos e melhorar o DescontoVivo.
@@ -123,6 +123,17 @@ import { AnalyticsConsentService } from './analytics-consent.service';
 })
 export class AnalyticsConsentBannerComponent {
   readonly consentService = inject(AnalyticsConsentService);
+
+  // The server cannot read the visitor's saved choice, so it must never render
+  // the banner (SSR and prerender would ship it to everyone and it would flash
+  // on every reload for people who already chose). afterNextRender only runs in
+  // the browser, after hydration; by then the consent service has already read
+  // localStorage/cookie synchronously when it was created.
+  readonly ready = signal(false);
+
+  constructor() {
+    afterNextRender(() => this.ready.set(true));
+  }
 
   accept(): void {
     this.consentService.grant();
