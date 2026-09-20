@@ -79,8 +79,21 @@ describe('PublicLayoutComponent moderation navigation', () => {
 
   it('shows the Amazon Associates statement and keeps the affiliate notice in the footer', () => {
     const footer = (fixture.nativeElement as HTMLElement).querySelector('footer')!;
-    expect(footer.textContent).toContain('Como Associado da Amazon, eu ganho com compras qualificadas.');
+    expect(footer.textContent).toContain('Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas.');
     expect(footer.textContent).toContain('Algumas ofertas podem conter links de afiliado quando indicado, sem custo adicional para você.');
+  });
+
+  it('shows the Amazon Associates statement clearly: own line, at least 14px and dark text', () => {
+    const host = fixture.nativeElement as HTMLElement;
+    const statement = host.querySelector<HTMLElement>('.public-layout__footer-associate')!;
+    const affiliateNotice = host.querySelector<HTMLElement>('.public-layout__footer-disclosure')!;
+    const style = getComputedStyle(statement);
+
+    expect(parseFloat(style.fontSize)).toBeGreaterThanOrEqual(14);
+    expect(style.color).toBe('rgb(51, 65, 85)');
+    expect(style.fontWeight).toBe('500');
+    expect(statement.compareDocumentPosition(affiliateNotice)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(statement.getBoundingClientRect().bottom).toBeLessThanOrEqual(affiliateNotice.getBoundingClientRect().top);
   });
 
   it('hides moderation links for a common user', () => {

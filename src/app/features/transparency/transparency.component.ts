@@ -6,8 +6,9 @@ import { SeoService } from '../../core/services/seo.service';
 
 // TODO [Amazon Associados]: Revisar esta página para garantir compliance com a
 // Operating Agreement vigente.
-// - A frase "Como Associado da Amazon, eu ganho com compras qualificadas." já está
-//   no rodapé de todas as páginas (public-layout).
+// - A frase "Como participante do Programa de Associados da Amazon, sou remunerado
+//   pelas compras qualificadas efetuadas." já está no rodapé de todas as páginas
+//   (public-layout).
 // - Links de afiliado usam rel="sponsored noopener noreferrer" (buildOfferRel);
 //   decidir se devem incluir também "nofollow".
 
