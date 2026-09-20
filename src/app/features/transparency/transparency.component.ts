@@ -4,13 +4,13 @@ import { Subscription } from 'rxjs';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { SeoService } from '../../core/services/seo.service';
 
-// TODO [Amazon Associados]: Quando o cadastro no programa Amazon Associados for
-// aprovado e links de afiliado Amazon estiverem ativos no site, será necessário:
-// 1. Incluir publicamente a frase exigida pela Amazon:
-//    "Como associado da Amazon, eu recebo por compras qualificadas."
-// 2. Revisar esta página para garantir compliance com a Operating Agreement vigente.
-// 3. Atualizar o rel dos links Amazon para "sponsored nofollow noopener noreferrer".
-// Não exibir essa frase antes do cadastro estar ativo.
+// TODO [Amazon Associados]: Revisar esta página para garantir compliance com a
+// Operating Agreement vigente.
+// - A frase "Como participante do Programa de Associados da Amazon, sou remunerado
+//   pelas compras qualificadas efetuadas." já está no rodapé de todas as páginas
+//   (public-layout).
+// - Links de afiliado usam rel="sponsored noopener noreferrer" (buildOfferRel);
+//   decidir se devem incluir também "nofollow".
 
 @Component({
   selector: 'app-transparency',

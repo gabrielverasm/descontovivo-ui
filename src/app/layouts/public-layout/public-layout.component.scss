@@ -253,6 +253,17 @@
   flex: 0 0 auto;
 }
 
+/* Amazon Associates statement: must be clear and prominent (contract, clause 5). */
+.public-layout__footer-associate {
+  width: 100%;
+  margin: 0.25rem 0 0;
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.5;
+}
+
 .public-layout__footer-disclosure {
   width: 100%;
   margin: 0.25rem 0 0;

@@ -15,6 +15,7 @@ import { SeoService } from '../../core/services/seo.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { ToastService } from '../../core/services/toast.service';
 import { UploadService } from '../../core/services/upload.service';
+import { SponsoredLabelComponent } from '../../shared/components/sponsored-label/sponsored-label.component';
 import { PromotionDetailComponent } from './promotion-detail.component';
 
 const promotion = {
@@ -195,5 +196,42 @@ describe('PromotionDetailComponent SSR response status', () => {
     TestBed.overrideComponent(PromotionDetailComponent, { set: { template: '' } });
     const fixture = TestBed.createComponent(PromotionDetailComponent); fixture.detectChanges();
     expect(responseInit.status).toBe(503); expect((responseInit.headers as Record<string, string>)['Retry-After']).toBe('60'); fixture.destroy();
+  });
+});
+
+describe('PromotionDetailComponent sponsored link label', () => {
+  function render(overrides: Partial<Promotion>): HTMLElement {
+    const router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    const analytics = jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['trackViewPromotion']);
+    const current = { ...promotion, ...overrides };
+    TestBed.configureTestingModule({ imports: [PromotionDetailComponent], providers: providers(router, analytics, { getPromotionBySlug: () => of(current), getRelatedPromotions: () => of([]) }) });
+    TestBed.overrideComponent(PromotionDetailComponent, { set: { imports: [DatePipe, SponsoredLabelComponent], schemas: [NO_ERRORS_SCHEMA] } });
+    const fixture = TestBed.createComponent(PromotionDetailComponent);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('shows "Link patrocinado" next to the store button for a flagged affiliate link', () => {
+    const host = render({});
+    const offer = host.querySelector('.promotion-detail__offer')!;
+    expect(offer.querySelector('.promotion-detail__cta')).not.toBeNull();
+    expect(offer.querySelector('app-sponsored-label')?.textContent?.trim()).toBe('Link patrocinado');
+  });
+
+  it('shows the label and sponsored rel for a tagged Amazon link even when the API sends no flag', () => {
+    const host = render({
+      sponsoredLink: false, affiliateProgram: 'NONE', storeName: 'Amazon',
+      url: 'https://www.amazon.com.br/dp/B0ABC12345?tag=descontovivoo-20',
+    });
+    const cta = host.querySelector<HTMLAnchorElement>('.promotion-detail__cta')!;
+    expect(cta.getAttribute('aria-label')).toBe('Ir para Amazon');
+    expect(cta.rel).toBe('sponsored noopener noreferrer');
+    expect(host.querySelector('.promotion-detail__offer app-sponsored-label')).not.toBeNull();
+  });
+
+  it('hides the label and the sponsored rel for an ordinary link', () => {
+    const host = render({ sponsoredLink: false, url: 'https://shopee.com.br/produto' });
+    expect(host.querySelector('app-sponsored-label')).toBeNull();
+    expect(host.querySelector<HTMLAnchorElement>('.promotion-detail__cta')!.rel).toBe('noopener noreferrer');
   });
 });

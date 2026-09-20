@@ -59,16 +59,21 @@
 
         <div class="promotion-detail__actions">
           @if (externalOfferUrl) {
-            <a
-              class="promotion-detail__cta"
-              [href]="externalOfferUrl"
-              target="_blank"
-              [attr.rel]="externalOfferRel"
-              [attr.aria-label]="externalOfferLabel"
-              (click)="trackDetailStoreClick()"
-            >
-              {{ externalOfferLabel }}
-            </a>
+            <div class="promotion-detail__offer">
+              <a
+                class="promotion-detail__cta"
+                [href]="externalOfferUrl"
+                target="_blank"
+                [attr.rel]="externalOfferRel"
+                [attr.aria-label]="externalOfferLabel"
+                (click)="trackDetailStoreClick()"
+              >
+                {{ externalOfferLabel }}
+              </a>
+              @if (hasAffiliateLink) {
+                <app-sponsored-label />
+              }
+            </div>
           }
 
           <button #backButtonAnchor class="promotion-detail__back" type="button" (click)="returnToPromotionsList()">

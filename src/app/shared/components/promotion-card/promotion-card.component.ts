@@ -7,12 +7,13 @@ import { PromotionImageComponent } from '../promotion-image/promotion-image.comp
 import { PromotionPriceComponent } from '../promotion-price/promotion-price.component';
 import { PromotionTrustSignalsComponent } from './promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.component';
+import { SponsoredLabelComponent } from '../sponsored-label/sponsored-label.component';
 import { isSoldAndDeliveredByAmazon, getAmazonTrustLabel } from '../../utils/seller.util';
 import { sharePromotion } from '../../utils/share-promotion.util';
 import { AnalyticsService } from '../../../core/analytics/analytics.service';
 import { buildClickStoreParams, buildShareParams } from '../../../core/analytics/analytics-events';
 import { truncateText } from '../../utils/truncate-text.util';
-import { buildOfferNavigationUrl } from '../../utils/offer-link.util';
+import { buildOfferNavigationUrl, buildOfferRel, isAffiliateOffer } from '../../utils/offer-link.util';
 
 @Component({
   selector: 'app-promotion-card',
@@ -24,6 +25,7 @@ import { buildOfferNavigationUrl } from '../../utils/offer-link.util';
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent,
     RouterLink,
+    SponsoredLabelComponent,
   ],
   templateUrl: './promotion-card.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -141,10 +143,12 @@ export class PromotionCardComponent {
     return buildOfferNavigationUrl(this.promotion.url || this.promotion.offerUrl || this.promotion.storeUrl || '');
   }
 
+  get hasAffiliateLink(): boolean {
+    return isAffiliateOffer(this.promotion);
+  }
+
   get externalOfferRel(): string {
-    const isSponsored = this.promotion.sponsoredLink === true
-      || (this.promotion.affiliateProgram != null && this.promotion.affiliateProgram !== 'NONE');
-    return isSponsored ? 'sponsored noopener noreferrer' : 'noopener noreferrer';
+    return buildOfferRel(this.hasAffiliateLink);
   }
 
   get externalOfferLabel() {
