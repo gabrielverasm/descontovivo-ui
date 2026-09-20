@@ -101,3 +101,41 @@ describe('PromotionCardComponent sponsored link label', () => {
     expect(host.querySelector<HTMLAnchorElement>('a.promotion-card__offer-link')!.rel).toBe('noopener noreferrer');
   });
 });
+
+describe('PromotionCardComponent comments line', () => {
+  function render(commentsCount: number): HTMLElement {
+    TestBed.configureTestingModule({
+      imports: [PromotionCardComponent],
+      providers: [
+        provideRouter([]),
+        { provide: AnalyticsService, useValue: jasmine.createSpyObj('AnalyticsService', ['trackSharePromotion', 'trackClickStore']) },
+      ],
+    });
+    TestBed.overrideComponent(PromotionCardComponent, { set: { imports: [], schemas: [NO_ERRORS_SCHEMA] } });
+    const fixture = TestBed.createComponent(PromotionCardComponent);
+    fixture.componentInstance.promotion = {
+      id: 'promo-1',
+      slug: 'promo-1',
+      title: 'Título',
+      currentPrice: 10,
+      commentsCount,
+      createdAt: '2026-07-27T10:00:00.000Z',
+    } as Promotion;
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('does not show the empty-comments line while there are no comments', () => {
+    const host = render(0);
+    expect(host.querySelector('.promotion-card__comment-preview')).toBeNull();
+    expect(host.textContent).not.toContain('Ainda não há comentários');
+  });
+
+  it('shows the comment count once there are comments', () => {
+    expect(render(1).querySelector('.promotion-card__comment-count')?.textContent?.trim()).toBe('1 comentário');
+  });
+
+  it('pluralizes the comment count', () => {
+    expect(render(4).querySelector('.promotion-card__comment-count')?.textContent?.trim()).toBe('4 comentários');
+  });
+});

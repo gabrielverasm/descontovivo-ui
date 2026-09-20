@@ -29,3 +29,30 @@ describe('PromotionVoteButtonsComponent operational feedback', () => {
     }));
   });
 });
+
+describe('PromotionVoteButtonsComponent counters', () => {
+  function render(likesCount: number, dislikesCount: number): HTMLElement {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: VoteService, useValue: jasmine.createSpyObj<VoteService>('VoteService', ['vote', 'removeVote']) },
+        { provide: AnalyticsService, useValue: jasmine.createSpyObj('AnalyticsService', ['trackPromotionVote']) },
+      ],
+    });
+    const fixture = TestBed.createComponent(PromotionVoteButtonsComponent);
+    fixture.componentInstance.promotion = { id: 'p', slug: 'p', likesCount, dislikesCount } as Promotion;
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('keeps the buttons but hides the counters while they are zero', () => {
+    const host = render(0, 0);
+    expect(host.querySelectorAll('button').length).toBe(2);
+    expect(host.querySelectorAll('button span').length).toBe(0);
+  });
+
+  it('shows only the counters that are above zero', () => {
+    const host = render(3, 0);
+    expect(host.querySelector('.promotion-vote--like span')?.textContent?.trim()).toBe('3');
+    expect(host.querySelector('.promotion-vote--dislike span')).toBeNull();
+  });
+});

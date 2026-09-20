@@ -1,0 +1,20 @@
+@if (visible) {
+  <p class="price-stamp" [class.price-stamp--stale]="isStale">
+    @if (isStale) {
+      <strong class="price-stamp__flag">Preço pode ter mudado</strong>
+    }
+    <span class="price-stamp__text">
+      Preço de <time [attr.datetime]="stampDateTime">{{ stampLabel }}</time> · pode mudar; vale o preço na
+      {{ storeName }} ao comprar
+      <a
+        class="price-stamp__info"
+        routerLink="/transparencia"
+        fragment="precos-condicoes"
+        title="Entenda o aviso sobre preços"
+        aria-label="Entenda o aviso sobre preços"
+        (click)="$event.stopPropagation()"
+        ><span aria-hidden="true">i</span></a
+      >
+    </span>
+  </p>
+}

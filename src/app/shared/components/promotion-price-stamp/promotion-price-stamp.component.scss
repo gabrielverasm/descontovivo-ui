@@ -1,0 +1,65 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.price-stamp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.35rem;
+  align-items: center;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.price-stamp__flag {
+  border: 1px solid rgba(217, 119, 6, 0.32);
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.14);
+  color: #92400e;
+  font-size: 0.68rem;
+  font-weight: 850;
+  padding: 0.1rem 0.42rem;
+}
+
+.price-stamp--stale .price-stamp__text {
+  color: #92400e;
+}
+
+.price-stamp__info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.15rem;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  color: #1d4ed8;
+  font-size: 0.68rem;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 1;
+  text-decoration: none;
+  vertical-align: -0.12rem;
+}
+
+.price-stamp__info:hover {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+// Área de toque maior que o ícone (16px) sem mudar o layout.
+.price-stamp__info::after {
+  content: '';
+  position: absolute;
+  inset: -0.4rem;
+}
+
+.price-stamp__info:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 2px;
+}

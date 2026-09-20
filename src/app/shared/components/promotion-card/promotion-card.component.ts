@@ -5,6 +5,7 @@ import { Promotion } from '../../../core/models/promotion.model';
 import { PromotionContextComponent } from './promotion-context.component';
 import { PromotionImageComponent } from '../promotion-image/promotion-image.component';
 import { PromotionPriceComponent } from '../promotion-price/promotion-price.component';
+import { PromotionPriceStampComponent } from '../promotion-price-stamp/promotion-price-stamp.component';
 import { PromotionTrustSignalsComponent } from './promotion-trust-signals.component';
 import { PromotionVoteButtonsComponent } from './promotion-vote-buttons.component';
 import { SponsoredLabelComponent } from '../sponsored-label/sponsored-label.component';
@@ -22,6 +23,7 @@ import { buildOfferNavigationUrl, buildOfferRel, isAffiliateOffer } from '../../
     PromotionContextComponent,
     PromotionImageComponent,
     PromotionPriceComponent,
+    PromotionPriceStampComponent,
     PromotionTrustSignalsComponent,
     PromotionVoteButtonsComponent,
     RouterLink,
@@ -127,7 +129,6 @@ export class PromotionCardComponent {
 
   get commentsLabelShort(): string {
     const count = this.actualCommentsCount;
-    if (count === 0) return 'Ainda não há comentários';
     return `${count} ${count === 1 ? 'comentário' : 'comentários'}`;
   }
 

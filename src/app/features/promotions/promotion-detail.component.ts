@@ -19,6 +19,7 @@ import { LoadingStateComponent } from '../../shared/components/loading-state/loa
 import { PromotionContextComponent } from '../../shared/components/promotion-card/promotion-context.component';
 import { PromotionImageComponent } from '../../shared/components/promotion-image/promotion-image.component';
 import { PromotionPriceComponent } from '../../shared/components/promotion-price/promotion-price.component';
+import { PromotionPriceStampComponent } from '../../shared/components/promotion-price-stamp/promotion-price-stamp.component';
 import { PromotionTrustSignalsComponent } from '../../shared/components/promotion-card/promotion-trust-signals.component';
 import { PromotionViewCountComponent } from '../../shared/components/promotion-card/promotion-view-count.component';
 import { PromotionVoteButtonsComponent } from '../../shared/components/promotion-card/promotion-vote-buttons.component';
@@ -46,6 +47,7 @@ import { buildOfferNavigationUrl, buildOfferRel, isAffiliateOffer } from '../../
     PromotionContextComponent,
     PromotionImageComponent,
     PromotionPriceComponent,
+    PromotionPriceStampComponent,
     PromotionTrustSignalsComponent,
     PromotionViewCountComponent,
     PromotionVoteButtonsComponent,
