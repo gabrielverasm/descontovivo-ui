@@ -243,14 +243,14 @@ describe('PromotionDetailComponent sponsored link label', () => {
 describe('PromotionDetailComponent price stamp date', () => {
   let clock: { now: number };
 
-  function render(verifiedAt: string, { hydrated = true } = {}): HTMLElement {
+  function render(publishedAt: string, { hydrated = true } = {}): HTMLElement {
     const router = jasmine.createSpyObj<Router>('Router', ['navigate']);
     const analytics = jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['trackViewPromotion']);
     const current = {
       ...promotion,
       storeName: 'Amazon',
       url: 'https://www.amazon.com.br/dp/B0ABC12345?tag=descontovivoo-20',
-      verifiedAt,
+      publishedAt,
     };
     TestBed.configureTestingModule({
       imports: [PromotionDetailComponent],

@@ -7,23 +7,23 @@ import {
 } from './price-stamp.util';
 
 describe('resolvePriceStampDate', () => {
-  it('prefers verifiedAt over publishedAt', () => {
-    const date = resolvePriceStampDate({ verifiedAt: '2026-09-20T15:00:00Z', publishedAt: '2026-09-01T10:00:00Z' });
+  it('prefers publishedAt over createdAt', () => {
+    const date = resolvePriceStampDate({ publishedAt: '2026-09-20T15:00:00Z', createdAt: '2026-09-01T10:00:00Z' });
     expect(date?.toISOString()).toBe('2026-09-20T15:00:00.000Z');
   });
 
-  it('falls back to publishedAt when verifiedAt is empty or invalid', () => {
-    expect(resolvePriceStampDate({ verifiedAt: null, publishedAt: '2026-09-01T10:00:00Z' })?.toISOString())
+  it('falls back to createdAt when publishedAt is empty or invalid', () => {
+    expect(resolvePriceStampDate({ publishedAt: undefined, createdAt: '2026-09-01T10:00:00Z' })?.toISOString())
       .toBe('2026-09-01T10:00:00.000Z');
-    expect(resolvePriceStampDate({ verifiedAt: '', publishedAt: '2026-09-01T10:00:00Z' })?.toISOString())
+    expect(resolvePriceStampDate({ publishedAt: '', createdAt: '2026-09-01T10:00:00Z' })?.toISOString())
       .toBe('2026-09-01T10:00:00.000Z');
-    expect(resolvePriceStampDate({ verifiedAt: 'lixo', publishedAt: '2026-09-01T10:00:00Z' })?.toISOString())
+    expect(resolvePriceStampDate({ publishedAt: 'lixo', createdAt: '2026-09-01T10:00:00Z' })?.toISOString())
       .toBe('2026-09-01T10:00:00.000Z');
   });
 
   it('returns null when there is no usable date', () => {
-    expect(resolvePriceStampDate({})).toBeNull();
-    expect(resolvePriceStampDate({ verifiedAt: null, publishedAt: 'lixo' })).toBeNull();
+    expect(resolvePriceStampDate({ createdAt: '' })).toBeNull();
+    expect(resolvePriceStampDate({ publishedAt: undefined, createdAt: 'lixo' })).toBeNull();
   });
 });
 

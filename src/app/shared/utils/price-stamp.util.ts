@@ -39,11 +39,15 @@ function civilDateTime(date: Date, timeZone: string): CivilDateTime {
   return { year: parts['year'], month: parts['month'], day: parts['day'], hour: parts['hour'], minute: parts['minute'] };
 }
 
-type PriceStampFields = Pick<Promotion, 'verifiedAt' | 'publishedAt'>;
+type PriceStampFields = Pick<Promotion, 'publishedAt' | 'createdAt'>;
 
-/** Momento a que o preço exibido se refere: verifiedAt e, se vazio ou inválido, publishedAt. */
+/**
+ * Momento a que o preço exibido se refere: publishedAt e, se vazio ou inválido, createdAt. É a
+ * mesma data usada no "há X horas" ao lado do autor (ver publishedAgo em promotion-card.component.ts),
+ * para não mostrar dois horários diferentes para o mesmo evento.
+ */
 export function resolvePriceStampDate(promotion: PriceStampFields): Date | null {
-  for (const value of [promotion.verifiedAt, promotion.publishedAt]) {
+  for (const value of [promotion.publishedAt, promotion.createdAt]) {
     if (!value) continue;
     const date = new Date(value);
     if (!Number.isNaN(date.getTime())) return date;
@@ -63,14 +67,14 @@ export function formatPriceStamp(date: Date, timeZone: string = PRICE_STAMP_TIME
  * injetado por quem chama.
  */
 export function formatPriceStampDate(
-  verifiedAt: Date,
+  date: Date,
   now: Date | number,
   timeZone: string = PRICE_STAMP_TIME_ZONE,
 ): string {
-  const stamp = civilDateTime(verifiedAt, timeZone);
+  const stamp = civilDateTime(date, timeZone);
   const today = civilDateTime(new Date(now), timeZone);
   const sameDay = stamp.year === today.year && stamp.month === today.month && stamp.day === today.day;
-  return sameDay ? `hoje ${stamp.hour}:${stamp.minute}` : formatPriceStamp(verifiedAt, timeZone);
+  return sameDay ? `hoje ${stamp.hour}:${stamp.minute}` : formatPriceStamp(date, timeZone);
 }
 
 /** Carimbo com mais de 7 dias. */
