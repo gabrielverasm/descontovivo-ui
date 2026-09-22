@@ -144,7 +144,7 @@ describe('PromotionCardComponent comments line', () => {
 describe('PromotionCardComponent price stamp date', () => {
   let clock: { now: number };
 
-  function render(verifiedAt: string, { hydrated = true } = {}): HTMLElement {
+  function render(publishedAt: string, { hydrated = true } = {}): HTMLElement {
     TestBed.configureTestingModule({
       imports: [PromotionCardComponent],
       providers: [
@@ -165,8 +165,7 @@ describe('PromotionCardComponent price stamp date', () => {
       storeName: 'Amazon',
       url: 'https://www.amazon.com.br/dp/B0ABC12345?tag=descontovivoo-20',
       createdAt: '2026-09-01T10:00:00.000Z',
-      publishedAt: '2026-09-01T10:00:00.000Z',
-      verifiedAt,
+      publishedAt,
     } as Promotion;
     fixture.detectChanges();
     if (hydrated) fixture.detectChanges();

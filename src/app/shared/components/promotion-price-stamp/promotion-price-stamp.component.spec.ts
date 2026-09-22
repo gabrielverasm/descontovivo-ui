@@ -55,8 +55,8 @@ describe('PromotionPriceStampComponent', () => {
     expect(host.querySelector('.price-stamp__text')?.textContent).toContain('vale o preço na Shopee ao comprar');
   });
 
-  it('prefers verifiedAt over publishedAt', () => {
-    const host = render({ publishedAt: '2026-09-01T10:00:00Z', verifiedAt: '2026-09-20T17:05:00Z' });
+  it('prefers publishedAt over createdAt', () => {
+    const host = render({ publishedAt: '2026-09-20T17:05:00Z', createdAt: '2026-09-01T10:00:00Z' });
     expect(host.querySelector('time')?.textContent?.trim()).toBe('20/09 14:05');
   });
 
@@ -79,8 +79,8 @@ describe('PromotionPriceStampComponent', () => {
     expect(host.querySelector('.price-stamp__text')?.textContent).toContain('pode mudar; vale o preço na Amazon');
   });
 
-  it('measures staleness from verifiedAt when present', () => {
-    const host = render({ publishedAt: hoursAgo(24 * 30), verifiedAt: hoursAgo(2) });
+  it('measures staleness from publishedAt', () => {
+    const host = render({ publishedAt: hoursAgo(2), createdAt: hoursAgo(24 * 30) });
     expect(host.querySelector('.price-stamp--stale')).toBeNull();
   });
 
@@ -93,8 +93,8 @@ describe('PromotionPriceStampComponent', () => {
     expect(host.querySelector('.price-stamp')).toBeNull();
   });
 
-  it('is not rendered when there is no verifiedAt or publishedAt', () => {
-    expect(render({ publishedAt: undefined, verifiedAt: null }).querySelector('.price-stamp')).toBeNull();
+  it('is not rendered when there is no publishedAt or createdAt', () => {
+    expect(render({ publishedAt: undefined, createdAt: '' }).querySelector('.price-stamp')).toBeNull();
   });
 
   it('falls back to a generic store word when the store is unknown', () => {
@@ -105,20 +105,20 @@ describe('PromotionPriceStampComponent', () => {
   describe('date part (hoje / DD/MM) in the America/Fortaleza calendar', () => {
     it('shows "hoje" with the time for a stamp from today, keeping the rest of the text', () => {
       clock.now = Date.parse('2026-09-20T22:00:00Z'); // 19:00 em Fortaleza
-      const host = render({ verifiedAt: '2026-09-20T19:32:00Z' });
+      const host = render({ publishedAt: '2026-09-20T19:32:00Z' });
       expect(stampText(host)).toContain('Preço de hoje 16:32 · pode mudar; vale o preço na Amazon ao comprar');
       expect(host.querySelector('time')?.getAttribute('datetime')).toBe('2026-09-20T19:32:00.000Z');
     });
 
     it('keeps DD/MM HH:mm for the previous day', () => {
       clock.now = Date.parse('2026-09-20T22:00:00Z');
-      const host = render({ verifiedAt: '2026-09-19T19:32:00Z' });
+      const host = render({ publishedAt: '2026-09-19T19:32:00Z' });
       expect(stampText(host)).toContain('Preço de 19/09 16:32 · pode mudar; vale o preço na Amazon ao comprar');
     });
 
     it('treats 23:59 as today and 00:00 of the next day as another day', () => {
       clock.now = Date.parse('2026-09-21T02:59:00Z'); // 23:59 de 20/09 em Fortaleza
-      expect(stampText(render({ verifiedAt: '2026-09-20T15:00:00Z' }))).toContain('Preço de hoje 12:00 ·');
+      expect(stampText(render({ publishedAt: '2026-09-20T15:00:00Z' }))).toContain('Preço de hoje 12:00 ·');
 
       clock.now = Date.parse('2026-09-21T03:00:00Z'); // 00:00 de 21/09
       fixture.detectChanges();
@@ -127,14 +127,14 @@ describe('PromotionPriceStampComponent', () => {
 
     it('uses the Fortaleza day when the server or browser clock is in UTC (02:30Z is 23:30 of today)', () => {
       clock.now = Date.parse('2026-09-21T02:30:00Z');
-      expect(stampText(render({ verifiedAt: '2026-09-21T00:10:00Z' }))).toContain('Preço de hoje 21:10 ·');
+      expect(stampText(render({ publishedAt: '2026-09-21T00:10:00Z' }))).toContain('Preço de hoje 21:10 ·');
     });
 
     it('never says "hoje" before hydration: the server and the first browser render show the absolute date', () => {
       clock.now = Date.parse('2026-09-20T22:00:00Z');
       // afterNextRender não roda no servidor; bloquear a troca reproduz esse render.
       const setReady = spyOn(fixture.componentInstance.ready, 'set').and.stub();
-      const host = render({ verifiedAt: '2026-09-20T19:32:00Z' });
+      const host = render({ publishedAt: '2026-09-20T19:32:00Z' });
       expect(setReady).toHaveBeenCalledWith(true);
       expect(stampText(host)).toContain('Preço de 20/09 16:32 · pode mudar;');
       expect(host.textContent).not.toContain('hoje');
@@ -142,7 +142,7 @@ describe('PromotionPriceStampComponent', () => {
 
     it('rewrites "hoje" as the date when the day changes while the tab stays open', () => {
       clock.now = Date.parse('2026-09-21T02:59:00Z'); // 23:59 de 20/09
-      const host = render({ verifiedAt: '2026-09-20T15:00:00Z' });
+      const host = render({ publishedAt: '2026-09-20T15:00:00Z' });
       expect(host.querySelector('time')?.textContent?.trim()).toBe('hoje 12:00');
 
       clock.now = Date.parse('2026-09-21T03:01:00Z'); // passou da meia-noite

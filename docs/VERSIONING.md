@@ -2,7 +2,7 @@
 
 ## Versão atual
 
-**0.7.2**
+**0.7.3**
 
 ## Convenção
 
@@ -29,6 +29,7 @@ Usamos [SemVer](https://semver.org/) simplificado:
 
 | Versão | Data       | Descrição |
 |--------|------------|-----------|
+| 0.7.3  | 2026-09-22 | Carimbo de preço passa a usar a mesma data de publicação mostrada ao lado de quem publicou (publishedAt), em vez de verifiedAt, para não mostrar dois horários diferentes para a mesma promoção |
 | 0.7.2  | 2026-09-20 | Carimbo de preço mostra "hoje HH:mm" no lugar da data quando o carimbo é do dia (calendário de America/Fortaleza) e continua "DD/MM HH:mm" nos outros dias; SSR e prerender só escrevem a data absoluta e o navegador troca para "hoje" depois da hidratação |
 | 0.7.1  | 2026-09-20 | Banner de consentimento de métricas deixa de vir no HTML do servidor e do prerender e só aparece no navegador, após a hidratação, para quem ainda não escolheu (não pisca mais para quem já aceitou ou recusou); botão "Ir para <loja>" alinhado pelo topo com "Ver detalhes", "Promoções" e "Compartilhar" no card e no detalhe |
 | 0.7.0  | 2026-09-20 | Carimbo de preço nas ofertas de afiliado ("Preço de DD/MM HH:mm · pode mudar; vale o preço na loja ao comprar", com link para a seção de preços da Transparência) e marcação "Preço pode ter mudado" após 7 dias; contadores de voto e "Ainda não há comentários" ocultos enquanto zerados; corrige "Ver detalhes" quebrando linha no celular e "Vendido por/Entregue por" sobre a imagem no detalhe em desktop |
